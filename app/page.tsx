@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Area, AreaChart } from 'recharts';
-import { AlertTriangle, TrendingUp, Users, Clock, Search, Shield, Zap, Target, Skull, Flame, Building2, Calendar, AlertCircle, Languages, Cpu, Sparkles, Bot, ClipboardCheck, Database, FileText, Workflow, Activity, Eye, ChevronRight, CheckCircle2, BarChart3, Brain, ArrowUpRight, History, RefreshCw, TrendingDown, Info } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Users, Clock, Search, Shield, Zap, Target, Skull, Flame, Building2, Calendar, AlertCircle, Languages, Cpu, Sparkles, Bot, ClipboardCheck, Database, FileText, Workflow, Activity, Eye, ChevronRight, CheckCircle2, BarChart3, Brain, ArrowUpRight, History, RefreshCw, TrendingDown, Info, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { calculateAIRisk, RISK_LEVEL_INFO, RiskInputData, RiskOutputResult } from '@/lib/ai_risk_calculator_v2';
 
@@ -195,6 +195,10 @@ const translations = {
     sources2: 'Stanford Digital Economy Lab, Gallup, World Bank',
     disclaimer: 'This website data is for reference only and does not constitute investment or career advice.',
     disclaimer2: 'All statistics cited from public research reports and news sources.',
+
+    // 研究报告按钮
+    researchReport: 'Research Report',
+    researchReportTitle: 'Read the comprehensive research report on AI\'s impact on labor',
 
     // 技术标签
     techLLM: 'LLM',
@@ -541,6 +545,10 @@ const translations = {
     sources2: '斯坦福数字经济实验室、Gallup、世界银行',
     disclaimer: '本网站数据仅供参考，不构成投资或职业建议。',
     disclaimer2: '所有统计数据引用自公开研究报告和新闻来源。',
+
+    // 研究报告按钮
+    researchReport: '研究报告',
+    researchReportTitle: '阅读关于AI对劳动力影响的综合研究报告',
 
     // 技术标签
     techLLM: 'LLM',
@@ -985,6 +993,22 @@ function LanguageButton({ lang, setLang }: { lang: Language; setLang: (lang: Lan
       <Languages className="w-5 h-5" />
       <span className="font-medium">{lang === 'en' ? 'EN' : '中文'}</span>
     </motion.button>
+  );
+}
+
+// 研究报告按钮
+function ResearchButton({ lang, t }: { lang: Language; t: typeof translations.en }) {
+  return (
+    <motion.a
+      href="/research"
+      className="fixed top-6 left-6 z-50 flex items-center gap-2 bg-primary/90 hover:bg-primary text-white px-4 py-2 rounded-lg border border-primary transition-all card-hover shadow-lg shadow-primary/20"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      title={t.researchReportTitle}
+    >
+      <BookOpen className="w-5 h-5" />
+      <span className="font-medium hidden md:inline">{t.researchReport}</span>
+    </motion.a>
   );
 }
 
@@ -2227,6 +2251,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <LanguageButton lang={lang} setLang={setLang} />
+      <ResearchButton lang={lang} t={t} />
       <HeroSection lang={lang} t={t} />
       <ProgressStages lang={lang} t={t} />
       <HistoricalContextSection lang={lang} t={t} />
