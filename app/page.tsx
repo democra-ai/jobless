@@ -307,6 +307,56 @@ const translations = {
     modeMixed: 'Mixed Impact',
     modeAugmentation: 'Strong Augmentation',
     modeCollaboration: 'Collaboration',
+
+    // 新增：职业分化章节
+    divergenceTitle: 'The Career Divergence: Time is the Hidden Variable',
+    divergenceSubtitle: 'Every technical person is doing the same math. How much is it costing you to stay where you are?',
+    divergenceSource: 'Source: Amy Tam, Bloomberg Beta Investor',
+
+    // 技能转移
+    skillShiftTitle: 'The Skill Shift: Execution → Judgment',
+    skillShiftOld: 'Old: "Can you solve this problem?"',
+    skillShiftNew: 'New: "Can you tell which problems are worth solving?"',
+    skillShiftCapabilities: 'Judgment capabilities:',
+    skillShiftCap1: 'Orchestrate systems',
+    skillShiftCap2: 'Run parallel bets',
+    skillShiftCap3: 'Have taste to know what matters',
+    skillShiftCap4: 'Distinguish signal from noise',
+
+    // 时间对比
+    timeComparisonTitle: 'The Timing Cost Has Changed',
+    timeYearAgo: 'A Year Ago',
+    timeYearAgoDesc: 'Career decisions felt reversible. Take the wrong job, course correct in 18 months.',
+    timeNow: 'Now',
+    timeNowDesc: 'Divergence accelerating. Every quarter in the wrong seat = quarter of compounding missed.',
+    timeGap: 'The Gap',
+    timeGapDesc: 'People who moved 6 months ago are building on what they learned. You\'re not.',
+
+    // 舒适陷阱
+    comfortTrapTitle: 'The Comfort Trap',
+    comfortTrapDesc: '"Fine" has a cost that doesn\'t show up in your paycheck.',
+    comfortTrapQuote: 'The hardest problems aren\'t here anymore, and the org hasn\'t caught up to that fact.',
+
+    // 被动杠杆
+    passiveLeverageTitle: 'Passive Leverage',
+    passiveLeverageDesc: 'Set experiments in motion. Compounding happens whether or not you\'re at your desk.',
+    passiveLeverageQuote: 'You set the experiments in motion, and the compounding happens whether or not you\'re at your desk.',
+
+    // 赢家公司特征
+    winningCompaniesTitle: 'What Winning Companies Offer',
+    winningComp1: 'Maximum surface area for your judgment',
+    winningComp2: 'Zero distance between taste and what gets built',
+    winningComp3: 'Surrounded by people who have tricks you haven\'t learned',
+    winningComp4: 'Enough compute to actually run experiments',
+
+    // 声望 vs 亲近度
+    prestigeProximityTitle: 'Prestige vs Proximity',
+    prestigeProximityDesc: 'Big lab resume still opens doors. But "I was at [top lab]" is depreciating while "I did frontier research where my judgment shaped direction" is appreciating.',
+    prestigeQuote: 'You joined to touch the thing and you\'re three layers removed from it.',
+
+    // 关键洞察
+    divergenceInsight: 'The Math:',
+    divergenceInsightText: 'Both bets are rational. But only one of them is time-sensitive.',
   },
   zh: {
     // 首屏
@@ -603,6 +653,56 @@ const translations = {
     modeMixed: '混合影响',
     modeAugmentation: '强增强',
     modeCollaboration: '协作',
+
+    // 新增：职业分化章节
+    divergenceTitle: '职业分化：时间是隐形变量',
+    divergenceSubtitle: '每个技术人员都在算同一笔账。留在原地正在付出什么代价？',
+    divergenceSource: '来源：Amy Tam，Bloomberg Beta 投资人',
+
+    // 技能转移
+    skillShiftTitle: '技能转移：执行力 → 判断力',
+    skillShiftOld: '过去："你能解决这个问题吗？"',
+    skillShiftNew: '现在："你能判断哪些问题值得解决吗？"',
+    skillShiftCapabilities: '判断力核心能力：',
+    skillShiftCap1: '系统能力',
+    skillShiftCap2: '并行投注',
+    skillShiftCap3: '品味判断',
+    skillShiftCap4: '信号与噪声识别',
+
+    // 时间对比
+    timeComparisonTitle: '时间成本已经改变',
+    timeYearAgo: '一年前',
+    timeYearAgoDesc: '职业决策感觉可逆。选错工作，18个月后调整。',
+    timeNow: '现在',
+    timeNowDesc: '分化加速。在错误位置待一个季度 = 错过一个季度的复利。',
+    timeGap: '差距',
+    timeGapDesc: '6个月前转型的人正在在上个季度学习的基础上构建。你没有。',
+
+    // 舒适陷阱
+    comfortTrapTitle: '舒适陷阱',
+    comfortTrapDesc: '"还行"有代价——代价不体现在工资单上。',
+    comfortTrapQuote: '最难的问题已经不在这里了，而组织还没意识到这个事实。',
+
+    // 被动杠杆
+    passiveLeverageTitle: '被动杠杆',
+    passiveLeverageDesc: '设置实验在运动中。无论你在不在桌前，复利都在发生。',
+    passiveLeverageQuote: '你设置实验在运动中，无论你不在不在桌前，复利都在发生。',
+
+    // 赢家公司特征
+    winningCompaniesTitle: '赢得人才战的公司特征',
+    winningComp1: '判断力有最大的表面积',
+    winningComp2: '品味与实际构建之间的距离为零',
+    winningComp3: '被拥有你还不知道技巧的人包围',
+    winningComp4: '有足够的计算资源实际运行实验',
+
+    // 声望 vs 亲近度
+    prestigeProximityTitle: '声望 vs 亲近度',
+    prestigeProximityDesc: '大实验室简历仍然能打开每扇门。但"我在[顶级实验室]"的简历价值正在贬值，而"我在判断塑造方向的地方进行前沿研究"的价值在升值。',
+    prestigeQuote: '你加入是为了接触到那个东西，但你现在离它隔着三层。',
+
+    // 关键洞察
+    divergenceInsight: '这笔账：',
+    divergenceInsightText: '两个赌注都合理。但只有一个是时间敏感的。',
   },
 };
 
@@ -1525,6 +1625,198 @@ function IndustryDeepDiveSection({ lang, t }: { lang: Language; t: typeof transl
   );
 }
 
+// 职业分化章节 - Amy Tam 内容
+function CareerDivergenceSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
+  return (
+    <section className="py-20 px-6 bg-surface">
+      <div className="max-w-6xl mx-auto">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-3xl md:text-5xl font-bold text-center mb-4"
+        >
+          {t.divergenceTitle}
+        </motion.h2>
+        <p className="text-center text-foreground-muted mb-4 max-w-2xl mx-auto">
+          {t.divergenceSubtitle}
+        </p>
+        <p className="text-center text-xs text-foreground-muted mb-16">
+          {t.divergenceSource}
+        </p>
+
+        {/* 技能转移卡片 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-12 bg-gradient-to-br from-risk-high/10 to-risk-medium/10 rounded-2xl p-8 border border-risk-high/30"
+        >
+          <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
+            <Brain className="w-7 h-7 text-risk-high" />
+            {t.skillShiftTitle}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="bg-background/50 rounded-lg p-4 border border-risk-high/20">
+              <div className="text-xs text-foreground-muted mb-2">OLD</div>
+              <div className="font-semibold text-foreground-muted">{t.skillShiftOld}</div>
+            </div>
+            <div className="bg-background/50 rounded-lg p-4 border border-risk-low/30">
+              <div className="text-xs text-foreground-muted mb-2">NEW</div>
+              <div className="font-semibold text-risk-low">{t.skillShiftNew}</div>
+            </div>
+          </div>
+          <div className="bg-background/30 rounded-lg p-4">
+            <div className="text-sm text-foreground-muted mb-3">{t.skillShiftCapabilities}</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-risk-low flex-shrink-0" />
+                <span>{t.skillShiftCap1}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-risk-low flex-shrink-0" />
+                <span>{t.skillShiftCap2}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-risk-low flex-shrink-0" />
+                <span>{t.skillShiftCap3}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-risk-low flex-shrink-0" />
+                <span>{t.skillShiftCap4}</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 时间对比 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="mb-12"
+        >
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+            <Clock className="w-6 h-6 text-risk-high" />
+            {t.timeComparisonTitle}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-surface-elevated/50 rounded-lg p-5 border border-surface-elevated">
+              <div className="text-xs text-foreground-muted mb-2">{t.timeYearAgo}</div>
+              <div className="text-sm">{t.timeYearAgoDesc}</div>
+            </div>
+            <div className="bg-risk-high/20 rounded-lg p-5 border border-risk-high/30">
+              <div className="text-xs text-risk-high font-bold mb-2">{t.timeNow}</div>
+              <div className="text-sm text-foreground">{t.timeNowDesc}</div>
+            </div>
+            <div className="bg-risk-medium/20 rounded-lg p-5 border border-risk-medium/30">
+              <div className="text-xs text-risk-medium font-bold mb-2">{t.timeGap}</div>
+              <div className="text-sm">{t.timeGapDesc}</div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 舒适陷阱 & 被动杠杆 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="bg-surface rounded-lg p-6 border border-surface-elevated"
+          >
+            <h4 className="font-bold text-lg mb-3 flex items-center gap-2">
+              <TrendingDown className="w-5 h-5 text-risk-high" />
+              {t.comfortTrapTitle}
+            </h4>
+            <p className="text-sm text-foreground-muted mb-4">{t.comfortTrapDesc}</p>
+            <div className="bg-background/50 rounded p-3 border-l-4 border-risk-high">
+              <p className="text-sm italic text-foreground-muted">"{t.comfortTrapQuote}"</p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="bg-surface rounded-lg p-6 border border-surface-elevated"
+          >
+            <h4 className="font-bold text-lg mb-3 flex items-center gap-2">
+              <Zap className="w-5 h-5 text-risk-low" />
+              {t.passiveLeverageTitle}
+            </h4>
+            <p className="text-sm text-foreground-muted mb-4">{t.passiveLeverageDesc}</p>
+            <div className="bg-background/50 rounded p-3 border-l-4 border-risk-low">
+              <p className="text-sm italic text-foreground-muted">"{t.passiveLeverageQuote}"</p>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* 赢家公司特征 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="mb-12 bg-risk-low/10 rounded-lg p-6 border border-risk-low/30"
+        >
+          <h4 className="font-bold text-lg mb-4">{t.winningCompaniesTitle}</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="flex items-start gap-3">
+              <ArrowUpRight className="w-5 h-5 text-risk-low flex-shrink-0 mt-0.5" />
+              <span className="text-sm">{t.winningComp1}</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <ArrowUpRight className="w-5 h-5 text-risk-low flex-shrink-0 mt-0.5" />
+              <span className="text-sm">{t.winningComp2}</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <ArrowUpRight className="w-5 h-5 text-risk-low flex-shrink-0 mt-0.5" />
+              <span className="text-sm">{t.winningComp3}</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <ArrowUpRight className="w-5 h-5 text-risk-low flex-shrink-0 mt-0.5" />
+              <span className="text-sm">{t.winningComp4}</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 声望 vs 亲近度 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5 }}
+          className="mb-12 bg-surface rounded-lg p-6 border border-surface-elevated"
+        >
+          <h4 className="font-bold text-lg mb-3 flex items-center gap-2">
+            <Target className="w-5 h-5 text-data-blue" />
+            {t.prestigeProximityTitle}
+          </h4>
+          <p className="text-sm text-foreground-muted mb-4">{t.prestigeProximityDesc}</p>
+          <div className="bg-background/50 rounded p-3 border-l-4 border-data-blue">
+            <p className="text-sm italic text-foreground-muted">"{t.prestigeQuote}"</p>
+          </div>
+        </motion.div>
+
+        {/* 关键洞察 */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.6 }}
+          className="bg-gradient-to-r from-risk-high/20 via-risk-medium/20 to-risk-high/20 rounded-lg p-6 border border-risk-high/30 text-center"
+        >
+          <p className="text-sm text-foreground-muted mb-2">{t.divergenceInsight}</p>
+          <p className="text-lg font-bold text-risk-high">{t.divergenceInsightText}</p>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 // 维度滑块组件
 function DimensionSlider({
   title,
@@ -1943,6 +2235,7 @@ export default function Home() {
       <LayoffCasesSection lang={lang} t={t} />
       <NetJobImpactSection lang={lang} t={t} />
       <IndustryDeepDiveSection lang={lang} t={t} />
+      <CareerDivergenceSection lang={lang} t={t} />
       <SurvivalIndexSection lang={lang} t={t} />
       <Footer lang={lang} t={t} />
     </main>
