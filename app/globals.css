@@ -1,22 +1,87 @@
 @import "tailwindcss";
 
 :root {
-  /* Jobless Design System - Tech Apocalypse Theme */
-  --background: #0a0a0f;
-  --surface: #12121a;
-  --surface-elevated: #1a1a25;
-  --foreground: #e8e8ec;
-  --foreground-muted: #8a8a9a;
+  /* === JOBLESS 2026 Design System === */
+  /* Concept: "Data Humanity" - Where data meets human impact */
 
-  /* Risk Colors */
-  --risk-high: #ff2d37;
-  --risk-medium: #ff9500;
-  --risk-low: #30d158;
-  --data-blue: #0a84ff;
+  /* Core Palette - Warm Dark Foundation */
+  --background: #0a090b;
+  --surface: #121014;
+  --surface-elevated: #1a171d;
+  --surface-card: #0f0d11;
 
-  /* Typography - System Fonts with Fallbacks */
-  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', 'Source Code Pro', monospace;
+  /* Text Hierarchy */
+  --foreground: #f4f1f5;
+  --foreground-muted: #9a95a0;
+  --foreground-dim: #5c5763;
+
+  /* Risk & Impact Colors - Sophisticated Warm/Cool Balance */
+  --risk-critical: #ff3d00; /* Deep Orange-Red */
+  --risk-high: #ff6d00;     /* Amber */
+  --risk-medium: #ffc107;   /* Warm Yellow */
+  --risk-low: #00c853;      /* Vibrant Green */
+  --risk-safe: #00e676;     /* Bright Green */
+
+  /* Brand Colors - Muted Professional */
+  --brand-primary: #b388ff;   /* Soft Purple - AI/Tech */
+  --brand-secondary: #ff6e40; /* Coral - Human/Impact */
+  --brand-accent: #64ffda;    /* Teal - Data/Insight */
+
+  /* Semantic Colors */
+  --data-blue: #7c4dff;
+  --data-cyan: #18ffff;
+  --accent-purple: #b388ff;
+  --accent-coral: #ff6e40;
+  --accent-teal: #64ffda;
+
+  /* Typography - Characterful Selection */
+  --font-display: 'Syne', sans-serif;      /* Bold headlines */
+  --font-body: 'Space Grotesk', sans-serif; /* Clean readable body */
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace; /* Data values */
+
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* Border Radius - Intentionally Varied */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-card: var(--surface-card);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-dim: var(--foreground-dim);
+  --color-risk-critical: var(--risk-critical);
+  --color-risk-high: var(--risk-high);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-low: var(--risk-low);
+  --color-risk-safe: var(--risk-safe);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-accent: var(--brand-accent);
+  --color-data-blue: var(--data-blue);
+  --color-data-cyan: var(--data-cyan);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-coral: var(--accent-coral);
+  --color-accent-teal: var(--accent-teal);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
 }
 
 @theme inline {
@@ -29,7 +94,10 @@
   --color-risk-medium: var(--risk-medium);
   --color-risk-low: var(--risk-low);
   --color-data-blue: var(--data-blue);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-cyan: var(--accent-cyan);
   --font-display: var(--font-display);
+  --font-body: var(--font-body);
   --font-mono: var(--font-mono);
 }
 
@@ -44,7 +112,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -194,3 +262,229 @@ body {
 .stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
 .stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
 .stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* === 2026 Calculator Design System === */
+
+/* Calculator Container - Depth & Layers */
+.calc-container {
+  background:
+    linear-gradient(145deg, rgba(18, 16, 20, 0.9), rgba(26, 23, 29, 0.95)),
+    linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 50%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.3),
+    0 20px 60px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.calc-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+/* Profession Buttons - Interactive & Expressive */
+.profession-btn {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.3s var(--ease-out);
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.profession-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.profession-btn:hover {
+  border-color: rgba(179, 136, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px -5px rgba(179, 136, 255, 0.3);
+}
+
+.profession-btn:hover::before {
+  opacity: 0.08;
+}
+
+.profession-btn.selected {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  border-color: transparent;
+  box-shadow: 0 4px 25px -5px rgba(179, 136, 255, 0.5);
+}
+
+/* Custom Slider - Refined & Touch-Friendly */
+.calc-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-elevated);
+  outline: none;
+}
+
+.calc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--foreground);
+  cursor: pointer;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 0 0 4px rgba(255, 255, 255, 0.05);
+  transition: all 0.2s var(--ease-out);
+}
+
+.calc-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 0 0 6px rgba(255, 255, 255, 0.08);
+}
+
+.calc-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--foreground);
+  cursor: pointer;
+  border: none;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 0 0 4px rgba(255, 255, 255, 0.05);
+}
+
+/* Result Cards - Glass & Depth */
+.result-card {
+  background:
+    linear-gradient(145deg, rgba(15, 13, 17, 0.8), rgba(18, 16, 20, 0.9)),
+    linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.2),
+    0 10px 40px -10px rgba(0, 0, 0, 0.4);
+}
+
+/* Insight Tags - Sophisticated */
+.insight-tag {
+  background: linear-gradient(135deg,
+    rgba(124, 77, 255, 0.12),
+    rgba(100, 255, 218, 0.08)
+  );
+  border: 1px solid rgba(124, 77, 255, 0.25);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Button - Primary Action */
+.calc-btn-primary {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  box-shadow:
+    0 4px 20px -5px rgba(179, 136, 255, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+.calc-btn-primary:hover {
+  box-shadow:
+    0 8px 30px -5px rgba(179, 136, 255, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+}
+
+/* Metric Display - Bold & Clear */
+.metric-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+/* Section Dividers - Subtle */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+}
+
+/* Risk Indicator Bars */
+@keyframes riskPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.risk-indicator {
+  animation: riskPulse 3s ease-in-out infinite;
+}
+
+/* Hover Lift Effect */
+.hover-lift {
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-out);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Data Display - Monospace */
+.data-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Subtle Glow for Important Elements */
+.subtle-glow {
+  box-shadow: 0 0 40px -10px rgba(179, 136, 255, 0.15);
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.status-badge.critical {
+  background: rgba(255, 61, 0, 0.15);
+  color: var(--risk-critical);
+  border: 1px solid rgba(255, 61, 0, 0.3);
+}
+
+.status-badge.high {
+  background: rgba(255, 109, 0, 0.15);
+  color: var(--risk-high);
+  border: 1px solid rgba(255, 109, 0, 0.3);
+}
+
+.status-badge.medium {
+  background: rgba(255, 193, 7, 0.15);
+  color: var(--risk-medium);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-badge.low {
+  background: rgba(0, 200, 83, 0.15);
+  color: var(--risk-low);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+}

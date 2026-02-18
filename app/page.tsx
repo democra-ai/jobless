@@ -2107,82 +2107,105 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   };
 
   return (
-    <section className="py-20 px-6 bg-surface">
-      <div className="max-w-4xl mx-auto">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
+    <section className="py-24 px-4 md:px-6 relative overflow-hidden">
+      {/* Background gradient effect */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-surface/50 to-background pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        {/* Title with distinctive styling */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4"
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
         >
-          {t.survivalTitle}
-        </motion.h2>
-        <p className="text-center text-foreground-muted mb-8">
-          {t.survivalSubtitle}
-        </p>
+          <h2 className="calc-title text-4xl md:text-6xl lg:text-7xl mb-4 bg-gradient-to-r from-foreground via-foreground to-foreground-muted bg-clip-text text-transparent">
+            {t.survivalTitle}
+          </h2>
+          <p className="text-foreground-muted text-lg md:text-xl max-w-2xl mx-auto">
+            {t.survivalSubtitle}
+          </p>
+        </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-background rounded-2xl p-6 md:p-8 border border-surface-elevated"
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="calc-container rounded-3xl p-6 md:p-10 relative"
         >
           {!result ? (
-            <>
-              {/* 职业快速预设 */}
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <Users className="w-5 h-5 text-data-blue" />
-                  <h3 className="font-bold text-lg">{t.selectProfession}</h3>
+            <div className="space-y-8">
+              {/* 职业快速预设 - Redesigned */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">{t.selectProfession}</h3>
+                    <p className="text-sm text-foreground-muted">{t.selectProfessionDesc}</p>
+                  </div>
                 </div>
-                <p className="text-sm text-foreground-muted mb-3">{t.selectProfessionDesc}</p>
 
-                {/* 职业按钮网格 */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
-                  {Object.entries(PROFESSION_PRESETS).map(([profKey, prof]) => {
+                {/* 职业按钮网格 - Enhanced styling */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                  {Object.entries(PROFESSION_PRESETS).map(([profKey, prof], index) => {
                     const isSelected = selectedProfession === profKey;
                     return (
-                      <button
+                      <motion.button
                         key={profKey}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
                         onClick={() => applyProfessionPreset(isSelected ? null : profKey)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        className={`profession-btn relative px-4 py-3 rounded-xl text-sm font-medium border transition-all ${
                           isSelected
-                            ? 'bg-data-blue text-white shadow-lg scale-105'
-                            : 'bg-surface hover:bg-surface-elevated border border-surface-elevated'
+                            ? 'selected text-white border-transparent'
+                            : 'bg-surface-card border-white/8'
                         }`}
                       >
-                        {prof.name[lang]}
-                      </button>
+                        <span className="relative z-10">{prof.name[lang]}</span>
+                      </motion.button>
                     );
                   })}
                 </div>
 
-                {/* 当前选择提示 */}
+                {/* 当前选择提示 - Enhanced */}
                 {selectedProfession && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-2 bg-data-blue/10 border border-data-blue/30 rounded-lg flex items-center gap-2 text-sm"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="overflow-hidden"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-data-blue flex-shrink-0" />
-                    <span className="text-foreground-muted">
-                      {lang === 'en' ? 'Preset: ' : '预设：'}
-                      <span className="font-semibold text-data-blue">
-                        {PROFESSION_PRESETS[selectedProfession].name[lang]}
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-brand-primary/10 to-brand-secondary/10 border border-brand-primary/20">
+                      <CheckCircle2 className="w-5 h-5 text-brand-primary flex-shrink-0" />
+                      <span className="text-sm">
+                        <span className="text-foreground-muted">
+                          {lang === 'en' ? 'Preset: ' : '预设：'}
+                        </span>
+                        <span className="font-semibold text-white ml-1">
+                          {PROFESSION_PRESETS[selectedProfession].name[lang]}
+                        </span>
+                        <span className="text-foreground-muted ml-1">
+                          {lang === 'en' ? '— adjust below' : '— 可在下方微调'}
+                        </span>
                       </span>
-                      {lang === 'en' ? ' - adjust sliders below' : ' - 可在下方微调'}
-                    </span>
+                    </div>
                   </motion.div>
                 )}
               </div>
 
-              {/* 四个核心维度 */}
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Brain className="w-5 h-5 text-risk-high" />
-                  <h3 className="font-bold text-lg">{t.coreDimensions}</h3>
+              {/* 四个核心维度 - Redesigned */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-risk-critical to-risk-high flex items-center justify-center">
+                    <Brain className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-lg">{t.coreDimensions}</h3>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <DimensionSlider
                     title={t.dim1Title}
                     desc={t.dim1Desc}
@@ -2192,7 +2215,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     lowLabel={t.dim1Low}
                     highLabel={t.dim1High}
                     icon={Database}
-                    color="#6366f1"
+                    color="#7c4dff"
                   />
                   <DimensionSlider
                     title={t.dim2Title}
@@ -2203,7 +2226,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     lowLabel={t.dim2Low}
                     highLabel={t.dim2High}
                     icon={FileText}
-                    color="#8b5cf6"
+                    color="#b388ff"
                   />
                   <DimensionSlider
                     title={t.dim3Title}
@@ -2214,7 +2237,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     lowLabel={t.dim3Low}
                     highLabel={t.dim3High}
                     icon={Workflow}
-                    color="#ec4899"
+                    color="#64ffda"
                   />
                   <DimensionSlider
                     title={t.dim4Title}
@@ -2225,197 +2248,252 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     lowLabel={t.dim4Low}
                     highLabel={t.dim4High}
                     icon={Bot}
-                    color="#f43f5e"
+                    color="#ff6e40"
                   />
                 </div>
               </div>
 
-              {/* 可选保护因素切换按钮 */}
+              {/* 可选保护因素切换按钮 - Enhanced */}
               <button
                 onClick={() => setShowOptional(!showOptional)}
-                className="w-full mb-4 py-2 px-4 bg-surface-elevated hover:bg-surface-elevated/80 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-surface-elevated/50 hover:bg-surface-elevated rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 border border-surface-elevated"
               >
                 {showOptional ? <ChevronRight className="w-4 h-4 rotate-90" /> : <ChevronRight className="w-4 h-4" />}
                 {showOptional ? t.toggleRequired : t.toggleOptional}
               </button>
 
-              {/* 可选保护因素 */}
+              {/* 可选保护因素 - Enhanced */}
               {showOptional && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mb-6 p-4 bg-surface rounded-xl border border-surface-elevated"
+                  className="overflow-hidden"
                 >
-                  <div className="flex items-center gap-2 mb-4">
-                    <Shield className="w-4 h-4 text-risk-low" />
-                    <h4 className="font-semibold text-sm">{t.protectiveFactors}</h4>
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-xs text-foreground-muted mb-1 block">{t.ctx1Title}</label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={protections.creativeRequirement}
-                        onChange={(e) => updateProtection('creativeRequirement', parseFloat(e.target.value))}
-                        className="w-full h-2 bg-surface-elevated rounded-full appearance-none cursor-pointer"
-                        style={{
-                          background: `linear-gradient(to right, #30d158 0%, #30d158 ${protections.creativeRequirement}%, var(--surface-elevated) ${protections.creativeRequirement}%, var(--surface-elevated) 100%)`
-                        }}
-                      />
-                      <div className="text-xs text-center mt-1 text-risk-low font-medium">{Math.round(protections.creativeRequirement)}%</div>
+                  <div className="p-5 rounded-xl bg-surface border border-surface-elevated">
+                    <div className="flex items-center gap-2 mb-5">
+                      <Shield className="w-5 h-5 text-risk-low" />
+                      <h4 className="font-semibold">{t.protectiveFactors}</h4>
                     </div>
-                    <div>
-                      <label className="text-xs text-foreground-muted mb-1 block">{t.ctx2Title}</label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={protections.humanInteraction}
-                        onChange={(e) => updateProtection('humanInteraction', parseFloat(e.target.value))}
-                        className="w-full h-2 bg-surface-elevated rounded-full appearance-none cursor-pointer"
-                        style={{
-                          background: `linear-gradient(to right, #30d158 0%, #30d158 ${protections.humanInteraction}%, var(--surface-elevated) ${protections.humanInteraction}%, var(--surface-elevated) 100%)`
-                        }}
-                      />
-                      <div className="text-xs text-center mt-1 text-risk-low font-medium">{Math.round(protections.humanInteraction)}%</div>
-                    </div>
-                    <div>
-                      <label className="text-xs text-foreground-muted mb-1 block">{t.ctx3Title}</label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={protections.physicalOperation}
-                        onChange={(e) => updateProtection('physicalOperation', parseFloat(e.target.value))}
-                        className="w-full h-2 bg-surface-elevated rounded-full appearance-none cursor-pointer"
-                        style={{
-                          background: `linear-gradient(to right, #30d158 0%, #30d158 ${protections.physicalOperation}%, var(--surface-elevated) ${protections.physicalOperation}%, var(--surface-elevated) 100%)`
-                        }}
-                      />
-                      <div className="text-xs text-center mt-1 text-risk-low font-medium">{Math.round(protections.physicalOperation)}%</div>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between text-xs text-foreground-muted mb-2">
+                          <span>{t.ctx1Title}</span>
+                          <span className="data-value text-risk-safe">{Math.round(protections.creativeRequirement)}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={protections.creativeRequirement}
+                          onChange={(e) => updateProtection('creativeRequirement', parseFloat(e.target.value))}
+                          className="calc-slider"
+                          style={{
+                            background: `linear-gradient(to right, var(--risk-safe) 0%, var(--risk-safe) ${protections.creativeRequirement}%, var(--surface-elevated) ${protections.creativeRequirement}%, var(--surface-elevated) 100%)`
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs text-foreground-muted mb-2">
+                          <span>{t.ctx2Title}</span>
+                          <span className="data-value text-risk-safe">{Math.round(protections.humanInteraction)}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={protections.humanInteraction}
+                          onChange={(e) => updateProtection('humanInteraction', parseFloat(e.target.value))}
+                          className="calc-slider"
+                          style={{
+                            background: `linear-gradient(to right, var(--risk-safe) 0%, var(--risk-safe) ${protections.humanInteraction}%, var(--surface-elevated) ${protections.humanInteraction}%, var(--surface-elevated) 100%)`
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs text-foreground-muted mb-2">
+                          <span>{t.ctx3Title}</span>
+                          <span className="data-value text-risk-safe">{Math.round(protections.physicalOperation)}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={protections.physicalOperation}
+                          onChange={(e) => updateProtection('physicalOperation', parseFloat(e.target.value))}
+                          className="calc-slider"
+                          style={{
+                            background: `linear-gradient(to right, var(--risk-safe) 0%, var(--risk-safe) ${protections.physicalOperation}%, var(--surface-elevated) ${protections.physicalOperation}%, var(--surface-elevated) 100%)`
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
               )}
 
-              <button
+              {/* Calculate button - Enhanced */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={calculateRisk}
-                className="w-full bg-risk-high hover:bg-risk-high/90 text-white py-4 rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
+                className="calc-btn-primary w-full bg-gradient-to-r from-data-blue to-accent-purple hover:from-data-blue/90 hover:to-accent-purple/90 text-white py-5 rounded-xl font-semibold transition-all flex items-center justify-center gap-3 text-lg shadow-lg shadow-data-blue/20"
               >
-                <BarChart3 className="w-5 h-5" />
+                <BarChart3 className="w-6 h-6" />
                 {t.calculate}
-              </button>
-            </>
+              </motion.button>
+            </div>
           ) : (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
             >
-              {/* 风险等级标题 */}
-              <div className="text-center mb-6">
-                <div className="text-sm text-foreground-muted mb-2">{t.riskLevel}</div>
-                <div className="text-2xl font-bold" style={{ color: RISK_LEVEL_INFO[result.riskLevel].color }}>
-                  {result.riskLevel === 'very-low' ? t.riskVeryLow :
-                   result.riskLevel === 'low' ? t.riskLow :
-                   result.riskLevel === 'medium' ? t.riskMedium :
-                   result.riskLevel === 'high' ? t.riskHigh : t.riskCritical}
+              {/* Main Risk Level Display - Bold Typography */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="result-card rounded-2xl p-8 text-center relative overflow-hidden"
+              >
+                <div
+                  className="absolute top-0 left-0 right-0 h-1"
+                  style={{ background: `linear-gradient(90deg, ${RISK_LEVEL_INFO[result.riskLevel].color}, transparent)` }}
+                />
+                <div className="relative z-10">
+                  <div className="text-sm text-foreground-muted uppercase tracking-wider mb-3">{t.riskLevel}</div>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, type: 'spring' }}
+                    className="text-5xl md:text-6xl font-bold mb-3"
+                    style={{ color: RISK_LEVEL_INFO[result.riskLevel].color, fontFamily: 'var(--font-display)' }}
+                  >
+                    {result.riskLevel === 'very-low' ? t.riskVeryLow :
+                     result.riskLevel === 'low' ? t.riskLow :
+                     result.riskLevel === 'medium' ? t.riskMedium :
+                     result.riskLevel === 'high' ? t.riskHigh : t.riskCritical}
+                  </motion.div>
+                  <div className="text-sm text-foreground-muted">{RISK_LEVEL_INFO[result.riskLevel].description[lang]}</div>
                 </div>
+              </motion.div>
+
+              {/* Three Metrics - Clean Number Display */}
+              <div className="grid grid-cols-3 gap-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="result-card rounded-xl p-6 text-center group hover-lift"
+                >
+                  <div className="metric-value text-4xl md:text-5xl mb-2" style={{ color: 'var(--risk-critical)' }}>
+                    {result.replacementProbability}%
+                  </div>
+                  <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric1Title}</div>
+                  <div className="text-xs text-foreground-muted/60 mt-1">{t.metric1Desc}</div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="result-card rounded-xl p-6 text-center group hover-lift"
+                >
+                  <div className="metric-value text-4xl md:text-5xl mb-2" style={{ color: 'var(--risk-high)' }}>
+                    {result.predictedReplacementYear}
+                  </div>
+                  <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric2Title}</div>
+                  <div className="text-xs text-foreground-muted/60 mt-1">{lang === 'en' ? 'Projected' : '预计年份'}</div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="result-card rounded-xl p-6 text-center group hover-lift"
+                >
+                  <div className="metric-value text-4xl md:text-5xl mb-2" style={{ color: 'var(--brand-primary)' }}>
+                    {result.currentReplacementDegree}%
+                  </div>
+                  <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric3Title}</div>
+                  <div className="text-xs text-foreground-muted/60 mt-1">{t.metric3Desc}</div>
+                </motion.div>
               </div>
 
-              {/* 三个核心指标 */}
-              <div className="mb-6">
-                <h4 className="font-bold mb-4 flex items-center justify-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-risk-high" />
-                  {t.threeMetrics}
-                </h4>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-surface rounded-xl p-4 border-2 text-center" style={{ borderColor: '#f43f5e' }}>
-                    <Activity className="w-6 h-6 mx-auto mb-2" style={{ color: '#f43f5e' }} />
-                    <div className="text-xs text-foreground-muted mb-1">{t.metric1Title}</div>
-                    <div className="text-2xl font-bold" style={{ color: '#f43f5e' }}>{result.replacementProbability}%</div>
-                  </div>
-                  <div className="bg-surface rounded-xl p-4 border-2 text-center" style={{ borderColor: '#f59e0b' }}>
-                    <Calendar className="w-6 h-6 mx-auto mb-2" style={{ color: '#f59e0b' }} />
-                    <div className="text-xs text-foreground-muted mb-1">{t.metric2Title}</div>
-                    <div className="text-2xl font-bold" style={{ color: '#f59e0b' }}>{result.predictedReplacementYear}</div>
-                  </div>
-                  <div className="bg-surface rounded-xl p-4 border-2 text-center" style={{ borderColor: '#6366f1' }}>
-                    <Bot className="w-6 h-6 mx-auto mb-2" style={{ color: '#6366f1' }} />
-                    <div className="text-xs text-foreground-muted mb-1">{t.metric3Title}</div>
-                    <div className="text-2xl font-bold" style={{ color: '#6366f1' }}>{result.currentReplacementDegree}%</div>
-                  </div>
-                </div>
+              {/* Confidence Interval - Sleek Bar */}
+              <div className="result-card rounded-xl p-4 flex items-center justify-between">
+                <span className="text-sm text-foreground-muted">{t.yearRange}</span>
+                <span className="font-mono font-bold text-lg">
+                  {result.confidenceInterval.earliest} — {result.confidenceInterval.latest}
+                </span>
               </div>
 
-              {/* 置信区间 */}
-              <div className="bg-surface rounded-lg p-3 border border-surface-elevated mb-4">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-foreground-muted">{t.yearRange}:</span>
-                  <span className="font-mono font-bold">
-                    {result.confidenceInterval.earliest} - {result.confidenceInterval.latest}
-                  </span>
-                </div>
-              </div>
-
-              {/* 洞察 */}
-              <div className="bg-surface rounded-xl p-4 border border-surface-elevated mb-4">
-                <h5 className="font-semibold mb-3 flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-data-blue" />
-                  {t.insights}
-                </h5>
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="text-foreground-muted">{t.primaryDriver}: </span>
-                    <span className="font-bold text-risk-high">{result.insights.primaryDriver}</span>
+              {/* Insights - Modern Tags */}
+              <div className="result-card rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center">
+                    <Eye className="w-4 h-4 text-white" />
                   </div>
-                  <div className="flex flex-wrap gap-1">
+                  <h5 className="font-semibold">{t.insights}</h5>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-foreground-muted">{t.primaryDriver}:</span>
+                    <span className="insight-tag px-3 py-1 rounded-full font-medium">{result.insights.primaryDriver}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
                     {result.insights.secondaryFactors.map((factor, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-risk-high/10 text-risk-high text-xs rounded">{factor}</span>
+                      <span key={i} className="insight-tag px-3 py-1 rounded-full text-xs font-medium">{factor}</span>
                     ))}
                   </div>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-2">
                     {result.insights.protectionFactors.map((factor, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-risk-low/20 text-risk-low text-xs rounded">{factor}</span>
+                      <span key={i} className="px-3 py-1 bg-risk-low/20 text-risk-low rounded-full text-xs font-medium border border-risk-low/30">{factor}</span>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* 建议 */}
-              <div className="bg-surface rounded-xl p-4 border border-surface-elevated mb-4">
-                <h5 className="font-semibold mb-3 flex items-center gap-2">
-                  <Target className="w-4 h-4 text-data-blue" />
-                  {t.recommendations}
-                </h5>
-                <div className="space-y-2">
+              {/* Recommendations - Modern List */}
+              <div className="result-card rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-risk-low to-brand-accent flex items-center justify-center">
+                    <Target className="w-4 h-4 text-white" />
+                  </div>
+                  <h5 className="font-semibold">{t.recommendations}</h5>
+                </div>
+                <div className="space-y-3">
                   {result.insights.recommendations.slice(0, 4).map((rec, i) => (
-                    <div key={i} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-risk-low flex-shrink-0 mt-0.5" />
-                      <span>{rec}</span>
-                    </div>
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + i * 0.1 }}
+                      className="flex items-start gap-3 text-sm p-3 rounded-lg bg-surface-card/50 border border-white/5"
+                    >
+                      <CheckCircle2 className="w-5 h-5 text-risk-low flex-shrink-0 mt-0.5" />
+                      <span className="leading-relaxed">{rec}</span>
+                    </motion.div>
                   ))}
                 </div>
               </div>
 
-              {/* 现实检查 */}
-              <div className="bg-surface rounded-lg p-4 border border-surface-elevated mb-4">
-                <p className="text-sm text-foreground-muted">
-                  <Flame className="w-4 h-4 inline text-risk-high mr-2" />
+              {/* Reality Check - Alert Style */}
+              <div className="rounded-xl p-5 bg-gradient-to-r from-risk-critical/10 to-risk-high/10 border border-risk-critical/20">
+                <p className="text-sm">
+                  <Flame className="w-5 h-5 inline text-risk-critical mr-2 align-middle" />
                   <span className="font-semibold text-foreground">{t.realityCheck}</span>
-                  <br />
-                  {t.realityCheckText}
                 </p>
+                <p className="text-sm text-foreground-muted mt-2 leading-relaxed">{t.realityCheckText}</p>
               </div>
 
-              <button
+              {/* Recalculate Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={resetCalculator}
-                className="w-full bg-surface-elevated hover:bg-surface-elevated/80 py-3 rounded-lg font-semibold transition-all"
+                className="w-full bg-surface-elevated hover:bg-surface-elevated/80 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 border border-white/10"
               >
+                <RefreshCw className="w-5 h-5" />
                 {t.recalculate}
-              </button>
+              </motion.button>
             </motion.div>
           )}
         </motion.div>

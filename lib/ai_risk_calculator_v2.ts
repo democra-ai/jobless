@@ -383,32 +383,32 @@ export function calculateAIRisk(data: RiskInputData, lang: Language = 'en'): Ris
 }
 
 /**
- * 风险等级对应的显示信息
+ * 风险等级对应的显示信息 - 2026 Design System
  */
 export const RISK_LEVEL_INFO = {
   'very-low': {
     label: { en: 'Very Low Risk', zh: '极低风险' },
-    color: '#30d158',
+    color: '#00e676',
     description: { en: 'Your job has strong protection against AI replacement', zh: '你的工作具有较强的AI替代防御能力' }
   },
   'low': {
     label: { en: 'Low Risk', zh: '低风险' },
-    color: '#64d2ff',
+    color: '#00c853',
     description: { en: 'Low probability of AI replacement in the near term', zh: '短期内AI替代概率较低' }
   },
   'medium': {
     label: { en: 'Medium Risk', zh: '中等风险' },
-    color: '#ff9500',
+    color: '#ffc107',
     description: { en: 'Some parts of your job may be automated', zh: '你的工作部分内容可能被自动化' }
   },
   'high': {
     label: { en: 'High Risk', zh: '高风险' },
-    color: '#ff6b35',
+    color: '#ff6d00',
     description: { en: 'Significant risk of AI replacement', zh: '存在显著的AI替代风险' }
   },
   'critical': {
     label: { en: 'Critical Risk', zh: '极高风险' },
-    color: '#ff2d37',
+    color: '#ff3d00',
     description: { en: 'Very high probability of AI replacement', zh: 'AI替代概率极高' }
   }
 };
