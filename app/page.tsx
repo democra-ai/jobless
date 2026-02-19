@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Area, 
 import { AlertTriangle, TrendingUp, Users, Clock, Search, Shield, Zap, Target, Skull, Flame, Building2, Calendar, AlertCircle, Languages, Cpu, Sparkles, Bot, ClipboardCheck, Database, FileText, Workflow, Activity, Eye, ChevronRight, ChevronDown, CheckCircle2, BarChart3, Brain, ArrowUpRight, History, RefreshCw, TrendingDown, Info, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { calculateAIRisk, RISK_LEVEL_INFO, RiskInputData, RiskOutputResult } from '@/lib/ai_risk_calculator_v2';
+import InteractiveTimeline from '@/components/InteractiveTimeline';
 
 // 语言类型
 type Language = 'en' | 'zh';
@@ -2542,6 +2543,61 @@ function Footer({ lang, t }: { lang: Language; t: typeof translations.en }) {
   );
 }
 
+// 深度分析链接板块
+function AnalysisLinkSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
+  const linkText = {
+    en: {
+      title: 'Want Deeper Analysis?',
+      subtitle: 'Explore detailed data on high-risk jobs, layoff cases, industry impacts, and career trends.',
+      buttonText: 'View Full Analysis →',
+    },
+    zh: {
+      title: '想要更深入的分析？',
+      subtitle: '探索详细数据：高风险职业、裁员案例、行业影响、职业趋势。',
+      buttonText: '查看完整分析 →',
+    },
+  };
+
+  const text = linkText[lang];
+
+  return (
+    <section className="py-16 px-6 bg-gradient-to-br from-surface to-background">
+      <div className="max-w-4xl mx-auto text-center">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-2xl md:text-4xl font-bold mb-4"
+        >
+          {text.title}
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="text-foreground-muted mb-8 max-w-2xl mx-auto"
+        >
+          {text.subtitle}
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+        >
+          <Link
+            href="/analysis"
+            className="inline-flex items-center gap-2 bg-risk-high hover:bg-risk-high/80 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all card-hover"
+          >
+            {text.buttonText}
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const [lang, setLang] = useState<Language>('en');
   const t = translations[lang];
@@ -2551,14 +2607,8 @@ export default function Home() {
       <LanguageButton lang={lang} setLang={setLang} />
       <HeroSection lang={lang} t={t} />
       <SurvivalIndexSection lang={lang} t={t} />
-      <ProgressStages lang={lang} t={t} />
-      <HistoricalContextSection lang={lang} t={t} />
-      <TimelineSection lang={lang} t={t} />
-      <HighRiskJobsSection lang={lang} t={t} />
-      <LayoffCasesSection lang={lang} t={t} />
-      <NetJobImpactSection lang={lang} t={t} />
-      <IndustryDeepDiveSection lang={lang} t={t} />
-      <CareerDivergenceSection lang={lang} t={t} />
+      <InteractiveTimeline lang={lang} />
+      <AnalysisLinkSection lang={lang} t={t} />
       <Footer lang={lang} t={t} />
     </main>
   );
