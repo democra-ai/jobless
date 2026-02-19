@@ -640,14 +640,14 @@ export default function AssessPage() {
     <div className="min-h-screen bg-background">
       {/* 导航 - Enhanced */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-surface-elevated/50">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-foreground-muted hover:text-foreground transition-all duration-300 hover:gap-3">
             <ArrowRight className="w-4 h-4 rotate-180" />
             <span className="font-medium">{t.backHome}</span>
           </Link>
           <button
             onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-            className="px-4 py-2 rounded-lg bg-surface-elevated text-sm font-medium hover:bg-surface-elevated/80 transition-all duration-300 border border-surface-elevated/50 hover:border-brand-primary/50"
+            className="px-3 py-2 rounded-lg bg-surface-elevated text-sm font-medium hover:bg-surface-elevated/80 transition-all duration-300 border border-surface-elevated/50 hover:border-brand-primary/50 whitespace-nowrap"
           >
             {lang === 'en' ? '中文' : 'EN'}
           </button>
@@ -884,7 +884,7 @@ export default function AssessPage() {
                 </button>
                 <button
                   onClick={handleCalculate}
-                  className="flex-1 bg-gradient-to-r from-risk-high to-risk-medium hover:from-risk-high/90 hover:to-risk-medium/90 text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+                  className="flex-1 bg-gradient-to-r from-cyan-400 to-brand-accent hover:from-cyan-400/90 hover:to-brand-accent/90 text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
                 >
                   <TrendingUp className="w-5 h-5" />
                   {t.calculate}

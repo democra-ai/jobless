@@ -1037,8 +1037,8 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           </div>
 
           {/* Enhanced hero title */}
-          <h1 className="text-5xl md:text-8xl font-bold mb-8 leading-tight">
-            <span className="gradient-text-cyber inline-block animate-fade-in">{t.heroTitle}</span>
+          <h1 className="text-5xl md:text-8xl font-bold mb-8 leading-tight text-white">
+            <span className="inline-block animate-fade-in">{t.heroTitle}</span>
           </h1>
 
           <p className="text-xl md:text-2xl text-foreground-muted mb-10 max-w-3xl mx-auto leading-relaxed">
@@ -2603,7 +2603,7 @@ export default function Home() {
   const t = translations[lang];
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen overflow-x-hidden">
       <LanguageButton lang={lang} setLang={setLang} />
       <HeroSection lang={lang} t={t} />
       <SurvivalIndexSection lang={lang} t={t} />
