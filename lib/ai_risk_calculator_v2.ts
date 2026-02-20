@@ -163,9 +163,9 @@ function calculateReplacementProbability(data: RiskInputData): number {
   baseProbability *= (0.8 + industryFactor.dataOpennessWeight * 0.2);
 
   const protectionFactors = {
-    creative: (data.creativeRequirement || 50) / 100,
-    interaction: (data.humanInteraction || 50) / 100,
-    physical: (data.physicalOperation || 50) / 100,
+    creative: (data.creativeRequirement ?? 0) / 100,
+    interaction: (data.humanInteraction ?? 0) / 100,
+    physical: (data.physicalOperation ?? 0) / 100,
   };
 
   const protectionScore = (
@@ -185,20 +185,7 @@ function predictReplacementYear(data: RiskInputData, probability: number): {
 } {
   const currentYear = AI_EVOLUTION_BENCHMARKS.currentYear;
 
-  if (probability < 20) {
-    return {
-      year: currentYear + 20,
-      confidenceInterval: { earliest: currentYear + 15, latest: currentYear + 30 }
-    };
-  }
-
-  if (probability > 80) {
-    return {
-      year: currentYear + 2,
-      confidenceInterval: { earliest: currentYear + 1, latest: currentYear + 4 }
-    };
-  }
-
+  // Use a continuous function instead of hard cutoffs to avoid discontinuity
   const remainingToFull = 100 - data.currentAIAdoption;
   const dataAccelerator = 1 + (data.dataOpenness / 100) * 0.5;
   const deploymentAccelerator = 1 + (data.processStandardization / 100) * 0.3;
@@ -206,12 +193,22 @@ function predictReplacementYear(data: RiskInputData, probability: number): {
   const baseGrowthRate = AI_EVOLUTION_BENCHMARKS.baselineGrowthRate * totalAccelerator;
   const growthSlowdown = 1 + Math.log(100 / (remainingToFull + 1)) * 0.2;
   const effectiveGrowthRate = baseGrowthRate / growthSlowdown;
-  const estimatedYears = Math.max(1, Math.ceil(remainingToFull / effectiveGrowthRate));
-  const predictedYear = currentYear + estimatedYears;
 
-  const uncertainty = 0.4;
-  const earliest = currentYear + Math.ceil(estimatedYears * (1 - uncertainty));
-  const latest = currentYear + Math.ceil(estimatedYears * (1 + uncertainty));
+  // Base estimate from growth model
+  const baseYears = Math.max(1, Math.ceil(remainingToFull / effectiveGrowthRate));
+
+  // Apply probability as a continuous scaling factor
+  const probabilityScale = 1 + (50 - probability) / 50 * 0.8;
+  const estimatedYears = Math.max(1, Math.round(baseYears * probabilityScale));
+
+  // Clamp to reasonable range
+  const clampedYears = Math.min(25, Math.max(1, estimatedYears));
+  const predictedYear = currentYear + clampedYears;
+
+  // Uncertainty scales with distance
+  const uncertaintyFactor = 0.25 + (clampedYears / 25) * 0.25;
+  const earliest = currentYear + Math.max(1, Math.ceil(clampedYears * (1 - uncertaintyFactor)));
+  const latest = currentYear + Math.ceil(clampedYears * (1 + uncertaintyFactor));
 
   return {
     year: predictedYear,
@@ -222,11 +219,12 @@ function predictReplacementYear(data: RiskInputData, probability: number): {
 function calculateCurrentReplacementDegree(data: RiskInputData): number {
   const { currentAIAdoption, workDataDigitalization, processStandardization } = data;
 
-  const reportedDegree = currentAIAdoption;
-  const adoptionEfficiency = 0.7;
-  const dataEffectiveness = workDataDigitalization / 100;
-  const processCoverage = processStandardization / 100;
-  const actualDegree = reportedDegree * adoptionEfficiency * dataEffectiveness * processCoverage;
+  // Use weighted average instead of multiplication to avoid over-suppression
+  const baseDegree = currentAIAdoption * 0.6 +
+    workDataDigitalization * 0.25 +
+    processStandardization * 0.15;
+
+  const actualDegree = baseDegree * 0.85;
 
   return Math.min(100, Math.max(0, actualDegree));
 }
@@ -291,9 +289,9 @@ function generateInsights(data: RiskInputData, probability: number, currentDegre
 
   // 计算保护因素得分
   const protectionScore = (
-    ((data.creativeRequirement || 50) / 100) * 0.4 +
-    ((data.humanInteraction || 50) / 100) * 0.4 +
-    ((data.physicalOperation || 50) / 100) * 0.2
+    ((data.creativeRequirement ?? 0) / 100) * 0.4 +
+    ((data.humanInteraction ?? 0) / 100) * 0.4 +
+    ((data.physicalOperation ?? 0) / 100) * 0.2
   );
 
   // 对于有保护因素的用户
@@ -359,7 +357,7 @@ export function calculateAIRisk(data: RiskInputData, lang: Language = 'en'): Ris
     economicViability: Math.min(100, (
       data.processStandardization * 0.5 +
       data.workDataDigitalization * 0.3 +
-      (100 - (data.creativeRequirement || 50)) * 0.2
+      (100 - (data.creativeRequirement ?? 0)) * 0.2
     )),
     timelineAcceleration: Math.min(200, (
       (data.dataOpenness / 100) * 50 +

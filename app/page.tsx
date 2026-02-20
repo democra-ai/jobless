@@ -1105,12 +1105,12 @@ function LanguageButton({ lang, setLang }: { lang: Language; setLang: (lang: Lan
   return (
     <motion.button
       onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-      className="z-50 flex items-center gap-2 bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white px-3 py-2 rounded-lg border border-surface-elevated transition-all card-hover lang-toggle-btn"
+      className="z-50 flex items-center justify-center bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white w-10 h-10 rounded-lg border border-surface-elevated transition-all card-hover lang-toggle-btn"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
+      aria-label={lang === 'en' ? 'Switch to Chinese' : '切换到英文'}
     >
       <Languages className="w-5 h-5" />
-      <span className="font-medium">{lang === 'en' ? 'EN' : '中文'}</span>
     </motion.button>
   );
 }
@@ -2069,16 +2069,17 @@ function DimensionSlider({
             max="100"
             value={value}
             onChange={(e) => onChange(parseFloat(e.target.value))}
-            className="w-full h-2 bg-surface-elevated rounded-full appearance-none cursor-pointer"
+            className="calc-slider"
             style={{
               background: `linear-gradient(to right, ${color} 0%, ${color} ${value}%, var(--surface-elevated) ${value}%, var(--surface-elevated) 100%)`
             }}
           />
-          {/* 数值标签 - 跟随滑块位置 */}
+          {/* 数值标签 - 跟随滑块位置, clamped at edges */}
           <div
-            className="absolute -top-1 transform -translate-y-full -translate-x-1/2 text-xs font-bold px-2 py-0.5 rounded text-white whitespace-nowrap transition-all duration-75"
+            className="absolute -top-1 text-xs font-bold px-2 py-0.5 rounded text-white whitespace-nowrap transition-all duration-75"
             style={{
-              left: `${value}%`,
+              left: `clamp(1rem, ${value}%, calc(100% - 1rem))`,
+              transform: 'translateX(-50%) translateY(-100%)',
               backgroundColor: color
             }}
           >
@@ -2090,35 +2091,61 @@ function DimensionSlider({
   );
 }
 
+// 数字跳动动画组件
+function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const duration = 1200;
+    const startTime = performance.now();
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * value));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [value]);
+  return <>{display}{suffix}</>;
+}
+
 // 职业预设数据
 const PROFESSION_PRESETS: Record<string, {
   name: { en: string; zh: string };
+  industry: string;
   dimensions: {
     dataOpenness: number;
     workDataDigitalization: number;
     processStandardization: number;
     currentAIAdoption: number;
   };
-  protections?: {
-    creativeRequirement?: number;
-    humanInteraction?: number;
-    physicalOperation?: number;
+  protections: {
+    creativeRequirement: number;
+    humanInteraction: number;
+    physicalOperation: number;
   };
 }> = {
   // 客服/行政类 - 高风险
   'customer-service': {
     name: { en: 'Customer Service / Admin', zh: '客服/行政' },
+    industry: 'customerService',
     dimensions: {
       dataOpenness: 70,
       workDataDigitalization: 90,
       processStandardization: 85,
       currentAIAdoption: 60,
     },
+    protections: {
+      creativeRequirement: 15,
+      humanInteraction: 60,
+      physicalOperation: 5,
+    },
   },
 
   // 技术/开发类 - 中等风险
   'tech': {
     name: { en: 'Developer / Tech', zh: '程序员/技术' },
+    industry: 'tech',
     dimensions: {
       dataOpenness: 70,
       workDataDigitalization: 100,
@@ -2135,6 +2162,7 @@ const PROFESSION_PRESETS: Record<string, {
   // 创意/设计类 - 中高风险
   'creative': {
     name: { en: 'Creative / Designer', zh: '创意/设计' },
+    industry: 'marketing',
     dimensions: {
       dataOpenness: 75,
       workDataDigitalization: 100,
@@ -2151,6 +2179,7 @@ const PROFESSION_PRESETS: Record<string, {
   // 金融/分析类 - 中等风险
   'finance': {
     name: { en: 'Finance / Analyst', zh: '金融/分析' },
+    industry: 'finance',
     dimensions: {
       dataOpenness: 60,
       workDataDigitalization: 95,
@@ -2167,6 +2196,7 @@ const PROFESSION_PRESETS: Record<string, {
   // 销售/管理类 - 低风险
   'sales': {
     name: { en: 'Sales / Management', zh: '销售/管理' },
+    industry: 'sales',
     dimensions: {
       dataOpenness: 50,
       workDataDigitalization: 75,
@@ -2183,6 +2213,7 @@ const PROFESSION_PRESETS: Record<string, {
   // 医疗/教育类 - 低风险
   'healthcare-edu': {
     name: { en: 'Healthcare / Education', zh: '医疗/教育' },
+    industry: 'healthcare',
     dimensions: {
       dataOpenness: 40,
       workDataDigitalization: 60,
@@ -2199,6 +2230,7 @@ const PROFESSION_PRESETS: Record<string, {
   // 体力/手工类 - 极低风险
   'manual': {
     name: { en: 'Manual / Skilled Trade', zh: '体力/技术工种' },
+    industry: 'manufacturing',
     dimensions: {
       dataOpenness: 30,
       workDataDigitalization: 30,
@@ -2215,6 +2247,7 @@ const PROFESSION_PRESETS: Record<string, {
   // 内容/写作类 - 中高风险
   'writer': {
     name: { en: 'Writer / Content', zh: '写作/内容' },
+    industry: 'marketing',
     dimensions: {
       dataOpenness: 80,
       workDataDigitalization: 100,
@@ -2234,6 +2267,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const [showOptional, setShowOptional] = useState(false);
   const [result, setResult] = useState<RiskOutputResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [wechatCopied, setWechatCopied] = useState(false);
 
   // 分享功能
   const getShareText = () => {
@@ -2375,7 +2409,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     dataOpenness: 50,
     workDataDigitalization: 50,
     processStandardization: 50,
-    currentAIAdoption: 20,
+    currentAIAdoption: 50,
   });
 
   // 可选保护因素状态
@@ -2387,6 +2421,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
 
   // 职业选择状态
   const [selectedProfession, setSelectedProfession] = useState<string | null>(null);
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('other');
 
   const updateDimension = (key: string, value: number) => {
     setDimensions(prev => ({ ...prev, [key]: value }));
@@ -2401,30 +2436,49 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     if (professionKey && PROFESSION_PRESETS[professionKey]) {
       const preset = PROFESSION_PRESETS[professionKey];
       setDimensions(preset.dimensions);
-      if (preset.protections) {
-        setProtections(prev => ({
-          creativeRequirement: preset.protections!.creativeRequirement ?? prev.creativeRequirement,
-          humanInteraction: preset.protections!.humanInteraction ?? prev.humanInteraction,
-          physicalOperation: preset.protections!.physicalOperation ?? prev.physicalOperation,
-        }));
-      }
+      setProtections({
+        creativeRequirement: preset.protections.creativeRequirement,
+        humanInteraction: preset.protections.humanInteraction,
+        physicalOperation: preset.protections.physicalOperation,
+      });
+      setSelectedIndustry(preset.industry);
       setSelectedProfession(professionKey);
     } else {
-      // 取消选择
       setSelectedProfession(null);
     }
   };
 
+  // Restore last input state from localStorage on mount (but not result,
+  // so user always sees the input form first with presets visible)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('ai-risk-last-result');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.dimensions) setDimensions(parsed.dimensions);
+        if (parsed.protections) setProtections(parsed.protections);
+        if (parsed.industry) setSelectedIndustry(parsed.industry);
+        if (parsed.profession) setSelectedProfession(parsed.profession);
+      }
+    } catch { /* ignore parse errors */ }
+  }, []);
+
   const calculateRisk = () => {
     const inputData: RiskInputData = {
       jobTitle: 'User',
-      industry: 'other',
+      industry: selectedIndustry,
       yearsOfExperience: 5,
       ...dimensions,
       ...protections,
     };
     const assessment = calculateAIRisk(inputData, lang);
     setResult(assessment);
+    try {
+      localStorage.setItem('ai-risk-last-result', JSON.stringify({
+        result: assessment, dimensions, protections,
+        industry: selectedIndustry, profession: selectedProfession,
+      }));
+    } catch { /* quota errors */ }
   };
 
   const resetCalculator = () => {
@@ -2433,7 +2487,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       dataOpenness: 50,
       workDataDigitalization: 50,
       processStandardization: 50,
-      currentAIAdoption: 20,
+      currentAIAdoption: 50,
     });
     setProtections({
       creativeRequirement: 50,
@@ -2441,6 +2495,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       physicalOperation: 50,
     });
     setSelectedProfession(null);
+    setSelectedIndustry('other');
+    try { localStorage.removeItem('ai-risk-last-result'); } catch { /* ignore */ }
   };
 
   return (
@@ -2486,10 +2542,15 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   </div>
                 </div>
 
-                {/* 职业按钮网格 - Enhanced styling */}
+                {/* 职业按钮网格 - with risk badge */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                   {Object.entries(PROFESSION_PRESETS).map(([profKey, prof], index) => {
                     const isSelected = selectedProfession === profKey;
+                    const previewResult = calculateAIRisk({
+                      jobTitle: '', industry: prof.industry, yearsOfExperience: 5,
+                      ...prof.dimensions, ...prof.protections,
+                    }, lang);
+                    const badgeColor = RISK_LEVEL_INFO[previewResult.riskLevel].color;
                     return (
                       <motion.button
                         key={profKey}
@@ -2503,7 +2564,10 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                             : 'bg-surface-card border-white/8'
                         }`}
                       >
-                        <span className="relative z-10">{prof.name[lang]}</span>
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: badgeColor }} />
+                          {prof.name[lang]}
+                        </span>
                       </motion.button>
                     );
                   })}
@@ -2723,7 +2787,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   className="result-card rounded-xl p-6 text-center group hover-lift"
                 >
                   <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-2" style={{ color: 'var(--risk-critical)' }}>
-                    {result.replacementProbability}%
+                    <AnimatedNumber value={result.replacementProbability} suffix="%" />
                   </div>
                   <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric1Title}</div>
                   <div className="text-xs text-foreground-muted/60 mt-1">{t.metric1Desc}</div>
@@ -2735,7 +2799,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   className="result-card rounded-xl p-6 text-center group hover-lift"
                 >
                   <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-2" style={{ color: 'var(--risk-high)' }}>
-                    {result.predictedReplacementYear}
+                    <AnimatedNumber value={result.predictedReplacementYear} />
                   </div>
                   <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric2Title}</div>
                   <div className="text-xs text-foreground-muted/60 mt-1">{lang === 'en' ? 'Projected' : '预计年份'}</div>
@@ -2747,7 +2811,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   className="result-card rounded-xl p-6 text-center group hover-lift"
                 >
                   <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-2" style={{ color: 'var(--brand-primary)' }}>
-                    {result.currentReplacementDegree}%
+                    <AnimatedNumber value={result.currentReplacementDegree} suffix="%" />
                   </div>
                   <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric3Title}</div>
                   <div className="text-xs text-foreground-muted/60 mt-1">{t.metric3Desc}</div>
@@ -2860,14 +2924,18 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      const text = encodeURIComponent(getShareText() + '\n' + window.location.href);
-                      window.open(`weixin://dl/business/?t=${text}`, '_self');
+                    onClick={async () => {
+                      const text = getShareText() + '\n' + window.location.href;
+                      await navigator.clipboard.writeText(text);
+                      setWechatCopied(true);
+                      setTimeout(() => setWechatCopied(false), 3000);
                     }}
                     className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#07C160]/10 hover:bg-[#07C160]/20 border border-[#07C160]/20 text-sm font-medium text-[#07C160] transition-all"
                   >
-                    <ExternalLink className="w-4 h-4" />
-                    {t.shareWeChat}
+                    <Copy className="w-4 h-4" />
+                    {wechatCopied
+                      ? (lang === 'en' ? 'Copied! Paste in WeChat' : '已复制，去微信粘贴')
+                      : t.shareWeChat}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
