@@ -787,7 +787,7 @@ function LanguageButton({ lang, setLang }: { lang: Language; setLang: (lang: Lan
   return (
     <motion.button
       onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-      className="fixed top-6 right-6 z-50 flex items-center gap-2 bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white px-4 py-2 rounded-lg border border-surface-elevated transition-all card-hover"
+      className="z-50 flex items-center gap-2 bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white px-3 py-2 rounded-lg border border-surface-elevated transition-all card-hover lang-toggle-btn"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >

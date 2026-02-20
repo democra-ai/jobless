@@ -124,7 +124,6 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  position: relative;
   overflow-x: hidden;
 }
 
@@ -853,4 +852,13 @@ body::after {
   height: 2px;
   background: linear-gradient(90deg, var(--brand-primary), var(--brand-accent));
   border-radius: 1px;
+}
+
+/* Language Toggle Button - Fixed Top Right */
+.lang-toggle-btn {
+  position: fixed !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  left: auto !important;
+  z-index: 9999 !important;
 }
