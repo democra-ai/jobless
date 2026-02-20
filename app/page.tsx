@@ -123,6 +123,7 @@ const translations = {
     source: 'Source: Layoff tracking reports, 2024-2025',
 
     // 生存指数 V2
+    survivalBadge: 'RISK CALCULATOR',
     survivalTitle: 'Calculate: Your AI Replacement Risk',
     survivalSubtitle: 'Four dimensions, three metrics, data-driven answers',
     // 职业预设
@@ -530,6 +531,7 @@ const translations = {
     source: '来源：裁员追踪报告，2024-2025',
 
     // 生存指数 V2
+    survivalBadge: '风险计算器',
     survivalTitle: '算一算：你的 AI 替代风险',
     survivalSubtitle: '四个维度，三个指标，数据驱动答案',
     // 职业预设
@@ -2513,6 +2515,10 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary/10 border border-brand-primary/20 mb-6">
+            <Target className="w-4 h-4 text-brand-primary" />
+            <span className="text-sm font-medium text-brand-primary">{t.survivalBadge}</span>
+          </div>
           <h2 className="calc-title text-2xl sm:text-4xl md:text-6xl lg:text-7xl mb-4 bg-gradient-to-r from-foreground via-foreground to-foreground-muted bg-clip-text text-transparent">
             {t.survivalTitle}
           </h2>

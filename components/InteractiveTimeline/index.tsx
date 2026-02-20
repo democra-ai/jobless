@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, Brain, Cpu, Sparkles, ChevronRight, Flame, Settings, Globe } from 'lucide-react';
+import { X, Zap, Brain, Cpu, Sparkles, ChevronRight, Flame, Settings } from 'lucide-react';
 
 // ============================================
 // TYPES & DATA
@@ -97,34 +97,6 @@ const MILESTONES: Milestone[] = [
     socialImpact: { gdp: '+400%', productivity: '+800%' }
   },
   {
-    id: 'computer-internet',
-    year: 1995,
-    name: { en: 'PC & Internet', zh: '个人电脑与互联网' },
-    icon: Globe,
-    color: '#3b82f6',
-    gradient: 'from-blue-400 to-blue-600',
-    impact: { en: 'Information digitized, the world connected', zh: '信息数字化，世界互联' },
-    details: {
-      description: {
-        en: 'The personal computer and internet revolution connected billions, digitized information, and created entirely new industries while eliminating others.',
-        zh: '个人电脑和互联网革命连接了数十亿人，将信息数字化，创造了全新的行业，同时淘汰了其他行业。'
-      },
-      significance: { en: 'Knowledge became instantly accessible to anyone, anywhere.', zh: '知识变得任何人在任何地方都能即时获取。' },
-      jobsAffected: { en: 'Typists, switchboard operators, travel agents disrupted early', zh: '打字员、接线员、旅行社代理最早受到冲击' },
-      sources: ['Bureau of Labor Statistics Occupational Outlook', 'McKinsey Global Institute (2017)']
-    },
-    inventions: [
-      { year: 1981, name: { en: 'IBM PC', zh: 'IBM个人电脑' }, impact: { en: 'Computing for everyone', zh: '人人可用的计算' } },
-      { year: 1991, name: { en: 'World Wide Web', zh: '万维网' }, impact: { en: 'Global information network', zh: '全球信息网络' } },
-      { year: 1995, name: { en: 'Commercial Internet', zh: '商业互联网' }, impact: { en: 'E-commerce, email, digital economy', zh: '电子商务、电子邮件、数字经济' } },
-    ],
-    jobDisplacement: [
-      { category: { en: 'Typists & Secretaries', zh: '打字员和秘书' }, rate: 75, newJobs: { en: 'IT Support, Web Developers', zh: 'IT技术支持、网页开发者' } },
-      { category: { en: 'Switchboard Operators', zh: '接线员' }, rate: 95, newJobs: { en: 'Network Engineers, System Admins', zh: '网络工程师、系统管理员' } },
-    ],
-    socialImpact: { gdp: '+2,000% (digital economy)', productivity: '+400%' }
-  },
-  {
     id: 'deep-learning',
     year: 2012,
     name: { en: 'Deep Learning', zh: '深度学习' },
@@ -211,7 +183,6 @@ const MILESTONES: Milestone[] = [
     icon: Flame,
     color: '#ec4899',
     gradient: 'from-pink-500 to-rose-600',
-    isProjected: true,
     impact: { en: 'Human-level AI intelligence across all domains', zh: '全领域达到人类水平的AI智能' },
     details: {
       description: {
@@ -237,8 +208,8 @@ const MILESTONES: Milestone[] = [
 // POSITION HELPER — interpolates for any year
 // ============================================
 const KNOWN_POSITIONS: [number, number][] = [
-  [1769, 5], [1879, 17], [1995, 30], [2012, 44],
-  [2022, 58], [2025, 72], [2030, 94],
+  [1769, 3], [1879, 13], [2012, 28],
+  [2022, 46], [2025, 62], [2026, 76], [2030, 93],
 ];
 
 function getPosition(year: number): number {
@@ -288,10 +259,12 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
     tapForDetails: lang === 'en' ? 'Tap for details' : '点击查看详情',
     projected: lang === 'en' ? 'Projected' : '预测',
     sources: lang === 'en' ? 'Sources' : '数据来源',
+    aiEra: lang === 'en' ? 'AI Era' : 'AI 时代',
   };
 
   return (
     <section className="relative min-h-screen overflow-hidden" aria-label={t.title}
+      onClick={(e) => { if ((e.target as HTMLElement).closest('[data-milestone], [data-detail-panel]') === null) setSelectedMilestone(null); }}
       style={{ background: `linear-gradient(to bottom, var(--timeline-bg-from), var(--timeline-bg-via), var(--timeline-bg-to))` }}>
       <TimelineBackground />
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-16 md:py-24">
@@ -302,7 +275,7 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
             transition={{ delay: 0.2, duration: 0.6 }} className="inline-block mb-6">
             <div className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 via-emerald-500/20 to-red-500/20 border border-white/10">
               <span className="text-sm font-medium bg-gradient-to-r from-amber-400 via-emerald-400 to-red-400 bg-clip-text text-transparent">
-                {lang === 'en' ? '7 Milestones That Changed Everything' : '改变一切的7个里程碑'}
+                {lang === 'en' ? '6 Milestones That Changed Everything' : '改变一切的6个里程碑'}
               </span>
             </div>
           </motion.div>
@@ -323,7 +296,7 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
         {/* Detail Panel */}
         <AnimatePresence>
           {selectedMilestone && (
-            <div ref={detailRef}>
+            <div ref={detailRef} data-detail-panel>
               <DetailPanel milestone={selectedMilestone} onClose={() => setSelectedMilestone(null)} lang={lang} t={t} />
             </div>
           )}
@@ -374,16 +347,6 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
   const currentYear = new Date().getFullYear();
   const currentPos = getPosition(currentYear);
 
-  // Visual midpoint between the two surrounding milestones for the "We Are Here" label
-  // so it doesn't overlap with nearby nodes (76% is too close to 2025 at 72%)
-  const weAreHerePos = (() => {
-    const sorted = milestones.map(m => m.year).sort((a, b) => a - b);
-    const prev = sorted.filter(y => y <= currentYear).pop();
-    const next = sorted.find(y => y > currentYear);
-    if (prev && next) return (getPosition(prev) + getPosition(next)) / 2;
-    return currentPos;
-  })();
-
   const timelineGradient = (() => {
     const stops = milestones.map((m) => ({ pos: getPosition(m.year), color: m.color })).sort((a, b) => a.pos - b.pos);
     return `linear-gradient(90deg, ${stops.map((s) => `${s.color} ${s.pos}%`).join(', ')})`;
@@ -406,20 +369,47 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
             style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }} />
         </div>
 
-        {/* "We Are Here" — inline badge at visual midpoint */}
+        {/* AI Era divider — vertical line down from Deep Learning node */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.8 }}
-          className="absolute top-1/2 -translate-y-1/2 pointer-events-none"
-          style={{ left: `${weAreHerePos}%` }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.8 }}
+          className="absolute top-1/2 pointer-events-none"
+          style={{ left: `${getPosition(2012)}%` }}
         >
-          <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 2, repeat: Infinity }}
-            className="absolute top-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
-            <div className="px-3 py-1.5 rounded-full bg-red-500/20 border border-red-500/50 backdrop-blur-md">
-              <span className="text-xs font-bold text-red-400">{t.weAreHere}</span>
+          <div className="absolute left-0 -translate-x-1/2 w-px"
+            style={{ top: '16px', height: '48px', background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.6), rgba(139, 92, 246, 0.15))' }} />
+        </motion.div>
+
+        {/* "We Are Here" node — same style as milestones but smaller */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9, duration: 0.6 }}
+          className="absolute top-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ left: `${currentPos}%` }}
+        >
+          {/* Year above */}
+          <div className="absolute -top-16 left-1/2 -translate-x-1/2 whitespace-nowrap">
+            <span className="text-3xl md:text-4xl font-bold tabular-nums text-red-400" style={{ textShadow: '0 0 30px rgba(239, 68, 68, 0.4)' }}>
+              {currentYear}
+            </span>
+          </div>
+          {/* Node circle */}
+          <div className="relative -translate-x-1/2">
+            <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 rounded-full bg-red-500" style={{ filter: 'blur(8px)' }} />
+            <div className="relative w-8 h-8 rounded-full border-3 border-red-500 flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #ef4444, #ef444480)', boxShadow: '0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(255,255,255,0.2)' }}>
+              <div className="w-2.5 h-2.5 rounded-full bg-white/60" />
             </div>
-          </motion.div>
+          </div>
+          {/* Label below */}
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
+            <div className="px-4 py-2 rounded-xl backdrop-blur-md border border-red-500/40"
+              style={{ background: 'rgba(239, 68, 68, 0.1)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+              <span className="text-base font-semibold text-red-400">{t.weAreHere}</span>
+            </div>
+          </div>
         </motion.div>
 
         {/* Milestone nodes */}
@@ -428,7 +418,7 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
           const isSelected = selectedMilestone?.id === milestone.id;
           const Icon = milestone.icon;
           return (
-            <motion.div key={milestone.id}
+            <motion.div key={milestone.id} data-milestone
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: mounted ? idx * 0.15 : 0, duration: 0.6 }}
               className="absolute top-1/2 -translate-y-1/2 cursor-pointer group"
@@ -439,13 +429,13 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectMilestone(milestone); } }}
             >
               {/* Year */}
-              <div className="absolute -top-16 left-1/2 -translate-x-1/2 whitespace-nowrap flex flex-col items-center gap-1">
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap flex flex-col items-center gap-0.5">
                 {milestone.isProjected && (
-                  <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded"
+                  <span className="text-[8px] font-mono uppercase tracking-wider px-1 py-0.5 rounded"
                     style={{ color: milestone.color, border: `1px dashed ${milestone.color}60` }}>{t.projected}</span>
                 )}
-                <span className="text-3xl md:text-4xl font-bold tabular-nums"
-                  style={{ color: milestone.color, textShadow: `0 0 30px ${milestone.color}40` }}>{milestone.year}</span>
+                <span className="text-xl md:text-2xl font-bold tabular-nums"
+                  style={{ color: milestone.color, textShadow: `0 0 20px ${milestone.color}40` }}>{milestone.year}</span>
               </div>
 
               {/* Node circle */}
@@ -453,30 +443,30 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
                 <motion.div animate={{ scale: isSelected ? [1, 1.3, 1] : [1, 1.1, 1], opacity: isSelected ? 0.6 : 0.3 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 rounded-full" style={{ background: milestone.color, filter: 'blur(8px)' }} />
-                <div className="relative w-8 h-8 rounded-full border-3 flex items-center justify-center"
+                  className="absolute inset-0 rounded-full" style={{ background: milestone.color, filter: 'blur(6px)' }} />
+                <div className="relative w-6 h-6 rounded-full border-2 flex items-center justify-center"
                   style={{
                     background: `linear-gradient(135deg, ${milestone.color}, ${milestone.color}80)`,
                     borderColor: milestone.color,
                     borderStyle: milestone.isProjected ? 'dashed' : 'solid',
-                    boxShadow: `0 0 20px ${milestone.color}60, inset 0 0 10px rgba(255,255,255,0.2)`
+                    boxShadow: `0 0 14px ${milestone.color}60, inset 0 0 8px rgba(255,255,255,0.2)`
                   }}>
-                  <Icon className="w-4 h-4 text-white" />
+                  <Icon className="w-3 h-3 text-white" />
                 </div>
-                <div className="absolute top-1 left-1 w-2 h-2 bg-white/40 rounded-full blur-[1px]" />
+                <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 bg-white/40 rounded-full blur-[1px]" />
               </motion.div>
 
               {/* Name card */}
-              <div className="absolute top-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                <motion.div animate={{ y: isSelected ? -4 : 0, scale: isSelected ? 1.05 : 1 }}
+              <div className="absolute top-10 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <motion.div animate={{ y: isSelected ? -3 : 0, scale: isSelected ? 1.05 : 1 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  className="px-4 py-2 rounded-xl backdrop-blur-md border transition-all"
+                  className="px-3 py-1.5 rounded-xl backdrop-blur-md border transition-all"
                   style={{
                     background: isSelected ? `${milestone.color}20` : 'var(--timeline-card-bg)',
                     borderColor: isSelected ? milestone.color : 'var(--timeline-card-border)',
                     boxShadow: isSelected ? `0 0 30px ${milestone.color}30` : '0 4px 20px rgba(0,0,0,0.3)'
                   }}>
-                  <div className="text-base font-semibold" style={{ color: 'var(--timeline-text)' }}>{milestone.name[lang]}</div>
+                  <div className="text-xs font-semibold" style={{ color: 'var(--timeline-text)' }}>{milestone.name[lang]}</div>
                 </motion.div>
               </div>
 
@@ -488,11 +478,13 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
           );
         })}
 
-        {/* Era labels */}
-        <div className="absolute -bottom-8 left-0 right-0 flex justify-between px-4">
-          <span className="text-xs font-mono text-[--timeline-text-dim]">1769</span>
-          <span className="text-xs font-mono text-[--timeline-text-dim]">2012</span>
-          <span className="text-xs font-mono text-[--timeline-text-dim]">2030</span>
+        {/* Era labels — same row at bottom */}
+        <div className="absolute -bottom-8 left-0 right-0 px-4">
+          <span className="text-xs font-mono text-[--timeline-text-dim]">{lang === 'en' ? 'Industrial Age' : '工业时代'}</span>
+          <span className="absolute text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded whitespace-nowrap -translate-x-1/2"
+            style={{ left: `${getPosition(2012)}%`, color: 'rgba(139, 92, 246, 0.7)', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+            {t.aiEra} →
+          </span>
         </div>
       </div>
 
@@ -509,7 +501,7 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
           const Icon = milestone.icon;
           return (
             <div key={milestone.id}>
-              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }}
+              <motion.div data-milestone initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}
                 className="relative mb-6 last:mb-0 cursor-pointer"
                 onClick={() => onSelectMilestone(milestone)}
