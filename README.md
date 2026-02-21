@@ -6,7 +6,7 @@ colorTo: yellow
 sdk: docker
 pinned: false
 license: mit
-short_description: "How fast is AI replacing human jobs? Data-driven interactive platform."
+short_description: "How fast is AI replacing human jobs?"
 tags:
   - next.js
   - react
