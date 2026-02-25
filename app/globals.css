@@ -18,6 +18,7 @@
 
   /* Risk & Impact Colors - Dramatic Intensity */
   --risk-critical: #ff1744; /* Electric Red */
+  --risk-severe: #f44336;   /* Red-Orange */
   --risk-high: #ff5722;     /* Deep Orange */
   --risk-medium: #ffc107;   /* Amber Warning */
   --risk-low: #00e676;      /* Neon Green */
@@ -99,6 +100,7 @@
 
   /* Risk & Impact Colors - Toned for light bg */
   --risk-critical: #d32f2f;
+  --risk-severe: #c62828;
   --risk-high: #e64a19;
   --risk-medium: #f9a825;
   --risk-low: #2e7d32;
@@ -149,6 +151,7 @@
   --color-foreground-muted: var(--foreground-muted);
   --color-foreground-dim: var(--foreground-dim);
   --color-risk-critical: var(--risk-critical);
+  --color-risk-severe: var(--risk-severe);
   --color-risk-high: var(--risk-high);
   --color-risk-medium: var(--risk-medium);
   --color-risk-low: var(--risk-low);
@@ -417,6 +420,139 @@ body::after {
     rgba(0,0,0,0.06) 8px,
     rgba(0,0,0,0.06) 9px
   );
+}
+
+/* ============================================
+   KILL ZONE — Stage 5 completely different visual
+   Industrial hazard + glitch aesthetic
+   ============================================ */
+
+/* Thick diagonal hazard stripes — marching animation */
+.kill-zone-stripes {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    rgba(255, 23, 68, 0.15) 5px,
+    rgba(255, 23, 68, 0.15) 10px
+  );
+  background-size: 28px 28px;
+  animation: killStripesMarch 1s linear infinite;
+}
+
+@keyframes killStripesMarch {
+  0% { background-position: 0 0; }
+  100% { background-position: 28px 0; }
+}
+
+[data-theme="light"] .kill-zone-stripes {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    rgba(211, 47, 47, 0.12) 5px,
+    rgba(211, 47, 47, 0.12) 10px
+  );
+}
+
+/* Glitch watermark text inside bar */
+.kill-zone-glitch-text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: var(--risk-critical);
+  opacity: 0.35;
+  position: relative;
+  animation: killGlitch 4s infinite;
+}
+
+.kill-zone-glitch-text::before,
+.kill-zone-glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+}
+
+.kill-zone-glitch-text::before {
+  color: #00ffff;
+  animation: killGlitchShift 3s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 40%, 0 40%);
+}
+
+.kill-zone-glitch-text::after {
+  color: #ff0040;
+  animation: killGlitchShift 3s infinite reverse;
+  clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
+}
+
+@keyframes killGlitch {
+  0%, 92%, 100% { transform: none; }
+  93% { transform: translateX(-2px) skewX(-1deg); }
+  94% { transform: translateX(2px) skewX(1deg); }
+  95% { transform: none; }
+  96% { transform: translateX(-1px); }
+  97% { transform: none; }
+}
+
+@keyframes killGlitchShift {
+  0%, 90%, 100% { transform: none; opacity: 0; }
+  91% { transform: translateX(-3px); opacity: 0.6; }
+  92% { transform: translateX(3px); opacity: 0.4; }
+  93% { transform: translateX(-1px); opacity: 0.6; }
+  94% { transform: none; opacity: 0; }
+}
+
+/* Badge below bar — red wrapper, content styled by children */
+.kill-zone-badge {
+  display: inline-flex;
+  padding: 3px 5px;
+  margin: -3px -2px 0;
+  border-radius: 4px;
+  background: var(--risk-critical);
+  color: #fff;
+  box-shadow:
+    0 0 12px rgba(255, 23, 68, 0.4),
+    0 0 24px rgba(255, 23, 68, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  animation: killBadgePulse 2s ease-in-out infinite;
+}
+
+@media (min-width: 640px) {
+  .kill-zone-badge {
+    padding: 4px 8px;
+    margin: -4px -3px 0;
+  }
+}
+
+@keyframes killBadgePulse {
+  0%, 100% {
+    box-shadow:
+      0 0 12px rgba(255, 23, 68, 0.4),
+      0 0 24px rgba(255, 23, 68, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(255, 23, 68, 0.6),
+      0 0 40px rgba(255, 23, 68, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+}
+
+[data-theme="light"] .kill-zone-badge {
+  box-shadow:
+    0 0 10px rgba(211, 47, 47, 0.3),
+    0 0 20px rgba(211, 47, 47, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="light"] .kill-zone-glitch-text {
+  opacity: 0.2;
 }
 
 .animate-reveal {

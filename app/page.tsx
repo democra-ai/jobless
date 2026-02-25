@@ -1064,7 +1064,7 @@ const KILL_LINE_STAGES = [
   { id: 2, start: 20, end: 40, label: { en: 'AI Augment', zh: 'AI 增强' }, desc: { en: 'Cognitive augmentation', zh: '认知增强' }, nature: { en: 'You lead, AI thinks with you', zh: '你主导，AI 辅助思考' }, color: 'var(--risk-medium)' },
   { id: 3, start: 40, end: 60, label: { en: 'AI Agent', zh: 'AI 代理' }, desc: { en: 'Execution delegation', zh: '执行权转移' }, nature: { en: 'You direct, AI executes', zh: '人定方向，AI 执行' }, color: 'var(--risk-high)' },
   { id: 4, start: 60, end: 80, label: { en: 'AI Lead', zh: 'AI 主导' }, desc: { en: 'Decision authority transfer', zh: '决策权转移' }, nature: { en: 'AI decides, you support', zh: 'AI 主导，人类配合' }, color: 'var(--risk-critical)' },
-  { id: 5, start: 80, end: 100, label: { en: 'Kill Line', zh: '斩杀线' }, desc: { en: 'Structural replacement', zh: '结构性替代' }, nature: { en: 'AI fully autonomous', zh: 'AI 完全自主运行' }, color: 'var(--accent-purple)' },
+  { id: 5, start: 80, end: 100, label: { en: 'Kill Line', zh: '斩杀线' }, desc: { en: 'Structural replacement', zh: '结构性替代' }, nature: { en: 'AI fully autonomous', zh: 'AI 完全自主运行' }, color: 'var(--risk-critical)', isKillLine: true },
 ];
 
 function Counter({ end, suffix = '', duration = 2000 }: { end: number; suffix?: string; duration?: number }) {
@@ -1208,8 +1208,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
 
       {/* Segmented Bar */}
       <div className="relative h-10 sm:h-12 rounded-xl overflow-hidden bg-surface-elevated" style={{ boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.15)' }}>
-        {/* Stage background segments */}
-        {KILL_LINE_STAGES.map((stage) => {
+        {/* Stage 1–4 background segments */}
+        {KILL_LINE_STAGES.filter(s => s.id < 5).map((stage) => {
           const left = (stage.start / maxPct) * 100;
           const width = ((stage.end - stage.start) / maxPct) * 100;
           const isPast = displayPct >= stage.end;
@@ -1221,39 +1221,61 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               style={{
                 left: `${left}%`,
                 width: `${width}%`,
-                borderRight: stage.id < 5 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                borderRight: '1px solid rgba(255,255,255,0.06)',
               }}
             >
-              {/* Stage number / Kill Line watermark */}
               <div
                 className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
                 style={{
-                  fontSize: stage.id === 5 ? '11px' : '28px',
+                  fontSize: '28px',
                   fontFamily: 'var(--font-mono)',
                   fontWeight: 800,
-                  letterSpacing: stage.id === 5 ? '2px' : undefined,
-                  textTransform: stage.id === 5 ? 'uppercase' as const : undefined,
-                  color: stage.id === 5 ? 'var(--accent-purple)' : 'var(--foreground-dim)',
-                  opacity: stage.id === 5 ? 0.18 : (isPast ? 0.06 : isCurrent ? 0.08 : 0.04),
+                  color: 'var(--foreground-dim)',
+                  opacity: isPast ? 0.06 : isCurrent ? 0.08 : 0.04,
                 }}
               >
-                {stage.id === 5 ? (lang === 'zh' ? 'AI 斩杀线' : 'AI KILL LINE') : stage.id}
+                {stage.id}
               </div>
             </div>
           );
         })}
 
-        {/* Kill Line boundary marker at 80% */}
+        {/* Stage 5 — KILL ZONE: completely different visual language */}
         <div
+          className="absolute top-0 bottom-0 kill-zone-hazard"
+          style={{ left: '80%', width: '20%' }}
+        >
+          {/* Industrial hazard stripes */}
+          <div className="absolute inset-0 kill-zone-stripes" />
+          {/* Red gradient undertone */}
+          <div className="absolute inset-0" style={{
+            background: 'linear-gradient(90deg, rgba(255,23,68,0.12) 0%, rgba(255,23,68,0.25) 100%)',
+          }} />
+          {/* Glitch watermark text */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+            <span className="kill-zone-glitch-text" data-text={lang === 'zh' ? 'KILL LINE' : 'KILL LINE'}>
+              {lang === 'zh' ? 'KILL LINE' : 'KILL LINE'}
+            </span>
+          </div>
+        </div>
+
+        {/* Kill Line boundary wall at 80% */}
+        <motion.div
           className="absolute top-0 bottom-0 z-[5] pointer-events-none"
           style={{ left: '80%' }}
+          animate={{
+            boxShadow: [
+              '0 0 6px 1px rgba(255,23,68,0.5)',
+              '0 0 18px 4px rgba(255,23,68,0.8)',
+              '0 0 6px 1px rgba(255,23,68,0.5)',
+            ],
+          }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
         >
           <div className="absolute inset-y-0 w-[2px] -ml-[1px]" style={{
-            background: 'var(--accent-purple)',
-            opacity: 0.5,
-            boxShadow: '0 0 8px 1px var(--accent-purple)',
+            background: 'var(--risk-critical)',
           }} />
-        </div>
+        </motion.div>
 
         {/* Unfilled area — marching stripes */}
         <div className="absolute inset-0 rounded-xl bar-march-stripes" />
@@ -1332,58 +1354,47 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
 
       {/* Stage labels below bar */}
       <div className="relative flex mt-2">
-        {KILL_LINE_STAGES.map((stage) => {
+        {/* Stages 1–4: normal labels */}
+        {KILL_LINE_STAGES.filter(s => s.id < 5).map((stage) => {
           const width = ((stage.end - stage.start) / maxPct) * 100;
-          const isKillLine = stage.id === 5;
           return (
             <div
               key={stage.id}
               className="flex flex-col items-center text-center px-0.5"
               style={{ width: `${width}%` }}
             >
-              {/* Tick */}
-              <div style={{
-                width: isKillLine ? '2px' : '1px',
-                height: isKillLine ? '10px' : '8px',
-                marginBottom: '4px',
-                background: stage.color,
-                opacity: isKillLine ? 1 : 0.9,
-                boxShadow: isKillLine ? `0 0 6px ${stage.color}` : 'none',
-              }} />
-              {/* Stage name */}
-              <span
-                className={`leading-tight truncate w-full ${isKillLine ? 'text-[10px] sm:text-[13px] font-black tracking-wide' : 'text-[9px] sm:text-[11px] font-bold'}`}
-                style={{
-                  color: stage.color,
-                  textShadow: isKillLine ? `0 0 12px var(--accent-purple)` : 'none',
-                }}
-              >
-                {isKillLine ? (lang === 'zh' ? 'AI 斩杀线' : 'AI Kill Line') : stage.label[lang]}
+              <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: stage.color, opacity: 0.9 }} />
+              <span className="text-[9px] sm:text-[11px] font-bold leading-tight truncate w-full" style={{ color: stage.color }}>
+                {stage.label[lang]}
               </span>
-              {/* Range */}
-              <span
-                className={`mono mt-0.5 font-semibold ${isKillLine ? 'text-[9px] sm:text-[11px]' : 'text-[8px] sm:text-[10px]'}`}
-                style={{
-                  fontVariantNumeric: 'tabular-nums',
-                  color: stage.color,
-                  opacity: isKillLine ? 0.9 : 0.85,
-                }}
-              >
+              <span className="text-[8px] sm:text-[10px] mono mt-0.5 font-semibold" style={{ fontVariantNumeric: 'tabular-nums', color: stage.color, opacity: 0.85 }}>
                 {stage.start}–{stage.end}%
               </span>
-              {/* Nature / core description */}
-              <span
-                className="text-[8px] sm:text-[9px] mt-0.5 leading-tight hidden md:block"
-                style={{
-                  color: stage.color,
-                  opacity: isKillLine ? 0.85 : 0.75,
-                }}
-              >
+              <span className="text-[8px] sm:text-[9px] mt-0.5 leading-tight hidden md:block" style={{ color: stage.color, opacity: 0.75 }}>
                 {stage.desc[lang]}
               </span>
             </div>
           );
         })}
+
+        {/* Stage 5: KILL LINE — same layout as 1–4 but wrapped in red badge */}
+        <div className="flex flex-col items-center text-center px-0.5" style={{ width: '20%' }}>
+          <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: 'var(--risk-critical)', opacity: 0.9 }} />
+          <div className="kill-zone-badge">
+            <div className="flex flex-col items-center text-center gap-0.5">
+              <span className="text-[9px] sm:text-[11px] font-bold leading-tight inline-flex items-center gap-0.5">
+                <Skull className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline-block" />
+                {lang === 'zh' ? 'AI 斩杀线' : 'AI Kill Line'}
+              </span>
+              <span className="text-[8px] sm:text-[10px] mono font-semibold opacity-80" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                80–100%
+              </span>
+              <span className="text-[8px] sm:text-[9px] leading-tight opacity-70 hidden md:block">
+                {KILL_LINE_STAGES[4].desc[lang]}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1492,18 +1503,31 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           <h2 className="text-xl md:text-2xl font-bold mb-8 text-foreground text-left">{t.progressTitle}</h2>
 
           <AIKillLineBar lang={lang} t={t} />
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.8 }}
-            className="mt-6 py-4 px-5 rounded-lg bg-risk-critical/5 border-l-2 border-risk-critical text-left"
-          >
-            <p className="text-risk-critical font-medium text-sm">
-              <Skull className="w-4 h-4 inline mr-2" />
-              {t.icebergWarning}
-            </p>
-          </motion.div>
+        {/* Stat cards below progress bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 stagger-children"
+        >
+          <div className="glass-card rounded-xl p-5 border border-surface-elevated/50 card-hover">
+            <div className="text-2xl md:text-3xl font-bold text-risk-critical mono data-highlight"><Counter end={CURRENT_REPLACEMENT_RATE} suffix="%" /></div>
+            <div className="text-xs text-foreground-muted mt-2 font-medium">{t.replaceableNow}</div>
+          </div>
+          <div className="glass-card rounded-xl p-5 border border-surface-elevated/50 card-hover">
+            <div className="text-2xl md:text-3xl font-bold text-brand-accent mono data-highlight"><Counter end={57} suffix="%" /></div>
+            <div className="text-xs text-foreground-muted mt-2 font-medium">{t.technicallyPossible}</div>
+          </div>
+          <div className="glass-card rounded-xl p-5 border border-surface-elevated/50 card-hover">
+            <div className="text-2xl md:text-3xl font-bold text-data-blue mono"><Counter end={89} suffix="%" /></div>
+            <div className="text-xs text-foreground-muted mt-1">{t.hrImpact}</div>
+          </div>
+          <div className="glass-card rounded-xl p-5 border border-surface-elevated/50 card-hover">
+            <div className="text-2xl md:text-3xl font-bold text-risk-critical mono">92M</div>
+            <div className="text-xs text-foreground-muted mt-1">{t.jobsBy2030}</div>
+          </div>
         </motion.div>
       </div>
     </section>
