@@ -1326,11 +1326,11 @@ body::after {
     linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
 }
 
-/* Language Toggle Button - Fixed Top Right (safe-area positions set in mobile section below) */
-.lang-toggle-btn {
-  position: fixed !important;
-  left: auto !important;
-  z-index: 9999 !important;
+/* Shared toggle button interaction */
+.lang-toggle-btn,
+.theme-toggle-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Timeline track */
@@ -1346,13 +1346,6 @@ section {
 section.no-contain {
   content-visibility: visible;
   contain-intrinsic-size: none;
-}
-
-/* Theme Toggle Button - Below Language Toggle (safe-area positions set in mobile section below) */
-.theme-toggle-btn {
-  position: fixed !important;
-  left: auto !important;
-  z-index: 9999 !important;
 }
 
 /* ============================================
@@ -1394,16 +1387,6 @@ section.no-contain {
   }
 }
 
-/* Toggle buttons: respect safe area on notch devices */
-.lang-toggle-btn {
-  top: calc(1rem + var(--safe-top)) !important;
-  right: calc(1rem + var(--safe-right)) !important;
-}
-.theme-toggle-btn {
-  top: calc(3.5rem + var(--safe-top)) !important;
-  right: calc(1rem + var(--safe-right)) !important;
-}
-
 /* Hide scrollbar for horizontal-scroll pill bars */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
@@ -1424,7 +1407,10 @@ section.no-contain {
   background: var(--timeline-close-bg-hover) !important;
 }
 
-/* Floating mobile CTA safe-area spacing */
-.mobile-fab {
-  bottom: calc(1rem + var(--safe-bottom));
+/* Mobile chrome spacing for fixed top/bottom navigation */
+@media (max-width: 639px) {
+  .mobile-shell {
+    padding-top: calc(var(--safe-top) + 5rem);
+    padding-bottom: calc(var(--safe-bottom) + 5.75rem);
+  }
 }

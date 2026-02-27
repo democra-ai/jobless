@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, Brain, Cpu, Sparkles, ChevronRight, Flame, Settings } from 'lucide-react';
+import { X, Zap, Brain, Cpu, Sparkles, ChevronRight, ChevronDown, Flame, Settings } from 'lucide-react';
 
 // ============================================
 // TYPES & DATA
@@ -269,9 +269,24 @@ function getPosition(year: number): number {
 export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Language; theme?: 'dark' | 'light' }) {
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const detailRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    const syncIsDesktop = () => setIsDesktop(mediaQuery.matches);
+    syncIsDesktop();
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', syncIsDesktop);
+      return () => mediaQuery.removeEventListener('change', syncIsDesktop);
+    }
+
+    mediaQuery.addListener(syncIsDesktop);
+    return () => mediaQuery.removeListener(syncIsDesktop);
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelectedMilestone(null); };
@@ -279,10 +294,29 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
     return () => document.removeEventListener('keydown', onKey);
   }, []);
 
+  useEffect(() => {
+    if (isDesktop || !selectedMilestone) return;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [isDesktop, selectedMilestone]);
+
   const handleSelect = useCallback((m: Milestone) => {
-    setSelectedMilestone(m);
+    if (!isDesktop) {
+      setSelectedMilestone(m);
+      return;
+    }
+
+    const shouldOpen = selectedMilestone?.id !== m.id;
+    setSelectedMilestone(shouldOpen ? m : null);
+    if (!shouldOpen) return;
     setTimeout(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
-  }, []);
+  }, [isDesktop, selectedMilestone]);
 
   const t = {
     title: lang === 'en' ? 'From Steam to AGI' : '从蒸汽机到AGI',
@@ -296,11 +330,17 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
     projected: lang === 'en' ? 'Projected' : '预测',
     sources: lang === 'en' ? 'Sources' : '数据来源',
     aiEra: lang === 'en' ? 'AI Era' : 'AI 时代',
+    openDetails: lang === 'en' ? 'Open' : '展开',
+    closeDetails: lang === 'en' ? 'Close' : '收起',
+    mobileHint: lang === 'en' ? 'Tap card for focused detail panel' : '点击卡片打开详情面板',
   };
 
   return (
     <section className="relative min-h-screen overflow-hidden" aria-label={t.title}
-      onClick={(e) => { if ((e.target as HTMLElement).closest('[data-milestone], [data-detail-panel]') === null) setSelectedMilestone(null); }}
+      onClick={(e) => {
+        if (!isDesktop) return;
+        if ((e.target as HTMLElement).closest('[data-milestone], [data-detail-panel]') === null) setSelectedMilestone(null);
+      }}
       style={{ background: `linear-gradient(to bottom, var(--timeline-bg-from), var(--timeline-bg-via), var(--timeline-bg-to))` }}>
       <TimelineBackground />
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-16 md:py-24">
@@ -324,18 +364,25 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
         {/* Timeline */}
         <div className="relative">
           <TimelineTrack milestones={MILESTONES} selectedMilestone={selectedMilestone}
-            onSelectMilestone={handleSelect} mounted={mounted} lang={lang} t={t} />
+            onSelectMilestone={handleSelect} mounted={mounted} lang={lang} t={t}
+          />
         </div>
 
         {/* Detail Panel */}
         <AnimatePresence>
-          {selectedMilestone && (
+          {selectedMilestone && isDesktop && (
             <div ref={detailRef} data-detail-panel>
               <DetailPanel milestone={selectedMilestone} onClose={() => setSelectedMilestone(null)} lang={lang} t={t} />
             </div>
           )}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {selectedMilestone && !isDesktop && (
+          <MobileDetailSheet milestone={selectedMilestone} onClose={() => setSelectedMilestone(null)} lang={lang} t={t} />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
@@ -549,6 +596,8 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
 
       {/* ====== Mobile: Vertical (<md) ====== */}
       <div className="md:hidden relative pl-12">
+        <p className="text-[11px] mb-4 text-[--timeline-text-dim]">{t.mobileHint}</p>
+
         {/* Vertical track line */}
         <div className="absolute left-[13.5px] w-[3px] rounded-full"
           style={{ top: '18px', bottom: '18px',
@@ -593,51 +642,66 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                     background: isSelected ? `${milestone.color}10` : 'var(--timeline-card-bg)',
                     borderColor: isSelected ? `${milestone.color}60` : 'var(--timeline-panel-detail-border)',
                     borderStyle: milestone.isProjected ? 'dashed' : 'solid',
-                    boxShadow: isSelected ? `0 0 20px ${milestone.color}20` : 'none'
+                    boxShadow: isSelected ? `0 0 20px ${milestone.color}20` : '0 6px 18px rgba(15, 23, 42, 0.12)'
                   }}>
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className="text-xl font-bold tabular-nums" style={{ color: milestone.color }}>{milestone.year}</span>
-                    <span className="text-sm font-semibold" style={{ color: 'var(--timeline-text)' }}>{milestone.name[lang]}</span>
-                    {milestone.isProjected && (
-                      <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded"
-                        style={{ color: milestone.color, border: `1px dashed ${milestone.color}60` }}>{t.projected}</span>
-                    )}
+                  <div className="flex items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="text-xl font-bold tabular-nums" style={{ color: milestone.color }}>{milestone.year}</span>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--timeline-text)' }}>{milestone.name[lang]}</span>
+                        {milestone.isProjected && (
+                          <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded"
+                            style={{ color: milestone.color, border: `1px dashed ${milestone.color}60` }}>{t.projected}</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[--timeline-text-muted] leading-relaxed">{milestone.impact[lang]}</p>
+                    </div>
+
+                    <div className="min-h-[44px] min-w-[44px] px-2 rounded-lg border flex items-center justify-center"
+                      style={{ borderColor: `${milestone.color}60`, background: `${milestone.color}10` }}>
+                      <motion.div animate={{ rotate: isSelected ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                        <ChevronDown className="w-4 h-4" style={{ color: milestone.color }} />
+                      </motion.div>
+                    </div>
                   </div>
-                  <p className="text-xs text-[--timeline-text-muted] leading-relaxed">{milestone.impact[lang]}</p>
-                  <div className="flex items-center gap-1 mt-2 text-[10px]" style={{ color: 'var(--timeline-text-dim)' }}>
-                    <ChevronRight className="w-3 h-3" /><span>{t.tapForDetails}</span>
+                  <div className="flex items-center gap-1 mt-2 text-[10px] font-medium"
+                    style={{ color: isSelected ? milestone.color : 'var(--timeline-text-dim)' }}>
+                    <ChevronRight className="w-3 h-3" /><span>{isSelected ? t.closeDetails : t.openDetails}</span>
                   </div>
                 </div>
               </motion.div>
 
               {/* "We Are Here" — between current and next milestone, clickable */}
               {isCurrent && (
-                <motion.div data-milestone className="relative my-4 cursor-pointer"
-                  onClick={() => onSelectMilestone(WE_ARE_HERE_MILESTONE)}
-                  role="button" tabIndex={0}
-                  aria-label={t.weAreHere}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectMilestone(WE_ARE_HERE_MILESTONE); } }}
-                >
-                  <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex items-center justify-center">
-                    <div className="w-[30px] flex justify-center">
-                      {(selectedMilestone === null || selectedMilestone?.id === 'we-are-here') ? (
-                        <motion.div animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }}
-                          className="w-3 h-3 rounded-full bg-red-500" style={{ boxShadow: '0 0 12px rgba(239, 68, 68, 0.6)' }} />
-                      ) : (
-                        <div className="w-3 h-3 rounded-full bg-red-500" />
-                      )}
+                <>
+                  <motion.div data-milestone className="relative my-4 cursor-pointer"
+                    onClick={() => onSelectMilestone(WE_ARE_HERE_MILESTONE)}
+                    role="button" tabIndex={0}
+                    aria-label={t.weAreHere}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectMilestone(WE_ARE_HERE_MILESTONE); } }}
+                  >
+                    <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                      <div className="w-[30px] flex justify-center">
+                        {(selectedMilestone === null || selectedMilestone?.id === 'we-are-here') ? (
+                          <motion.div animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }}
+                            className="w-3 h-3 rounded-full bg-red-500" style={{ boxShadow: '0 0 12px rgba(239, 68, 68, 0.6)' }} />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full bg-red-500" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-red-500/10 border border-red-500/30 transition-all"
-                    style={{
-                      background: selectedMilestone?.id === 'we-are-here' ? 'rgba(239, 68, 68, 0.2)' : undefined,
-                      borderColor: selectedMilestone?.id === 'we-are-here' ? 'rgba(239, 68, 68, 0.6)' : undefined,
-                    }}>
-                    <span className="text-xs font-bold text-red-400">{t.weAreHere}</span>
-                    <span className="text-[10px] text-red-400/60 font-mono">{currentYear}</span>
-                    <ChevronRight className="w-3 h-3 text-red-400/60 ml-auto" />
-                  </div>
-                </motion.div>
+                    <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-red-500/10 border border-red-500/30 transition-all"
+                      style={{
+                        background: selectedMilestone?.id === 'we-are-here' ? 'rgba(239, 68, 68, 0.2)' : undefined,
+                        borderColor: selectedMilestone?.id === 'we-are-here' ? 'rgba(239, 68, 68, 0.6)' : undefined,
+                      }}>
+                      <span className="text-xs font-bold text-red-400">{t.weAreHere}</span>
+                      <span className="text-[10px] text-red-400/60 font-mono">{currentYear}</span>
+                      <span className="text-[10px] text-red-300/80 ml-auto">{selectedMilestone?.id === WE_ARE_HERE_MILESTONE.id ? t.closeDetails : t.openDetails}</span>
+                      <ChevronRight className="w-3 h-3 text-red-400/60" />
+                    </div>
+                  </motion.div>
+                </>
               )}
             </div>
           );
@@ -647,23 +711,79 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
   );
 }
 
+function MobileDetailSheet({ milestone, onClose, lang, t }: {
+  milestone: Milestone;
+  onClose: () => void;
+  lang: Language;
+  t: Record<string, string>;
+}) {
+  return (
+    <motion.div className="md:hidden fixed inset-0 z-[130]"
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <button type="button" onClick={onClose} aria-label={t.close}
+        className="absolute inset-0 bg-black/55 backdrop-blur-[1px]" />
+
+      <motion.div
+        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 280, damping: 34 }}
+        className="absolute inset-x-0 bottom-0 max-h-[88vh] rounded-t-3xl border shadow-2xl"
+        style={{
+          background: 'var(--timeline-bg-via)',
+          borderColor: 'var(--timeline-panel-detail-border)',
+          paddingBottom: 'calc(0.75rem + var(--safe-bottom))',
+        }}
+        data-detail-panel
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${milestone.name[lang]} — ${milestone.year}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="pt-2 pb-2">
+          <div className="w-12 h-1 rounded-full mx-auto" style={{ background: 'var(--timeline-text-dim)' }} />
+        </div>
+        <div
+          className="px-4 overflow-y-auto overscroll-contain"
+          style={{ maxHeight: 'calc(88vh - 2rem - var(--safe-bottom))', WebkitOverflowScrolling: 'touch' }}
+        >
+          <DetailPanel
+            milestone={milestone}
+            onClose={onClose}
+            lang={lang}
+            t={t}
+            className="mt-0 mb-1"
+            variant="mobileSheet"
+          />
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ============================================
 // DETAIL PANEL
 // ============================================
-function DetailPanel({ milestone, onClose, lang, t }: {
-  milestone: Milestone; onClose: () => void; lang: Language; t: Record<string, string>;
+function DetailPanel({ milestone, onClose, lang, t, className, variant = 'default' }: {
+  milestone: Milestone;
+  onClose: () => void;
+  lang: Language;
+  t: Record<string, string>;
+  className?: string;
+  variant?: 'default' | 'mobileSheet';
 }) {
   const Icon = milestone.icon;
+  const isMobileSheet = variant === 'mobileSheet';
   return (
     <motion.div initial={{ opacity: 0, y: 40, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="mt-8 md:mt-16 relative" role="dialog" aria-label={`${milestone.name[lang]} — ${milestone.year}`}>
-      <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30" style={{ background: milestone.color }} />
-      <div className="relative rounded-3xl overflow-hidden border"
+      className={`relative ${className ?? 'mt-8 md:mt-16'}`} role="dialog" aria-label={`${milestone.name[lang]} — ${milestone.year}`}>
+      {!isMobileSheet && <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30" style={{ background: milestone.color }} />}
+      <div className={`relative overflow-hidden border ${isMobileSheet ? 'rounded-2xl' : 'rounded-3xl'}`}
         style={{
           background: 'var(--timeline-panel-bg)', borderColor: `${milestone.color}40`,
           borderStyle: milestone.isProjected ? 'dashed' : 'solid',
-          boxShadow: `0 0 60px ${milestone.color}20, inset 0 1px 0 rgba(255,255,255,0.1)`
+          boxShadow: isMobileSheet
+            ? `0 10px 30px ${milestone.color}16, inset 0 1px 0 rgba(255,255,255,0.08)`
+            : `0 0 60px ${milestone.color}20, inset 0 1px 0 rgba(255,255,255,0.1)`
         }}>
         <div className="absolute top-0 left-0 right-0 h-1"
           style={{ background: `linear-gradient(90deg, ${milestone.color}, ${milestone.color}80, ${milestone.color})` }} />
@@ -673,7 +793,7 @@ function DetailPanel({ milestone, onClose, lang, t }: {
           <X className="w-5 h-5" style={{ color: 'var(--timeline-text-muted)' }} />
         </button>
 
-        <div className="p-6 md:p-8">
+        <div className={isMobileSheet ? 'p-5 pt-6' : 'p-6 md:p-8'}>
           <div className="flex items-start gap-4 mb-6">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
               style={{ background: `linear-gradient(135deg, ${milestone.color}30, ${milestone.color}10)`, border: `1px ${milestone.isProjected ? 'dashed' : 'solid'} ${milestone.color}40` }}>
@@ -783,8 +903,14 @@ function DetailPanel({ milestone, onClose, lang, t }: {
           )}
         </div>
 
-        <div className="px-6 pb-6">
-          <button onClick={onClose} className="flex items-center gap-2 text-sm transition-colors min-h-[44px] min-w-[44px]" style={{ color: 'var(--timeline-text-muted)' }}>
+        <div className={isMobileSheet ? 'px-5 pb-5' : 'px-6 pb-6'}>
+          <button onClick={onClose}
+            className={isMobileSheet
+              ? 'w-full flex items-center justify-center gap-2 text-sm rounded-lg border min-h-[44px]'
+              : 'flex items-center gap-2 text-sm transition-colors min-h-[44px] min-w-[44px]'}
+            style={isMobileSheet
+              ? { color: 'var(--timeline-text)', borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }
+              : { color: 'var(--timeline-text-muted)' }}>
             <X className="w-4 h-4" /><span>{t.close}</span>
           </button>
         </div>

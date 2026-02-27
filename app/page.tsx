@@ -1228,7 +1228,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
   const [ready, setReady] = useState(false);
   const [showCalc, setShowCalc] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
-  // Hover-based tooltips — no outside-click needed
+  const chipScrollRef = useRef<HTMLDivElement>(null);
+  const chipRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
   useEffect(() => {
     const duration = 2000;
@@ -1243,8 +1244,15 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
     return () => clearInterval(id);
   }, [basePct]);
 
-  // Removed: continuous setInterval that incremented displayPct forever,
-  // causing endless React re-renders. The initial animation is sufficient.
+  const handleSelectStage = (id: number) => {
+    const next = activeTooltip === id ? null : id;
+    setActiveTooltip(next);
+    if (next !== null) {
+      requestAnimationFrame(() => {
+        chipRefs.current[next]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      });
+    }
+  };
 
   const w = (displayPct / maxPct) * 100;
   const activeStage = KILL_LINE_STAGES.find(s => displayPct >= s.start && displayPct < s.end) || KILL_LINE_STAGES[KILL_LINE_STAGES.length - 1];
@@ -1397,6 +1405,43 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
         {/* Unfilled area — marching stripes */}
         <div className="absolute inset-0 rounded-xl bar-march-stripes" />
 
+        {/* Active stage full-block highlight (rendered for ALL stages, even unfilled) */}
+        <AnimatePresence>
+          {activeTooltip !== null && (() => {
+            const hl = KILL_LINE_STAGES.find(s => s.id === activeTooltip);
+            if (!hl) return null;
+            const hlLeft = (hl.start / maxPct) * 100;
+            const hlWidth = ((hl.end - hl.start) / maxPct) * 100;
+            return (
+              <motion.div
+                key={`hl-${hl.id}`}
+                className="absolute top-0 bottom-0 z-[3] pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                style={{
+                  left: `${hlLeft}%`,
+                  width: `${hlWidth}%`,
+                  background: hl.color,
+                  opacity: 0.35,
+                }}
+              >
+                {/* Glass highlight on top */}
+                <div className="absolute inset-x-0 top-0 h-[40%]" style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%)',
+                }} />
+                {/* Skull icon for Kill Line stage */}
+                {hl.id === 5 && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Skull className="w-5 h-5 sm:w-6 sm:h-6 text-white/80 drop-shadow-[0_0_6px_rgba(255,23,68,0.8)]" />
+                  </div>
+                )}
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
+
         {/* Filled area */}
         <div className="absolute inset-y-0 left-0 rounded-l-xl overflow-hidden" style={{ width: `${w}%` }}>
           {/* Per-stage color fill */}
@@ -1405,15 +1450,16 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
             const fillEnd = Math.min(stage.end, displayPct);
             const segLeft = (stage.start / displayPct) * 100;
             const segWidth = ((fillEnd - stage.start) / displayPct) * 100;
+            const hasSomeActive = activeTooltip !== null;
             return (
               <div
                 key={stage.id}
-                className="absolute top-0 bottom-0"
+                className="absolute top-0 bottom-0 transition-opacity duration-300"
                 style={{
                   left: `${segLeft}%`,
                   width: `${segWidth}%`,
                   background: stage.color,
-                  opacity: 0.75,
+                  opacity: hasSomeActive ? 0.25 : 0.75,
                 }}
               />
             );
@@ -1474,6 +1520,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           </motion.div>
         )}
 
+
       </div>
 
       {/* Desktop: horizontal stage labels below bar */}
@@ -1488,7 +1535,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               style={{ width: `${width}%` }}
               onMouseEnter={() => setActiveTooltip(stage.id)}
               onMouseLeave={() => setActiveTooltip(null)}
-              onClick={() => setActiveTooltip(activeTooltip === stage.id ? null : stage.id)}
+              onClick={() => handleSelectStage(stage.id)}
             >
               <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: stage.color, opacity: 0.9 }} />
               <span className="inline-flex items-center justify-center gap-1 text-sm sm:text-base font-bold leading-tight cursor-pointer" style={{ color: stage.color }}>
@@ -1557,7 +1604,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           style={{ width: '20%' }}
           onMouseEnter={() => setActiveTooltip(5)}
           onMouseLeave={() => setActiveTooltip(null)}
-          onClick={() => setActiveTooltip(activeTooltip === 5 ? null : 5)}
+          onClick={() => handleSelectStage(5)}
         >
           <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: 'var(--risk-critical)', opacity: 0.9 }} />
           <div className="kill-zone-badge cursor-pointer transition-all">
@@ -1607,60 +1654,101 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
         </div>
       </div>
 
-      {/* Mobile: vertical stage list with tap-to-expand */}
-      <div className="sm:hidden mt-3 space-y-1">
-        {KILL_LINE_STAGES.map((stage) => (
-          <div key={stage.id}>
-            <button
-              onClick={() => setActiveTooltip(activeTooltip === stage.id ? null : stage.id)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors text-left min-h-[44px]"
-              style={{
-                background: activeTooltip === stage.id ? `color-mix(in srgb, ${stage.color} 10%, transparent)` : 'transparent',
-                borderLeft: `3px solid ${stage.color}`,
-              }}
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                {stage.id === 5 && <Skull className="w-4 h-4 flex-shrink-0" style={{ color: stage.color }} />}
-                <span className="text-sm font-bold truncate" style={{ color: stage.color }}>
-                  {stage.label[lang]}
-                </span>
-                {CURRENT_REPLACEMENT_RATE >= stage.start && CURRENT_REPLACEMENT_RATE < stage.end && (
-                  <span className="text-[10px] bg-risk-high/20 text-risk-high px-1.5 py-0.5 rounded font-bold flex-shrink-0">
-                    {lang === 'zh' ? '当前' : 'NOW'}
-                  </span>
+      {/* Mobile: horizontal chip selector + detail card */}
+      <div className="sm:hidden mt-5">
+        {/* Stage chips — scrollable row */}
+        <div ref={chipScrollRef} className="flex overflow-x-auto gap-2 pb-3 -mx-1 px-1 scrollbar-hide">
+          {KILL_LINE_STAGES.map((stage) => {
+            const isCurrent = CURRENT_REPLACEMENT_RATE >= stage.start && CURRENT_REPLACEMENT_RATE < stage.end;
+            const isActive = activeTooltip === stage.id;
+            return (
+              <button
+                key={stage.id}
+                ref={(el) => { chipRefs.current[stage.id] = el; }}
+                onClick={() => handleSelectStage(stage.id)}
+                className="flex-shrink-0 flex items-center gap-1.5 min-h-[36px] px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                style={{
+                  background: isActive
+                    ? `color-mix(in srgb, ${stage.color} 18%, transparent)`
+                    : 'var(--surface-elevated)',
+                  border: `1.5px solid ${isActive ? stage.color : 'transparent'}`,
+                  color: isActive ? stage.color : 'var(--foreground-muted)',
+                  boxShadow: isActive ? `0 0 12px color-mix(in srgb, ${stage.color} 20%, transparent)` : 'none',
+                }}
+              >
+                {stage.id === 5 && <Skull className="w-3.5 h-3.5" />}
+                <span>{stage.label[lang]}</span>
+                {isCurrent && (
+                  <span className="w-2 h-2 rounded-full bg-risk-high animate-pulse flex-shrink-0" />
                 )}
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                <span className="text-xs mono text-foreground-dim">{stage.start}–{stage.end}%</span>
-                <ChevronDown className={`w-4 h-4 text-foreground-dim transition-transform duration-200 ${activeTooltip === stage.id ? 'rotate-180' : ''}`} />
-              </div>
-            </button>
-            {/* Expanded detail for tapped stage */}
-            <AnimatePresence>
-              {activeTooltip === stage.id && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="mx-3 mb-2 p-3 rounded-lg text-left" style={{ background: 'var(--surface-elevated)', borderLeft: `3px solid ${stage.color}` }}>
-                    <div className="text-xs text-foreground-muted leading-relaxed mb-2">{stage.tooltip[lang].definition}</div>
-                    <div className="text-xs leading-relaxed p-2 rounded-md mb-2" style={{ background: 'var(--surface-card)' }}>
-                      <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
-                      <span className="text-foreground-muted">{stage.tooltip[lang].relationship}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-md" style={{ background: `color-mix(in srgb, ${stage.color} 12%, transparent)`, color: stage.color }}>{stage.tooltip[lang].coreNature}</span>
-                    </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Detail card for selected stage */}
+        <AnimatePresence mode="wait">
+          {activeTooltip !== null && (() => {
+            const stage = KILL_LINE_STAGES.find(s => s.id === activeTooltip);
+            if (!stage) return null;
+            return (
+              <motion.div
+                key={stage.id}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                className="rounded-xl p-4"
+                style={{
+                  background: `color-mix(in srgb, ${stage.color} 5%, var(--surface-elevated))`,
+                  border: `1px solid color-mix(in srgb, ${stage.color} 15%, transparent)`,
+                }}
+              >
+                {/* Header row */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{ background: stage.color, boxShadow: `0 0 6px ${stage.color}` }}
+                    />
+                    <span className="text-sm font-bold" style={{ color: stage.color }}>{stage.label[lang]}</span>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ))}
+                  <span className="text-[11px] mono font-semibold text-foreground-dim">{stage.start}–{stage.end}%</span>
+                </div>
+
+                {/* Definition */}
+                <p className="text-xs text-foreground-muted leading-relaxed mb-3">
+                  {stage.tooltip[lang].definition}
+                </p>
+
+                {/* Relationship */}
+                <div
+                  className="text-xs leading-relaxed p-2.5 rounded-lg mb-3"
+                  style={{ background: 'var(--surface-card)', borderLeft: `2px solid ${stage.color}` }}
+                >
+                  <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human / AI'}: </span>
+                  <span className="text-foreground-muted">{stage.tooltip[lang].relationship}</span>
+                </div>
+
+                {/* Nature tag */}
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-wider text-foreground-dim">
+                    {lang === 'zh' ? '本质' : 'Core Nature'}
+                  </span>
+                  <span
+                    className="text-[11px] font-bold px-2.5 py-1 rounded-md"
+                    style={{
+                      background: `color-mix(in srgb, ${stage.color} 12%, transparent)`,
+                      color: stage.color,
+                    }}
+                  >
+                    {stage.tooltip[lang].coreNature}
+                  </span>
+                </div>
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -1688,6 +1776,14 @@ function TechTag({ tech, lang }: { tech: string; lang: Language }) {
 
 // 主题类型
 type Theme = 'dark' | 'light';
+type MobileSection = 'overview' | 'risk' | 'threat' | 'timeline';
+
+const MOBILE_SECTION_TARGETS: Record<MobileSection, string> = {
+  overview: 'overview-anchor',
+  risk: 'risk-calculator',
+  threat: 'data-threat-anchor',
+  timeline: 'timeline-anchor',
+};
 
 // 语言切换按钮
 function LanguageButton({ lang, setLang }: { lang: Language; setLang: (lang: Language) => void }) {
@@ -1720,6 +1816,105 @@ function ThemeButton({ theme, setTheme }: { theme: Theme; setTheme: (theme: Them
     >
       {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
     </motion.button>
+  );
+}
+
+function MobileTopBar({
+  lang,
+  setLang,
+  theme,
+  setTheme,
+}: {
+  lang: Language;
+  setLang: (lang: Language) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}) {
+  return (
+    <div className="sm:hidden fixed left-0 right-0 z-[95] px-3" style={{ top: 'calc(var(--safe-top) + 0.4rem)' }}>
+      <div
+        className="rounded-2xl border px-2 py-2 backdrop-blur-xl"
+        style={{
+          background: 'color-mix(in srgb, var(--surface) 88%, transparent)',
+          borderColor: 'rgba(255,255,255,0.12)',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
+        }}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 pl-2">
+            <div className="w-2 h-2 rounded-full bg-risk-high" />
+            <span className="text-xs font-semibold text-foreground-muted">
+              {lang === 'zh' ? '快速设置' : 'Quick Settings'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <LanguageButton lang={lang} setLang={setLang} />
+            <ThemeButton theme={theme} setTheme={setTheme} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileBottomNav({
+  lang,
+  activeSection,
+  onNavigate,
+}: {
+  lang: Language;
+  activeSection: MobileSection;
+  onNavigate: (section: MobileSection) => void;
+}) {
+  const navItems: Array<{
+    id: MobileSection;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }> = [
+    { id: 'overview', label: lang === 'zh' ? '概览' : 'Overview', icon: Activity },
+    { id: 'risk', label: lang === 'zh' ? '评估' : 'Risk', icon: Target },
+    { id: 'threat', label: lang === 'zh' ? '数据威胁' : 'Data Threat', icon: Shield },
+    { id: 'timeline', label: lang === 'zh' ? '时间线' : 'Timeline', icon: Clock },
+  ];
+
+  return (
+    <div className="sm:hidden fixed left-0 right-0 z-[95] px-3" style={{ bottom: 'calc(var(--safe-bottom) + 0.55rem)' }}>
+      <nav
+        className="rounded-2xl border p-1.5 backdrop-blur-xl"
+        style={{
+          background: 'color-mix(in srgb, var(--surface) 90%, transparent)',
+          borderColor: 'rgba(255,255,255,0.12)',
+          boxShadow: '0 16px 36px rgba(0,0,0,0.38)',
+        }}
+        aria-label={lang === 'zh' ? '移动端导航' : 'Mobile navigation'}
+      >
+        <div className="grid grid-cols-4 gap-1">
+          {navItems.map((item) => {
+            const active = activeSection === item.id;
+            const Icon = item.icon;
+            return (
+              <motion.button
+                key={item.id}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onNavigate(item.id)}
+                className="flex min-h-[48px] flex-col items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-medium transition-all"
+                style={{
+                  color: active ? '#fff' : 'var(--foreground-muted)',
+                  background: active
+                    ? 'linear-gradient(135deg, rgba(255,107,53,0.9), rgba(255,23,68,0.88))'
+                    : 'transparent',
+                  boxShadow: active ? '0 8px 18px rgba(255,23,68,0.22)' : 'none',
+                }}
+                aria-current={active ? 'page' : undefined}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="leading-none">{item.label}</span>
+              </motion.button>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
   );
 }
 
@@ -1772,75 +1967,112 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
             <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-foreground text-left">{t.progressTitle}</h2>
             <AIKillLineBar lang={lang} t={t} />
 
-            {/* Stat cards — stacked on mobile, 3-col on sm+ */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-              {([
+            {/* Stat cards — unified card on mobile, 3-col on sm+ */}
+            {(() => {
+              const stats = [
                 { value: <Counter end={43.64} suffix="%" />, color: 'var(--risk-high)', icon: Eye, label: t.exposureLabel, desc: t.exposureDesc, source: t.exposureSource, url: t.exposureUrl },
                 { value: <Counter end={49.75} suffix="%" />, color: 'var(--brand-accent)', icon: Zap, label: t.proficiencyLabel, desc: t.proficiencyDesc, source: t.proficiencySource, url: t.proficiencyUrl },
                 { value: <>92M</>, color: 'var(--risk-critical)', icon: TrendingDown, label: t.jobsBy2030, desc: t.jobsBy2030Desc, source: t.jobsBy2030Source, url: t.jobsBy2030Url },
-              ] as const).map((stat, i) => {
-                const Icon = stat.icon;
-                return (
-                  <div
-                    key={i}
-                    className="group relative rounded-xl p-4 bg-surface border border-surface-elevated cursor-pointer sm:cursor-default"
-                    onClick={() => setActiveStat(activeStat === i ? null : i)}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
-                          <Icon className="w-4 h-4" style={{ color: stat.color }} />
-                        </div>
-                        <span className="text-xs sm:text-sm text-foreground-muted font-medium truncate">{stat.label}</span>
-                      </div>
-                      <span
-                        className="inline-flex items-center rounded-md px-2 py-0.5 text-sm sm:text-base mono font-semibold leading-none flex-shrink-0"
-                        style={{
-                          fontVariantNumeric: 'tabular-nums',
-                          color: stat.color,
-                          backgroundColor: `color-mix(in srgb, ${stat.color} 12%, transparent)`,
-                          border: `1px solid color-mix(in srgb, ${stat.color} 30%, transparent)`,
-                        }}
-                      >
-                        {stat.value}
-                      </span>
-                    </div>
-                    {/* Mobile: inline expandable detail */}
-                    <AnimatePresence>
-                      {activeStat === i && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
+              ] as const;
+
+              return (
+                <>
+                  {/* Mobile: single unified card with divide-y */}
+                  <div className="sm:hidden mt-4 rounded-xl bg-surface border border-surface-elevated divide-y divide-surface-elevated">
+                    {stats.map((stat, i) => {
+                      const Icon = stat.icon;
+                      return (
+                        <div
+                          key={i}
+                          className="px-4 py-3 cursor-pointer transition-colors active:bg-surface-elevated/50"
+                          onClick={() => setActiveStat(activeStat === i ? null : i)}
                         >
-                          <div className="pt-3 mt-3 border-t border-surface-elevated text-left">
-                            <div className="text-xs text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
-                            <a href={stat.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium transition-colors" style={{ color: stat.color }}>
-                              <ExternalLink className="w-3 h-3" />
-                              {stat.source}
-                            </a>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 12%, transparent)` }}>
+                                <Icon className="w-4 h-4" style={{ color: stat.color }} />
+                              </div>
+                              <span className="text-xs text-foreground-muted font-medium">{stat.label}</span>
+                            </div>
+                            <span
+                              className="inline-flex items-center rounded-md px-2 py-0.5 text-sm mono font-semibold leading-none flex-shrink-0"
+                              style={{
+                                fontVariantNumeric: 'tabular-nums',
+                                color: stat.color,
+                                backgroundColor: `color-mix(in srgb, ${stat.color} 10%, transparent)`,
+                              }}
+                            >
+                              {stat.value}
+                            </span>
                           </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                    {/* Desktop: hover tooltip */}
-                    <div className="hidden sm:block absolute bottom-full left-1/2 -translate-x-1/2 pb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-30 w-max max-w-[260px]">
-                      <div className="px-3 py-3 rounded-xl"
-                        style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 12px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)' }}
-                      >
-                        <div className="text-[11px] text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
-                        <a href={stat.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-medium transition-colors" style={{ color: stat.color }}>
-                          <ExternalLink className="w-3 h-3" />
-                          {stat.source}
-                        </a>
-                      </div>
-                    </div>
+                          <AnimatePresence>
+                            {activeStat === i && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="pt-2.5 mt-2.5 text-left" style={{ borderTop: `1px solid color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
+                                  <div className="text-xs text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
+                                  <a href={stat.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium transition-colors" style={{ color: stat.color }}>
+                                    <ExternalLink className="w-3 h-3" />
+                                    {stat.source}
+                                  </a>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Desktop: 3-column grid */}
+                  <div className="hidden sm:grid grid-cols-3 gap-3 mt-4">
+                    {stats.map((stat, i) => {
+                      const Icon = stat.icon;
+                      return (
+                        <div key={i} className="group relative rounded-xl p-4 bg-surface border border-surface-elevated">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
+                                <Icon className="w-4 h-4" style={{ color: stat.color }} />
+                              </div>
+                              <span className="text-sm text-foreground-muted font-medium truncate">{stat.label}</span>
+                            </div>
+                            <span
+                              className="inline-flex items-center rounded-md px-2 py-0.5 text-base mono font-semibold leading-none flex-shrink-0"
+                              style={{
+                                fontVariantNumeric: 'tabular-nums',
+                                color: stat.color,
+                                backgroundColor: `color-mix(in srgb, ${stat.color} 12%, transparent)`,
+                                border: `1px solid color-mix(in srgb, ${stat.color} 30%, transparent)`,
+                              }}
+                            >
+                              {stat.value}
+                            </span>
+                          </div>
+                          {/* Desktop: hover tooltip */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-30 w-max max-w-[260px]">
+                            <div className="px-3 py-3 rounded-xl"
+                              style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 12px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)' }}
+                            >
+                              <div className="text-[11px] text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
+                              <a href={stat.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-medium transition-colors" style={{ color: stat.color }}>
+                                <ExternalLink className="w-3 h-3" />
+                                {stat.source}
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </motion.div>
 
@@ -3190,7 +3422,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   };
 
   return (
-    <section id="risk-calculator" className="py-12 sm:py-24 px-4 md:px-6 relative z-30 overflow-hidden scroll-mt-8">
+    <section id="risk-calculator" data-mobile-section="risk" className="py-12 sm:py-24 px-4 md:px-6 relative z-30 overflow-hidden scroll-mt-8">
       {/* Background gradient effect */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-surface/30 to-transparent pointer-events-none" />
 
@@ -3710,7 +3942,7 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
           viewport={{ once: true }}
           className="text-center mb-8 sm:mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-6 opacity-0">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-6">
             <Lock className="w-4 h-4 text-risk-critical" />
             <span className="text-sm font-medium text-risk-critical">DATA THREAT</span>
           </div>
@@ -3930,7 +4162,12 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: typeof translatio
 export default function Home() {
   const [lang, setLang] = useState<Language>('en');
   const [theme, setTheme] = useState<Theme>('dark');
+  const [activeMobileSection, setActiveMobileSection] = useState<MobileSection>('overview');
   const t = translations[lang];
+
+  const scrollToSection = (section: MobileSection) => {
+    document.getElementById(MOBILE_SECTION_TARGETS[section])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem('jobless-theme') as Theme | null;
@@ -3943,29 +4180,59 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        const section = visible[0]?.target.getAttribute('data-mobile-section') as MobileSection | null;
+        if (section) setActiveMobileSection(section);
+      },
+      { rootMargin: '-45% 0px -45% 0px', threshold: [0.15, 0.35, 0.65] }
+    );
+
+    Object.values(MOBILE_SECTION_TARGETS).forEach((id) => {
+      const node = document.getElementById(id);
+      if (node) observer.observe(node);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <main className="min-h-screen overflow-x-hidden">
-      <LanguageButton lang={lang} setLang={setLang} />
-      <ThemeButton theme={theme} setTheme={setTheme} />
-      <HeroSection lang={lang} t={t} />
+    <main className="min-h-screen overflow-x-hidden mobile-shell">
+      <div className="hidden sm:flex fixed z-50 flex-col gap-2" style={{ top: 'calc(var(--safe-top) + 1rem)', right: 'calc(var(--safe-right) + 1rem)' }}>
+        <LanguageButton lang={lang} setLang={setLang} />
+        <ThemeButton theme={theme} setTheme={setTheme} />
+      </div>
+
+      <MobileTopBar
+        lang={lang}
+        setLang={setLang}
+        theme={theme}
+        setTheme={setTheme}
+      />
+
+      <div id="overview-anchor" data-mobile-section="overview" className="scroll-mt-28 sm:scroll-mt-0">
+        <HeroSection lang={lang} t={t} />
+      </div>
       <SurvivalIndexSection lang={lang} t={t} />
-      <DataThreatSection lang={lang} t={t} />
-      <InteractiveTimeline lang={lang} theme={theme} />
+      <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
+        <DataThreatSection lang={lang} t={t} />
+      </div>
+      <div id="timeline-anchor" data-mobile-section="timeline" className="scroll-mt-28 sm:scroll-mt-0">
+        <InteractiveTimeline lang={lang} theme={theme} />
+      </div>
       <AnalysisLinkSection lang={lang} t={t} />
       <Footer lang={lang} t={t} />
 
-      {/* Mobile floating CTA — scroll to risk calculator */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 2, duration: 0.3 }}
-        onClick={() => document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth' })}
-        className="sm:hidden fixed right-4 z-50 mobile-fab w-14 h-14 rounded-full bg-gradient-to-br from-risk-high to-risk-critical text-white flex items-center justify-center shadow-lg shadow-risk-critical/30"
-        aria-label={lang === 'zh' ? '计算你的AI替代风险' : 'Calculate your AI risk'}
-        whileTap={{ scale: 0.9 }}
-      >
-        <Target className="w-6 h-6" />
-      </motion.button>
+      <MobileBottomNav
+        lang={lang}
+        activeSection={activeMobileSection}
+        onNavigate={scrollToSection}
+      />
     </main>
   );
 }
