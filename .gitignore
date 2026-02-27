@@ -26,6 +26,10 @@
 .DS_Store
 *.pem
 
+# 临时/测试文件（不纳入版本库）
+.tmp*
+.temp*
+
 # debug
 npm-debug.log*
 yarn-debug.log*

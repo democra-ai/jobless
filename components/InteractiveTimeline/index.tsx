@@ -294,21 +294,10 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
     return () => document.removeEventListener('keydown', onKey);
   }, []);
 
-  useEffect(() => {
-    if (isDesktop || !selectedMilestone) return;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousHtmlOverflow;
-    };
-  }, [isDesktop, selectedMilestone]);
-
   const handleSelect = useCallback((m: Milestone) => {
     if (!isDesktop) {
-      setSelectedMilestone(m);
+      const shouldOpen = selectedMilestone?.id !== m.id;
+      setSelectedMilestone(shouldOpen ? m : null);
       return;
     }
 
@@ -341,7 +330,7 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
         if (!isDesktop) return;
         if ((e.target as HTMLElement).closest('[data-milestone], [data-detail-panel]') === null) setSelectedMilestone(null);
       }}
-      style={{ background: `linear-gradient(to bottom, var(--timeline-bg-from), var(--timeline-bg-via), var(--timeline-bg-to))` }}>
+>
       <TimelineBackground />
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-16 md:py-24">
         {/* Header */}
@@ -364,7 +353,7 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
         {/* Timeline */}
         <div className="relative">
           <TimelineTrack milestones={MILESTONES} selectedMilestone={selectedMilestone}
-            onSelectMilestone={handleSelect} mounted={mounted} lang={lang} t={t}
+            onSelectMilestone={handleSelect} mounted={mounted} lang={lang} t={t} isDesktop={isDesktop}
           />
         </div>
 
@@ -378,11 +367,6 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
         </AnimatePresence>
       </div>
 
-      <AnimatePresence>
-        {selectedMilestone && !isDesktop && (
-          <MobileDetailSheet milestone={selectedMilestone} onClose={() => setSelectedMilestone(null)} lang={lang} t={t} />
-        )}
-      </AnimatePresence>
     </section>
   );
 }
@@ -404,12 +388,7 @@ function TimelineBackground() {
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           className="absolute bottom-1/4 left-1/2 w-48 h-48 md:w-96 md:h-96 bg-red-500/20 rounded-full blur-3xl" />
       </div>
-      <div className="absolute inset-0 opacity-[0.02]" style={{
-        backgroundImage: `linear-gradient(90deg, var(--timeline-grid-color) 1px, transparent 1px), linear-gradient(var(--timeline-grid-color) 1px, transparent 1px)`,
-        backgroundSize: '50px 50px',
-      }} />
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
-        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E")` }} />
+      {/* Grid and noise removed — global body background provides the unified grid pattern */}
     </>
   );
 }
@@ -417,13 +396,14 @@ function TimelineBackground() {
 // ============================================
 // TIMELINE TRACK
 // ============================================
-function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mounted, lang, t }: {
+function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mounted, lang, t, isDesktop }: {
   milestones: Milestone[];
   selectedMilestone: Milestone | null;
   onSelectMilestone: (m: Milestone) => void;
   mounted: boolean;
   lang: Language;
   t: Record<string, string>;
+  isDesktop: boolean;
 }) {
   const currentYear = new Date().getFullYear();
   const currentPos = getPosition(currentYear);
@@ -657,19 +637,37 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                       <p className="text-xs text-[--timeline-text-muted] leading-relaxed">{milestone.impact[lang]}</p>
                     </div>
 
-                    <div className="min-h-[44px] min-w-[44px] px-2 rounded-lg border flex items-center justify-center"
-                      style={{ borderColor: `${milestone.color}60`, background: `${milestone.color}10` }}>
+                    <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
                       <motion.div animate={{ rotate: isSelected ? 180 : 0 }} transition={{ duration: 0.2 }}>
                         <ChevronDown className="w-4 h-4" style={{ color: milestone.color }} />
                       </motion.div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 mt-2 text-[10px] font-medium"
-                    style={{ color: isSelected ? milestone.color : 'var(--timeline-text-dim)' }}>
-                    <ChevronRight className="w-3 h-3" /><span>{isSelected ? t.closeDetails : t.openDetails}</span>
-                  </div>
                 </div>
               </motion.div>
+
+              <AnimatePresence initial={false}>
+                {isSelected && !isDesktop && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div data-detail-panel className="mt-3 mb-6">
+                      <DetailPanel
+                        milestone={milestone}
+                        onClose={() => onSelectMilestone(milestone)}
+                        lang={lang}
+                        t={t}
+                        className="mt-0 mb-0"
+                        variant="mobileInline"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* "We Are Here" — between current and next milestone, clickable */}
               {isCurrent && (
@@ -697,10 +695,38 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                       }}>
                       <span className="text-xs font-bold text-red-400">{t.weAreHere}</span>
                       <span className="text-[10px] text-red-400/60 font-mono">{currentYear}</span>
-                      <span className="text-[10px] text-red-300/80 ml-auto">{selectedMilestone?.id === WE_ARE_HERE_MILESTONE.id ? t.closeDetails : t.openDetails}</span>
-                      <ChevronRight className="w-3 h-3 text-red-400/60" />
+                      <ChevronDown
+                        className="w-3 h-3 text-red-400/70 ml-auto"
+                        style={{
+                          transform: selectedMilestone?.id === WE_ARE_HERE_MILESTONE.id ? 'rotate(180deg)' : 'none',
+                          transition: 'transform 0.2s ease',
+                        }}
+                      />
                     </div>
                   </motion.div>
+
+                  <AnimatePresence initial={false}>
+                    {selectedMilestone?.id === WE_ARE_HERE_MILESTONE.id && !isDesktop && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div data-detail-panel className="mt-3 mb-6">
+                          <DetailPanel
+                            milestone={WE_ARE_HERE_MILESTONE}
+                            onClose={() => onSelectMilestone(WE_ARE_HERE_MILESTONE)}
+                            lang={lang}
+                            t={t}
+                            className="mt-0 mb-0"
+                            variant="mobileInline"
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </>
               )}
             </div>
@@ -711,49 +737,322 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
   );
 }
 
+type MobileSheetSection = 'overview' | 'inventions' | 'jobs' | 'impact' | 'sources';
+
 function MobileDetailSheet({ milestone, onClose, lang, t }: {
   milestone: Milestone;
   onClose: () => void;
   lang: Language;
   t: Record<string, string>;
 }) {
+  const Icon = milestone.icon;
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const dockIdleTimerRef = useRef<number | null>(null);
+  const activeLockRef = useRef(false);
+  const activeLockTimerRef = useRef<number | null>(null);
+  const [activeSection, setActiveSection] = useState<MobileSheetSection>('overview');
+  const [dockActive, setDockActive] = useState(false);
+
+  const hasInventions = Boolean(milestone.inventions?.length);
+  const hasJobs = Boolean(milestone.jobDisplacement?.length);
+  const hasImpact = Boolean(milestone.socialImpact);
+  const hasSources = Boolean(milestone.details.sources?.length);
+
+  const navSections = [
+    { id: 'overview' as const, label: lang === 'en' ? 'Overview' : '概览', enabled: true },
+    { id: 'inventions' as const, label: lang === 'en' ? 'Inventions' : '发明', enabled: hasInventions },
+    { id: 'jobs' as const, label: lang === 'en' ? 'Jobs' : '岗位', enabled: hasJobs },
+    { id: 'impact' as const, label: lang === 'en' ? 'Impact' : '影响', enabled: hasImpact },
+    { id: 'sources' as const, label: lang === 'en' ? 'Sources' : '来源', enabled: hasSources },
+  ];
+  const getSectionElement = useCallback((sectionId: MobileSheetSection) => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return null;
+    return scroller.querySelector<HTMLElement>(`[data-sheet-section="${sectionId}"]`);
+  }, []);
+
+  const syncActiveSection = useCallback(() => {
+    if (activeLockRef.current) return;
+
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    const sectionIds: MobileSheetSection[] = [
+      'overview',
+      ...(hasInventions ? ['inventions' as const] : []),
+      ...(hasJobs ? ['jobs' as const] : []),
+      ...(hasImpact ? ['impact' as const] : []),
+      ...(hasSources ? ['sources' as const] : []),
+    ];
+
+    // Choose the section whose heading is nearest to the reading anchor.
+    const scrollerTop = scroller.getBoundingClientRect().top;
+    const anchorY = scrollerTop + Math.min(180, scroller.clientHeight * 0.24);
+    let next: MobileSheetSection = 'overview';
+    let minDistance = Number.POSITIVE_INFINITY;
+    sectionIds.forEach((sectionId) => {
+      const node = getSectionElement(sectionId);
+      if (!node) return;
+      const distance = Math.abs(node.getBoundingClientRect().top - anchorY);
+      if (distance < minDistance) {
+        minDistance = distance;
+        next = sectionId;
+      }
+    });
+    setActiveSection((prev) => (prev === next ? prev : next));
+  }, [hasInventions, hasJobs, hasImpact, hasSources, getSectionElement]);
+
+  const scheduleDockFade = () => {
+    if (dockIdleTimerRef.current !== null) {
+      window.clearTimeout(dockIdleTimerRef.current);
+      dockIdleTimerRef.current = null;
+    }
+    setDockActive(true);
+    dockIdleTimerRef.current = window.setTimeout(() => {
+      setDockActive(false);
+      dockIdleTimerRef.current = null;
+    }, 900);
+  };
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => syncActiveSection());
+    return () => window.cancelAnimationFrame(frameId);
+  }, [milestone.id, syncActiveSection]);
+
+  useEffect(() => {
+    return () => {
+      if (dockIdleTimerRef.current !== null) window.clearTimeout(dockIdleTimerRef.current);
+      if (activeLockTimerRef.current !== null) window.clearTimeout(activeLockTimerRef.current);
+    };
+  }, []);
+
+  const onScroll: React.UIEventHandler<HTMLDivElement> = () => {
+    syncActiveSection();
+    scheduleDockFade();
+  };
+
+  const jumpToSection = (sectionId: MobileSheetSection) => {
+    const target = getSectionElement(sectionId);
+    if (!target) return;
+    activeLockRef.current = true;
+    if (activeLockTimerRef.current !== null) window.clearTimeout(activeLockTimerRef.current);
+    activeLockTimerRef.current = window.setTimeout(() => {
+      activeLockRef.current = false;
+      activeLockTimerRef.current = null;
+      syncActiveSection();
+    }, 520);
+    setActiveSection(sectionId);
+    scheduleDockFade();
+
+    const scroller = scrollerRef.current;
+    if (!scroller) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    const scrollerRect = scroller.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const targetTop = Math.max(0, scroller.scrollTop + (targetRect.top - scrollerRect.top) - 8);
+    scroller.scrollTo({ top: targetTop, behavior: 'smooth' });
+  };
+
   return (
-    <motion.div className="md:hidden fixed inset-0 z-[130]"
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <motion.div className="md:hidden fixed inset-0 z-[130]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <button type="button" onClick={onClose} aria-label={t.close}
-        className="absolute inset-0 bg-black/55 backdrop-blur-[1px]" />
+        className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
 
       <motion.div
-        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-        transition={{ type: 'spring', stiffness: 280, damping: 34 }}
-        className="absolute inset-x-0 bottom-0 max-h-[88vh] rounded-t-3xl border shadow-2xl"
-        style={{
-          background: 'var(--timeline-bg-via)',
-          borderColor: 'var(--timeline-panel-detail-border)',
-          paddingBottom: 'calc(0.75rem + var(--safe-bottom))',
-        }}
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute inset-0 flex flex-col"
+        style={{ background: 'var(--timeline-bg-via)' }}
         data-detail-panel
         role="dialog"
         aria-modal="true"
         aria-label={`${milestone.name[lang]} — ${milestone.year}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="pt-2 pb-2">
-          <div className="w-12 h-1 rounded-full mx-auto" style={{ background: 'var(--timeline-text-dim)' }} />
-        </div>
         <div
-          className="px-4 overflow-y-auto overscroll-contain"
-          style={{ maxHeight: 'calc(88vh - 2rem - var(--safe-bottom))', WebkitOverflowScrolling: 'touch' }}
+          className="border-b px-4 pb-3 backdrop-blur-xl"
+          style={{
+            paddingTop: 'calc(var(--safe-top) + 0.5rem)',
+            borderColor: 'var(--timeline-panel-detail-border)',
+            background: 'color-mix(in srgb, var(--timeline-bg-via) 92%, transparent)',
+          }}
         >
-          <DetailPanel
-            milestone={milestone}
-            onClose={onClose}
-            lang={lang}
-            t={t}
-            className="mt-0 mb-1"
-            variant="mobileSheet"
-          />
+          <div className="w-12 h-1 rounded-full mx-auto mb-3" style={{ background: 'var(--timeline-text-dim)' }} />
+          <div className="flex items-start gap-3">
+            <div className="w-11 h-11 rounded-xl border flex items-center justify-center flex-shrink-0"
+              style={{ borderColor: `${milestone.color}50`, background: `${milestone.color}22` }}>
+              <Icon className="w-5 h-5" style={{ color: milestone.color }} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold tabular-nums" style={{ color: milestone.color }}>{milestone.year}</span>
+                {milestone.isProjected && (
+                  <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded"
+                    style={{ color: milestone.color, border: `1px dashed ${milestone.color}60` }}>{t.projected}</span>
+                )}
+              </div>
+              <h3 className="text-base font-semibold" style={{ color: 'var(--timeline-text)' }}>{milestone.name[lang]}</h3>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--timeline-text-muted)' }}>{milestone.impact[lang]}</p>
+            </div>
+            <button onClick={onClose} aria-label={t.close}
+              className="min-h-[44px] min-w-[44px] rounded-full border flex items-center justify-center"
+              style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-close-bg)' }}>
+              <X className="w-4 h-4" style={{ color: 'var(--timeline-text-muted)' }} />
+            </button>
+          </div>
         </div>
+
+        <div
+          ref={scrollerRef}
+          onScroll={onScroll}
+          className="flex-1 overflow-y-auto px-4 pt-4 overscroll-contain"
+          style={{ WebkitOverflowScrolling: 'touch', paddingBottom: 'calc(var(--safe-bottom) + 5.5rem)' }}
+        >
+          <section data-sheet-section="overview" className="mb-4">
+            <div className="rounded-2xl border p-4"
+              style={{ borderColor: `${milestone.color}35`, background: `${milestone.color}10` }}>
+              <h4 className="text-sm font-semibold mb-2" style={{ color: milestone.color }}>
+                {lang === 'en' ? 'What happened' : '发生了什么'}
+              </h4>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--timeline-panel-text)' }}>{milestone.details.description[lang]}</p>
+            </div>
+            <div className="rounded-2xl border p-4 mt-3"
+              style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }}>
+              <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--timeline-text)' }}>{t.significance}</h4>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--timeline-panel-text)' }}>{milestone.details.significance[lang]}</p>
+            </div>
+          </section>
+
+          {milestone.inventions && milestone.inventions.length > 0 && (
+            <section data-sheet-section="inventions" className="mb-4">
+              <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--timeline-text)' }}>
+                {lang === 'en' ? 'Key Inventions' : '关键发明'}
+              </h4>
+              <div className="space-y-2">
+                {milestone.inventions.map((inv, idx) => (
+                  <div key={idx} className="rounded-xl border p-3"
+                    style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }}>
+                    <div className="text-[11px] font-mono mb-1" style={{ color: 'var(--timeline-text-dim)' }}>{inv.year}</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--timeline-text)' }}>{inv.name[lang]}</div>
+                    <div className="text-xs mt-1" style={{ color: 'var(--timeline-text-muted)' }}>{inv.impact[lang]}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {milestone.jobDisplacement && milestone.jobDisplacement.length > 0 && (
+            <section data-sheet-section="jobs" className="mb-4">
+              <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--timeline-text)' }}>{t.jobsAffected}</h4>
+              <div className="space-y-2">
+                {milestone.jobDisplacement.map((job, idx) => (
+                  <div key={idx} className="rounded-xl border p-3"
+                    style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }}>
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <span className="text-sm font-medium" style={{ color: 'var(--timeline-text)' }}>{job.category[lang]}</span>
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                        style={{ color: job.rate >= 70 ? '#f87171' : '#34d399', background: job.rate >= 70 ? 'rgba(239,68,68,0.18)' : 'rgba(16,185,129,0.18)' }}>
+                        {job.rate}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: 'var(--timeline-track-bg)' }}>
+                      <div className="h-full rounded-full" style={{ width: `${job.rate}%`, background: milestone.color }} />
+                    </div>
+                    <div className="text-xs" style={{ color: 'var(--timeline-text-dim)' }}>→ {job.newJobs[lang]}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {milestone.socialImpact && (
+            <section data-sheet-section="impact" className="mb-4">
+              <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--timeline-text)' }}>
+                {lang === 'en' ? 'Social Impact' : '社会影响'}
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                {milestone.socialImpact.gdp && (
+                  <div className="rounded-xl border p-3"
+                    style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }}>
+                    <div className="text-xs mb-1" style={{ color: 'var(--timeline-text-dim)' }}>GDP</div>
+                    <div className="text-sm font-semibold text-green-400">{milestone.socialImpact.gdp}</div>
+                  </div>
+                )}
+                {milestone.socialImpact.productivity && (
+                  <div className="rounded-xl border p-3"
+                    style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }}>
+                    <div className="text-xs mb-1" style={{ color: 'var(--timeline-text-dim)' }}>
+                      {lang === 'en' ? 'Productivity' : '生产力'}
+                    </div>
+                    <div className="text-sm font-semibold text-blue-400">{milestone.socialImpact.productivity}</div>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {milestone.details.sources && milestone.details.sources.length > 0 && (
+            <section data-sheet-section="sources" className="mb-4">
+              <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--timeline-text)' }}>{t.sources}</h4>
+              <div className="rounded-xl border p-3 space-y-1"
+                style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }}>
+                {milestone.details.sources.map((source, idx) => (
+                  <div key={idx} className="text-xs leading-relaxed" style={{ color: 'var(--timeline-text-dim)' }}>
+                    * {source}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        <motion.div
+          className="pointer-events-none absolute inset-x-0 px-3"
+          style={{ bottom: 'calc(var(--safe-bottom) + 0.45rem)' }}
+          animate={{ y: dockActive ? 0 : 8, scale: dockActive ? 1 : 0.985 }}
+          transition={{ duration: 0.26, ease: 'easeOut' }}
+        >
+          <div
+            className="pointer-events-auto rounded-2xl border p-1.5 backdrop-blur-xl overflow-x-auto scrollbar-hide"
+            style={{
+              borderColor: 'rgba(255,255,255,0.12)',
+              background: dockActive
+                ? 'color-mix(in srgb, var(--surface) 92%, transparent)'
+                : 'color-mix(in srgb, var(--surface) 72%, transparent)',
+              boxShadow: dockActive ? '0 14px 30px rgba(0,0,0,0.3)' : '0 10px 20px rgba(0,0,0,0.14)',
+            }}
+          >
+            <div className="flex gap-1 min-w-max">
+              {navSections.filter((section) => section.enabled).map((section) => {
+                const active = activeSection === section.id;
+                return (
+                  <button
+                    key={section.id}
+                    type="button"
+                    onClick={() => jumpToSection(section.id)}
+                    className="min-h-[40px] px-3 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
+                    style={{
+                      color: active ? '#fff' : 'var(--timeline-text-muted)',
+                      background: active
+                        ? `linear-gradient(135deg, ${milestone.color}, ${milestone.color}CC)`
+                        : 'color-mix(in srgb, var(--surface) 45%, transparent)',
+                      border: active ? `1px solid ${milestone.color}99` : '1px solid transparent',
+                      boxShadow: active ? `0 8px 18px ${milestone.color}45` : 'none',
+                      opacity: active ? 1 : 0.9,
+                    }}
+                  >
+                    {section.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
@@ -768,20 +1067,40 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
   lang: Language;
   t: Record<string, string>;
   className?: string;
-  variant?: 'default' | 'mobileSheet';
+  variant?: 'default' | 'mobileSheet' | 'mobileInline';
 }) {
   const Icon = milestone.icon;
   const isMobileSheet = variant === 'mobileSheet';
+  const isMobileInline = variant === 'mobileInline';
+  const compactMode = isMobileSheet || isMobileInline;
+
+  const panelMotion = isMobileInline
+    ? {
+      initial: { opacity: 0, y: 8, scale: 1 },
+      animate: { opacity: 1, y: 0, scale: 1 },
+      exit: { opacity: 0, y: 8, scale: 1 },
+      transition: { duration: 0.18, ease: 'easeOut' as const },
+    }
+    : {
+      initial: { opacity: 0, y: 40, scale: 0.95 },
+      animate: { opacity: 1, y: 0, scale: 1 },
+      exit: { opacity: 0, y: 20, scale: 0.95 },
+      transition: { type: 'spring' as const, stiffness: 300, damping: 30 },
+    };
+
   return (
-    <motion.div initial={{ opacity: 0, y: 40, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+    <motion.div
+      initial={panelMotion.initial}
+      animate={panelMotion.animate}
+      exit={panelMotion.exit}
+      transition={panelMotion.transition}
       className={`relative ${className ?? 'mt-8 md:mt-16'}`} role="dialog" aria-label={`${milestone.name[lang]} — ${milestone.year}`}>
-      {!isMobileSheet && <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30" style={{ background: milestone.color }} />}
-      <div className={`relative overflow-hidden border ${isMobileSheet ? 'rounded-2xl' : 'rounded-3xl'}`}
+      {!compactMode && <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30" style={{ background: milestone.color }} />}
+      <div className={`relative overflow-hidden border ${compactMode ? 'rounded-2xl' : 'rounded-3xl'}`}
         style={{
           background: 'var(--timeline-panel-bg)', borderColor: `${milestone.color}40`,
           borderStyle: milestone.isProjected ? 'dashed' : 'solid',
-          boxShadow: isMobileSheet
+          boxShadow: compactMode
             ? `0 10px 30px ${milestone.color}16, inset 0 1px 0 rgba(255,255,255,0.08)`
             : `0 0 60px ${milestone.color}20, inset 0 1px 0 rgba(255,255,255,0.1)`
         }}>
@@ -793,7 +1112,7 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
           <X className="w-5 h-5" style={{ color: 'var(--timeline-text-muted)' }} />
         </button>
 
-        <div className={isMobileSheet ? 'p-5 pt-6' : 'p-6 md:p-8'}>
+        <div className={compactMode ? 'p-5 pt-6' : 'p-6 md:p-8'}>
           <div className="flex items-start gap-4 mb-6">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
               style={{ background: `linear-gradient(135deg, ${milestone.color}30, ${milestone.color}10)`, border: `1px ${milestone.isProjected ? 'dashed' : 'solid'} ${milestone.color}40` }}>
@@ -903,12 +1222,12 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
           )}
         </div>
 
-        <div className={isMobileSheet ? 'px-5 pb-5' : 'px-6 pb-6'}>
+        <div className={compactMode ? 'px-5 pb-5' : 'px-6 pb-6'}>
           <button onClick={onClose}
-            className={isMobileSheet
+            className={compactMode
               ? 'w-full flex items-center justify-center gap-2 text-sm rounded-lg border min-h-[44px]'
               : 'flex items-center gap-2 text-sm transition-colors min-h-[44px] min-w-[44px]'}
-            style={isMobileSheet
+            style={compactMode
               ? { color: 'var(--timeline-text)', borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }
               : { color: 'var(--timeline-text-muted)' }}>
             <X className="w-4 h-4" /><span>{t.close}</span>
