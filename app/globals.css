@@ -84,6 +84,12 @@
   --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Safe Area Insets */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
 
 [data-theme="light"] {
@@ -1320,11 +1326,9 @@ body::after {
     linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
 }
 
-/* Language Toggle Button - Fixed Top Right */
+/* Language Toggle Button - Fixed Top Right (safe-area positions set in mobile section below) */
 .lang-toggle-btn {
   position: fixed !important;
-  top: 1rem !important;
-  right: 1rem !important;
   left: auto !important;
   z-index: 9999 !important;
 }
@@ -1344,11 +1348,9 @@ section.no-contain {
   contain-intrinsic-size: none;
 }
 
-/* Theme Toggle Button - Below Language Toggle */
+/* Theme Toggle Button - Below Language Toggle (safe-area positions set in mobile section below) */
 .theme-toggle-btn {
   position: fixed !important;
-  top: 3.5rem !important;
-  right: 1rem !important;
   left: auto !important;
   z-index: 9999 !important;
 }
@@ -1363,4 +1365,66 @@ section.no-contain {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================
+   MOBILE: Touch-optimized overrides
+   ============================================ */
+
+/* Slider: bigger thumb on touch devices */
+@media (pointer: coarse) {
+  .calc-slider {
+    height: 6px;
+  }
+  .calc-slider::-webkit-slider-thumb {
+    width: 28px;
+    height: 28px;
+    box-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.35),
+      0 0 0 6px rgba(255, 255, 255, 0.06);
+  }
+  .calc-slider::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+  }
+  .lang-toggle-btn,
+  .theme-toggle-btn {
+    width: 44px !important;
+    height: 44px !important;
+  }
+}
+
+/* Toggle buttons: respect safe area on notch devices */
+.lang-toggle-btn {
+  top: calc(1rem + var(--safe-top)) !important;
+  right: calc(1rem + var(--safe-right)) !important;
+}
+.theme-toggle-btn {
+  top: calc(3.5rem + var(--safe-top)) !important;
+  right: calc(1rem + var(--safe-right)) !important;
+}
+
+/* Hide scrollbar for horizontal-scroll pill bars */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile stage list: expand/collapse animation helper */
+.mobile-stage-detail {
+  overflow: hidden;
+}
+
+/* Timeline close button: CSS hover instead of inline JS handlers */
+.timeline-close-btn:hover,
+.timeline-close-btn:active {
+  background: var(--timeline-close-bg-hover) !important;
+}
+
+/* Floating mobile CTA safe-area spacing */
+.mobile-fab {
+  bottom: calc(1rem + var(--safe-bottom));
 }

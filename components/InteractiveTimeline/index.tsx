@@ -657,7 +657,7 @@ function DetailPanel({ milestone, onClose, lang, t }: {
   return (
     <motion.div initial={{ opacity: 0, y: 40, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="mt-16 relative" role="dialog" aria-label={`${milestone.name[lang]} — ${milestone.year}`}>
+      className="mt-8 md:mt-16 relative" role="dialog" aria-label={`${milestone.name[lang]} — ${milestone.year}`}>
       <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30" style={{ background: milestone.color }} />
       <div className="relative rounded-3xl overflow-hidden border"
         style={{
@@ -668,10 +668,8 @@ function DetailPanel({ milestone, onClose, lang, t }: {
         <div className="absolute top-0 left-0 right-0 h-1"
           style={{ background: `linear-gradient(90deg, ${milestone.color}, ${milestone.color}80, ${milestone.color})` }} />
         <button onClick={onClose} aria-label={t.close}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors border border-[--timeline-card-border]"
-          style={{ background: 'var(--timeline-close-bg)' }}
-          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--timeline-close-bg-hover)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'var(--timeline-close-bg)'}>
+          className="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center transition-colors border border-[--timeline-card-border] timeline-close-btn"
+          style={{ background: 'var(--timeline-close-bg)' }}>
           <X className="w-5 h-5" style={{ color: 'var(--timeline-text-muted)' }} />
         </button>
 
@@ -786,7 +784,7 @@ function DetailPanel({ milestone, onClose, lang, t }: {
         </div>
 
         <div className="px-6 pb-6">
-          <button onClick={onClose} className="flex items-center gap-2 text-sm transition-colors" style={{ color: 'var(--timeline-text-muted)' }}>
+          <button onClick={onClose} className="flex items-center gap-2 text-sm transition-colors min-h-[44px] min-w-[44px]" style={{ color: 'var(--timeline-text-muted)' }}>
             <X className="w-4 h-4" /><span>{t.close}</span>
           </button>
         </div>

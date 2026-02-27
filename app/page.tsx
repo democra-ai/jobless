@@ -1272,14 +1272,13 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           </div>
           <div
             className="relative inline-flex items-center justify-center"
+            onClick={() => setShowCalc(!showCalc)}
             onMouseEnter={() => setShowCalc(true)}
             onMouseLeave={() => setShowCalc(false)}
           >
             <span
-              className="inline-flex items-center justify-center cursor-pointer transition-opacity text-foreground-muted hover:text-foreground"
-              style={{ opacity: 0.5 }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.5'; }}
+              className="inline-flex items-center justify-center cursor-pointer transition-opacity text-foreground-muted hover:text-foreground min-w-[44px] min-h-[44px]"
+              style={{ opacity: showCalc ? 1 : 0.5 }}
             >
               <Info className="w-4 h-4" />
             </span>
@@ -1291,12 +1290,13 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.96 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 z-[120] w-[340px] sm:w-[400px] rounded-xl border border-surface-elevated/50 p-5 text-left"
+                  className="absolute top-full right-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 mt-3 z-[120] w-[calc(100vw-2rem)] max-w-[400px] rounded-xl border border-surface-elevated/50 p-4 sm:p-5 text-left"
                   style={{
                     background: 'var(--surface-card)',
                     boxShadow: '0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)',
                     backdropFilter: 'blur(16px)',
                   }}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div className="text-center mb-4 py-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
                     <span className="mono text-sm font-bold text-foreground">{t.killLineFormula}</span>
@@ -1476,8 +1476,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
 
       </div>
 
-      {/* Stage labels below bar */}
-      <div className="relative flex mt-2 pb-2" style={{ overflow: 'visible' }}>
+      {/* Desktop: horizontal stage labels below bar */}
+      <div className="relative hidden sm:flex mt-2 pb-2" style={{ overflow: 'visible' }}>
         {/* Stages 1–4 */}
         {KILL_LINE_STAGES.filter(s => s.id < 5).map((stage) => {
           const width = ((stage.end - stage.start) / maxPct) * 100;
@@ -1488,9 +1488,9 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               style={{ width: `${width}%` }}
               onMouseEnter={() => setActiveTooltip(stage.id)}
               onMouseLeave={() => setActiveTooltip(null)}
+              onClick={() => setActiveTooltip(activeTooltip === stage.id ? null : stage.id)}
             >
               <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: stage.color, opacity: 0.9 }} />
-              {/* Label + info icon */}
               <span className="inline-flex items-center justify-center gap-1 text-sm sm:text-base font-bold leading-tight cursor-pointer" style={{ color: stage.color }}>
                 {stage.label[lang]}
                 <span
@@ -1506,48 +1506,39 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               <span className="text-xs sm:text-sm mono mt-0.5 font-semibold" style={{ fontVariantNumeric: 'tabular-nums', color: stage.color, opacity: 0.85 }}>
                 {stage.start}–{stage.end}%
               </span>
-              {/* Tooltip popup */}
+              {/* Desktop tooltip popup */}
               <AnimatePresence>
                 {activeTooltip === stage.id && (
                   <motion.div
-
                     initial={{ opacity: 0, y: 8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.95 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="absolute top-full mt-2 z-[120] w-[280px] sm:w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
+                    className="absolute top-full mt-2 z-[120] w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
                     style={{
-                      left: '50%',
-                      transform: 'translateX(-50%)',
+                      ...(stage.id <= 2 ? { left: 0 } : stage.id >= 4 ? { right: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
                       background: 'var(--surface-card)',
                       border: '1px solid rgba(255,255,255,0.08)',
-                      boxShadow: `0 24px 48px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)`,
+                      boxShadow: '0 24px 48px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
                       backdropFilter: 'blur(20px)',
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {/* Header band */}
                     <div className="px-4 py-3 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${stage.color}20, transparent)`, borderBottom: `1px solid ${stage.color}20` }}>
                       <div className="w-2 h-2 rounded-full" style={{ background: stage.color }} />
                       <span className="text-sm font-bold" style={{ color: stage.color }}>{stage.label[lang]}</span>
                       <span className="text-xs mono font-semibold text-foreground-dim ml-auto">{stage.start}–{stage.end}%</span>
                     </div>
-                    {/* Body */}
                     <div className="p-4 space-y-3">
-                      <div className="text-xs text-foreground-muted leading-relaxed">
-                        {stage.tooltip[lang].definition}
-                      </div>
-                      {/* Control */}
+                      <div className="text-xs text-foreground-muted leading-relaxed">{stage.tooltip[lang].definition}</div>
                       <div className="flex gap-2">
                         <div className="w-0.5 rounded-full flex-shrink-0 self-stretch" style={{ background: stage.color, opacity: 0.5 }} />
                         <div className="text-xs text-foreground-muted leading-relaxed">{stage.tooltip[lang].control}</div>
                       </div>
-                      {/* Human-AI Relationship */}
                       <div className="text-xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
                         <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
                         <span className="text-foreground-muted">{stage.tooltip[lang].relationship}</span>
                       </div>
-                      {/* Nature tag */}
                       <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                         <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
                         <span className="text-xs font-bold px-2.5 py-1 rounded-md" style={{ background: `${stage.color}15`, color: stage.color }}>{stage.tooltip[lang].coreNature}</span>
@@ -1560,29 +1551,25 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           );
         })}
 
-        {/* Stage 5: KILL LINE */}
+        {/* Stage 5: KILL LINE (desktop) */}
         <div
           className="flex flex-col items-center text-center px-0.5 relative"
           style={{ width: '20%' }}
           onMouseEnter={() => setActiveTooltip(5)}
           onMouseLeave={() => setActiveTooltip(null)}
+          onClick={() => setActiveTooltip(activeTooltip === 5 ? null : 5)}
         >
           <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: 'var(--risk-critical)', opacity: 0.9 }} />
-          <div
-            className="kill-zone-badge cursor-pointer transition-all"
-          >
+          <div className="kill-zone-badge cursor-pointer transition-all">
             <div className="flex flex-col items-center text-center gap-0.5">
               <span className="text-sm sm:text-base font-bold leading-tight inline-flex items-center gap-1">
                 <Skull className="w-4 h-4 sm:w-[18px] sm:h-[18px] inline-block" />
                 {lang === 'zh' ? 'AI 斩杀线' : 'AI Kill Line'}
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeTooltip === 5 ? 'rotate-180' : ''}`} />
               </span>
-              <span className="text-xs sm:text-sm mono font-semibold opacity-80" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                80–100%
-              </span>
+              <span className="text-xs sm:text-sm mono font-semibold opacity-80" style={{ fontVariantNumeric: 'tabular-nums' }}>80–100%</span>
             </div>
           </div>
-          {/* Kill Line tooltip */}
           <AnimatePresence>
             {activeTooltip === 5 && (
               <motion.div
@@ -1590,14 +1577,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                className="absolute top-full mt-2 z-[120] w-[280px] sm:w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
-                style={{
-                  right: 0,
-                  background: 'var(--surface-card)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: '0 24px 48px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
-                  backdropFilter: 'blur(20px)',
-                }}
+                className="absolute top-full mt-2 z-[120] w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
+                style={{ right: 0, background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="px-4 py-3 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, rgba(255,23,68,0.12), transparent)', borderBottom: '1px solid rgba(255,23,68,0.12)' }}>
@@ -1606,9 +1587,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                   <span className="text-xs mono font-semibold text-foreground-dim ml-auto">80–100%</span>
                 </div>
                 <div className="p-4 space-y-3">
-                  <div className="text-xs text-foreground-muted leading-relaxed">
-                    {KILL_LINE_STAGES[4].tooltip[lang].definition}
-                  </div>
+                  <div className="text-xs text-foreground-muted leading-relaxed">{KILL_LINE_STAGES[4].tooltip[lang].definition}</div>
                   <div className="flex gap-2">
                     <div className="w-0.5 rounded-full flex-shrink-0 self-stretch bg-risk-critical" style={{ opacity: 0.5 }} />
                     <div className="text-xs text-foreground-muted leading-relaxed">{KILL_LINE_STAGES[4].tooltip[lang].control}</div>
@@ -1626,6 +1605,62 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
             )}
           </AnimatePresence>
         </div>
+      </div>
+
+      {/* Mobile: vertical stage list with tap-to-expand */}
+      <div className="sm:hidden mt-3 space-y-1">
+        {KILL_LINE_STAGES.map((stage) => (
+          <div key={stage.id}>
+            <button
+              onClick={() => setActiveTooltip(activeTooltip === stage.id ? null : stage.id)}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors text-left min-h-[44px]"
+              style={{
+                background: activeTooltip === stage.id ? `color-mix(in srgb, ${stage.color} 10%, transparent)` : 'transparent',
+                borderLeft: `3px solid ${stage.color}`,
+              }}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                {stage.id === 5 && <Skull className="w-4 h-4 flex-shrink-0" style={{ color: stage.color }} />}
+                <span className="text-sm font-bold truncate" style={{ color: stage.color }}>
+                  {stage.label[lang]}
+                </span>
+                {CURRENT_REPLACEMENT_RATE >= stage.start && CURRENT_REPLACEMENT_RATE < stage.end && (
+                  <span className="text-[10px] bg-risk-high/20 text-risk-high px-1.5 py-0.5 rounded font-bold flex-shrink-0">
+                    {lang === 'zh' ? '当前' : 'NOW'}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                <span className="text-xs mono text-foreground-dim">{stage.start}–{stage.end}%</span>
+                <ChevronDown className={`w-4 h-4 text-foreground-dim transition-transform duration-200 ${activeTooltip === stage.id ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+            {/* Expanded detail for tapped stage */}
+            <AnimatePresence>
+              {activeTooltip === stage.id && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mx-3 mb-2 p-3 rounded-lg text-left" style={{ background: 'var(--surface-elevated)', borderLeft: `3px solid ${stage.color}` }}>
+                    <div className="text-xs text-foreground-muted leading-relaxed mb-2">{stage.tooltip[lang].definition}</div>
+                    <div className="text-xs leading-relaxed p-2 rounded-md mb-2" style={{ background: 'var(--surface-card)' }}>
+                      <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
+                      <span className="text-foreground-muted">{stage.tooltip[lang].relationship}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-md" style={{ background: `color-mix(in srgb, ${stage.color} 12%, transparent)`, color: stage.color }}>{stage.tooltip[lang].coreNature}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1690,8 +1725,10 @@ function ThemeButton({ theme, setTheme }: { theme: Theme; setTheme: (theme: Them
 
 // 首屏
 function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
+  const [activeStat, setActiveStat] = useState<number | null>(null);
+
   return (
-    <section className="no-contain relative z-40 min-h-[100dvh] flex items-center justify-center py-20">
+    <section className="no-contain relative z-40 min-h-[100dvh] flex items-center justify-center py-12 sm:py-20">
       {/* Background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 opacity-30">
@@ -1702,41 +1739,41 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
         <div className="absolute inset-0 grid-bg opacity-40"></div>
       </div>
 
-      <div className="relative z-30 text-center px-6 max-w-6xl mx-auto hero-glow">
+      <div className="relative z-30 text-center px-4 sm:px-6 max-w-6xl mx-auto hero-glow">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
           {/* Alert badge */}
-          <div className="inline-flex items-center gap-2 bg-risk-critical/10 text-risk-critical px-5 py-2.5 rounded-full text-sm font-medium mb-8 border border-risk-critical/20">
-            <AlertCircle className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 bg-risk-critical/10 text-risk-critical px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8 border border-risk-critical/20">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span className="tracking-wide">{t.alertBadge}</span>
           </div>
 
           {/* Hero title — big and eye-catching */}
-          <h1 className="calc-title text-3xl sm:text-5xl md:text-8xl mb-8 section-title" style={{ fontFamily: 'var(--font-display)' }}>
+          <h1 className="calc-title text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-6 sm:mb-8 section-title" style={{ fontFamily: 'var(--font-display)' }}>
             {t.heroTitle}
           </h1>
 
-          <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed section-subtitle">
+          <p className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed section-subtitle">
             {t.heroSubtitlePre}{t.heroSubtitlePost}{t.heroSubtitleEnd}
           </p>
         </motion.div>
 
         {/* Progress bar section */}
         <motion.div
-          className="pt-10 border-t border-foreground-dim/10"
+          className="pt-8 sm:pt-10 border-t border-foreground-dim/10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="relative z-20 calc-container rounded-3xl p-6 md:p-10" style={{ overflow: 'visible' }}>
-            <h2 className="text-xl md:text-2xl font-bold mb-6 text-foreground text-left">{t.progressTitle}</h2>
+          <div className="relative z-20 calc-container rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10" style={{ overflow: 'visible' }}>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-foreground text-left">{t.progressTitle}</h2>
             <AIKillLineBar lang={lang} t={t} />
 
-            {/* Stat cards — icon + number + short label, hover for detail */}
-            <div className="grid grid-cols-3 gap-3 mt-4">
+            {/* Stat cards — stacked on mobile, 3-col on sm+ */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
               {([
                 { value: <Counter end={43.64} suffix="%" />, color: 'var(--risk-high)', icon: Eye, label: t.exposureLabel, desc: t.exposureDesc, source: t.exposureSource, url: t.exposureUrl },
                 { value: <Counter end={49.75} suffix="%" />, color: 'var(--brand-accent)', icon: Zap, label: t.proficiencyLabel, desc: t.proficiencyDesc, source: t.proficiencySource, url: t.proficiencyUrl },
@@ -1744,16 +1781,20 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
               ] as const).map((stat, i) => {
                 const Icon = stat.icon;
                 return (
-                  <div key={i} className="group relative rounded-xl p-4 bg-surface border border-surface-elevated cursor-default">
-                    <div className="flex items-center justify-between gap-2 mb-2">
+                  <div
+                    key={i}
+                    className="group relative rounded-xl p-4 bg-surface border border-surface-elevated cursor-pointer sm:cursor-default"
+                    onClick={() => setActiveStat(activeStat === i ? null : i)}
+                  >
+                    <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
                           <Icon className="w-4 h-4" style={{ color: stat.color }} />
                         </div>
-                        <span className="text-xs text-foreground-muted font-medium truncate">{stat.label}</span>
+                        <span className="text-xs sm:text-sm text-foreground-muted font-medium truncate">{stat.label}</span>
                       </div>
                       <span
-                        className="inline-flex items-center rounded-md px-2 py-0.5 text-xs sm:text-sm mono font-semibold leading-none flex-shrink-0"
+                        className="inline-flex items-center rounded-md px-2 py-0.5 text-sm sm:text-base mono font-semibold leading-none flex-shrink-0"
                         style={{
                           fontVariantNumeric: 'tabular-nums',
                           color: stat.color,
@@ -1764,8 +1805,28 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
                         {stat.value}
                       </span>
                     </div>
-                    {/* Tooltip on hover — with source link. pb-2 instead of mb-2 to keep hover bridge */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-30 w-max max-w-[260px]">
+                    {/* Mobile: inline expandable detail */}
+                    <AnimatePresence>
+                      {activeStat === i && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pt-3 mt-3 border-t border-surface-elevated text-left">
+                            <div className="text-xs text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
+                            <a href={stat.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium transition-colors" style={{ color: stat.color }}>
+                              <ExternalLink className="w-3 h-3" />
+                              {stat.source}
+                            </a>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    {/* Desktop: hover tooltip */}
+                    <div className="hidden sm:block absolute bottom-full left-1/2 -translate-x-1/2 pb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-30 w-max max-w-[260px]">
                       <div className="px-3 py-3 rounded-xl"
                         style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 12px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)' }}
                       >
@@ -1813,7 +1874,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
 // 进度阶段
 function ProgressStages({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="py-16 px-6">
+    <section className="py-10 sm:py-16 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -1866,17 +1927,17 @@ function HistoricalContextSection({ lang, t }: { lang: Language; t: typeof trans
   ] as const;
 
   return (
-    <section className="py-20 px-6">
+    <section className="py-12 sm:py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
+          className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.historyTitle}
         </motion.h2>
-        <p className="text-center section-subtitle mb-16 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-8 sm:mb-16 max-w-2xl mx-auto">
           {t.historySubtitle}
         </p>
 
@@ -1935,17 +1996,17 @@ function TimelineSection({ lang, t }: { lang: Language; t: typeof translations.e
   const currentStage = KILL_LINE_STAGES.find(s => CURRENT_REPLACEMENT_RATE >= s.start && CURRENT_REPLACEMENT_RATE < s.end) || KILL_LINE_STAGES[1];
 
   return (
-    <section className="py-20 px-6">
+    <section className="py-12 sm:py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
+          className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.timelineTitle}
         </motion.h2>
-        <p className="text-center section-subtitle mb-16 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-8 sm:mb-16 max-w-2xl mx-auto">
           {t.timelineSubtitle}
         </p>
 
@@ -2083,17 +2144,17 @@ function TimelineSection({ lang, t }: { lang: Language; t: typeof translations.e
 // 高风险职业
 function HighRiskJobsSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="py-20 px-6">
+    <section className="py-12 sm:py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
+          className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.highRiskTitle}
         </motion.h2>
-        <p className="text-center section-subtitle mb-16 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-8 sm:mb-16 max-w-2xl mx-auto">
           {t.highRiskSubtitle}
         </p>
 
@@ -2214,20 +2275,20 @@ function HighRiskJobsSection({ lang, t }: { lang: Language; t: typeof translatio
 // 企业裁员案例
 function LayoffCasesSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="py-20 px-6">
+    <section className="py-12 sm:py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
+          className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.layoffTitle}
         </motion.h2>
         <p className="text-center section-subtitle mb-4 max-w-2xl mx-auto">
           {t.layoffSubtitle}
         </p>
-        <p className="text-center text-risk-high font-semibold mb-16">
+        <p className="text-center text-risk-high font-semibold mb-8 sm:mb-16">
           "{t.takenOver}"
         </p>
 
@@ -2274,17 +2335,17 @@ function LayoffCasesSection({ lang, t }: { lang: Language; t: typeof translation
 // 净就业效应章节
 function NetJobImpactSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="py-20 px-6">
+    <section className="py-12 sm:py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
+          className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.netImpactTitle}
         </motion.h2>
-        <p className="text-center section-subtitle mb-16 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-8 sm:mb-16 max-w-2xl mx-auto">
           {t.netImpactSubtitle}
         </p>
 
@@ -2365,29 +2426,29 @@ function IndustryDeepDiveSection({ lang, t }: { lang: Language; t: typeof transl
   const [selectedIndustry, setSelectedIndustry] = useState(0);
 
   return (
-    <section className="py-20 px-6">
+    <section className="py-12 sm:py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
+          className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.industryDiveTitle}
         </motion.h2>
-        <p className="text-center section-subtitle mb-12 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-8 sm:mb-12 max-w-2xl mx-auto">
           {t.industryDiveSubtitle}
         </p>
 
-        {/* 行业标签 */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
+        {/* 行业标签 — horizontal scroll on mobile, wrap on desktop */}
+        <div className="flex overflow-x-auto gap-2 sm:gap-3 mb-8 sm:mb-12 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center sm:overflow-visible scrollbar-hide">
           {industryDiveData.map((industry, index) => {
             const Icon = modeConfig[industry.mode].icon;
             return (
               <button
                 key={index}
                 onClick={() => setSelectedIndustry(index)}
-                className={`px-4 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                className={`flex-shrink-0 px-4 py-3 min-h-[44px] rounded-lg font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
                   selectedIndustry === index
                     ? 'bg-risk-high text-white shadow-lg shadow-risk-high/30'
                     : 'bg-surface hover:bg-surface-elevated text-foreground'
@@ -2460,20 +2521,20 @@ function IndustryDeepDiveSection({ lang, t }: { lang: Language; t: typeof transl
 // 职业分化章节 - Amy Tam 内容
 function CareerDivergenceSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="py-20 px-6">
+    <section className="py-12 sm:py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
+          className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.divergenceTitle}
         </motion.h2>
         <p className="text-center section-subtitle mb-4 max-w-2xl mx-auto">
           {t.divergenceSubtitle}
         </p>
-        <p className="text-center text-xs text-foreground-muted mb-16">
+        <p className="text-center text-xs text-foreground-muted mb-8 sm:mb-16">
           {t.divergenceSource}
         </p>
 
@@ -2684,7 +2745,7 @@ function DimensionSlider({
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 pt-6">
         <div className="relative">
           <div className="flex justify-between text-xs text-foreground-muted mb-1">
             <span>{lowLabel}</span>
@@ -2703,7 +2764,7 @@ function DimensionSlider({
           />
           {/* 数值标签 - 跟随滑块位置, clamped at edges */}
           <div
-            className="absolute -top-1 text-xs font-bold px-2 py-0.5 rounded text-white whitespace-nowrap transition-all duration-75"
+            className="absolute -top-2 text-xs font-bold px-2 py-1 rounded text-white whitespace-nowrap transition-all duration-75"
             style={{
               left: `clamp(1rem, ${value}%, calc(100% - 1rem))`,
               transform: 'translateX(-50%) translateY(-100%)',
@@ -3129,7 +3190,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   };
 
   return (
-    <section id="risk-calculator" className="py-24 px-4 md:px-6 relative z-30 overflow-hidden scroll-mt-8">
+    <section id="risk-calculator" className="py-12 sm:py-24 px-4 md:px-6 relative z-30 overflow-hidden scroll-mt-8">
       {/* Background gradient effect */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-surface/30 to-transparent pointer-events-none" />
 
@@ -3177,7 +3238,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 </div>
 
                 {/* 职业按钮网格 - with risk badge */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mb-4">
                   {Object.entries(PROFESSION_PRESETS).map(([profKey, prof], index) => {
                     const isSelected = selectedProfession === profKey;
                     const previewResult = calculateAIRisk({
@@ -3192,7 +3253,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                         onClick={() => applyProfessionPreset(isSelected ? null : profKey)}
-                        className={`profession-btn relative px-4 py-3 rounded-xl text-sm font-medium border transition-all ${
+                        className={`profession-btn relative px-3 sm:px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium border transition-all ${
                           isSelected
                             ? 'selected text-white border-transparent'
                             : 'bg-surface-card border-white/8'
@@ -3538,10 +3599,9 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCopyLink}
-                    className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 border border-white/10 text-sm font-medium transition-all"
+                    className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 border border-white/10 text-sm font-medium transition-all"
                   >
                     <Copy className="w-4 h-4" />
                     {copied ? t.shareCopied : t.shareCopyLink}
@@ -3640,7 +3700,7 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <section className="py-20 px-6 relative z-30 overflow-hidden">
+    <section className="py-12 sm:py-20 px-4 sm:px-6 relative z-30 overflow-hidden">
 
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Header */}
@@ -3648,13 +3708,13 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-16"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-6 opacity-0">
             <Lock className="w-4 h-4 text-risk-critical" />
             <span className="text-sm font-medium text-risk-critical">DATA THREAT</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 section-title">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 section-title">
             {t.dataThreatTitle}
           </h2>
           <p className="section-subtitle max-w-3xl mx-auto text-lg">
@@ -3699,15 +3759,15 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
                 >
                   <p className="text-foreground-muted mb-8 mt-6">{t.lastMileDesc}</p>
 
-                  {/* Visual Flow */}
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                  {/* Visual Flow — Desktop: horizontal 5-col */}
+                  <div className="hidden md:grid grid-cols-5 gap-4 items-center">
                     <div className="bg-brand-accent/10 border border-brand-accent/20 rounded-xl p-5 text-center">
                       <Cpu className="w-8 h-8 text-brand-accent mx-auto mb-3" />
                       <div className="font-semibold text-sm">{t.lastMileStep1}</div>
                       <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep1Desc}</div>
                     </div>
 
-                    <div className="hidden md:flex flex-col items-center">
+                    <div className="flex flex-col items-center">
                       <div className="text-xs text-foreground-muted mb-1">{t.lastMileArrow1}</div>
                       <div className="text-2xl text-risk-high">→</div>
                     </div>
@@ -3719,7 +3779,7 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
                       <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep2Desc}</div>
                     </div>
 
-                    <div className="hidden md:flex flex-col items-center">
+                    <div className="flex flex-col items-center">
                       <div className="text-xs text-foreground-muted mb-1">{t.lastMileArrow2}</div>
                       <div className="text-2xl text-risk-critical">→</div>
                     </div>
@@ -3731,9 +3791,36 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
                     </div>
                   </div>
 
-                  {/* Mobile arrows */}
-                  <div className="flex md:hidden flex-col items-center gap-2 my-4">
-                    <div className="text-foreground-muted text-lg">↓</div>
+                  {/* Visual Flow — Mobile: vertical with arrows between each card */}
+                  <div className="flex md:hidden flex-col items-center gap-0">
+                    <div className="w-full bg-brand-accent/10 border border-brand-accent/20 rounded-xl p-5 text-center">
+                      <Cpu className="w-8 h-8 text-brand-accent mx-auto mb-3" />
+                      <div className="font-semibold text-sm">{t.lastMileStep1}</div>
+                      <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep1Desc}</div>
+                    </div>
+
+                    <div className="flex flex-col items-center py-2">
+                      <div className="text-xs text-foreground-muted">{t.lastMileArrow1}</div>
+                      <div className="text-xl text-risk-high">↓</div>
+                    </div>
+
+                    <div className="w-full bg-risk-high/10 border-2 border-risk-high/40 rounded-xl p-5 text-center relative">
+                      <div className="absolute -top-2 -right-2 w-5 h-5 bg-risk-critical rounded-full animate-pulse" />
+                      <Database className="w-8 h-8 text-risk-high mx-auto mb-3" />
+                      <div className="font-semibold text-sm text-risk-high">{t.lastMileStep2}</div>
+                      <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep2Desc}</div>
+                    </div>
+
+                    <div className="flex flex-col items-center py-2">
+                      <div className="text-xs text-foreground-muted">{t.lastMileArrow2}</div>
+                      <div className="text-xl text-risk-critical">↓</div>
+                    </div>
+
+                    <div className="w-full bg-risk-critical/10 border border-risk-critical/30 rounded-xl p-5 text-center">
+                      <Skull className="w-8 h-8 text-risk-critical mx-auto mb-3" />
+                      <div className="font-semibold text-sm text-risk-critical">{t.lastMileStep3}</div>
+                      <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep3Desc}</div>
+                    </div>
                   </div>
 
                   {/* Skill = New Training Data */}
@@ -3803,7 +3890,7 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: typeof translatio
   const text = linkText[lang];
 
   return (
-    <section className="py-16 px-6">
+    <section className="py-10 sm:py-16 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -3866,6 +3953,19 @@ export default function Home() {
       <InteractiveTimeline lang={lang} theme={theme} />
       <AnalysisLinkSection lang={lang} t={t} />
       <Footer lang={lang} t={t} />
+
+      {/* Mobile floating CTA — scroll to risk calculator */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 2, duration: 0.3 }}
+        onClick={() => document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth' })}
+        className="sm:hidden fixed right-4 z-50 mobile-fab w-14 h-14 rounded-full bg-gradient-to-br from-risk-high to-risk-critical text-white flex items-center justify-center shadow-lg shadow-risk-critical/30"
+        aria-label={lang === 'zh' ? '计算你的AI替代风险' : 'Calculate your AI risk'}
+        whileTap={{ scale: 0.9 }}
+      >
+        <Target className="w-6 h-6" />
+      </motion.button>
     </main>
   );
 }
