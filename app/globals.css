@@ -42,9 +42,9 @@
   --glow-accent: rgba(0, 184, 212, 0.2);
 
   /* Timeline section colors */
-  --timeline-bg-from: #020617;
-  --timeline-bg-via: #0f172a;
-  --timeline-bg-to: #020617;
+  --timeline-bg-from: #050507;
+  --timeline-bg-via: #050507;
+  --timeline-bg-to: #050507;
   --timeline-text: #e2e8f0;
   --timeline-text-muted: #94a3b8;
   --timeline-text-dim: #475569;
@@ -195,13 +195,25 @@ html {
 }
 
 body {
-  background: var(--background);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    var(--background);
+  background-size: 50px 50px, 50px 50px, auto;
   color: var(--foreground);
   font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+[data-theme="light"] body {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    var(--background);
+  background-size: 50px 50px, 50px 50px, auto;
 }
 
 /* Subtle Background Gradient */
@@ -519,7 +531,7 @@ body::after {
     0 0 12px rgba(255, 23, 68, 0.4),
     0 0 24px rgba(255, 23, 68, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  animation: killBadgePulse 2s ease-in-out infinite;
+  animation: killBadgePulse 2s ease-in-out 3;
 }
 
 @media (min-width: 640px) {
@@ -560,11 +572,11 @@ body::after {
 }
 
 .animate-border-pulse {
-  animation: borderPulse 3s ease-in-out infinite;
+  animation: borderPulse 3s ease-in-out 3;
 }
 
 .animate-glow-pulse {
-  animation: glowPulse 2s ease-in-out infinite;
+  animation: glowPulse 2s ease-in-out 3;
 }
 
 /* Utility classes */
@@ -587,7 +599,7 @@ body::after {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradientShift 5s ease infinite;
+  animation: gradientShift 5s ease 3;
 }
 
 @keyframes gradientShift {
@@ -1031,7 +1043,7 @@ body::after {
 }
 
 .risk-indicator {
-  animation: riskPulse 3s ease-in-out infinite;
+  animation: riskPulse 3s ease-in-out 3;
 }
 
 /* Hover Lift Effect */
@@ -1129,6 +1141,88 @@ body::after {
   outline: none;
 }
 
+/* Progress bar leading edge — rightward breathing glow
+   PERF: Only animate transform + opacity (never width/height) */
+.bar-edge-glow {
+  width: 80px;
+  background: linear-gradient(
+    90deg,
+    rgba(245, 124, 0, 0.7) 0%,
+    rgba(245, 124, 0, 0.5) 10%,
+    rgba(245, 124, 0, 0.32) 22%,
+    rgba(245, 124, 0, 0.18) 36%,
+    rgba(245, 124, 0, 0.08) 55%,
+    rgba(245, 124, 0, 0.02) 78%,
+    transparent 100%
+  );
+  transform-origin: left center;
+  animation: edgeGlowPulse 2s ease-in-out infinite;
+}
+
+@keyframes edgeGlowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scaleX(0.5);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scaleX(1);
+  }
+}
+
+/* Hero number breathing glow — refined pulse using opacity + subtle text-shadow
+   Per taste-skill: avoid raw neon glows, use tinted inner shadows */
+.hero-number-glow {
+  position: relative;
+  animation: heroNumberPulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Underline accent glow that breathes beneath the number */
+.hero-number-glow::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--glow-color) 80%, transparent) 20%,
+    var(--glow-color) 50%,
+    color-mix(in srgb, var(--glow-color) 80%, transparent) 80%,
+    transparent 100%
+  );
+  animation: heroUnderlineGlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes heroNumberPulse {
+  0%, 100% {
+    opacity: 0.85;
+    text-shadow:
+      0 0 20px color-mix(in srgb, var(--glow-color) 15%, transparent);
+  }
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 0 30px color-mix(in srgb, var(--glow-color) 35%, transparent),
+      0 0 60px color-mix(in srgb, var(--glow-color) 12%, transparent);
+  }
+}
+
+@keyframes heroUnderlineGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleX(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
 /* Hero Section Styles */
 .hero-glow {
   position: relative;
@@ -1145,6 +1239,22 @@ body::after {
   background: radial-gradient(ellipse at center, rgba(255, 107, 53, 0.04) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
+}
+
+/* Unified Section Title — matches "From Steam to AGI" style (Space Grotesk) */
+.section-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  background-image: linear-gradient(to right, var(--timeline-text), var(--timeline-text-muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-subtitle {
+  color: var(--timeline-text-muted);
 }
 
 /* Animated Background Grid */
@@ -1224,6 +1334,16 @@ body::after {
   background: var(--timeline-track-bg);
 }
 
+/* Performance: skip rendering for off-screen sections */
+section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
+}
+section.no-contain {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
+}
+
 /* Theme Toggle Button - Below Language Toggle */
 .theme-toggle-btn {
   position: fixed !important;
@@ -1231,4 +1351,16 @@ body::after {
   right: 1rem !important;
   left: auto !important;
   z-index: 9999 !important;
+}
+
+/* ============================================
+   PERFORMANCE: Respect reduced-motion preference
+   & limit GPU-heavy infinite animations
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

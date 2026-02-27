@@ -315,12 +315,10 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
               </span>
             </div>
           </motion.div>
-          <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(to right, var(--timeline-text), var(--timeline-text-muted))` }}>
+          <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl mb-6 section-title">
               {t.title}
-            </span>
           </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto" style={{ color: 'var(--timeline-text-muted)' }}>{t.subtitle}</p>
+          <p className="text-lg md:text-xl max-w-2xl mx-auto section-subtitle">{t.subtitle}</p>
         </motion.div>
 
         {/* Timeline */}
@@ -437,11 +435,18 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
           {/* Node circle */}
           <motion.div className="relative -translate-x-1/2" whileHover={{ scale: 1.2 }}
             transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
-            <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 rounded-full bg-red-500" style={{ filter: 'blur(8px)' }} />
+            {(selectedMilestone === null || selectedMilestone?.id === 'we-are-here') && (
+              <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 rounded-full bg-red-500" style={{ filter: 'blur(8px)' }} />
+            )}
             <div className="relative w-8 h-8 rounded-full border-3 border-red-500 flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #ef4444, #ef444480)', boxShadow: '0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(255,255,255,0.2)' }}>
+              style={{
+                background: 'linear-gradient(135deg, #ef4444, #ef444480)',
+                boxShadow: (selectedMilestone === null || selectedMilestone?.id === 'we-are-here')
+                  ? '0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(255,255,255,0.2)'
+                  : 'inset 0 0 10px rgba(255,255,255,0.2)',
+              }}>
               <Flame className="w-4 h-4 text-white" />
             </div>
           </motion.div>
@@ -487,21 +492,23 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                     style={{ color: milestone.color, border: `1px dashed ${milestone.color}60` }}>{t.projected}</span>
                 )}
                 <span className="text-xl md:text-2xl font-bold tabular-nums"
-                  style={{ color: milestone.color, textShadow: `0 0 20px ${milestone.color}40` }}>{milestone.year}</span>
+                  style={{ color: milestone.color, textShadow: isSelected ? `0 0 20px ${milestone.color}40` : 'none' }}>{milestone.year}</span>
               </div>
 
               {/* Node circle */}
               <motion.div className="relative -translate-x-1/2" whileHover={{ scale: 1.2 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
-                <motion.div animate={{ scale: isSelected ? [1, 1.3, 1] : [1, 1.1, 1], opacity: isSelected ? 0.6 : 0.3 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 rounded-full" style={{ background: milestone.color, filter: 'blur(6px)' }} />
+                {isSelected && (
+                  <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 rounded-full" style={{ background: milestone.color, filter: 'blur(6px)' }} />
+                )}
                 <div className="relative w-6 h-6 rounded-full border-2 flex items-center justify-center"
                   style={{
                     background: `linear-gradient(135deg, ${milestone.color}, ${milestone.color}80)`,
                     borderColor: milestone.color,
                     borderStyle: milestone.isProjected ? 'dashed' : 'solid',
-                    boxShadow: `0 0 14px ${milestone.color}60, inset 0 0 8px rgba(255,255,255,0.2)`
+                    boxShadow: isSelected ? `0 0 14px ${milestone.color}60, inset 0 0 8px rgba(255,255,255,0.2)` : 'inset 0 0 8px rgba(255,255,255,0.2)',
                   }}>
                   <Icon className="w-3 h-3 text-white" />
                 </div>
@@ -563,16 +570,18 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
               >
                 {/* Node */}
                 <div className="absolute -left-12 top-3 flex items-center justify-center">
-                  <motion.div animate={{ scale: isSelected ? [1, 1.2, 1] : 1, opacity: isSelected ? 0.6 : 0.3 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute rounded-full"
-                    style={{ width: 24, height: 24, background: milestone.color, filter: 'blur(6px)' }} />
+                  {isSelected && (
+                    <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute rounded-full"
+                      style={{ width: 24, height: 24, background: milestone.color, filter: 'blur(6px)' }} />
+                  )}
                   <div className="relative w-[30px] h-[30px] rounded-full border-2 flex items-center justify-center"
                     style={{
                       background: `linear-gradient(135deg, ${milestone.color}, ${milestone.color}80)`,
                       borderColor: milestone.color,
                       borderStyle: milestone.isProjected ? 'dashed' : 'solid',
-                      boxShadow: `0 0 12px ${milestone.color}60`
+                      boxShadow: isSelected ? `0 0 12px ${milestone.color}60` : 'none'
                     }}>
                     <Icon className="w-3.5 h-3.5 text-white" />
                   </div>
@@ -611,8 +620,12 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                 >
                   <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex items-center justify-center">
                     <div className="w-[30px] flex justify-center">
-                      <motion.div animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }}
-                        className="w-3 h-3 rounded-full bg-red-500" style={{ boxShadow: '0 0 12px rgba(239, 68, 68, 0.6)' }} />
+                      {(selectedMilestone === null || selectedMilestone?.id === 'we-are-here') ? (
+                        <motion.div animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }}
+                          className="w-3 h-3 rounded-full bg-red-500" style={{ boxShadow: '0 0 12px rgba(239, 68, 68, 0.6)' }} />
+                      ) : (
+                        <div className="w-3 h-3 rounded-full bg-red-500" />
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-red-500/10 border border-red-500/30 transition-all"

@@ -5,9 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Area, AreaChart } from 'recharts';
 import { AlertTriangle, TrendingUp, Users, Clock, Search, Shield, Zap, Target, Skull, Flame, Building2, Calendar, AlertCircle, Languages, Cpu, Sparkles, Bot, ClipboardCheck, Database, FileText, Workflow, Activity, Eye, ChevronRight, ChevronDown, CheckCircle2, BarChart3, Brain, ArrowUpRight, History, RefreshCw, TrendingDown, Info, BookOpen, Lock, Share2, Download, Copy, ExternalLink, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { calculateAIRisk, RISK_LEVEL_INFO, RiskInputData, RiskOutputResult } from '@/lib/ai_risk_calculator_v2';
-import InteractiveTimeline from '@/components/InteractiveTimeline';
 import { dataProtectionTranslations } from '@/lib/data-protection';
+
+// Lazy-load heavy below-fold components (bundle-dynamic-imports rule)
+const InteractiveTimeline = dynamic(() => import('@/components/InteractiveTimeline'), { ssr: false });
 
 // 语言类型
 type Language = 'en' | 'zh';
@@ -26,7 +29,7 @@ const translations = {
 
     // 进度条
     progressTitle: "Industry-Wide AI Progress: Where are we?",
-    killLineLabel: 'All-Industry AI Replacement Rate',
+    killLineLabel: 'AI Replacement Progress',
     killLineSpeed: '+1.8%/mo',
     killLineHow: 'How we calculate',
     killLineFormula: 'Replacement Rate = Exposure × AI Proficiency',
@@ -35,14 +38,23 @@ const translations = {
     killLineProbability: 'AI Proficiency',
     killLineProbabilityDesc: 'Proportion of cases where AI outperforms humans at those tasks',
     killLineExample: 'e.g. Customer Service: 85% exposure × 80% proficiency = 68% replacement rate',
-    killLineSource: 'All-industry weighted average by employment share → 21.37%',
+    killLineAggregation: '21.37% = Σ(exposure_occ × winrate_occ × emp_occ) / Σ(emp_occ)',
+    killLineSource: 'Per-occupation risk aggregated by BLS 2024 employment → 21.37%',
     icebergWarning: 'What you see is already 21.37%. The AI Kill Line is approaching.',
 
     // 统计数据
-    replaceableNow: 'Replaceable Now',
-    technicallyPossible: 'Technically Possible',
-    hrImpact: 'HR Say Impact Coming',
-    jobsBy2030: 'Jobs by 2030',
+    exposureLabel: 'Task Exposure',
+    exposureDesc: 'Employment-weighted national average. Each occupation has its own exposure (O*NET tasks × 18,794 AI tools). Aggregated: Σ(exposure_occ × emp_occ) / Σ(emp_occ).',
+    exposureSource: 'O*NET 30.1',
+    exposureUrl: 'https://www.onetonline.org/',
+    proficiencyLabel: 'AI Proficiency',
+    proficiencyDesc: 'Global win rate of the best frontier model (GPT-5p2-high) on the GDPval benchmark. Measures the proportion of real-world occupational tasks where AI output is preferred over human output.',
+    proficiencySource: 'GDPval Benchmark (OpenAI Evals)',
+    proficiencyUrl: 'https://evals.openai.com/gdpval/leaderboard',
+    jobsBy2030: 'Jobs Displaced by 2030',
+    jobsBy2030Desc: 'World Economic Forum projects 92M jobs displaced by AI and automation by 2030.',
+    jobsBy2030Source: 'World Economic Forum, 2025',
+    jobsBy2030Url: 'https://www.weforum.org/publications/the-future-of-jobs-report-2025/',
 
     // 进度阶段
     roadTitle: 'The Road to Automation',
@@ -127,6 +139,9 @@ const translations = {
     reason: 'Reason',
     oneInTwenty: 'In 2025, about 1 in 20 layoffs officially cited AI as the reason.',
     source: 'Source: Layoff tracking reports, 2024-2025',
+
+    // 过渡区
+    transitionCta: 'Calculate my risk',
 
     // 生存指数 V2
     survivalBadge: 'RISK CALCULATOR',
@@ -440,8 +455,8 @@ const translations = {
     mckinseyStat: '57% 工作时长',
 
     // 进度条
-    progressTitle: '全行业 AI 替代进度：我们走到哪了？',
-    killLineLabel: '全行业 AI 替代率',
+    progressTitle: '全行业 AI 进度：我们走到哪了？',
+    killLineLabel: 'AI 替代进度',
     killLineSpeed: '+1.8%/月',
     killLineHow: '计算方式',
     killLineFormula: '替代率 = 曝光度 × AI 胜任度',
@@ -450,14 +465,23 @@ const translations = {
     killLineProbability: 'AI 胜任度',
     killLineProbabilityDesc: 'AI 在这些任务上胜出人类的比例',
     killLineExample: '例：客服岗位 85% 曝光度 × 80% 胜任度 = 68% 替代率',
-    killLineSource: '全行业按就业人数加权平均 → 21.37%',
+    killLineAggregation: '21.37% = Σ(exposure_occ × winrate_occ × emp_occ) / Σ(emp_occ)',
+    killLineSource: '逐职业风险按BLS 2024就业人数加权聚合 → 21.37%',
     icebergWarning: '你现在看到的已经是 21.37%。AI 斩杀线正在逼近。',
 
     // 统计数据
-    replaceableNow: '现已可替代',
-    technicallyPossible: '技术上可行',
-    hrImpact: 'HR 认为即将来临',
-    jobsBy2030: '2030年岗位',
+    exposureLabel: '任务曝光度',
+    exposureDesc: '全国就业加权均值。每个职业有独立曝光度（O*NET任务 × 18,794个AI工具）。聚合方式：Σ(exposure_occ × emp_occ) / Σ(emp_occ)。',
+    exposureSource: 'O*NET 30.1',
+    exposureUrl: 'https://www.onetonline.org/',
+    proficiencyLabel: 'AI 胜率',
+    proficiencyDesc: '最强前沿模型(GPT-5p2-high)在GDPval基准上的全局胜率。衡量在真实职业任务中，AI输出被评为优于人类输出的比例。',
+    proficiencySource: 'GDPval Benchmark (OpenAI Evals)',
+    proficiencyUrl: 'https://evals.openai.com/gdpval/leaderboard',
+    jobsBy2030: '2030年被替代岗位',
+    jobsBy2030Desc: '世界经济论坛预测到2030年将有9200万个岗位被AI和自动化取代。',
+    jobsBy2030Source: '世界经济论坛, 2025',
+    jobsBy2030Url: 'https://www.weforum.org/publications/the-future-of-jobs-report-2025/',
 
     // 进度阶段
     roadTitle: '自动化之路',
@@ -542,6 +566,9 @@ const translations = {
     reason: '原因',
     oneInTwenty: '2025 年约 1/20 的裁员在官方理由中点名 AI。',
     source: '来源：裁员追踪报告，2024-2025',
+
+    // 过渡区
+    transitionCta: '算算我的风险',
 
     // 生存指数 V2
     survivalBadge: '风险计算器',
@@ -1201,18 +1228,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
   const [ready, setReady] = useState(false);
   const [showCalc, setShowCalc] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
-  const calcRef = useRef<HTMLDivElement>(null);
-  const stageLabelsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!showCalc && activeTooltip === null) return;
-    const handler = (e: MouseEvent) => {
-      if (showCalc && calcRef.current && !calcRef.current.contains(e.target as Node)) setShowCalc(false);
-      if (activeTooltip !== null && stageLabelsRef.current && !stageLabelsRef.current.contains(e.target as Node)) setActiveTooltip(null);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showCalc, activeTooltip]);
+  // Hover-based tooltips — no outside-click needed
 
   useEffect(() => {
     const duration = 2000;
@@ -1227,98 +1243,107 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
     return () => clearInterval(id);
   }, [basePct]);
 
-  useEffect(() => {
-    if (!ready) return;
-    const id = setInterval(() => setDisplayPct(p => p + 0.005), 2500);
-    return () => clearInterval(id);
-  }, [ready]);
+  // Removed: continuous setInterval that incremented displayPct forever,
+  // causing endless React re-renders. The initial animation is sufficient.
 
   const w = (displayPct / maxPct) * 100;
   const activeStage = KILL_LINE_STAGES.find(s => displayPct >= s.start && displayPct < s.end) || KILL_LINE_STAGES[KILL_LINE_STAGES.length - 1];
 
   return (
     <div className="mb-8" style={{ overflow: 'visible' }}>
-      {/* Header row */}
-      <div className="flex justify-between items-end mb-4">
-        <div ref={calcRef} className="flex items-center gap-2.5 relative">
-          <span className="text-sm font-medium text-foreground-muted">{t.killLineLabel}</span>
-          <button
-            onClick={() => setShowCalc(!showCalc)}
-            className="inline-flex items-center justify-center cursor-pointer transition-opacity text-foreground-muted hover:text-foreground"
-            style={{ opacity: 0.6 }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.6'; }}
+      {/* Centered hero stat */}
+      <div className="text-center mb-6 relative">
+        <div className="relative inline-block">
+          <div
+            className="text-5xl sm:text-6xl md:text-7xl font-bold mono"
+            style={{
+              fontVariantNumeric: 'tabular-nums',
+              color: 'var(--risk-critical)',
+            }}
           >
-            <Info className="w-3.5 h-3.5" />
-          </button>
-
-          {/* Calculation popup */}
-          <AnimatePresence>
-            {showCalc && (
-              <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 mt-3 z-50 w-[320px] sm:w-[380px] rounded-xl border border-surface-elevated/50 p-5"
-                style={{
-                  background: 'var(--surface-card)',
-                  boxShadow: '0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)',
-                  backdropFilter: 'blur(16px)',
-                }}
-              >
-                {/* Formula */}
-                <div className="text-center mb-4 py-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
-                  <span className="mono text-sm font-bold text-foreground">{t.killLineFormula}</span>
-                </div>
-
-                {/* Explanation */}
-                <div className="space-y-3 mb-4">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center bg-risk-medium/20 text-risk-medium text-xs font-bold mt-0.5">E</div>
-                    <div>
-                      <div className="text-xs font-semibold text-foreground">{t.killLineExposure}</div>
-                      <div className="text-[11px] text-foreground-muted leading-relaxed">{t.killLineExposureDesc}</div>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center bg-risk-high/20 text-risk-high text-xs font-bold mt-0.5">P</div>
-                    <div>
-                      <div className="text-xs font-semibold text-foreground">{t.killLineProbability}</div>
-                      <div className="text-[11px] text-foreground-muted leading-relaxed">{t.killLineProbabilityDesc}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Example */}
-                <div className="text-[11px] text-foreground-dim leading-relaxed p-2.5 rounded-lg mb-2" style={{ background: 'var(--surface-elevated)', borderLeft: '2px solid var(--risk-high)' }}>
-                  {t.killLineExample}
-                </div>
-
-                {/* Source */}
-                <div className="text-[10px] text-foreground-dim text-center">
-                  {t.killLineSource}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            <Counter end={CURRENT_REPLACEMENT_RATE} suffix="%" />
+          </div>
         </div>
-        <div
-          className="text-3xl sm:text-4xl md:text-5xl font-bold mono text-risk-critical"
-          style={{ fontVariantNumeric: 'tabular-nums' }}
-        >
-          <Counter end={CURRENT_REPLACEMENT_RATE} suffix="%" />
+        <div className="flex items-center justify-center gap-3 mt-2">
+          <span className="text-sm sm:text-base text-foreground-muted">{t.killLineLabel}</span>
+          <div className="flex items-center gap-1">
+            <TrendingUp className="w-3.5 h-3.5 text-risk-critical" />
+            <span className="text-xs sm:text-sm mono font-bold text-risk-critical">{t.killLineSpeed}</span>
+          </div>
+          <div
+            className="relative inline-flex items-center justify-center"
+            onMouseEnter={() => setShowCalc(true)}
+            onMouseLeave={() => setShowCalc(false)}
+          >
+            <span
+              className="inline-flex items-center justify-center cursor-pointer transition-opacity text-foreground-muted hover:text-foreground"
+              style={{ opacity: 0.5 }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.5'; }}
+            >
+              <Info className="w-4 h-4" />
+            </span>
+            {/* Calculation popup */}
+            <AnimatePresence>
+              {showCalc && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 z-[120] w-[340px] sm:w-[400px] rounded-xl border border-surface-elevated/50 p-5 text-left"
+                  style={{
+                    background: 'var(--surface-card)',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)',
+                    backdropFilter: 'blur(16px)',
+                  }}
+                >
+                  <div className="text-center mb-4 py-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
+                    <span className="mono text-sm font-bold text-foreground">{t.killLineFormula}</span>
+                  </div>
+                  <div className="space-y-3 mb-4">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center bg-risk-medium/20 text-risk-medium text-xs font-bold mt-0.5">E</div>
+                      <div>
+                        <div className="text-sm font-semibold text-foreground">{t.killLineExposure}</div>
+                        <div className="text-xs text-foreground-muted leading-relaxed">{t.killLineExposureDesc}</div>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center bg-risk-high/20 text-risk-high text-xs font-bold mt-0.5">P</div>
+                      <div>
+                        <div className="text-sm font-semibold text-foreground">{t.killLineProbability}</div>
+                        <div className="text-xs text-foreground-muted leading-relaxed">{t.killLineProbabilityDesc}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-foreground-dim leading-relaxed p-3 rounded-lg mb-2" style={{ background: 'var(--surface-elevated)', borderLeft: '2px solid var(--risk-high)' }}>
+                    {t.killLineExample}
+                  </div>
+                  <div className="text-center mb-2 py-2 px-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
+                    <span className="mono text-[11px] font-bold text-foreground-muted">{t.killLineAggregation}</span>
+                  </div>
+                  <div className="text-[11px] text-foreground-dim text-center">
+                    {t.killLineSource}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 
-      {/* Segmented Bar */}
-      <div className="relative h-10 sm:h-12 rounded-xl overflow-hidden bg-surface-elevated" style={{ boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.15)' }}>
-        {/* Stage 1–4 background segments */}
+      {/* Segmented Bar — outer allows overflow for labels, inner clips bar content */}
+      <div className="relative h-10 sm:h-12 mt-6">
+        <div className="absolute inset-0 rounded-xl overflow-hidden" style={{
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%), var(--surface-elevated)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.15)',
+        }}>
+        {/* Stage 1–4 divider lines */}
         {KILL_LINE_STAGES.filter(s => s.id < 5).map((stage) => {
           const left = (stage.start / maxPct) * 100;
           const width = ((stage.end - stage.start) / maxPct) * 100;
-          const isPast = displayPct >= stage.end;
-          const isCurrent = displayPct >= stage.start && displayPct < stage.end;
           return (
             <div
               key={stage.id}
@@ -1328,20 +1353,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                 width: `${width}%`,
                 borderRight: '1px solid rgba(255,255,255,0.06)',
               }}
-            >
-              <div
-                className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-                style={{
-                  fontSize: '28px',
-                  fontFamily: 'var(--font-mono)',
-                  fontWeight: 800,
-                  color: 'var(--foreground-dim)',
-                  opacity: isPast ? 0.06 : isCurrent ? 0.08 : 0.04,
-                }}
-              >
-                {stage.id}
-              </div>
-            </div>
+            />
           );
         })}
 
@@ -1418,47 +1430,54 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
             }} />
           </div>
         </div>
+        </div>{/* close inner overflow-hidden */}
 
-        {/* Leading edge — breathing glow */}
+        {/* Leading edge line */}
         {w > 1 && (
-          <motion.div
+          <div
             className="absolute top-0 bottom-0 z-10"
             style={{
               left: `${w}%`,
-              width: '3px',
-              marginLeft: '-2px',
+              width: '2px',
+              transform: 'translateX(-1px)',
               background: activeStage.color,
             }}
-            animate={ready ? {
-              boxShadow: [
-                '0 0 12px 3px rgba(255,87,34,0.7), 0 0 25px 6px rgba(255,87,34,0.25)',
-                '0 0 22px 7px rgba(255,87,34,0.9), 0 0 45px 12px rgba(255,87,34,0.4)',
-                '0 0 12px 3px rgba(255,87,34,0.7), 0 0 25px 6px rgba(255,87,34,0.25)',
-              ],
-            } : undefined}
-            transition={ready ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : undefined}
           />
         )}
 
-        {/* Speed tag ON the bar */}
-        <motion.div
-          className="absolute top-1/2 -translate-y-1/2 z-20"
-          style={{ left: `${Math.min(w + 1.5, 82)}%` }}
-          initial={{ opacity: 0, x: -8 }}
-          animate={{ opacity: ready ? 1 : 0, x: ready ? 0 : -8 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-risk-high/10 border border-risk-high/20">
-            <TrendingUp className="w-3 h-3 text-risk-high" />
-            <span className="text-[10px] mono font-semibold text-risk-high whitespace-nowrap">
-              {t.killLineSpeed}
-            </span>
-          </div>
-        </motion.div>
+        {/* Rightward breathing glow — extends from the leading edge to the right */}
+        {w > 1 && ready && (
+          <div
+            className="absolute top-0 bottom-0 z-[9] bar-edge-glow"
+            style={{
+              left: `${w}%`,
+              '--edge-color': '#f57c00',
+            } as React.CSSProperties}
+          />
+        )}
+
+        {/* "We are here" — arrow tip aligned with the leading edge */}
+        {w > 1 && (
+          <motion.div
+            className="absolute z-20 pointer-events-none"
+            style={{ left: `${w}%`, bottom: '100%', paddingBottom: '4px' }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: ready ? 1 : 0, y: ready ? 0 : 6 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <div className="flex flex-col items-center" style={{ transform: 'translateX(-50%)' }}>
+              <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap" style={{ color: activeStage.color }}>
+                WE ARE HERE
+              </span>
+              <div style={{ width: 0, height: 0, borderLeft: '4px solid transparent', borderRight: '4px solid transparent', borderTop: `4px solid ${activeStage.color}` }} />
+            </div>
+          </motion.div>
+        )}
+
       </div>
 
       {/* Stage labels below bar */}
-      <div ref={stageLabelsRef} className="relative flex mt-2 pb-2" style={{ overflow: 'visible' }}>
+      <div className="relative flex mt-2 pb-2" style={{ overflow: 'visible' }}>
         {/* Stages 1–4 */}
         {KILL_LINE_STAGES.filter(s => s.id < 5).map((stage) => {
           const width = ((stage.end - stage.start) / maxPct) * 100;
@@ -1467,25 +1486,24 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               key={stage.id}
               className="flex flex-col items-center text-center px-0.5 relative"
               style={{ width: `${width}%` }}
+              onMouseEnter={() => setActiveTooltip(stage.id)}
+              onMouseLeave={() => setActiveTooltip(null)}
             >
               <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: stage.color, opacity: 0.9 }} />
               {/* Label + info icon */}
-              <span className="inline-flex items-center justify-center gap-0.5 text-[10px] sm:text-xs font-bold leading-tight" style={{ color: stage.color }}>
+              <span className="inline-flex items-center justify-center gap-1 text-sm sm:text-base font-bold leading-tight cursor-pointer" style={{ color: stage.color }}>
                 {stage.label[lang]}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setActiveTooltip(activeTooltip === stage.id ? null : stage.id); }}
-                  className="inline-flex items-center justify-center cursor-pointer transition-opacity flex-shrink-0"
+                <span
+                  className="inline-flex items-center justify-center transition-opacity flex-shrink-0"
                   style={{ opacity: activeTooltip === stage.id ? 1 : 0.55 }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
-                  onMouseLeave={e => { if (activeTooltip !== stage.id) (e.currentTarget as HTMLElement).style.opacity = '0.55'; }}
                 >
-                  <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 16 16" fill="none" style={{ color: stage.color }}>
+                  <svg className="w-4 h-4 sm:w-[18px] sm:h-[18px]" viewBox="0 0 16 16" fill="none" style={{ color: stage.color }}>
                     <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
                     <path d="M8 4.5v0.5M8 7v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
-                </button>
+                </span>
               </span>
-              <span className="text-[9px] sm:text-[11px] mono mt-0.5 font-semibold" style={{ fontVariantNumeric: 'tabular-nums', color: stage.color, opacity: 0.85 }}>
+              <span className="text-xs sm:text-sm mono mt-0.5 font-semibold" style={{ fontVariantNumeric: 'tabular-nums', color: stage.color, opacity: 0.85 }}>
                 {stage.start}–{stage.end}%
               </span>
               {/* Tooltip popup */}
@@ -1497,7 +1515,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.95 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="absolute top-full mt-2 z-50 w-[280px] sm:w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
+                    className="absolute top-full mt-2 z-[120] w-[280px] sm:w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
                     style={{
                       left: '50%',
                       transform: 'translateX(-50%)',
@@ -1509,30 +1527,30 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                     onClick={(e) => e.stopPropagation()}
                   >
                     {/* Header band */}
-                    <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${stage.color}20, transparent)`, borderBottom: `1px solid ${stage.color}20` }}>
-                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: stage.color }} />
-                      <span className="text-[11px] font-bold" style={{ color: stage.color }}>{stage.label[lang]}</span>
-                      <span className="text-[10px] mono font-semibold text-foreground-dim ml-auto">{stage.start}–{stage.end}%</span>
+                    <div className="px-4 py-3 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${stage.color}20, transparent)`, borderBottom: `1px solid ${stage.color}20` }}>
+                      <div className="w-2 h-2 rounded-full" style={{ background: stage.color }} />
+                      <span className="text-sm font-bold" style={{ color: stage.color }}>{stage.label[lang]}</span>
+                      <span className="text-xs mono font-semibold text-foreground-dim ml-auto">{stage.start}–{stage.end}%</span>
                     </div>
                     {/* Body */}
-                    <div className="p-4 space-y-2.5">
-                      <div className="text-[11px] text-foreground-muted leading-relaxed">
+                    <div className="p-4 space-y-3">
+                      <div className="text-xs text-foreground-muted leading-relaxed">
                         {stage.tooltip[lang].definition}
                       </div>
                       {/* Control */}
                       <div className="flex gap-2">
                         <div className="w-0.5 rounded-full flex-shrink-0 self-stretch" style={{ background: stage.color, opacity: 0.5 }} />
-                        <div className="text-[11px] text-foreground-muted leading-relaxed">{stage.tooltip[lang].control}</div>
+                        <div className="text-xs text-foreground-muted leading-relaxed">{stage.tooltip[lang].control}</div>
                       </div>
                       {/* Human-AI Relationship */}
-                      <div className="text-[10px] leading-relaxed p-2.5 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
+                      <div className="text-xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
                         <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
                         <span className="text-foreground-muted">{stage.tooltip[lang].relationship}</span>
                       </div>
                       {/* Nature tag */}
-                      <div className="flex items-center justify-between pt-1.5" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                        <span className="text-[9px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md" style={{ background: `${stage.color}15`, color: stage.color }}>{stage.tooltip[lang].coreNature}</span>
+                      <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-md" style={{ background: `${stage.color}15`, color: stage.color }}>{stage.tooltip[lang].coreNature}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -1543,24 +1561,27 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
         })}
 
         {/* Stage 5: KILL LINE */}
-        <div className="flex flex-col items-center text-center px-0.5 relative" style={{ width: '20%' }}>
+        <div
+          className="flex flex-col items-center text-center px-0.5 relative"
+          style={{ width: '20%' }}
+          onMouseEnter={() => setActiveTooltip(5)}
+          onMouseLeave={() => setActiveTooltip(null)}
+        >
           <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: 'var(--risk-critical)', opacity: 0.9 }} />
-          <button
-            onClick={() => setActiveTooltip(activeTooltip === 5 ? null : 5)}
+          <div
             className="kill-zone-badge cursor-pointer transition-all"
-            style={{ border: 'none', outline: 'none' }}
           >
             <div className="flex flex-col items-center text-center gap-0.5">
-              <span className="text-[10px] sm:text-xs font-bold leading-tight inline-flex items-center gap-1">
-                <Skull className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline-block" />
+              <span className="text-sm sm:text-base font-bold leading-tight inline-flex items-center gap-1">
+                <Skull className="w-4 h-4 sm:w-[18px] sm:h-[18px] inline-block" />
                 {lang === 'zh' ? 'AI 斩杀线' : 'AI Kill Line'}
-                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${activeTooltip === 5 ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeTooltip === 5 ? 'rotate-180' : ''}`} />
               </span>
-              <span className="text-[9px] sm:text-[11px] mono font-semibold opacity-80" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <span className="text-xs sm:text-sm mono font-semibold opacity-80" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 80–100%
               </span>
             </div>
-          </button>
+          </div>
           {/* Kill Line tooltip */}
           <AnimatePresence>
             {activeTooltip === 5 && (
@@ -1569,7 +1590,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                className="absolute top-full mt-2 z-50 w-[280px] sm:w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
+                className="absolute top-full mt-2 z-[120] w-[280px] sm:w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
                 style={{
                   right: 0,
                   background: 'var(--surface-card)',
@@ -1579,26 +1600,26 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, rgba(255,23,68,0.12), transparent)', borderBottom: '1px solid rgba(255,23,68,0.12)' }}>
-                  <Skull className="w-3.5 h-3.5 text-risk-critical" />
-                  <span className="text-[11px] font-bold text-risk-critical">{lang === 'zh' ? 'AI 斩杀线' : 'AI Kill Line'}</span>
-                  <span className="text-[10px] mono font-semibold text-foreground-dim ml-auto">80–100%</span>
+                <div className="px-4 py-3 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, rgba(255,23,68,0.12), transparent)', borderBottom: '1px solid rgba(255,23,68,0.12)' }}>
+                  <Skull className="w-4 h-4 text-risk-critical" />
+                  <span className="text-sm font-bold text-risk-critical">{lang === 'zh' ? 'AI 斩杀线' : 'AI Kill Line'}</span>
+                  <span className="text-xs mono font-semibold text-foreground-dim ml-auto">80–100%</span>
                 </div>
-                <div className="p-4 space-y-2.5">
-                  <div className="text-[11px] text-foreground-muted leading-relaxed">
+                <div className="p-4 space-y-3">
+                  <div className="text-xs text-foreground-muted leading-relaxed">
                     {KILL_LINE_STAGES[4].tooltip[lang].definition}
                   </div>
                   <div className="flex gap-2">
                     <div className="w-0.5 rounded-full flex-shrink-0 self-stretch bg-risk-critical" style={{ opacity: 0.5 }} />
-                    <div className="text-[11px] text-foreground-muted leading-relaxed">{KILL_LINE_STAGES[4].tooltip[lang].control}</div>
+                    <div className="text-xs text-foreground-muted leading-relaxed">{KILL_LINE_STAGES[4].tooltip[lang].control}</div>
                   </div>
-                  <div className="text-[10px] leading-relaxed p-2.5 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
+                  <div className="text-xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
                     <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
                     <span className="text-foreground-muted">{KILL_LINE_STAGES[4].tooltip[lang].relationship}</span>
                   </div>
-                  <div className="flex items-center justify-between pt-1.5" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                    <span className="text-[9px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-risk-critical/12 text-risk-critical">{KILL_LINE_STAGES[4].tooltip[lang].coreNature}</span>
+                  <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-risk-critical/12 text-risk-critical">{KILL_LINE_STAGES[4].tooltip[lang].coreNature}</span>
                   </div>
                 </div>
               </motion.div>
@@ -1670,7 +1691,7 @@ function ThemeButton({ theme, setTheme }: { theme: Theme; setTheme: (theme: Them
 // 首屏
 function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="relative min-h-[100dvh] flex items-center justify-center overflow-x-hidden py-20">
+    <section className="no-contain relative z-40 min-h-[100dvh] flex items-center justify-center py-20">
       {/* Background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 opacity-30">
@@ -1681,7 +1702,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
         <div className="absolute inset-0 grid-bg opacity-40"></div>
       </div>
 
-      <div className="relative z-10 text-center px-6 max-w-6xl mx-auto hero-glow">
+      <div className="relative z-30 text-center px-6 max-w-6xl mx-auto hero-glow">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1694,11 +1715,11 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           </div>
 
           {/* Hero title — big and eye-catching */}
-          <h1 className="text-3xl sm:text-5xl md:text-8xl font-bold mb-8 leading-tight text-foreground">
+          <h1 className="calc-title text-3xl sm:text-5xl md:text-8xl mb-8 section-title" style={{ fontFamily: 'var(--font-display)' }}>
             {t.heroTitle}
           </h1>
 
-          <p className="text-xl md:text-2xl text-foreground-muted mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed section-subtitle">
             {t.heroSubtitlePre}{t.heroSubtitlePost}{t.heroSubtitleEnd}
           </p>
         </motion.div>
@@ -1710,34 +1731,79 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h2 className="text-xl md:text-2xl font-bold mb-8 text-foreground text-left">{t.progressTitle}</h2>
+          <div className="relative z-20 calc-container rounded-3xl p-6 md:p-10" style={{ overflow: 'visible' }}>
+            <h2 className="text-xl md:text-2xl font-bold mb-6 text-foreground text-left">{t.progressTitle}</h2>
+            <AIKillLineBar lang={lang} t={t} />
 
-          <AIKillLineBar lang={lang} t={t} />
+            {/* Stat cards — icon + number + short label, hover for detail */}
+            <div className="grid grid-cols-3 gap-3 mt-4">
+              {([
+                { value: <Counter end={43.64} suffix="%" />, color: 'var(--risk-high)', icon: Eye, label: t.exposureLabel, desc: t.exposureDesc, source: t.exposureSource, url: t.exposureUrl },
+                { value: <Counter end={49.75} suffix="%" />, color: 'var(--brand-accent)', icon: Zap, label: t.proficiencyLabel, desc: t.proficiencyDesc, source: t.proficiencySource, url: t.proficiencyUrl },
+                { value: <>92M</>, color: 'var(--risk-critical)', icon: TrendingDown, label: t.jobsBy2030, desc: t.jobsBy2030Desc, source: t.jobsBy2030Source, url: t.jobsBy2030Url },
+              ] as const).map((stat, i) => {
+                const Icon = stat.icon;
+                return (
+                  <div key={i} className="group relative rounded-xl p-4 bg-surface border border-surface-elevated cursor-default">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
+                          <Icon className="w-4 h-4" style={{ color: stat.color }} />
+                        </div>
+                        <span className="text-xs text-foreground-muted font-medium truncate">{stat.label}</span>
+                      </div>
+                      <span
+                        className="inline-flex items-center rounded-md px-2 py-0.5 text-xs sm:text-sm mono font-semibold leading-none flex-shrink-0"
+                        style={{
+                          fontVariantNumeric: 'tabular-nums',
+                          color: stat.color,
+                          backgroundColor: `color-mix(in srgb, ${stat.color} 12%, transparent)`,
+                          border: `1px solid color-mix(in srgb, ${stat.color} 30%, transparent)`,
+                        }}
+                      >
+                        {stat.value}
+                      </span>
+                    </div>
+                    {/* Tooltip on hover — with source link. pb-2 instead of mb-2 to keep hover bridge */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-30 w-max max-w-[260px]">
+                      <div className="px-3 py-3 rounded-xl"
+                        style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 12px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)' }}
+                      >
+                        <div className="text-[11px] text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
+                        <a href={stat.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-medium transition-colors" style={{ color: stat.color }}>
+                          <ExternalLink className="w-3 h-3" />
+                          {stat.source}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </motion.div>
 
-        {/* Stat cards below progress bar */}
+        {/* CTA — scroll to calculator, outside the card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 stagger-children"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.2 }}
+          className="mt-10 flex justify-center"
         >
-          <div className="glass-card rounded-xl p-5 border border-surface-elevated/50 card-hover">
-            <div className="text-2xl md:text-3xl font-bold text-risk-critical mono data-highlight"><Counter end={CURRENT_REPLACEMENT_RATE} suffix="%" /></div>
-            <div className="text-xs text-foreground-muted mt-2 font-medium">{t.replaceableNow}</div>
-          </div>
-          <div className="glass-card rounded-xl p-5 border border-surface-elevated/50 card-hover">
-            <div className="text-2xl md:text-3xl font-bold text-brand-accent mono data-highlight"><Counter end={57} suffix="%" /></div>
-            <div className="text-xs text-foreground-muted mt-2 font-medium">{t.technicallyPossible}</div>
-          </div>
-          <div className="glass-card rounded-xl p-5 border border-surface-elevated/50 card-hover">
-            <div className="text-2xl md:text-3xl font-bold text-data-blue mono"><Counter end={89} suffix="%" /></div>
-            <div className="text-xs text-foreground-muted mt-1">{t.hrImpact}</div>
-          </div>
-          <div className="glass-card rounded-xl p-5 border border-surface-elevated/50 card-hover">
-            <div className="text-2xl md:text-3xl font-bold text-risk-critical mono">92M</div>
-            <div className="text-xs text-foreground-muted mt-1">{t.jobsBy2030}</div>
-          </div>
+          <button
+            onClick={() => document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            className="group flex items-center gap-1.5 cursor-pointer"
+          >
+            <motion.div
+              animate={{ y: [0, 3, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <ChevronDown className="w-4 h-4 text-foreground-muted" />
+            </motion.div>
+            <span className="text-sm font-medium text-foreground-muted">
+              {t.transitionCta}
+            </span>
+          </button>
         </motion.div>
       </div>
     </section>
@@ -1747,13 +1813,13 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
 // 进度阶段
 function ProgressStages({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="py-16 px-6 bg-surface">
+    <section className="py-16 px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold text-center mb-12"
+          className="text-3xl md:text-4xl font-bold text-center mb-12 section-title"
         >
           {t.roadTitle}
         </motion.h2>
@@ -1800,17 +1866,17 @@ function HistoricalContextSection({ lang, t }: { lang: Language; t: typeof trans
   ] as const;
 
   return (
-    <section className="py-20 px-6 bg-surface">
+    <section className="py-20 px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4"
+          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.historyTitle}
         </motion.h2>
-        <p className="text-center text-foreground-muted mb-16 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-16 max-w-2xl mx-auto">
           {t.historySubtitle}
         </p>
 
@@ -1875,11 +1941,11 @@ function TimelineSection({ lang, t }: { lang: Language; t: typeof translations.e
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4"
+          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.timelineTitle}
         </motion.h2>
-        <p className="text-center text-foreground-muted mb-16 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-16 max-w-2xl mx-auto">
           {t.timelineSubtitle}
         </p>
 
@@ -1936,7 +2002,7 @@ function TimelineSection({ lang, t }: { lang: Language; t: typeof translations.e
                         <div className="p-4 space-y-3">
                           {/* Current estimate */}
                           <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-bold mono text-risk-high">{CURRENT_REPLACEMENT_RATE}%</span>
+                            <span className="text-2xl font-bold mono text-risk-critical">{CURRENT_REPLACEMENT_RATE}%</span>
                             <span className="text-xs text-foreground-muted">{lang === 'zh' ? '岗位可被替代' : 'jobs replaceable'}</span>
                           </div>
                           {/* Current stage */}
@@ -2017,17 +2083,17 @@ function TimelineSection({ lang, t }: { lang: Language; t: typeof translations.e
 // 高风险职业
 function HighRiskJobsSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="py-20 px-6 bg-surface">
+    <section className="py-20 px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4"
+          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.highRiskTitle}
         </motion.h2>
-        <p className="text-center text-foreground-muted mb-16 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-16 max-w-2xl mx-auto">
           {t.highRiskSubtitle}
         </p>
 
@@ -2154,11 +2220,11 @@ function LayoffCasesSection({ lang, t }: { lang: Language; t: typeof translation
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4"
+          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.layoffTitle}
         </motion.h2>
-        <p className="text-center text-foreground-muted mb-4 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-4 max-w-2xl mx-auto">
           {t.layoffSubtitle}
         </p>
         <p className="text-center text-risk-high font-semibold mb-16">
@@ -2208,17 +2274,17 @@ function LayoffCasesSection({ lang, t }: { lang: Language; t: typeof translation
 // 净就业效应章节
 function NetJobImpactSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="py-20 px-6 bg-surface">
+    <section className="py-20 px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4"
+          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.netImpactTitle}
         </motion.h2>
-        <p className="text-center text-foreground-muted mb-16 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-16 max-w-2xl mx-auto">
           {t.netImpactSubtitle}
         </p>
 
@@ -2305,11 +2371,11 @@ function IndustryDeepDiveSection({ lang, t }: { lang: Language; t: typeof transl
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4"
+          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.industryDiveTitle}
         </motion.h2>
-        <p className="text-center text-foreground-muted mb-12 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-12 max-w-2xl mx-auto">
           {t.industryDiveSubtitle}
         </p>
 
@@ -2394,17 +2460,17 @@ function IndustryDeepDiveSection({ lang, t }: { lang: Language; t: typeof transl
 // 职业分化章节 - Amy Tam 内容
 function CareerDivergenceSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <section className="py-20 px-6 bg-surface">
+    <section className="py-20 px-6">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-center mb-4"
+          className="text-3xl md:text-5xl font-bold text-center mb-4 section-title"
         >
           {t.divergenceTitle}
         </motion.h2>
-        <p className="text-center text-foreground-muted mb-4 max-w-2xl mx-auto">
+        <p className="text-center section-subtitle mb-4 max-w-2xl mx-auto">
           {t.divergenceSubtitle}
         </p>
         <p className="text-center text-xs text-foreground-muted mb-16">
@@ -2686,138 +2752,140 @@ const PROFESSION_PRESETS: Record<string, {
     physicalOperation: number;
   };
 }> = {
-  // 客服/行政类 - 高风险
+  // 数据口径：analysis/iceberg_exposure/output/industry_ai_replacement_risk_top_model_task_aligned.csv
+  // + gdpval_complete_data.json(by_occupation, GPT-5.2) 中对应职业样本
+  // 客服/行政类（参考：行业暴露 43.84%，有效Win 49.92%，风险 21.89%）
   'customer-service': {
     name: { en: 'Customer Service / Admin', zh: '客服/行政' },
     industry: 'customerService',
     dimensions: {
-      dataOpenness: 70,
-      workDataDigitalization: 90,
-      processStandardization: 85,
-      currentAIAdoption: 60,
+      dataOpenness: 60,
+      workDataDigitalization: 74,
+      processStandardization: 71,
+      currentAIAdoption: 53,
     },
     protections: {
-      creativeRequirement: 15,
-      humanInteraction: 60,
-      physicalOperation: 5,
+      creativeRequirement: 18,
+      humanInteraction: 72,
+      physicalOperation: 8,
     },
   },
 
-  // 技术/开发类 - 中等风险
+  // 技术/开发类（参考：PSTS 行业暴露 48.78%，有效Win 47.30%；软件开发职业Win样本偏高）
   'tech': {
     name: { en: 'Developer / Tech', zh: '程序员/技术' },
     industry: 'tech',
     dimensions: {
-      dataOpenness: 70,
-      workDataDigitalization: 100,
-      processStandardization: 50,
-      currentAIAdoption: 50,
+      dataOpenness: 72,
+      workDataDigitalization: 94,
+      processStandardization: 67,
+      currentAIAdoption: 65,
     },
     protections: {
-      creativeRequirement: 70,
-      humanInteraction: 55,
+      creativeRequirement: 75,
+      humanInteraction: 45,
       physicalOperation: 5,
     },
   },
 
-  // 创意/设计类 - 中高风险
+  // 创意/设计类（参考：Information 行业暴露 48.99%，有效Win 53.34%）
   'creative': {
     name: { en: 'Creative / Designer', zh: '创意/设计' },
     industry: 'marketing',
     dimensions: {
-      dataOpenness: 75,
-      workDataDigitalization: 100,
-      processStandardization: 55,
-      currentAIAdoption: 55,
+      dataOpenness: 68,
+      workDataDigitalization: 90,
+      processStandardization: 63,
+      currentAIAdoption: 58,
     },
     protections: {
-      creativeRequirement: 70,
-      humanInteraction: 50,
+      creativeRequirement: 78,
+      humanInteraction: 52,
       physicalOperation: 5,
     },
   },
 
-  // 金融/分析类 - 中等风险
+  // 金融/分析类（参考：行业暴露 54.71%，有效Win 50.92%，风险 27.86%）
   'finance': {
     name: { en: 'Finance / Analyst', zh: '金融/分析' },
     industry: 'finance',
     dimensions: {
-      dataOpenness: 60,
-      workDataDigitalization: 95,
-      processStandardization: 70,
-      currentAIAdoption: 45,
+      dataOpenness: 71,
+      workDataDigitalization: 86,
+      processStandardization: 76,
+      currentAIAdoption: 56,
     },
     protections: {
-      creativeRequirement: 40,
-      humanInteraction: 50,
+      creativeRequirement: 45,
+      humanInteraction: 58,
       physicalOperation: 5,
     },
   },
 
-  // 销售/管理类 - 低风险
+  // 销售/管理类（参考：Retail/Wholesale 合并口径，风险区间约 23%-27%）
   'sales': {
     name: { en: 'Sales / Management', zh: '销售/管理' },
     industry: 'sales',
     dimensions: {
-      dataOpenness: 50,
-      workDataDigitalization: 75,
-      processStandardization: 50,
-      currentAIAdoption: 30,
+      dataOpenness: 56,
+      workDataDigitalization: 72,
+      processStandardization: 61,
+      currentAIAdoption: 50,
     },
     protections: {
-      creativeRequirement: 50,
-      humanInteraction: 80,
-      physicalOperation: 10,
+      creativeRequirement: 58,
+      humanInteraction: 82,
+      physicalOperation: 12,
     },
   },
 
-  // 医疗/教育类 - 低风险
+  // 医疗/教育类（参考：Healthcare 风险 15.88%，Education 风险 16.55%）
   'healthcare-edu': {
     name: { en: 'Healthcare / Education', zh: '医疗/教育' },
     industry: 'healthcare',
     dimensions: {
       dataOpenness: 40,
-      workDataDigitalization: 60,
-      processStandardization: 40,
-      currentAIAdoption: 25,
+      workDataDigitalization: 55,
+      processStandardization: 42,
+      currentAIAdoption: 38,
     },
     protections: {
-      creativeRequirement: 65,
+      creativeRequirement: 70,
       humanInteraction: 95,
-      physicalOperation: 50,
+      physicalOperation: 55,
     },
   },
 
-  // 体力/手工类 - 极低风险
+  // 体力/手工类（参考：Manufacturing 风险 17.75%，但物理操作保护强）
   'manual': {
     name: { en: 'Manual / Skilled Trade', zh: '体力/技术工种' },
     industry: 'manufacturing',
     dimensions: {
-      dataOpenness: 30,
-      workDataDigitalization: 30,
-      processStandardization: 45,
-      currentAIAdoption: 10,
+      dataOpenness: 28,
+      workDataDigitalization: 32,
+      processStandardization: 48,
+      currentAIAdoption: 24,
     },
     protections: {
-      creativeRequirement: 45,
+      creativeRequirement: 48,
       humanInteraction: 45,
       physicalOperation: 95,
     },
   },
 
-  // 内容/写作类 - 中高风险
+  // 内容/写作类（参考：Information 行业 + Editors/Journalists 职业样本）
   'writer': {
     name: { en: 'Writer / Content', zh: '写作/内容' },
     industry: 'marketing',
     dimensions: {
-      dataOpenness: 80,
-      workDataDigitalization: 100,
-      processStandardization: 60,
-      currentAIAdoption: 70,
+      dataOpenness: 74,
+      workDataDigitalization: 96,
+      processStandardization: 67,
+      currentAIAdoption: 65,
     },
     protections: {
-      creativeRequirement: 60,
-      humanInteraction: 40,
+      creativeRequirement: 66,
+      humanInteraction: 42,
       physicalOperation: 5,
     },
   },
@@ -3061,9 +3129,9 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   };
 
   return (
-    <section className="py-24 px-4 md:px-6 relative overflow-hidden">
+    <section id="risk-calculator" className="py-24 px-4 md:px-6 relative z-30 overflow-hidden scroll-mt-8">
       {/* Background gradient effect */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-surface/50 to-background pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-surface/30 to-transparent pointer-events-none" />
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Title with distinctive styling */}
@@ -3074,14 +3142,15 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary/10 border border-brand-primary/20 mb-6">
-            <Target className="w-4 h-4 text-brand-primary" />
-            <span className="text-sm font-medium text-brand-primary">{t.survivalBadge}</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border border-white/10">
+            <Target className="w-4 h-4" style={{ stroke: 'url(#badge-gradient)' }} />
+            <svg width="0" height="0"><defs><linearGradient id="badge-gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#38bdf8" /><stop offset="50%" stopColor="#a78bfa" /><stop offset="100%" stopColor="#fb7185" /></linearGradient></defs></svg>
+            <span className="text-sm font-medium bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400 bg-clip-text text-transparent">{t.survivalBadge}</span>
           </div>
-          <h2 className="calc-title text-2xl sm:text-4xl md:text-6xl lg:text-7xl mb-4 bg-gradient-to-r from-foreground via-foreground to-foreground-muted bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl mb-4 section-title">
             {t.survivalTitle}
           </h2>
-          <p className="text-foreground-muted text-lg md:text-xl max-w-2xl mx-auto">
+          <p className="section-subtitle text-lg md:text-xl max-w-2xl mx-auto">
             {t.survivalSubtitle}
           </p>
         </motion.div>
@@ -3098,7 +3167,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
               {/* 职业快速预设 - Redesigned */}
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center">
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -3166,7 +3235,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
               {/* 四个核心维度 - Redesigned */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-risk-critical to-risk-high flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-rose-500 flex items-center justify-center">
                     <Brain className="w-5 h-5 text-white" />
                   </div>
                   <h3 className="font-semibold text-lg">{t.coreDimensions}</h3>
@@ -3394,7 +3463,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
               {/* Insights - Modern Tags */}
               <div className="result-card rounded-xl p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center">
                     <Eye className="w-4 h-4 text-white" />
                   </div>
                   <h5 className="font-semibold">{t.insights}</h5>
@@ -3420,7 +3489,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
               {/* Recommendations - Modern List */}
               <div className="result-card rounded-xl p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-risk-low to-brand-accent flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-rose-500 flex items-center justify-center">
                     <Target className="w-4 h-4 text-white" />
                   </div>
                   <h5 className="font-semibold">{t.recommendations}</h5>
@@ -3571,10 +3640,7 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <section className="py-20 px-6 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-0 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-risk-critical/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-48 h-48 md:w-96 md:h-96 bg-brand-primary/5 rounded-full blur-3xl" />
+    <section className="py-20 px-6 relative z-30 overflow-hidden">
 
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Header */}
@@ -3584,14 +3650,14 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-6 opacity-0">
             <Lock className="w-4 h-4 text-risk-critical" />
             <span className="text-sm font-medium text-risk-critical">DATA THREAT</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 section-title">
             {t.dataThreatTitle}
           </h2>
-          <p className="text-foreground-muted max-w-3xl mx-auto text-lg">
+          <p className="section-subtitle max-w-3xl mx-auto text-lg">
             {t.dataThreatSubtitle}
           </p>
         </motion.div>
@@ -3609,7 +3675,7 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
               className="w-full flex items-center justify-between gap-3 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center">
                   <Zap className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-xl font-bold">{t.lastMileTitle}</h3>
@@ -3737,13 +3803,13 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: typeof translatio
   const text = linkText[lang];
 
   return (
-    <section className="py-16 px-6 bg-gradient-to-br from-surface to-background">
+    <section className="py-16 px-6">
       <div className="max-w-4xl mx-auto text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-2xl md:text-4xl font-bold mb-4"
+          className="text-2xl md:text-4xl font-bold mb-4 section-title"
         >
           {text.title}
         </motion.h2>
@@ -3752,7 +3818,7 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: typeof translatio
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
-          className="text-foreground-muted mb-8 max-w-2xl mx-auto"
+          className="section-subtitle mb-8 max-w-2xl mx-auto"
         >
           {text.subtitle}
         </motion.p>
