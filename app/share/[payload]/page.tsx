@@ -22,33 +22,40 @@ function riskDescription(payload: SharePayload): string {
     : `My AI replacement risk is ${riskLabel(payload)} (${payload.replacementProbability}%), with an AI kill line around ${payload.predictedReplacementYear}.`;
 }
 
+function bypassSuffix(): string {
+  const secret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  return secret ? `?x-vercel-protection-bypass=${secret}` : '';
+}
+
 export async function generateMetadata({ params }: SharePageProps): Promise<Metadata> {
   const { payload } = await params;
   const decoded = decodeSharePayload(payload);
+  const bypass = bypassSuffix();
 
   if (!decoded) {
     const title = 'JOBLESS - Shared AI Risk Result';
     const description = 'Open this result in JOBLESS to calculate and compare your AI replacement risk.';
+    const fallbackImage = `/opengraph-image${bypass}`;
     return {
       title,
       description,
       openGraph: {
         title,
         description,
-        images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: title }],
+        images: [{ url: fallbackImage, width: 1200, height: 630, alt: title }],
       },
       twitter: {
         card: 'summary_large_image',
         title,
         description,
-        images: ['/opengraph-image'],
+        images: [fallbackImage],
       },
     };
   }
 
   const title = decoded.lang === 'zh' ? `AI 风险结果：${riskLabel(decoded)}` : `AI Risk Result: ${riskLabel(decoded)}`;
   const description = riskDescription(decoded);
-  const shareImageUrl = `/share/${payload}/opengraph-image`;
+  const shareImageUrl = `/share/${payload}/opengraph-image${bypass}`;
 
   return {
     title,
