@@ -7,6 +7,7 @@ import {
   CheckCircle2, ChevronDown, ChevronRight, TrendingUp, AlertTriangle, Brain, Activity, Send,
   Database, FileText, Workflow, Bot, BarChart3, Flame, RefreshCw,
 } from 'lucide-react';
+import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
 import { calculateAIRisk, RISK_LEVEL_INFO, RiskInputData, RiskOutputResult } from '@/lib/ai_risk_calculator_v2';
 import { encodeSharePayload } from '@/lib/share_payload';
@@ -363,95 +364,180 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
 
   const buildShareImageBlob = async (): Promise<Blob | null> => {
     if (!result) return null;
+    const shareUrl = getShareUrl();
     const canvas = document.createElement('canvas');
-    canvas.width = 1200;
-    canvas.height = 630;
+    canvas.width = 1080;
+    canvas.height = 1920;
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    const loadImage = (src: string) =>
+      new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error('image load failed'));
+        image.src = src;
+      });
+
+    const roundedRect = (x: number, y: number, width: number, height: number, radius: number) => {
+      ctx.beginPath();
+      ctx.roundRect(x, y, width, height, radius);
+    };
 
     // Background
-    const grad = ctx.createLinearGradient(0, 0, 1200, 630);
-    grad.addColorStop(0, '#050507');
-    grad.addColorStop(0.4, '#0d0b10');
-    grad.addColorStop(1, '#15121a');
+    const grad = ctx.createLinearGradient(0, 0, 1080, 1920);
+    grad.addColorStop(0, '#05070d');
+    grad.addColorStop(0.45, '#0f0f16');
+    grad.addColorStop(1, '#17121d');
     ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 1200, 630);
+    ctx.fillRect(0, 0, 1080, 1920);
 
-    // Glow effects
-    const glow1 = ctx.createRadialGradient(200, 150, 0, 200, 150, 200);
-    glow1.addColorStop(0, 'rgba(213,0,249,0.12)');
+    const glow1 = ctx.createRadialGradient(170, 170, 0, 170, 170, 420);
+    glow1.addColorStop(0, 'rgba(0,229,255,0.2)');
     glow1.addColorStop(1, 'transparent');
     ctx.fillStyle = glow1;
-    ctx.fillRect(0, 0, 400, 350);
+    ctx.fillRect(0, 0, 620, 620);
+
+    const glow2 = ctx.createRadialGradient(880, 1550, 0, 880, 1550, 520);
+    glow2.addColorStop(0, 'rgba(255,23,68,0.2)');
+    glow2.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow2;
+    ctx.fillRect(520, 1120, 560, 780);
 
     const riskColor = RISK_LEVEL_INFO[result.riskLevel].color;
 
-    // Title
+    // Header
     ctx.fillStyle = '#8a8595';
-    ctx.font = '600 20px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('JOBLESS - AI Replacement Risk Assessment', 600, 60);
+    ctx.font = '600 30px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('JOBLESS · AI Risk Poster', 68, 100);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = '500 24px sans-serif';
+    ctx.fillText(lang === 'en' ? '2026 Personal Assessment' : '2026 个人评估', 68, 142);
 
-    // Risk level
+    // Risk label
     ctx.fillStyle = riskColor;
-    ctx.font = 'bold 72px sans-serif';
+    ctx.font = '800 116px sans-serif';
+    ctx.textAlign = 'left';
     ctx.fillText(
       result.riskLevel === 'very-low' ? (lang === 'en' ? 'VERY LOW' : '极低风险') :
       result.riskLevel === 'low' ? (lang === 'en' ? 'LOW RISK' : '低风险') :
       result.riskLevel === 'medium' ? (lang === 'en' ? 'MEDIUM' : '中等风险') :
       result.riskLevel === 'high' ? (lang === 'en' ? 'HIGH RISK' : '高风险') :
       (lang === 'en' ? 'CRITICAL' : '极高风险'),
-      600, 180
+      68,
+      320,
+    );
+
+    // Summary sentence
+    ctx.fillStyle = '#dbd9e3';
+    ctx.font = '500 30px sans-serif';
+    ctx.fillText(
+      lang === 'en'
+        ? `AI Replacement Probability ${result.replacementProbability}%`
+        : `AI 替代概率 ${result.replacementProbability}%`,
+      68,
+      382,
     );
 
     // Metrics boxes
     const metrics = [
       { value: `${result.replacementProbability}%`, label: lang === 'en' ? 'Replacement Probability' : '替代概率', color: '#ff1744' },
-      { value: `${result.predictedReplacementYear}`, label: lang === 'en' ? 'AI Kill Line' : 'AI 斩杀线', color: '#ff5722' },
-      { value: `${result.currentReplacementDegree}%`, label: lang === 'en' ? 'Current Degree' : '当前程度', color: '#d500f9' },
+      { value: `${result.predictedReplacementYear}`, label: lang === 'en' ? 'AI Kill Line Year' : 'AI 斩杀线年份', color: '#ff8f00' },
+      { value: `${result.currentReplacementDegree}%`, label: lang === 'en' ? 'Current Degree' : '当前程度', color: '#4dd0e1' },
     ];
 
     metrics.forEach((m, i) => {
-      const x = 150 + i * 340;
-      const y = 240;
-      ctx.fillStyle = 'rgba(255,255,255,0.05)';
-      ctx.beginPath();
-      ctx.roundRect(x, y, 280, 160, 16);
+      const x = 68;
+      const y = 470 + i * 228;
+      roundedRect(x, y, 944, 184, 28);
+      ctx.fillStyle = 'rgba(255,255,255,0.055)';
       ctx.fill();
       ctx.strokeStyle = m.color + '40';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(x, y, 280, 160, 16);
+      ctx.lineWidth = 2;
+      roundedRect(x, y, 944, 184, 28);
       ctx.stroke();
+
       ctx.fillStyle = m.color;
-      ctx.font = 'bold 48px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(m.value, x + 140, y + 80);
-      ctx.fillStyle = '#8a8595';
-      ctx.font = '500 16px sans-serif';
-      ctx.fillText(m.label, x + 140, y + 120);
+      ctx.font = '800 76px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(m.value, x + 42, y + 112);
+      ctx.fillStyle = '#9f9aac';
+      ctx.font = '500 28px sans-serif';
+      ctx.fillText(m.label, x + 44, y + 152);
     });
 
-    // Confidence interval
+    // Confidence interval block
+    roundedRect(68, 1170, 944, 150, 24);
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.fill();
     ctx.fillStyle = '#fafafa';
-    ctx.font = '500 22px sans-serif';
-    ctx.textAlign = 'center';
+    ctx.font = '600 34px sans-serif';
+    ctx.textAlign = 'left';
     ctx.fillText(
       `${lang === 'en' ? 'Range' : '预测范围'}: ${result.confidenceInterval.earliest} — ${result.confidenceInterval.latest}`,
-      600, 470
+      112,
+      1260,
     );
 
-    // CTA
-    ctx.fillStyle = '#00e5ff';
-    ctx.font = '500 20px sans-serif';
-    ctx.fillText(lang === 'en' ? 'Calculate your risk → jobless.wiki' : '计算你的风险 → jobless.wiki', 600, 560);
+    // Footer zone
+    roundedRect(68, 1370, 944, 460, 34);
+    const footerGrad = ctx.createLinearGradient(68, 1370, 1012, 1830);
+    footerGrad.addColorStop(0, 'rgba(255,255,255,0.06)');
+    footerGrad.addColorStop(1, 'rgba(255,255,255,0.02)');
+    ctx.fillStyle = footerGrad;
+    ctx.fill();
 
-    // Top accent bar
-    const barGrad = ctx.createLinearGradient(0, 0, 1200, 0);
-    barGrad.addColorStop(0, riskColor);
-    barGrad.addColorStop(1, 'transparent');
+    const qrPanelX = 740;
+    const qrPanelY = 1450;
+    roundedRect(qrPanelX, qrPanelY, 224, 224, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+
+    try {
+      const qrDataUrl = await QRCode.toDataURL(shareUrl, {
+        errorCorrectionLevel: 'M',
+        margin: 1,
+        width: 208,
+        color: { dark: '#0a1020', light: '#ffffff' },
+      });
+      const qrImage = await loadImage(qrDataUrl);
+      ctx.drawImage(qrImage, qrPanelX + 8, qrPanelY + 8, 208, 208);
+    } catch {
+      ctx.fillStyle = '#0a1020';
+      ctx.font = '700 22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('QR', qrPanelX + 112, qrPanelY + 122);
+    }
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#e6e2f0';
+    ctx.font = '700 38px sans-serif';
+    ctx.fillText(lang === 'en' ? 'Scan to view full result' : '扫码查看完整结果', 112, 1518);
+    ctx.fillStyle = '#a8a3b6';
+    ctx.font = '500 24px sans-serif';
+    ctx.fillText(lang === 'en' ? 'Share this poster with friends' : '把这张海报分享给朋友', 112, 1562);
+
+    // Short domain text
+    const shortUrl = shareUrl.replace(/^https?:\/\//, '');
+    ctx.fillStyle = 'rgba(255,255,255,0.82)';
+    ctx.font = '600 23px sans-serif';
+    ctx.fillText(shortUrl.length > 48 ? `${shortUrl.slice(0, 45)}...` : shortUrl, 112, 1660);
+
+    // Decorative top bar
+    const barGrad = ctx.createLinearGradient(0, 0, 1080, 0);
+    barGrad.addColorStop(0, '#00e5ff');
+    barGrad.addColorStop(0.55, riskColor);
+    barGrad.addColorStop(1, '#ff4081');
     ctx.fillStyle = barGrad;
-    ctx.fillRect(0, 0, 1200, 4);
+    ctx.fillRect(0, 0, 1080, 8);
+
+    // Watermark
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.font = '500 21px sans-serif';
+    ctx.fillText('Generated by JOBLESS', 112, 1750);
 
     return new Promise((resolve) => {
       canvas.toBlob((blob) => resolve(blob), 'image/png');
@@ -468,7 +554,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       const imageBlob = await buildShareImageBlob();
       if (imageBlob) {
         const photoForm = new FormData();
-        photoForm.append('photo', imageBlob, 'ai-risk-result.png');
+        photoForm.append('photo', imageBlob, 'jobless-risk-poster.png');
         photoForm.append('caption', `${shareText}\n${shareUrl}`);
 
         const photoResponse = await fetch('/api/share/telegram/photo', {
@@ -509,7 +595,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'ai-risk-result.png';
+    a.download = 'jobless-risk-poster.png';
     a.click();
     URL.revokeObjectURL(url);
   };

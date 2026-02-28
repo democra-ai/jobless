@@ -421,8 +421,8 @@ export const translations = {
     shareWeChat: 'WeChat',
     shareWeChatCopied: 'Copied! Paste in WeChat',
     shareWeibo: 'Weibo',
-    shareDownload: 'Download',
-    shareTelegramHint: 'Telegram sends your result image first. If unavailable, it falls back to link sharing.',
+    shareDownload: 'Save Poster',
+    shareTelegramHint: 'Poster includes a QR code for your result page. Telegram sends the poster first, then falls back to link if needed.',
     shareText: 'My AI Replacement Risk: {level} ({prob}%). AI Kill Line: {year}. What\'s yours?',
   },
   zh: {
@@ -812,8 +812,8 @@ export const translations = {
     shareWeChat: '微信',
     shareWeChatCopied: '已复制，去微信粘贴',
     shareWeibo: '微博',
-    shareDownload: '下载图片',
-    shareTelegramHint: 'Telegram 会优先发送结果图片；不可用时自动回退为链接分享。',
+    shareDownload: '保存海报',
+    shareTelegramHint: '海报右下角含结果二维码。Telegram 会优先发送海报，不可用时自动回退为链接分享。',
     shareText: '我的 AI 替代风险：{level}（{prob}%）。AI 斩杀线：{year}年。你呢？',
   },
 };
