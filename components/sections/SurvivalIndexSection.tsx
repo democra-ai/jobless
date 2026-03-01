@@ -1158,7 +1158,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   top: '0',
                   width: '880px',
                   padding: '26px',
-                  background: 'linear-gradient(140deg, #060b13, #121427)',
+                  background: 'linear-gradient(145deg, #040811 0%, #0b1020 58%, #1a1320 100%)',
                   borderRadius: '28px',
                   boxSizing: 'border-box',
                   color: '#eef2ff',
@@ -1166,6 +1166,21 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 }}
               >
                 <div ref={posterCaptureRef} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div
+                    style={{
+                      borderRadius: '20px',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      background: 'linear-gradient(90deg, rgba(0,219,255,0.12), rgba(255,61,153,0.1))',
+                      padding: '10px 16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <span style={{ fontSize: '22px', letterSpacing: '0.6px', fontWeight: 700 }}>JOBLESS</span>
+                    <span style={{ fontSize: '16px', opacity: 0.74 }}>{lang === 'en' ? 'AI Risk Share' : 'AI 风险分享'}</span>
+                  </div>
+
                   <div
                     style={{
                       borderRadius: '24px',
