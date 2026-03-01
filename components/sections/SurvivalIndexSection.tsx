@@ -1373,7 +1373,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                           whileTap={{ scale: 0.95 }}
                           onClick={handleDownloadImage}
                           data-testid="share-download-btn"
-                          className="col-span-2 sm:col-span-3 md:col-span-2 flex items-center justify-center gap-2 px-3 py-3 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/40 text-sm font-semibold text-brand-primary transition-all"
+                          className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/40 text-sm font-semibold text-brand-primary transition-all"
                         >
                           <Download className="w-4 h-4" />
                           {t.shareDownload}
