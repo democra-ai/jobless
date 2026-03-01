@@ -298,12 +298,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       earliestYear: result.confidenceInterval.earliest,
       latestYear: result.confidenceInterval.latest,
       lang,
-      insights: {
-        primaryDriver: result.insights.primaryDriver,
-        secondaryFactors: result.insights.secondaryFactors.slice(0, 3),
-        protectionFactors: result.insights.protectionFactors.slice(0, 2),
-      },
-      recommendations: result.insights.recommendations.slice(0, 4),
     });
 
     const runtimeOrigin = window.location.origin;
@@ -545,7 +539,12 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       // Fallback to Telegram Web share if API call fails
     }
 
-    window.open(fallbackUrl, '_blank');
+    const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobileBrowser) {
+      window.location.href = fallbackUrl;
+    } else {
+      window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+    }
     setTelegramShareState('fallback');
     setTimeout(() => setTelegramShareState('idle'), 3200);
   };
