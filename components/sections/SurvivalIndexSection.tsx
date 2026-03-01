@@ -7,12 +7,10 @@ import {
   CheckCircle2, ChevronDown, ChevronRight, TrendingUp, AlertTriangle, Brain, Activity, Send,
   Database, FileText, Workflow, Bot, BarChart3, Flame, RefreshCw,
 } from 'lucide-react';
-import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
 import { calculateAIRisk, RISK_LEVEL_INFO, RiskInputData, RiskOutputResult } from '@/lib/ai_risk_calculator_v2';
 import { encodeSharePayload } from '@/lib/share_payload';
-import SharedResultPosterPanel from '@/components/share/SharedResultPosterPanel';
 
 function DimensionSlider({
   title,
@@ -273,7 +271,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const [wechatCopied, setWechatCopied] = useState(false);
   const [sharePanelOpen, setSharePanelOpen] = useState(false);
   const [telegramShareState, setTelegramShareState] = useState<'idle' | 'sending' | 'sent' | 'fallback'>('idle');
-  const shareCaptureRef = useRef<HTMLDivElement>(null);
 
   // 分享功能
   const getShareText = () => {
@@ -397,34 +394,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
 
     const riskColor = RISK_LEVEL_INFO[result.riskLevel].color;
 
-    const drawBackground = () => {
-      const grad = ctx.createLinearGradient(0, 0, 1080, 1920);
-      grad.addColorStop(0, '#05070d');
-      grad.addColorStop(0.45, '#0f0f16');
-      grad.addColorStop(1, '#17121d');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 1080, 1920);
-
-      const glow1 = ctx.createRadialGradient(190, 220, 0, 190, 220, 460);
-      glow1.addColorStop(0, 'rgba(0,229,255,0.16)');
-      glow1.addColorStop(1, 'transparent');
-      ctx.fillStyle = glow1;
-      ctx.fillRect(0, 0, 660, 660);
-
-      const glow2 = ctx.createRadialGradient(900, 1580, 0, 900, 1580, 560);
-      glow2.addColorStop(0, 'rgba(255,23,68,0.16)');
-      glow2.addColorStop(1, 'transparent');
-      ctx.fillStyle = glow2;
-      ctx.fillRect(500, 1120, 580, 800);
-
-      const barGrad = ctx.createLinearGradient(0, 0, 1080, 0);
-      barGrad.addColorStop(0, '#00e5ff');
-      barGrad.addColorStop(0.55, riskColor);
-      barGrad.addColorStop(1, '#ff4081');
-      ctx.fillStyle = barGrad;
-      ctx.fillRect(0, 0, 1080, 8);
-    };
-
     const truncateText = (text: string, maxWidth: number) => {
       if (ctx.measureText(text).width <= maxWidth) return text;
       let trimmed = text;
@@ -433,196 +402,218 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       }
       return `${trimmed}...`;
     };
-
-    const drawFallbackResult = () => {
-      const levelText = result.riskLevel === 'very-low' ? (lang === 'en' ? 'VERY LOW' : '极低风险') :
-        result.riskLevel === 'low' ? (lang === 'en' ? 'LOW RISK' : '低风险') :
-        result.riskLevel === 'medium' ? (lang === 'en' ? 'MEDIUM RISK' : '中等风险') :
-        result.riskLevel === 'high' ? (lang === 'en' ? 'HIGH RISK' : '高风险') :
-        (lang === 'en' ? 'CRITICAL RISK' : '极高风险');
-
-      roundedRect(52, 54, 976, 1410, 30);
-      ctx.fillStyle = 'rgba(8,11,19,0.8)';
+    const drawCard = (x: number, y: number, width: number, height: number, border = 'rgba(255,255,255,0.11)') => {
+      const grad = ctx.createLinearGradient(x, y, x + width, y + height);
+      grad.addColorStop(0, 'rgba(8,12,24,0.92)');
+      grad.addColorStop(1, 'rgba(15,19,33,0.78)');
+      ctx.fillStyle = grad;
+      roundedRect(x, y, width, height, 28);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-      ctx.lineWidth = 2;
-      roundedRect(52, 54, 976, 1410, 30);
-      ctx.stroke();
-
-      ctx.fillStyle = 'rgba(255,255,255,0.72)';
-      ctx.font = '600 28px sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText(lang === 'en' ? 'AI Replacement Risk Result' : 'AI 替代风险结果', 96, 118);
-
-      ctx.fillStyle = riskColor;
-      ctx.font = '800 96px sans-serif';
-      ctx.fillText(levelText, 96, 252);
-
-      ctx.fillStyle = '#c7c3d4';
-      ctx.font = '500 30px sans-serif';
-      ctx.fillText(RISK_LEVEL_INFO[result.riskLevel].description[lang], 96, 305);
-
-      const metrics = [
-        { value: `${result.replacementProbability}%`, label: lang === 'en' ? 'Replacement Probability' : '替代概率', color: '#ff1744' },
-        { value: `${result.predictedReplacementYear}`, label: lang === 'en' ? 'AI Kill Line Year' : 'AI 斩杀线年份', color: '#ff8f00' },
-        { value: `${result.currentReplacementDegree}%`, label: lang === 'en' ? 'Current Degree' : '当前程度', color: '#4dd0e1' },
-      ];
-
-      metrics.forEach((m, i) => {
-        const x = 96;
-        const y = 388 + i * 252;
-        roundedRect(x, y, 888, 210, 22);
-        ctx.fillStyle = 'rgba(255,255,255,0.05)';
-        ctx.fill();
-        ctx.strokeStyle = m.color + '44';
-        ctx.lineWidth = 2;
-        roundedRect(x, y, 888, 210, 22);
-        ctx.stroke();
-
-        ctx.fillStyle = m.color;
-        ctx.font = '800 82px sans-serif';
-        ctx.fillText(m.value, x + 38, y + 126);
-        ctx.fillStyle = '#aca8bb';
-        ctx.font = '500 28px sans-serif';
-        ctx.fillText(m.label, x + 40, y + 171);
-      });
-
-      roundedRect(96, 1168, 888, 188, 22);
-      ctx.fillStyle = 'rgba(255,255,255,0.055)';
-      ctx.fill();
-      ctx.fillStyle = '#f2f2f4';
-      ctx.font = '600 35px sans-serif';
-      ctx.fillText(
-        `${lang === 'en' ? 'Range' : '预测范围'}: ${result.confidenceInterval.earliest} — ${result.confidenceInterval.latest}`,
-        138,
-        1277,
-      );
-      return 1502;
-    };
-
-    const drawFooter = async (initialTop: number) => {
-      const bottomPadding = 56;
-      const minFooterHeight = 260;
-      const footerTop = Math.min(initialTop, canvas.height - bottomPadding - minFooterHeight);
-      const footerX = 48;
-      const footerY = footerTop;
-      const footerW = 984;
-      const footerH = canvas.height - bottomPadding - footerY;
-
-      roundedRect(footerX, footerY, footerW, footerH, 28);
-      const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
-      footerGrad.addColorStop(0, 'rgba(255,255,255,0.08)');
-      footerGrad.addColorStop(1, 'rgba(255,255,255,0.03)');
-      ctx.fillStyle = footerGrad;
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.strokeStyle = border;
       ctx.lineWidth = 1.5;
-      roundedRect(footerX, footerY, footerW, footerH, 28);
+      roundedRect(x, y, width, height, 28);
       ctx.stroke();
-
-      const qrSize = Math.max(164, Math.min(220, footerH - 58));
-      const qrBoxSize = qrSize + 18;
-      const qrPanelX = footerX + footerW - qrBoxSize - 30;
-      const qrPanelY = footerY + (footerH - qrBoxSize) / 2;
-
-      roundedRect(qrPanelX, qrPanelY, qrBoxSize, qrBoxSize, 18);
-      ctx.fillStyle = '#ffffff';
-      ctx.fill();
-
-      try {
-        const qrDataUrl = await QRCode.toDataURL(shareUrl, {
-          errorCorrectionLevel: 'M',
-          margin: 1,
-          width: qrSize,
-          color: { dark: '#0c1322', light: '#ffffff' },
-        });
-        const qrImage = await loadImage(qrDataUrl);
-        ctx.drawImage(qrImage, qrPanelX + 9, qrPanelY + 9, qrSize, qrSize);
-      } catch {
-        ctx.fillStyle = '#0a1020';
-        ctx.font = '700 20px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('QR', qrPanelX + qrBoxSize / 2, qrPanelY + qrBoxSize / 2 + 7);
-      }
-
-      const textX = footerX + 36;
-      const titleY = footerY + 84;
-      const subtitleY = titleY + 50;
-      const urlY = subtitleY + 50;
-      const watermarkY = urlY + 42;
-      const maxTextWidth = qrPanelX - textX - 24;
-      const shortUrl = shareUrl.replace(/^https?:\/\//, '');
-
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#eef1f6';
-      ctx.font = '700 42px sans-serif';
-      ctx.fillText(lang === 'en' ? 'Calculate your AI risk' : '测测你的 AI 替代风险', textX, titleY);
-
-      ctx.fillStyle = '#b4b9c7';
-      ctx.font = '500 27px sans-serif';
-      ctx.fillText(lang === 'en' ? 'Scan the QR code to view this page' : '扫码查看结果页并继续测试', textX, subtitleY);
-
-      ctx.fillStyle = 'rgba(255,255,255,0.86)';
-      ctx.font = '600 24px sans-serif';
-      ctx.fillText(truncateText(shortUrl, maxTextWidth), textX, urlY);
-
-      ctx.fillStyle = 'rgba(255,255,255,0.42)';
-      ctx.font = '500 21px sans-serif';
-      ctx.fillText('Generated by JOBLESS', textX, watermarkY);
     };
 
-    drawBackground();
+    const chip = (text: string, x: number, y: number, color = 'rgba(130,143,255,0.68)') => {
+      ctx.font = '600 24px sans-serif';
+      const w = Math.min(ctx.measureText(text).width + 40, 760);
+      roundedRect(x, y - 28, w, 46, 23);
+      ctx.fillStyle = 'rgba(33,42,78,0.48)';
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.2;
+      roundedRect(x, y - 28, w, 46, 23);
+      ctx.stroke();
+      ctx.fillStyle = '#e9edff';
+      ctx.fillText(truncateText(text, w - 28), x + 16, y + 3);
+      return w + 12;
+    };
 
-    let footerTop = 1500;
-    const captureRoot = shareCaptureRef.current;
-    if (captureRoot) {
-      try {
-        const snapshot = await html2canvas(captureRoot, {
-          backgroundColor: '#0b0f16',
-          scale: Math.min(window.devicePixelRatio || 1, 2),
-          useCORS: true,
-          logging: false,
-        });
+    const bg = ctx.createLinearGradient(0, 0, 1080, 1920);
+    bg.addColorStop(0, '#05080f');
+    bg.addColorStop(0.55, '#0a0f1d');
+    bg.addColorStop(1, '#17111c');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 1080, 1920);
 
-        const drawY = 56;
-        const maxWidth = 988;
-        const maxHeight = 1498;
-        const scale = Math.min(maxWidth / snapshot.width, maxHeight / snapshot.height);
-        if (!Number.isFinite(scale) || scale <= 0) throw new Error('invalid snapshot scale');
+    const glow1 = ctx.createRadialGradient(120, 190, 0, 120, 190, 420);
+    glow1.addColorStop(0, 'rgba(12,219,255,0.2)');
+    glow1.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow1;
+    ctx.fillRect(0, 0, 560, 560);
 
-        const drawWidth = snapshot.width * scale;
-        const drawHeight = snapshot.height * scale;
-        const drawX = (canvas.width - drawWidth) / 2;
+    const glow2 = ctx.createRadialGradient(980, 1790, 0, 980, 1790, 520);
+    glow2.addColorStop(0, 'rgba(255,57,108,0.2)');
+    glow2.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow2;
+    ctx.fillRect(480, 1300, 600, 620);
 
-        ctx.save();
-        ctx.shadowColor = 'rgba(0,0,0,0.38)';
-        ctx.shadowBlur = 36;
-        ctx.shadowOffsetY = 18;
-        ctx.fillStyle = 'rgba(9,11,16,0.84)';
-        roundedRect(drawX - 16, drawY - 16, drawWidth + 32, drawHeight + 32, 30);
-        ctx.fill();
-        ctx.restore();
+    const topBar = ctx.createLinearGradient(0, 0, 1080, 0);
+    topBar.addColorStop(0, '#00dbff');
+    topBar.addColorStop(0.65, riskColor);
+    topBar.addColorStop(1, '#ff3d99');
+    ctx.fillStyle = topBar;
+    ctx.fillRect(0, 0, 1080, 9);
 
-        ctx.save();
-        roundedRect(drawX, drawY, drawWidth, drawHeight, 24);
-        ctx.clip();
-        ctx.drawImage(snapshot, drawX, drawY, drawWidth, drawHeight);
-        ctx.restore();
+    const left = 48;
+    const width = 984;
+    let y = 44;
 
-        ctx.strokeStyle = 'rgba(255,255,255,0.16)';
-        ctx.lineWidth = 2;
-        roundedRect(drawX, drawY, drawWidth, drawHeight, 24);
-        ctx.stroke();
+    drawCard(left, y, width, 236, riskColor + '66');
+    ctx.fillStyle = 'rgba(220,227,245,0.76)';
+    ctx.font = '700 18px sans-serif';
+    ctx.fillText(lang === 'en' ? 'YOUR AI RISK RESULT' : '你的 AI 风险结果', left + 36, y + 54);
+    ctx.fillStyle = riskColor;
+    ctx.font = '800 88px sans-serif';
+    const levelText = result.riskLevel === 'very-low' ? (lang === 'en' ? 'VERY LOW' : '极低风险') :
+      result.riskLevel === 'low' ? (lang === 'en' ? 'LOW RISK' : '低风险') :
+      result.riskLevel === 'medium' ? (lang === 'en' ? 'MEDIUM RISK' : '中等风险') :
+      result.riskLevel === 'high' ? (lang === 'en' ? 'HIGH RISK' : '高风险') :
+      (lang === 'en' ? 'CRITICAL RISK' : '极高风险');
+    ctx.fillText(levelText, left + 36, y + 142);
+    ctx.fillStyle = 'rgba(190,198,216,0.85)';
+    ctx.font = '500 38px sans-serif';
+    ctx.fillText(
+      truncateText(RISK_LEVEL_INFO[result.riskLevel].description[lang], width - 72),
+      left + 36,
+      y + 198,
+    );
+    y += 260;
 
-        footerTop = drawY + drawHeight + 28;
-      } catch {
-        footerTop = drawFallbackResult();
-      }
-    } else {
-      footerTop = drawFallbackResult();
+    const metrics = [
+      {
+        value: `${result.replacementProbability}%`,
+        label: lang === 'en' ? 'Replacement Probability' : '替代概率',
+        desc: lang === 'en' ? 'Likelihood AI will replace your job' : '你的岗位被 AI 替代可能性',
+        color: '#ff2f67',
+      },
+      {
+        value: `${result.predictedReplacementYear}`,
+        label: lang === 'en' ? 'AI Kill Line Year' : 'AI 斩杀线年份',
+        desc: lang === 'en' ? 'Projected' : '预计年份',
+        color: '#ff9e1f',
+      },
+      {
+        value: `${result.currentReplacementDegree}%`,
+        label: lang === 'en' ? 'Current Degree' : '当前程度',
+        desc: lang === 'en' ? 'How much AI can already do now' : 'AI 当前可完成程度',
+        color: '#57d9ef',
+      },
+    ];
+
+    metrics.forEach((m) => {
+      drawCard(left, y, width, 158, m.color + '66');
+      ctx.fillStyle = m.color;
+      ctx.font = '800 74px sans-serif';
+      ctx.fillText(m.value, left + 32, y + 94);
+      ctx.fillStyle = 'rgba(214,220,236,0.82)';
+      ctx.font = '600 34px sans-serif';
+      ctx.fillText(m.label, left + 32, y + 132);
+      ctx.fillStyle = 'rgba(171,180,201,0.72)';
+      ctx.font = '500 24px sans-serif';
+      ctx.fillText(m.desc, left + 430, y + 132);
+      y += 176;
+    });
+
+    drawCard(left, y, width, 112);
+    ctx.fillStyle = 'rgba(203,211,228,0.82)';
+    ctx.font = '500 40px sans-serif';
+    ctx.fillText(lang === 'en' ? 'Range' : '预测范围', left + 32, y + 70);
+    ctx.fillStyle = '#f4f7ff';
+    ctx.font = '700 54px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${result.confidenceInterval.earliest} — ${result.confidenceInterval.latest}`, left + width - 32, y + 72);
+    ctx.textAlign = 'left';
+    y += 130;
+
+    const insightsCardHeight = 212;
+    drawCard(left, y, width, insightsCardHeight);
+    ctx.fillStyle = '#e9eeff';
+    ctx.font = '700 46px sans-serif';
+    ctx.fillText(lang === 'en' ? 'Key Insights' : '关键洞察', left + 32, y + 62);
+    ctx.fillStyle = 'rgba(198,205,224,0.85)';
+    ctx.font = '500 28px sans-serif';
+    ctx.fillText(lang === 'en' ? 'Primary Risk Driver:' : '主要风险驱动：', left + 32, y + 110);
+    const driver = truncateText(result.insights.primaryDriver, 440);
+    chip(driver, left + 310, y + 104);
+    let chipX = left + 32;
+    const secondary = result.insights.secondaryFactors.slice(0, 2);
+    secondary.forEach((factor) => {
+      chipX += chip(factor, chipX, y + 158);
+    });
+    const protection = result.insights.protectionFactors.slice(0, 1)[0];
+    if (protection) {
+      chip(truncateText(protection, 400), left + 32, y + 206, 'rgba(44,210,137,0.72)');
+    }
+    y += insightsCardHeight + 18;
+
+    const recs = result.insights.recommendations.slice(0, 3);
+    const recCardHeight = 70 + recs.length * 62;
+    drawCard(left, y, width, recCardHeight);
+    ctx.fillStyle = '#f2f4ff';
+    ctx.font = '700 44px sans-serif';
+    ctx.fillText(lang === 'en' ? 'Recommendations' : '建议行动', left + 32, y + 60);
+    recs.forEach((rec, index) => {
+      const rowY = y + 88 + index * 62;
+      roundedRect(left + 24, rowY - 38, width - 48, 48, 18);
+      ctx.fillStyle = 'rgba(9,14,28,0.72)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      roundedRect(left + 24, rowY - 38, width - 48, 48, 18);
+      ctx.stroke();
+      ctx.fillStyle = '#2ee191';
+      ctx.font = '700 22px sans-serif';
+      ctx.fillText('●', left + 40, rowY - 5);
+      ctx.fillStyle = '#e9edfa';
+      ctx.font = '500 24px sans-serif';
+      ctx.fillText(truncateText(rec, width - 120), left + 72, rowY - 5);
+    });
+    y += recCardHeight + 18;
+
+    const footerY = Math.max(y, 1642);
+    const footerHeight = 230;
+    drawCard(left, footerY, width, footerHeight, 'rgba(255,255,255,0.14)');
+
+    const qrSize = 176;
+    const qrBox = qrSize + 16;
+    const qrX = left + width - qrBox - 28;
+    const qrY = footerY + (footerHeight - qrBox) / 2;
+    roundedRect(qrX, qrY, qrBox, qrBox, 16);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    try {
+      const qrDataUrl = await QRCode.toDataURL(shareUrl, {
+        errorCorrectionLevel: 'M',
+        margin: 1,
+        width: qrSize,
+        color: { dark: '#0c1322', light: '#ffffff' },
+      });
+      const qrImage = await loadImage(qrDataUrl);
+      ctx.drawImage(qrImage, qrX + 8, qrY + 8, qrSize, qrSize);
+    } catch {
+      ctx.fillStyle = '#0a1020';
+      ctx.font = '700 26px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('QR', qrX + qrBox / 2, qrY + qrBox / 2 + 8);
+      ctx.textAlign = 'left';
     }
 
-    await drawFooter(footerTop);
+    const shortUrl = shareUrl.replace(/^https?:\/\//, '');
+    const textX = left + 28;
+    ctx.fillStyle = '#eff3ff';
+    ctx.font = '700 52px sans-serif';
+    ctx.fillText(lang === 'en' ? 'Calculate your AI risk' : '测测你的 AI 风险', textX, footerY + 78);
+    ctx.fillStyle = 'rgba(186,194,213,0.88)';
+    ctx.font = '500 33px sans-serif';
+    ctx.fillText(lang === 'en' ? 'Scan the QR code to view this page' : '扫码查看结果页', textX, footerY + 124);
+    ctx.fillStyle = 'rgba(239,243,255,0.88)';
+    ctx.font = '600 28px sans-serif';
+    ctx.fillText(truncateText(shortUrl, qrX - textX - 18), textX, footerY + 164);
+    ctx.fillStyle = 'rgba(255,255,255,0.42)';
+    ctx.font = '500 22px sans-serif';
+    ctx.fillText('Generated by JOBLESS', textX, footerY + 200);
 
     return new Promise((resolve) => {
       canvas.toBlob((blob) => resolve(blob), 'image/png');
@@ -1279,32 +1270,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     <span className="font-semibold text-foreground">{t.realityCheck}</span>
                   </p>
                   <p className="text-sm text-foreground-muted mt-2 leading-relaxed">{t.realityCheckText}</p>
-                </div>
-              </div>
-
-              <div
-                className="fixed left-0 top-0 w-[820px] p-6 opacity-0 pointer-events-none"
-                aria-hidden="true"
-              >
-                <div ref={shareCaptureRef}>
-                  <SharedResultPosterPanel
-                    data={{
-                      lang,
-                      riskLevel: result.riskLevel,
-                      replacementProbability: result.replacementProbability,
-                      predictedReplacementYear: result.predictedReplacementYear,
-                      currentReplacementDegree: result.currentReplacementDegree,
-                      earliestYear: result.confidenceInterval.earliest,
-                      latestYear: result.confidenceInterval.latest,
-                      insights: {
-                        primaryDriver: result.insights.primaryDriver,
-                        secondaryFactors: result.insights.secondaryFactors.slice(0, 3),
-                        protectionFactors: result.insights.protectionFactors.slice(0, 2),
-                      },
-                      recommendations: result.insights.recommendations.slice(0, 4),
-                    }}
-                    headingMode="title"
-                  />
                 </div>
               </div>
 
