@@ -306,7 +306,15 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       recommendations: result.insights.recommendations.slice(0, 4),
     });
 
-    const shareUrl = new URL(`/share/${payload}`, window.location.origin);
+    const runtimeOrigin = window.location.origin;
+    const localhostPattern = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i;
+    const configuredBase = (process.env.NEXT_PUBLIC_BASE_URL || '').trim().replace(/\/$/, '');
+    const fallbackBase = 'https://jobless.democra.ai';
+    const baseOrigin = localhostPattern.test(runtimeOrigin)
+      ? (configuredBase || fallbackBase)
+      : runtimeOrigin;
+
+    const shareUrl = new URL(`/share/${payload}`, baseOrigin);
     const pageParams = new URLSearchParams(window.location.search);
     const bypassToken = pageParams.get('x-vercel-protection-bypass');
     if (bypassToken) {
