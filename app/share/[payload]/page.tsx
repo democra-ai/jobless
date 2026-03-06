@@ -6,7 +6,6 @@ import SharedResultPosterPanel from '@/components/share/SharedResultPosterPanel'
 
 type SharePageProps = {
   params: Promise<{ payload: string }>;
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 function riskLabel(payload: SharePayload): string {
@@ -25,12 +24,6 @@ function riskDescription(payload: SharePayload): string {
     : `My AI replacement risk is ${riskLabel(payload)} (${payload.replacementProbability}%), with an AI kill line around ${payload.predictedReplacementYear}.`;
 }
 
-function pickFirst(value: string | string[] | undefined): string | null {
-  if (typeof value === 'string' && value.trim()) return value.trim();
-  if (Array.isArray(value) && value[0] && value[0].trim()) return value[0].trim();
-  return null;
-}
-
 async function requestOrigin(): Promise<string> {
   const h = await headers();
   const host = h.get('x-forwarded-host') ?? h.get('host');
@@ -39,23 +32,15 @@ async function requestOrigin(): Promise<string> {
   return `${proto}://${host}`;
 }
 
-function bypassSuffix(searchParams: Record<string, string | string[] | undefined> | undefined): string {
-  const tokenFromUrl = pickFirst(searchParams?.['x-vercel-protection-bypass']);
-  const secret = tokenFromUrl || process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
-  return secret ? `?x-vercel-protection-bypass=${encodeURIComponent(secret)}` : '';
-}
-
-export async function generateMetadata({ params, searchParams }: SharePageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: SharePageProps): Promise<Metadata> {
   const { payload } = await params;
-  const resolvedSearch = searchParams ? await searchParams : undefined;
   const decoded = decodeSharePayload(payload);
-  const bypass = bypassSuffix(resolvedSearch);
   const origin = await requestOrigin();
 
   if (!decoded) {
     const title = 'JOBLESS - Shared AI Risk Result';
     const description = 'Open this result in JOBLESS to calculate and compare your AI replacement risk.';
-    const fallbackImage = `${origin}/opengraph-image${bypass}`;
+    const fallbackImage = `${origin}/opengraph-image`;
     return {
       title,
       description,
@@ -75,7 +60,7 @@ export async function generateMetadata({ params, searchParams }: SharePageProps)
 
   const title = decoded.lang === 'zh' ? `AI 风险结果：${riskLabel(decoded)}` : `AI Risk Result: ${riskLabel(decoded)}`;
   const description = riskDescription(decoded);
-  const shareImageUrl = `${origin}/share/${payload}/opengraph-image${bypass}`;
+  const shareImageUrl = `${origin}/share/${payload}/opengraph-image`;
 
   return {
     title,

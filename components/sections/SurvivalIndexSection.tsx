@@ -288,7 +288,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       .replace('{year}', String(result.predictedReplacementYear));
   };
 
-  const getShareUrl = (options?: { includeBypass?: boolean; usePublicBase?: boolean }) => {
+  const getShareUrl = () => {
     if (!result) return window.location.href;
     const payload = encodeSharePayload({
       riskLevel: result.riskLevel,
@@ -304,25 +304,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     const localhostPattern = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i;
     const configuredBase = (process.env.NEXT_PUBLIC_BASE_URL || '').trim().replace(/\/$/, '');
     const fallbackBase = 'https://jobless.democra.ai';
-    const usePublicBase = options?.usePublicBase ?? false;
-    const includeBypass = options?.includeBypass ?? true;
-    const baseOrigin = usePublicBase
+    const baseOrigin = localhostPattern.test(runtimeOrigin)
       ? (configuredBase || fallbackBase)
-      : localhostPattern.test(runtimeOrigin)
-        ? (configuredBase || fallbackBase)
-        : runtimeOrigin;
+      : runtimeOrigin;
 
     const shareUrl = new URL(`/share/${payload}`, baseOrigin);
-    if (includeBypass) {
-      const pageParams = new URLSearchParams(window.location.search);
-      const bypassTokenFromUrl = pageParams.get('x-vercel-protection-bypass');
-      const bypassTokenFromEnv = (process.env.NEXT_PUBLIC_VERCEL_AUTOMATION_BYPASS_SECRET || '').trim();
-      const bypassToken = bypassTokenFromUrl || bypassTokenFromEnv;
-      if (bypassToken) {
-        shareUrl.searchParams.set('x-vercel-protection-bypass', bypassToken);
-        shareUrl.searchParams.set('x-vercel-set-bypass-cookie', 'true');
-      }
-    }
     return shareUrl.toString();
   };
 
@@ -383,7 +369,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const buildShareImageBlob = async (): Promise<Blob | null> => {
     if (!result) return null;
     const shareUrl = getShareUrl();
-    const qrShareUrl = getShareUrl({ includeBypass: true, usePublicBase: true });
+    const qrShareUrl = getShareUrl();
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
     canvas.height = 1920;
@@ -510,7 +496,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
 
   const handleShareTelegram = async () => {
     const shareText = getShareText();
-    const shareUrl = getShareUrl({ includeBypass: true, usePublicBase: true });
+    const shareUrl = getShareUrl();
     const fallbackUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}`;
     const deepLinkUrl = `tg://msg_url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
 
