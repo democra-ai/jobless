@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Task-Level Fusion Pipeline</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
+  h1 { text-align: center; color: #58a6ff; font-size: 26px; margin-bottom: 8px; }
+  h2 { color: #58a6ff; font-size: 20px; margin: 36px 0 12px 0; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
+  h3 { color: #bc8cff; font-size: 16px; margin: 20px 0 8px 0; }
+  .subtitle { text-align: center; color: #8b949e; font-size: 15px; margin-bottom: 30px; line-height: 2; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .section { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 24px; margin-bottom: 24px; }
+  svg { display: block; margin: 0 auto; }
+
+  .lang-btn { position: fixed; top: 16px; right: 20px; z-index: 999; background: #1f6feb; color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(0,0,0,0.4); transition: background 0.2s; }
+  .lang-btn:hover { background: #388bfd; }
+
+  .formula-box { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 16px 24px; margin: 12px 0; text-align: center; font-size: 16px; }
+  .formula-box .katex { font-size: 1.1em; }
+  .formula-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .formula-card { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 14px 20px; flex: 1; min-width: 280px; text-align: center; }
+  .formula-card h4 { color: #58a6ff; margin: 0 0 8px 0; font-size: 13px; }
+  .formula-card.highlight { border-color: #f85149; background: #1a0d0d; }
+  .formula-card.highlight h4 { color: #f85149; }
+
+  .legend { display: flex; gap: 20px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .legend-box { width: 16px; height: 16px; border-radius: 3px; }
+
+  .step-list { list-style: none; padding: 0; }
+  .step-list li { position: relative; padding: 12px 16px 12px 50px; margin: 8px 0; border-radius: 6px; line-height: 1.6; }
+  .step-list li::before { position: absolute; left: 12px; top: 12px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; content: attr(data-step); }
+  .step-data { background: #0d2145; border: 1px solid #1f6feb; }
+  .step-data::before { background: #1f6feb; color: #fff; }
+  .step-process { background: #0d2818; border: 1px solid #238636; }
+  .step-process::before { background: #238636; color: #fff; }
+  .step-key { background: #2d1215; border: 1px solid #f85149; }
+  .step-key::before { background: #da3633; color: #fff; }
+  .step-output { background: #1c1032; border: 1px solid #8957e5; }
+  .step-output::before { background: #8957e5; color: #fff; }
+
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-right: 4px; }
+  .tag-blue { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb; }
+  .tag-green { background: #23863633; color: #3fb950; border: 1px solid #238636; }
+  .tag-red { background: #da363333; color: #f85149; border: 1px solid #da3633; }
+  .tag-purple { background: #8957e533; color: #bc8cff; border: 1px solid #8957e5; }
+
+  table.data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  table.data-table th { background: #21262d; color: #58a6ff; padding: 8px 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #30363d; }
+  table.data-table td { padding: 6px 12px; border-bottom: 1px solid #21262d; }
+  table.data-table tr:hover { background: #161b2266; }
+  .mono { font-family: "SF Mono", "Fira Code", monospace; font-size: 12px; }
+  .dim { color: #484f58; }
+  .c-blue { color: #58a6ff; }
+  .c-green { color: #3fb950; }
+  .c-red { color: #f85149; }
+  .c-purple { color: #bc8cff; }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin: 16px 0; }
+  .compare-card { background: #0d1117; border-radius: 6px; padding: 16px; }
+  .compare-vs { color: #484f58; font-size: 28px; font-weight: 700; text-align: center; }
+</style>
+</head>
+<body>
+
+<button class="lang-btn" onclick="toggleLang()">EN / 中文</button>
+
+<div class="container">
+<h1><span class="i18n" data-zh="Kill Line 任务级融合计算流水线" data-en="Kill Line Task-Level Fusion Pipeline"></span></h1>
+<div class="subtitle">
+  $\text{Risk}_t = E_t \times P_t$ &nbsp;&nbsp;|&nbsp;&nbsp;
+  $\text{Risk}_{\text{occ}} = \frac{\sum_t w_t \cdot \text{Risk}_t}{\sum_t w_t}$ &nbsp;&nbsp;|&nbsp;&nbsp;
+  $\text{Risk}_{\text{national}} = \frac{\sum_{\text{occ}} \text{emp}_{\text{occ}} \cdot \text{Risk}_{\text{occ}}}{\sum_{\text{occ}} \text{emp}_{\text{occ}}}$
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-box" style="background:#1f6feb;border:1px solid #58a6ff;"></div><span class="i18n" data-zh="数据源" data-en="Data Source"></span></div>
+  <div class="legend-item"><div class="legend-box" style="background:#238636;border:1px solid #3fb950;"></div><span class="i18n" data-zh="处理步骤" data-en="Processing"></span></div>
+  <div class="legend-item"><div class="legend-box" style="background:#da3633;border:1px solid #f85149;"></div><span class="i18n" data-zh="关键映射" data-en="Key Mapping"></span></div>
+  <div class="legend-item"><div class="legend-box" style="background:#8957e5;border:1px solid #bc8cff;"></div><span class="i18n" data-zh="输出结果" data-en="Output"></span></div>
+  <div class="legend-item"><div class="legend-box" style="background:#30363d;border:1px solid #8b949e;"></div><span class="i18n" data-zh="公式" data-en="Formula"></span></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 1: FLOWCHART                         -->
+<!-- ============================================ -->
+<div class="section">
+<h2><span class="i18n" data-zh="1. 完整流水线流程图" data-en="1. Full Pipeline Flowchart"></span></h2>
+
+<svg width="1140" height="800" viewBox="0 0 1140 800">
+<defs>
+  <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#484f58"/></marker>
+  <marker id="ah-r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#f85149"/></marker>
+  <style>
+    .t{fill:#fff;font-size:12px;font-weight:600;text-anchor:middle;dominant-baseline:central;font-family:-apple-system,"PingFang SC",sans-serif;}
+    .ts{fill:#c9d1d9;font-size:10px;text-anchor:middle;dominant-baseline:central;font-family:-apple-system,"PingFang SC",sans-serif;}
+    .tk{fill:#fff;font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:central;font-family:-apple-system,"PingFang SC",sans-serif;}
+    .a{stroke:#484f58;stroke-width:1.5;fill:none;marker-end:url(#ah);}
+    .ar{stroke:#f85149;stroke-width:2;fill:none;marker-end:url(#ah-r);}
+    .ad{stroke:#484f58;stroke-width:1;stroke-dasharray:5,3;fill:none;}
+  </style>
+</defs>
+
+<!-- ROW 0: DATA SOURCES -->
+<rect x="20" y="15" width="190" height="55" rx="8" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5"/>
+<text x="115" y="32" class="t">O*NET 30.1</text>
+<text x="115" y="48" class="ts">18,796 task-occ rows</text>
+<text x="115" y="60" class="ts">17,536 unique tasks</text>
+
+<rect x="230" y="15" width="190" height="55" rx="8" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5"/>
+<text x="325" y="32" class="t">Anthropic Penetration</text>
+<text x="325" y="48" class="ts">task_penetration.csv</text>
+<text x="325" y="60" class="ts">1,354 non-zero / 17,998</text>
+
+<rect x="440" y="15" width="190" height="55" rx="8" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5"/>
+<text x="535" y="32" class="t">Anthropic Auto/Aug</text>
+<text x="535" y="48" class="ts">auto_vs_augmentation.csv</text>
+<text x="535" y="60" class="ts">3,364 classified tasks</text>
+
+<rect x="650" y="15" width="175" height="55" rx="8" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5"/>
+<text x="737" y="32" class="t">OpenAI GDPval</text>
+<text x="737" y="48" class="ts">44 occupations</text>
+<text x="737" y="60" class="ts">win_or_tie_rate</text>
+
+<rect x="845" y="15" width="150" height="55" rx="8" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5"/>
+<text x="920" y="32" class="t">BLS IN4 2024</text>
+<text x="920" y="48" class="ts">Employment data</text>
+<text x="920" y="60" class="ts">140.8M workers</text>
+
+<!-- Arrows to ROW 1 -->
+<line x1="115" y1="70" x2="115" y2="100" class="a"/>
+<line x1="325" y1="70" x2="325" y2="100" class="a"/>
+<line x1="535" y1="70" x2="535" y2="100" class="a"/>
+<line x1="737" y1="70" x2="737" y2="100" class="a"/>
+<line x1="920" y1="70" x2="920" y2="100" class="a"/>
+
+<!-- ROW 1: PROCESSING -->
+<rect x="20" y="100" width="190" height="55" rx="8" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="115" y="118" class="t">Extract Weights</text>
+<text x="115" y="133" class="ts">IM (Importance) 1-5</text>
+<text x="115" y="145" class="ts">RT+FT (Prevalence)</text>
+
+<rect x="230" y="100" width="190" height="55" rx="8" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="325" y="118" class="t">Normalize Text</text>
+<text x="325" y="133" class="ts">lower() + strip()</text>
+<text x="325" y="145" class="ts">penetration per task</text>
+
+<rect x="440" y="100" width="190" height="55" rx="8" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="535" y="118" class="t">Compute auto_weight</text>
+<text x="535" y="133" class="ts">directive=1.0, aug=0.5</text>
+<text x="535" y="145" class="ts">per task text</text>
+
+<rect x="650" y="100" width="175" height="55" rx="8" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="737" y="118" class="t">Parse JSON</text>
+<text x="737" y="133" class="ts">GPT-5.2 baseline</text>
+<text x="737" y="145" class="ts">win_or_tie per occ</text>
+
+<rect x="845" y="100" width="150" height="55" rx="8" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="920" y="118" class="t">Aggregate</text>
+<text x="920" y="133" class="ts">by SOC code</text>
+<text x="920" y="145" class="ts">sum employment</text>
+
+<!-- Arrows to MAPPING -->
+<line x1="115" y1="155" x2="115" y2="200" class="a"/>
+<line x1="325" y1="155" x2="260" y2="200" class="ar"/>
+<line x1="535" y1="155" x2="380" y2="200" class="ar"/>
+<line x1="737" y1="155" x2="737" y2="200" class="ar"/>
+
+<!-- ROW 2: KEY MAPPINGS -->
+<rect x="50" y="200" width="370" height="65" rx="8" fill="#da3633" stroke="#f85149" stroke-width="2"/>
+<text x="235" y="218" class="tk">MAPPING 1: Text Match</text>
+<text x="235" y="234" class="ts">Anthropic task text == O*NET task text</text>
+<text x="235" y="250" class="ts">99.4% match (17,432 / 17,536)</text>
+
+<rect x="560" y="200" width="330" height="65" rx="8" fill="#da3633" stroke="#f85149" stroke-width="2"/>
+<text x="725" y="218" class="tk">MAPPING 2: SOC Code Match</text>
+<text x="725" y="234" class="ts">44 GDPval occ -> SOC-6 (hand-crafted)</text>
+<text x="725" y="250" class="ts">Fallback: occ -> sector -> major -> global</text>
+
+<!-- Arrows to formulas -->
+<line x1="235" y1="265" x2="235" y2="305" class="a"/>
+<line x1="725" y1="265" x2="725" y2="305" class="a"/>
+
+<!-- ROW 3: E and P formulas -->
+<rect x="55" y="305" width="360" height="50" rx="6" fill="#30363d" stroke="#8b949e" stroke-width="1.5"/>
+<text x="235" y="324" class="t" style="fill:#3fb950;">E_adj = penetration * platform_factor * auto_weight</text>
+<text x="235" y="342" class="ts">platform_factor: 1.5x ~ 4.0x by SOC major</text>
+
+<rect x="560" y="305" width="330" height="50" rx="6" fill="#30363d" stroke="#8b949e" stroke-width="1.5"/>
+<text x="725" y="324" class="t" style="fill:#bc8cff;">P_wintie(5.4) = P_wintie(5.2) * 1.1706</text>
+<text x="725" y="342" class="ts">GPT-5.4 scaling, capped at 1.0</text>
+
+<!-- Arrows to CORE -->
+<line x1="235" y1="355" x2="380" y2="405" class="ar"/>
+<line x1="725" y1="355" x2="580" y2="405" class="ar"/>
+
+<!-- ROW 4: CORE -->
+<rect x="300" y="400" width="360" height="55" rx="8" fill="#da3633" stroke="#f85149" stroke-width="2"/>
+<text x="480" y="418" class="tk" style="font-size:14px;">CORE: Task-Level E * P</text>
+<text x="480" y="436" class="ts">Risk_t = E_adj_t * P_wintie_t (per O*NET task)</text>
+
+<!-- Arrow down + w_t -->
+<line x1="480" y1="455" x2="480" y2="500" class="a"/>
+<line x1="115" y1="155" x2="115" y2="512" class="ad"/>
+<line x1="115" y1="512" x2="300" y2="512" class="a" style="stroke-dasharray:none;"/>
+<text x="80" y="505" class="ts" style="fill:#3fb950;text-anchor:start;font-size:9px;">w_t (O*NET)</text>
+
+<!-- ROW 5: OCC AGG -->
+<rect x="300" y="500" width="360" height="40" rx="8" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="480" y="524" class="t">Occ Aggregation: Risk_occ = Sum(w*R)/Sum(w)</text>
+
+<!-- Arrow + BLS -->
+<line x1="480" y1="540" x2="480" y2="580" class="a"/>
+<line x1="920" y1="155" x2="920" y2="596" class="ad"/>
+<line x1="920" y1="596" x2="660" y2="596" class="a" style="stroke-dasharray:none;"/>
+<text x="925" y="590" class="ts" style="fill:#58a6ff;text-anchor:start;font-size:9px;">BLS emp</text>
+
+<!-- ROW 6: NAT AGG -->
+<rect x="300" y="580" width="360" height="40" rx="8" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="480" y="604" class="t">National Aggregation (emp-weighted)</text>
+
+<!-- Arrow to output -->
+<line x1="480" y1="620" x2="480" y2="660" class="a"/>
+
+<!-- ROW 7: OUTPUTS -->
+<rect x="170" y="660" width="145" height="48" rx="8" fill="#8957e5" stroke="#bc8cff" stroke-width="1.5"/>
+<text x="242" y="678" class="t">E_national</text>
+<text x="242" y="696" class="ts" style="fill:#fff;font-size:14px;font-weight:700;">12.88%</text>
+
+<rect x="335" y="660" width="175" height="48" rx="8" fill="#8957e5" stroke="#bc8cff" stroke-width="1.5"/>
+<text x="422" y="678" class="t">P_wintie (GPT-5.4)</text>
+<text x="422" y="696" class="ts" style="fill:#fff;font-size:14px;font-weight:700;">83.14%</text>
+
+<rect x="530" y="660" width="210" height="48" rx="8" fill="#8957e5" stroke="#bc8cff" stroke-width="2"/>
+<text x="635" y="678" class="t" style="font-size:13px;">Kill Line = E * P</text>
+<text x="635" y="696" class="ts" style="fill:#fff;font-size:16px;font-weight:700;">10.58%</text>
+
+</svg>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 2: STEP-BY-STEP                      -->
+<!-- ============================================ -->
+<div class="section">
+<h2><span class="i18n" data-zh="2. 计算步骤详解（含公式）" data-en="2. Calculation Steps (with formulas)"></span></h2>
+
+<ol class="step-list">
+  <li class="step-data" data-step="1">
+    <strong><span class="i18n" data-zh="加载 O*NET 任务宇宙" data-en="Load O*NET Task Universe"></span></strong> <span class="tag tag-blue"><span class="i18n" data-zh="数据" data-en="Data"></span></span><br>
+    <span class="i18n" data-zh="Task Statements + Task Ratings -> 18,796 个任务-职业行，798 个 SOC 编码" data-en="Task Statements + Task Ratings -> 18,796 task-occupation rows, 798 SOC codes"></span><br>
+    <span class="i18n" data-zh="计算任务权重：" data-en="Compute task weight: "></span>$w_t = \text{IM}_{\text{norm}} \times \text{Prevalence}$<span class="i18n" data-zh="，其中 " data-en=", where "></span>$\text{Prevalence} = 0.5 \cdot \text{RT}_{\text{norm}} + 0.5 \cdot \text{FT}_{\text{norm}}$
+  </li>
+
+  <li class="step-data" data-step="2">
+    <strong><span class="i18n" data-zh="加载 Anthropic 任务渗透率" data-en="Load Anthropic Task Penetration"></span></strong> <span class="tag tag-blue"><span class="i18n" data-zh="数据" data-en="Data"></span></span><br>
+    <span class="i18n" data-zh="Clio 分类器将 Claude 对话映射到 O*NET 任务 -> task_penetration.csv" data-en="Clio classifier maps Claude conversations to O*NET tasks -> task_penetration.csv"></span><br>
+    <span class="i18n" data-zh="17,998 个任务，其中 1,354 个渗透率非零（有实际 AI 使用）" data-en="17,998 tasks, 1,354 with non-zero penetration (observed AI usage)"></span>
+  </li>
+
+  <li class="step-data" data-step="3">
+    <strong><span class="i18n" data-zh="加载 Anthropic 自动化/增强分类" data-en="Load Anthropic Automation vs Augmentation"></span></strong> <span class="tag tag-blue"><span class="i18n" data-zh="数据" data-en="Data"></span></span><br>
+    <span class="i18n" data-zh="每个任务被分类：directive（自动化，权重=1.0）vs feedback_loop/iteration（增强，权重=0.5）" data-en="Each task classified: directive (automation, weight=1.0) vs feedback_loop/iteration (augmentation, weight=0.5)"></span><br>
+    $\text{auto\_weight} = \text{directive} + 0.5 \times (\text{feedback\_loop} + \text{task\_iteration} + \text{validation} + \text{learning})$
+  </li>
+
+  <li class="step-key" data-step="4">
+    <strong><span class="i18n" data-zh="映射 1：Anthropic -> O*NET（文本精确匹配）" data-en="MAPPING 1: Anthropic -> O*NET (Text Exact Match)"></span></strong> <span class="tag tag-red"><span class="i18n" data-zh="关键映射" data-en="Key Mapping"></span></span><br>
+    <span class="i18n"
+      data-zh="Anthropic 的 CSV 直接使用 O*NET 任务文本作为 key（非 task_id）。经过 lower().strip() 归一化后："
+      data-en="Anthropic's CSV uses O*NET task text directly as key (not task_id). After lower().strip() normalization:"></span><br>
+    <strong><span class="i18n" data-zh="17,432 / 17,536 精确匹配 = 99.4%" data-en="17,432 / 17,536 exact match = 99.4%"></span></strong><br>
+    <span class="i18n"
+      data-zh="结果：每个 O*NET 任务-职业行获得 penetration + auto_weight"
+      data-en="Result: Each O*NET task-occupation row gets penetration + auto_weight"></span>
+  </li>
+
+  <li class="step-data" data-step="5">
+    <strong><span class="i18n" data-zh="加载 GDPval 胜率" data-en="Load GDPval Win Rates"></span></strong> <span class="tag tag-blue"><span class="i18n" data-zh="数据" data-en="Data"></span></span><br>
+    <span class="i18n"
+      data-zh="44 个职业由领域专家盲评（AI 输出 vs 人类输出配对比较）"
+      data-en="44 occupations evaluated by domain experts (blind pairwise: AI vs Human)"></span><br>
+    <span class="i18n" data-zh="指标：" data-en="Metric: "></span>$P_{\text{wintie}}$ = win_or_tie_rate (GPT-5.2 baseline)
+  </li>
+
+  <li class="step-key" data-step="6">
+    <strong><span class="i18n" data-zh="映射 2：GDPval -> O*NET（SOC 编码匹配）" data-en="MAPPING 2: GDPval -> O*NET (SOC Code Match)"></span></strong> <span class="tag tag-red"><span class="i18n" data-zh="关键映射" data-en="Key Mapping"></span></span><br>
+    <span class="i18n"
+      data-zh="手工字典：44 个 GDPval 职业名 -> SOC-6 编码（如 &quot;Accountant&quot; -> 13-2011）"
+      data-en="Hand-crafted dictionary: 44 GDPval occupation names -> SOC-6 codes (e.g. &quot;Accountant&quot; -> 13-2011)"></span><br>
+    <strong><span class="i18n" data-zh="Fallback 链：" data-en="Fallback chain: "></span></strong>
+    <span class="i18n"
+      data-zh="直接 SOC 匹配 -> 行业平均 -> SOC 大类平均 -> 全局平均"
+      data-en="direct SOC match -> sector average -> SOC major group average -> global average"></span><br>
+    <span class="i18n"
+      data-zh="结果：每个 O*NET 任务通过其 SOC 编码继承 $P_{\\text{wintie}}$ 值"
+      data-en="Result: Every O*NET task inherits $P_{\\text{wintie}}$ from its SOC code"></span>
+  </li>
+
+  <li class="step-process" data-step="7">
+    <strong><span class="i18n" data-zh="计算每个任务的 E_adjusted" data-en="Compute E_adjusted per task"></span></strong> <span class="tag tag-green"><span class="i18n" data-zh="处理" data-en="Process"></span></span>
+    <div class="formula-box">
+      $E_{\text{adj},t} = \text{penetration}_t \times \text{platform\_factor}_{\text{SOC}} \times \text{auto\_weight}_t$
+    </div>
+    <span class="i18n"
+      data-zh="平台因子（1.5x~4.0x）修正 Claude 只是众多 AI 平台之一的情况"
+      data-en="Platform factor (1.5x~4.0x) corrects for Claude being one of many AI platforms"></span>
+  </li>
+
+  <li class="step-process" data-step="8">
+    <strong><span class="i18n" data-zh="GPT-5.4 缩放 P 值" data-en="GPT-5.4 Scaling for P"></span></strong> <span class="tag tag-green"><span class="i18n" data-zh="处理" data-en="Process"></span></span>
+    <div class="formula-box">
+      $P_{\text{wintie}}^{5.4} = \min\!\left(P_{\text{wintie}}^{5.2} \times \frac{83.0}{70.9},\ 1.0\right) = P_{\text{wintie}}^{5.2} \times 1.1706$
+    </div>
+  </li>
+
+  <li class="step-key" data-step="9">
+    <strong><span class="i18n" data-zh="核心：任务级 E * P 相乘" data-en="CORE: Task-Level E * P Multiplication"></span></strong> <span class="tag tag-red"><span class="i18n" data-zh="核心步骤" data-en="Core Step"></span></span>
+    <div class="formula-box" style="border-color:#f85149;">
+      $\text{Risk}_t = E_{\text{adj},t} \times P_{\text{wintie},t}$
+    </div>
+    <span class="i18n"
+      data-zh="所有乘法在同一个 O*NET 任务粒度上发生，不存在跨层级混合"
+      data-en="Every multiplication happens at the same O*NET task granularity. No cross-level mixing."></span>
+  </li>
+
+  <li class="step-process" data-step="10">
+    <strong><span class="i18n" data-zh="聚合到职业级" data-en="Aggregate to Occupation Level"></span></strong> <span class="tag tag-green"><span class="i18n" data-zh="处理" data-en="Process"></span></span>
+    <div class="formula-box">
+      $\text{Risk}_{\text{occ}} = \frac{\displaystyle\sum_{t \in \text{occ}} w_t \cdot \text{Risk}_t}{\displaystyle\sum_{t \in \text{occ}} w_t}$
+    </div>
+    <span class="i18n"
+      data-zh="其中 $w_t = \\text{IM}_{\\text{norm}} \\times \\text{Prevalence}$，来自 O*NET Task Ratings"
+      data-en="where $w_t = \\text{IM}_{\\text{norm}} \\times \\text{Prevalence}$ from O*NET Task Ratings"></span>
+  </li>
+
+  <li class="step-process" data-step="11">
+    <strong><span class="i18n" data-zh="聚合到全国级" data-en="Aggregate to National Level"></span></strong> <span class="tag tag-green"><span class="i18n" data-zh="处理" data-en="Process"></span></span>
+    <div class="formula-box">
+      $\text{Risk}_{\text{national}} = \frac{\displaystyle\sum_{\text{occ}} \text{emp}_{\text{occ}} \cdot \text{Risk}_{\text{occ}}}{\displaystyle\sum_{\text{occ}} \text{emp}_{\text{occ}}}$
+    </div>
+    <span class="i18n" data-zh="BLS IN4 2024：总就业人数 = 140,815,640" data-en="BLS IN4 2024: total employment = 140,815,640"></span>
+  </li>
+
+  <li class="step-output" data-step="12">
+    <strong><span class="i18n" data-zh="最终全国结果" data-en="Final National Results"></span></strong> <span class="tag tag-purple"><span class="i18n" data-zh="输出" data-en="Output"></span></span>
+    <div class="formula-row">
+      <div class="formula-card">
+        <h4><span class="i18n" data-zh="暴露度 (E)" data-en="Exposure (E)"></span></h4>
+        <span style="font-size:24px;font-weight:700;color:#3fb950;">12.88%</span><br>
+        <span class="dim"><span class="i18n" data-zh="就业加权的观测暴露度" data-en="employment-weighted observed exposure"></span></span>
+      </div>
+      <div class="formula-card">
+        <h4><span class="i18n" data-zh="胜率 (P)" data-en="Win Rate (P)"></span></h4>
+        <span style="font-size:24px;font-weight:700;color:#bc8cff;">83.14%</span><br>
+        <span class="dim"><span class="i18n" data-zh="GPT-5.4 缩放，win+tie" data-en="GPT-5.4 scaled, win+tie"></span></span>
+      </div>
+      <div class="formula-card highlight">
+        <h4>Kill Line (E * P)</h4>
+        <span style="font-size:28px;font-weight:700;color:#f85149;">10.58%</span><br>
+        <span class="dim"><span class="i18n" data-zh="全国替代率" data-en="national replacement rate"></span></span>
+      </div>
+    </div>
+  </li>
+</ol>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 3: TREE DIAGRAM                      -->
+<!-- ============================================ -->
+<div class="section">
+<h2><span class="i18n" data-zh="3. 树状图：数据对齐结构" data-en="3. Tree Diagram: Data Alignment"></span></h2>
+
+<svg width="1140" height="760" viewBox="0 0 1140 760">
+<defs>
+  <marker id="ah2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#484f58"/></marker>
+</defs>
+
+<!-- ROOT -->
+<rect x="330" y="10" width="480" height="45" rx="8" fill="#da3633" stroke="#f85149" stroke-width="2"/>
+<text x="570" y="28" class="tk">Unified Space: O*NET Task Text (17,536 unique)</text>
+<text x="570" y="44" class="ts">All E and P are computed per-task in this space</text>
+
+<!-- Branches -->
+<line x1="380" y1="55" x2="170" y2="100" stroke="#484f58" stroke-width="1.5"/>
+<line x1="570" y1="55" x2="570" y2="100" stroke="#484f58" stroke-width="1.5"/>
+<line x1="760" y1="55" x2="960" y2="100" stroke="#484f58" stroke-width="1.5"/>
+
+<!-- LEFT: E Branch -->
+<rect x="30" y="100" width="280" height="35" rx="6" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5"/>
+<text x="170" y="122" class="t">Exposure (E)</text>
+
+<line x1="110" y1="135" x2="110" y2="170" stroke="#484f58" stroke-width="1"/>
+<line x1="230" y1="135" x2="230" y2="170" stroke="#484f58" stroke-width="1"/>
+
+<rect x="10" y="170" width="200" height="75" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="1"/>
+<text x="110" y="188" class="t" style="fill:#58a6ff;font-size:11px;">Clio Classifier</text>
+<text x="110" y="204" class="ts">Claude conversations</text>
+<text x="110" y="216" class="ts">-> O*NET task text</text>
+<text x="110" y="232" class="ts">Value: penetration (0~0.03)</text>
+
+<rect x="220" y="170" width="200" height="75" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="1"/>
+<text x="320" y="188" class="t" style="fill:#58a6ff;font-size:11px;">Auto vs Augmentation</text>
+<text x="320" y="204" class="ts">directive = 1.0</text>
+<text x="320" y="218" class="ts">augmentation = 0.5</text>
+<text x="320" y="232" class="ts">auto_weight per task</text>
+
+<!-- Mapping 1 -->
+<line x1="110" y1="245" x2="110" y2="270" stroke="#f85149" stroke-width="1.5"/>
+<line x1="320" y1="245" x2="320" y2="270" stroke="#f85149" stroke-width="1.5"/>
+<line x1="110" y1="270" x2="320" y2="270" stroke="#f85149" stroke-width="1.5"/>
+<line x1="215" y1="270" x2="215" y2="290" stroke="#f85149" stroke-width="1.5"/>
+
+<rect x="60" y="290" width="310" height="70" rx="6" fill="#2d1215" stroke="#f85149" stroke-width="2"/>
+<text x="215" y="308" class="tk" style="font-size:12px;">Mapping 1: Text Match</text>
+<text x="215" y="326" class="ts" style="fill:#f85149;">Anthropic task text == O*NET task text</text>
+<text x="215" y="344" class="ts">99.4% match rate</text>
+
+<line x1="215" y1="360" x2="215" y2="390" stroke="#484f58" stroke-width="1"/>
+<rect x="40" y="390" width="350" height="45" rx="6" fill="#30363d" stroke="#8b949e" stroke-width="1"/>
+<text x="215" y="408" class="t" style="font-size:11px;fill:#3fb950;">E_adj = penetration * pf * auto_weight</text>
+<text x="215" y="426" class="ts">pf: IT=3.0, Arts=4.0, Healthcare=1.5</text>
+
+<!-- MIDDLE: Weight -->
+<rect x="430" y="100" width="280" height="35" rx="6" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="570" y="122" class="t">Task Weight (w)</text>
+
+<line x1="570" y1="135" x2="570" y2="170" stroke="#484f58" stroke-width="1"/>
+
+<rect x="430" y="170" width="280" height="75" rx="6" fill="#161b22" stroke="#3fb950" stroke-width="1"/>
+<text x="570" y="188" class="t" style="fill:#3fb950;font-size:11px;">O*NET Task Ratings</text>
+<text x="570" y="206" class="ts">IM (Importance): 1-5 -> 0~1</text>
+<text x="570" y="220" class="ts">RT (Relevance) + FT (Frequency)</text>
+<text x="570" y="234" class="ts">Prevalence = 0.5*RT + 0.5*FT</text>
+
+<line x1="570" y1="245" x2="570" y2="275" stroke="#484f58" stroke-width="1"/>
+<rect x="430" y="275" width="280" height="40" rx="6" fill="#30363d" stroke="#8b949e" stroke-width="1"/>
+<text x="570" y="300" class="t" style="font-size:11px;">w_t = IM_norm * Prevalence</text>
+
+<line x1="570" y1="315" x2="570" y2="345" stroke="#484f58" stroke-width="1"/>
+<rect x="430" y="345" width="280" height="30" rx="6" fill="#161b22" stroke="#8b949e" stroke-width="1"/>
+<text x="570" y="365" class="ts">Risk_occ = Sum(w*R)/Sum(w)</text>
+
+<!-- RIGHT: P Branch -->
+<rect x="830" y="100" width="280" height="35" rx="6" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5"/>
+<text x="970" y="122" class="t">Win Rate (P)</text>
+
+<line x1="970" y1="135" x2="970" y2="170" stroke="#484f58" stroke-width="1"/>
+
+<rect x="830" y="170" width="280" height="75" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="1"/>
+<text x="970" y="188" class="t" style="fill:#58a6ff;font-size:11px;">GDPval Blind Expert Eval</text>
+<text x="970" y="206" class="ts">44 occupations</text>
+<text x="970" y="220" class="ts">AI vs Human pairwise</text>
+<text x="970" y="234" class="ts">win_or_tie_rate</text>
+
+<line x1="970" y1="245" x2="970" y2="290" stroke="#f85149" stroke-width="1.5"/>
+
+<rect x="800" y="290" width="340" height="85" rx="6" fill="#2d1215" stroke="#f85149" stroke-width="2"/>
+<text x="970" y="308" class="tk" style="font-size:12px;">Mapping 2: GDPval -> SOC</text>
+<text x="970" y="328" class="ts" style="fill:#f85149;">Hand-crafted dict (44 entries)</text>
+<text x="970" y="346" class="ts">"Accountant"->13-2011, "SWE"->15-1252</text>
+<text x="970" y="364" class="ts">Fallback: occ->sector->major->global</text>
+
+<line x1="970" y1="375" x2="970" y2="405" stroke="#484f58" stroke-width="1"/>
+<rect x="820" y="405" width="300" height="40" rx="6" fill="#30363d" stroke="#8b949e" stroke-width="1"/>
+<text x="970" y="420" class="t" style="font-size:11px;fill:#bc8cff;">P_wintie(5.4) = P(5.2) * 1.1706</text>
+<text x="970" y="436" class="ts">cap at 1.0</text>
+
+<!-- CONVERGENCE -->
+<line x1="215" y1="435" x2="420" y2="510" stroke="#f85149" stroke-width="2"/>
+<line x1="970" y1="445" x2="730" y2="510" stroke="#f85149" stroke-width="2"/>
+
+<rect x="370" y="500" width="400" height="45" rx="8" fill="#da3633" stroke="#f85149" stroke-width="2"/>
+<text x="570" y="518" class="tk" style="font-size:14px;">Risk_t = E_adj_t * P_wintie_t</text>
+<text x="570" y="536" class="ts">Per O*NET task (same granularity)</text>
+
+<line x1="570" y1="545" x2="570" y2="575" stroke="#484f58" stroke-width="1.5"/>
+<rect x="370" y="575" width="400" height="35" rx="6" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="570" y="597" class="t">Occ Aggregation (798 SOC, w_t weighted)</text>
+
+<line x1="570" y1="610" x2="570" y2="635" stroke="#484f58" stroke-width="1.5"/>
+<rect x="370" y="635" width="400" height="35" rx="6" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+<text x="570" y="657" class="t">National Aggregation (BLS emp weighted)</text>
+
+<line x1="570" y1="670" x2="570" y2="695" stroke="#484f58" stroke-width="1.5"/>
+<rect x="340" y="695" width="460" height="45" rx="8" fill="#8957e5" stroke="#bc8cff" stroke-width="2"/>
+<text x="570" y="713" class="t" style="font-size:14px;">E = 12.88% | P = 83.14% | Kill Line = 10.58%</text>
+<text x="570" y="731" class="ts" style="fill:#fff;">National replacement rate (GPT-5.4, win+tie)</text>
+
+</svg>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 4: MAPPING DETAIL                    -->
+<!-- ============================================ -->
+<div class="section">
+<h2><span class="i18n" data-zh="4. 映射/对齐细节" data-en="4. Mapping/Alignment Detail"></span></h2>
+
+<h3><span class="i18n" data-zh="三个数据源的粒度差异：" data-en="Three data sources have different granularities:"></span></h3>
+
+<table class="data-table">
+  <tr>
+    <th><span class="i18n" data-zh="数据源" data-en="Data Source"></span></th>
+    <th><span class="i18n" data-zh="粒度" data-en="Granularity"></span></th>
+    <th>Key</th>
+    <th><span class="i18n" data-zh="覆盖范围" data-en="Coverage"></span></th>
+    <th><span class="i18n" data-zh="映射方法" data-en="Mapping Method"></span></th>
+  </tr>
+  <tr>
+    <td class="c-blue">O*NET 30.1</td>
+    <td><span class="i18n" data-zh="任务-职业（最细）" data-en="Task-Occupation (finest)"></span></td>
+    <td class="mono">onet_soc_code + task_id + task_text</td>
+    <td>18,796 rows, 17,536 unique texts</td>
+    <td class="dim"><span class="i18n" data-zh="-- 这就是统一空间本身" data-en="-- this IS the unified space"></span></td>
+  </tr>
+  <tr>
+    <td class="c-green">Anthropic Penetration</td>
+    <td><span class="i18n" data-zh="任务（无 SOC 编码）" data-en="Task (no SOC code)"></span></td>
+    <td class="mono">task_text (O*NET task text)</td>
+    <td>17,998 tasks, 1,354 non-zero</td>
+    <td class="c-red"><strong><span class="i18n" data-zh="文本精确匹配 (99.4%)" data-en="Text exact match (99.4%)"></span></strong></td>
+  </tr>
+  <tr>
+    <td class="c-green">Anthropic Auto/Aug</td>
+    <td><span class="i18n" data-zh="任务（无 SOC 编码）" data-en="Task (no SOC code)"></span></td>
+    <td class="mono">task_name (O*NET task text)</td>
+    <td><span class="i18n" data-zh="3,364 个已分类任务" data-en="3,364 tasks classified"></span></td>
+    <td class="c-red"><strong><span class="i18n" data-zh="文本精确匹配" data-en="Text exact match"></span></strong></td>
+  </tr>
+  <tr>
+    <td class="c-purple">GDPval</td>
+    <td><span class="i18n" data-zh="职业（最粗！）" data-en="Occupation (coarsest!)"></span></td>
+    <td class="mono">occupation name (free text)</td>
+    <td><span class="i18n" data-zh="44 职业, 14 行业" data-en="44 occupations, 14 sectors"></span></td>
+    <td class="c-red"><strong><span class="i18n" data-zh="手工 SOC 字典 + fallback" data-en="Hand-crafted SOC dict + fallback"></span></strong></td>
+  </tr>
+  <tr>
+    <td class="c-blue">BLS Employment</td>
+    <td><span class="i18n" data-zh="职业" data-en="Occupation"></span></td>
+    <td class="mono">occ_code (SOC-6)</td>
+    <td>798 occupations, 140.8M total</td>
+    <td><span class="i18n" data-zh="SOC 编码直接 join" data-en="SOC code direct join"></span></td>
+  </tr>
+</table>
+
+<h3><span class="i18n" data-zh="映射 1：Anthropic -> O*NET（文本匹配）" data-en="Mapping 1: Anthropic -> O*NET (Text Match)"></span></h3>
+<div style="padding:12px;background:#2d1215;border:1px solid #f85149;border-radius:6px;margin:8px 0;">
+  <p><span class="i18n"
+    data-zh="Anthropic 的 Clio 分类器输出的任务描述直接来自 O*NET 的 Task Statements，因此匹配非常直接："
+    data-en="Anthropic's Clio classifier outputs task descriptions directly from O*NET's Task Statements, so matching is straightforward:"></span></p>
+  <div class="formula-box" style="border-color:#f85149;">
+    $\texttt{normalize}(t) = \texttt{lower}(\texttt{strip}(t))$
+    <br><br>
+    $\text{Match}: \texttt{normalize}(\text{Anthropic task}) = \texttt{normalize}(\text{O*NET task})$
+  </div>
+  <p><span class="i18n"
+    data-zh="结果：<strong>17,432 / 17,536 = 99.4%</strong> 精确匹配。未匹配的 104 个是微小的文本格式差异。"
+    data-en="Result: <strong>17,432 / 17,536 = 99.4%</strong> exact match. The 104 unmatched are minor text formatting differences."></span></p>
+  <p><span class="i18n"
+    data-zh="同一个任务文本可能出现在多个职业中（如"写报告"存在于很多职业），每个都获得相同的渗透率分数。"
+    data-en="One task text can appear in multiple occupations (e.g. &quot;Write reports&quot;), each getting the same penetration score."></span></p>
+</div>
+
+<h3><span class="i18n" data-zh="映射 2：GDPval -> O*NET（SOC 编码匹配）" data-en="Mapping 2: GDPval -> O*NET (SOC Code Match)"></span></h3>
+<div style="padding:12px;background:#2d1215;border:1px solid #f85149;border-radius:6px;margin:8px 0;">
+  <p><span class="i18n"
+    data-zh="GDPval 只有 44 个职业名（如 &quot;Accountant&quot;, &quot;Software Engineer&quot;），需要映射到 O*NET 的 798 个 SOC 编码："
+    data-en="GDPval only has 44 occupation names (e.g. &quot;Accountant&quot;, &quot;Software Engineer&quot;), which must map to O*NET's 798 SOC codes:"></span></p>
+  <div class="formula-box" style="border-color:#f85149;">
+    $\text{GDPval Occupation} \xrightarrow{\text{hand-crafted dict}} \text{SOC-6} \xrightarrow{\text{O*NET join}} \text{all tasks in that SOC}$
+  </div>
+  <p><strong>Fallback chain</strong> <span class="i18n" data-zh="（对于没有直接 GDPval 匹配的职业）：" data-en="(for occupations without direct GDPval match):"></span></p>
+  <ol style="color:#c9d1d9;line-height:1.8;">
+    <li><span class="i18n" data-zh="直接 SOC-6 匹配（覆盖 44 个职业）" data-en="Direct SOC-6 match (44 occupations covered)"></span></li>
+    <li><span class="i18n" data-zh="行业平均：GDPval sector -> SOC 大类 -> 匹配职业的平均 $P$" data-en="Sector average: GDPval sector -> SOC major group -> average $P$ across matched occupations"></span></li>
+    <li><span class="i18n" data-zh="SOC 大类平均：同一 2 位 SOC 编码下所有 GDPval 职业的平均" data-en="SOC major group average: all GDPval occupations in same 2-digit SOC"></span></li>
+    <li><span class="i18n" data-zh="全局平均：$P_{\\text{wintie}} = 70.86\\%$ (GPT-5.2 baseline)" data-en="Global average: $P_{\\text{wintie}} = 70.86\\%$ (GPT-5.2 baseline)"></span></li>
+  </ol>
+</div>
+
+<h3><span class="i18n" data-zh="新旧方法对比" data-en="Old Method vs New Method"></span></h3>
+<div class="compare-grid">
+  <div class="compare-card" style="border:1px solid #f85149;">
+    <h4 style="color:#f85149;margin:0 0 8px;"><span class="i18n" data-zh="旧方法：职业级" data-en="Old: Occupation-Level"></span></h4>
+    <p style="margin:4px 0;"><span class="i18n" data-zh="$E$ = 关键词启发式打分（理论值）" data-en="$E$ = keyword heuristic score (theoretical)"></span></p>
+    <p style="margin:4px 0;">$P$ = GDPval win rate</p>
+    <p style="margin:4px 0;"><span class="i18n" data-zh="在职业级做 $E \\times P$，然后加权" data-en="$E \\times P$ at occupation level, then weight"></span></p>
+    <p style="margin:4px 0;color:#f85149;"><span class="i18n" data-zh="E 范围：0.58~0.82（区分度差）" data-en="E range: 0.58~0.82 (poor discrimination)"></span></p>
+    <p style="margin:4px 0;font-size:20px;font-weight:700;color:#f85149;">Kill Line = 21.37%</p>
+  </div>
+  <div class="compare-vs">vs</div>
+  <div class="compare-card" style="border:1px solid #3fb950;">
+    <h4 style="color:#3fb950;margin:0 0 8px;"><span class="i18n" data-zh="新方法：任务级融合" data-en="New: Task-Level Fusion"></span></h4>
+    <p style="margin:4px 0;"><span class="i18n" data-zh="$E$ = Claude 真实使用观测值" data-en="$E$ = observed Claude usage (empirical)"></span></p>
+    <p style="margin:4px 0;">$P$ = GDPval win+tie rate</p>
+    <p style="margin:4px 0;"><span class="i18n" data-zh="在任务级做 $E \\times P$，然后逐层聚合" data-en="$E \\times P$ at task level, then aggregate up"></span></p>
+    <p style="margin:4px 0;color:#3fb950;"><span class="i18n" data-zh="E 范围：0.00~0.75（区分度提升 4 倍）" data-en="E range: 0.00~0.75 (4x better discrimination)"></span></p>
+    <p style="margin:4px 0;font-size:20px;font-weight:700;color:#3fb950;">Kill Line = 10.58%</p>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+// SVG text i18n dictionary: English original -> Chinese translation
+const svgI18n = {
+  // Flowchart - Data sources
+  "O*NET 30.1": "O*NET 30.1",
+  "18,796 task-occ rows": "18,796 个任务-职业行",
+  "17,536 unique tasks": "17,536 个唯一任务",
+  "Anthropic Penetration": "Anthropic 渗透率",
+  "task_penetration.csv": "task_penetration.csv",
+  "1,354 non-zero / 17,998": "1,354 个非零 / 17,998",
+  "Anthropic Auto/Aug": "Anthropic 自动化/增强",
+  "auto_vs_augmentation.csv": "auto_vs_augmentation.csv",
+  "3,364 classified tasks": "3,364 个已分类任务",
+  "OpenAI GDPval": "OpenAI GDPval",
+  "44 occupations": "44 个职业",
+  "win_or_tie_rate": "胜率或平率",
+  "BLS IN4 2024": "BLS IN4 2024",
+  "Employment data": "就业数据",
+  "140.8M workers": "1.408 亿就业人口",
+  // Flowchart - Processing
+  "Extract Weights": "提取权重",
+  "IM (Importance) 1-5": "IM（重要性）1-5 分",
+  "RT+FT (Prevalence)": "RT+FT（普遍性）",
+  "Normalize Text": "文本标准化",
+  "lower() + strip()": "lower() + strip()",
+  "penetration per task": "每个任务的渗透率",
+  "Compute auto_weight": "计算 auto_weight",
+  "directive=1.0, aug=0.5": "指令型=1.0, 增强型=0.5",
+  "per task text": "按任务文本",
+  "Parse JSON": "解析 JSON",
+  "GPT-5.2 baseline": "GPT-5.2 基线",
+  "win_or_tie per occ": "每个职业的胜率/平率",
+  "Aggregate": "聚合",
+  "by SOC code": "按 SOC 编码",
+  "sum employment": "汇总就业人数",
+  // Flowchart - Mappings
+  "MAPPING 1: Text Match": "映射 1：文本精确匹配",
+  "Anthropic task text == O*NET task text": "Anthropic 任务文本 == O*NET 任务文本",
+  "99.4% match (17,432 / 17,536)": "99.4% 匹配率（17,432 / 17,536）",
+  "MAPPING 2: SOC Code Match": "映射 2：SOC 编码匹配",
+  "44 GDPval occ -> SOC-6 (hand-crafted)": "44 个 GDPval 职业 -> SOC-6（手工映射）",
+  "Fallback: occ -> sector -> major -> global": "回退链：职业 -> 行业 -> 大类 -> 全局",
+  // Flowchart - Formulas
+  "E_adj = penetration * platform_factor * auto_weight": "E_adj = 渗透率 * 平台因子 * 自动化权重",
+  "platform_factor: 1.5x ~ 4.0x by SOC major": "平台因子：按 SOC 大类 1.5x ~ 4.0x",
+  "P_wintie(5.4) = P_wintie(5.2) * 1.1706": "P_胜平(5.4) = P_胜平(5.2) * 1.1706",
+  "GPT-5.4 scaling, capped at 1.0": "GPT-5.4 缩放，上限 1.0",
+  // Flowchart - Core
+  "CORE: Task-Level E * P": "核心：任务级 E * P 相乘",
+  "Risk_t = E_adj_t * P_wintie_t (per O*NET task)": "Risk_t = E_adj_t * P_胜平_t（逐个 O*NET 任务）",
+  "Occ Aggregation: Risk_occ = Sum(w*R)/Sum(w)": "职业聚合：Risk_occ = Sum(w*R)/Sum(w)",
+  "National Aggregation (emp-weighted)": "全国聚合（就业人数加权）",
+  "E_national": "全国暴露度 E",
+  "P_wintie (GPT-5.4)": "胜平率 P (GPT-5.4)",
+  "Kill Line = E * P": "Kill Line = E * P",
+  // Tree diagram
+  "Unified Space: O*NET Task Text (17,536 unique)": "统一空间：O*NET 任务文本（17,536 个唯一任务）",
+  "All E and P are computed per-task in this space": "所有 E 和 P 都在这个空间内逐任务计算",
+  "Exposure (E)": "暴露度 (E)",
+  "Clio Classifier": "Clio 分类器",
+  "Claude conversations": "Claude 对话数据",
+  "-> O*NET task text": "-> O*NET 任务文本",
+  "Value: penetration (0~0.03)": "值：渗透率（0~0.03）",
+  "Auto vs Augmentation": "自动化 vs 增强",
+  "directive = 1.0": "指令型 = 1.0（完全替代）",
+  "augmentation = 0.5": "增强型 = 0.5（部分替代）",
+  "auto_weight per task": "每个任务的自动化权重",
+  "Mapping 1: Text Match": "映射 1：文本精确匹配",
+  "99.4% match rate": "99.4% 匹配率",
+  "E_adj = penetration * pf * auto_weight": "E_adj = 渗透率 * 平台因子 * 自动化权重",
+  "pf: IT=3.0, Arts=4.0, Healthcare=1.5": "平台因子：IT=3.0, 文娱=4.0, 医疗=1.5",
+  "Task Weight (w)": "任务权重 (w)",
+  "O*NET Task Ratings": "O*NET 任务评级",
+  "IM (Importance): 1-5 -> 0~1": "IM（重要性）：1-5 -> 0~1",
+  "RT (Relevance) + FT (Frequency)": "RT（相关性）+ FT（频率）",
+  "Prevalence = 0.5*RT + 0.5*FT": "普遍性 = 0.5*RT + 0.5*FT",
+  "w_t = IM_norm * Prevalence": "w_t = IM_norm * 普遍性",
+  "Risk_occ = Sum(w*R)/Sum(w)": "Risk_occ = Sum(w*R)/Sum(w)",
+  "Win Rate (P)": "AI 胜率 (P)",
+  "GDPval Blind Expert Eval": "GDPval 盲评专家评测",
+  "AI vs Human pairwise": "AI vs 人类 配对盲评",
+  "Mapping 2: GDPval -> SOC": "映射 2：GDPval -> SOC 编码",
+  "Hand-crafted dict (44 entries)": "手工映射字典（44 条）",
+  "\"Accountant\"->13-2011, \"SWE\"->15-1252": "\"会计师\"->13-2011, \"软件工程师\"->15-1252",
+  "Fallback: occ->sector->major->global": "回退：职业->行业->大类->全局",
+  "P_wintie(5.4) = P(5.2) * 1.1706": "P_胜平(5.4) = P(5.2) * 1.1706",
+  "cap at 1.0": "上限 1.0",
+  "Risk_t = E_adj_t * P_wintie_t": "Risk_t = E_adj_t * P_胜平_t",
+  "Per O*NET task (same granularity)": "逐个 O*NET 任务（同一粒度）",
+  "Occ Aggregation (798 SOC, w_t weighted)": "职业级聚合（798 个 SOC，w_t 加权）",
+  "National Aggregation (BLS emp weighted)": "全国级聚合（BLS 就业人数加权）",
+  "E = 12.88% | P = 83.14% | Kill Line = 10.58%": "E = 12.88% | P = 83.14% | Kill Line = 10.58%",
+  "National replacement rate (GPT-5.4, win+tie)": "全国替代率（GPT-5.4，胜+平）",
+};
+
+// Build reverse map (Chinese -> English)
+const svgI18nReverse = {};
+for (const [en, zh] of Object.entries(svgI18n)) {
+  if (en !== zh) svgI18nReverse[zh] = en;
+}
+
+let isEn = false;
+
+function toggleLang() {
+  isEn = !isEn;
+  // Toggle HTML i18n spans
+  document.querySelectorAll('.i18n').forEach(el => {
+    const text = isEn ? el.dataset.en : el.dataset.zh;
+    if (text) el.innerHTML = text;
+  });
+  // Toggle SVG text elements
+  document.querySelectorAll('svg text').forEach(el => {
+    const txt = el.textContent.trim();
+    if (isEn) {
+      // Chinese -> English
+      if (svgI18nReverse[txt]) el.textContent = svgI18nReverse[txt];
+    } else {
+      // English -> Chinese
+      if (svgI18n[txt]) el.textContent = svgI18n[txt];
+    }
+  });
+  document.querySelector('.lang-btn').textContent = isEn ? '中文 / EN' : 'EN / 中文';
+  // Re-render KaTeX
+  if (window.renderMathInElement) {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });
+  }
+}
+
+// Initialize: translate SVG to Chinese on load
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.i18n').forEach(el => {
+    el.innerHTML = el.dataset.zh;
+  });
+  // Translate SVG text to Chinese
+  document.querySelectorAll('svg text').forEach(el => {
+    const txt = el.textContent.trim();
+    if (svgI18n[txt]) el.textContent = svgI18n[txt];
+  });
+});
+</script>
+
+</body>
+</html>
