@@ -12,7 +12,7 @@ async function openSharePanel(page: Page) {
   await expect(page.getByTestId('share-panel')).toBeVisible();
 }
 
-test.describe('JOBLESS Website Tests', () => {
+test.describe('AIR Website Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });

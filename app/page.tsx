@@ -41,7 +41,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem('jobless-theme') as Theme | null;
+    const saved = localStorage.getItem('air-theme') as Theme | null;
     if (saved) {
       setTheme(saved);
       document.documentElement.setAttribute('data-theme', saved);

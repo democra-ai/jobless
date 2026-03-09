@@ -4,7 +4,7 @@ import { decodeSharePayload, type SharePayload } from '@/lib/share_payload';
 export const runtime = 'edge';
 export const contentType = 'image/png';
 export const size = { width: 1200, height: 630 };
-export const alt = 'JOBLESS Share Result';
+export const alt = 'AIR Share Result';
 
 type ShareOgProps = {
   params: Promise<{ payload: string }>;
@@ -47,7 +47,7 @@ export default async function Image({ params }: ShareOgProps) {
             fontFamily: 'sans-serif',
           }}
         >
-          <span style={{ fontSize: 72, fontWeight: 800 }}>JOBLESS</span>
+          <span style={{ fontSize: 72, fontWeight: 800 }}>AIR</span>
           <span style={{ fontSize: 30, opacity: 0.85, marginTop: 10 }}>Shared AI Risk Result</span>
         </div>
       ),
@@ -99,7 +99,7 @@ export default async function Image({ params }: ShareOgProps) {
             boxSizing: 'border-box',
           }}
         >
-          <span style={{ fontSize: 18, opacity: 0.78, letterSpacing: 1.1 }}>JOBLESS · {isZh ? '风险预览' : 'RISK PREVIEW'}</span>
+          <span style={{ fontSize: 18, opacity: 0.78, letterSpacing: 1.1 }}>AIR · {isZh ? '风险预览' : 'RISK PREVIEW'}</span>
           <div
             style={{
               marginTop: 14,

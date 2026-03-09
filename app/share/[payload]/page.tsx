@@ -27,7 +27,7 @@ function riskDescription(payload: SharePayload): string {
 async function requestOrigin(): Promise<string> {
   const h = await headers();
   const host = h.get('x-forwarded-host') ?? h.get('host');
-  if (!host) return process.env.NEXT_PUBLIC_BASE_URL || 'https://jobless.democra.ai';
+  if (!host) return process.env.NEXT_PUBLIC_BASE_URL || 'https://air.democra.ai';
   const proto = h.get('x-forwarded-proto') ?? (host.includes('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https');
   return `${proto}://${host}`;
 }
@@ -38,8 +38,8 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
   const origin = await requestOrigin();
 
   if (!decoded) {
-    const title = 'JOBLESS - Shared AI Risk Result';
-    const description = 'Open this result in JOBLESS to calculate and compare your AI replacement risk.';
+    const title = 'AIR - Shared AI Risk Result';
+    const description = 'Open this result in AIR to calculate and compare your AI replacement risk.';
     const fallbackImage = `${origin}/opengraph-image`;
     return {
       title,
@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
     openGraph: {
       title,
       description,
-      images: [{ url: shareImageUrl, width: 1200, height: 630, alt: 'JOBLESS share card' }],
+      images: [{ url: shareImageUrl, width: 1200, height: 630, alt: 'AIR share card' }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -89,7 +89,7 @@ export default async function ShareResultPage({ params }: SharePageProps) {
         <div className="max-w-xl w-full rounded-2xl border border-surface-elevated bg-surface/70 p-8 text-center">
           <h1 className="text-2xl font-bold">Invalid Share Link</h1>
           <p className="mt-3 text-foreground-muted">
-            This result link is incomplete or expired. Open JOBLESS to create a new one.
+            This result link is incomplete or expired. Open AIR to create a new one.
           </p>
           <Link
             href="/#risk-calculator"
@@ -108,7 +108,7 @@ export default async function ShareResultPage({ params }: SharePageProps) {
     <main className="min-h-screen px-4 py-10 sm:px-6 sm:py-12">
       <div className="max-w-[640px] mx-auto">
         <div className="mb-4 text-sm text-foreground-muted text-center">
-          {isZh ? '来自 JOBLESS 的分享结果' : 'Shared from JOBLESS'}
+          {isZh ? '来自 AIR 的分享结果' : 'Shared from AIR'}
         </div>
         <SharedResultPosterPanel
           data={{

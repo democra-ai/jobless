@@ -28,7 +28,7 @@ export function ThemeButton({ theme, setTheme }: { theme: Theme; setTheme: (them
         const next = theme === 'dark' ? 'light' : 'dark';
         setTheme(next);
         document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('jobless-theme', next);
+        localStorage.setItem('air-theme', next);
       }}
       className="z-50 flex items-center justify-center w-10 h-10 bg-surface-elevated hover:bg-brand-accent/80 text-foreground hover:text-white rounded-lg border border-surface-elevated transition-all theme-toggle-btn"
       whileHover={{ scale: 1.05 }}

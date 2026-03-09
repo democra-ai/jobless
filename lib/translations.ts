@@ -188,8 +188,8 @@ export const translations = {
     riskCritical: 'Critical Risk',
 
     // Footer
-    title: 'JOBLESS',
-    tagline: 'AI Era Job Observation Platform',
+    title: 'AIR',
+    tagline: 'AI Replacement Risk Platform',
     dataSources: 'Data Sources:',
     sources: 'MIT, McKinsey, WEF, PwC, Goldman Sachs, OECD, BLS, ILO',
     sources2: 'Stanford Digital Economy Lab, Gallup, World Bank',
@@ -563,8 +563,8 @@ export const translations = {
     riskHigh: '高风险',
     riskCritical: '极高风险',
 
-    title: 'JOBLESS',
-    tagline: 'AI 时代就业观察平台',
+    title: 'AIR',
+    tagline: 'AI 替代风险评估平台',
     dataSources: '数据来源：',
     sources: 'MIT、麦肯锡、WEF、PwC、高盛、OECD、BLS、ILO',
     sources2: '斯坦福数字经济实验室、Gallup、世界银行',
