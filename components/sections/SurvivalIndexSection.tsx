@@ -1,85 +1,29 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Users, Target, Zap, Eye, Shield, Lock, Share2, Download, Copy, ExternalLink,
-  CheckCircle2, ChevronDown, ChevronRight, TrendingUp, AlertTriangle, Brain, Activity, Send,
-  Database, FileText, Workflow, Bot, BarChart3, Flame, RefreshCw,
+  Target, Share2, Download, Copy, ExternalLink,
+  ChevronLeft, ChevronRight, Send, Flame, RefreshCw, ArrowRight,
+  Brain, Shield, Zap, Users,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
-import { calculateAIRisk, RISK_LEVEL_INFO, RiskInputData, RiskOutputResult } from '@/lib/ai_risk_calculator_v2';
 import { encodeSharePayload } from '@/lib/share_payload';
+import {
+  QuizAnswer,
+  QUIZ_DIMENSIONS,
+  AI_SNAPSHOT_QUESTIONS,
+  SURVEY_QUESTIONS,
+  ALL_CORE_QUESTIONS,
+  CORE_QUESTION_COUNT,
+  SNAPSHOT_QUESTION_COUNT,
+  RISK_TIER_INFO,
+} from '@/lib/air_quiz_data';
+import { calculateQuizResult, QuizAnswers, QuizResult } from '@/lib/air_quiz_calculator';
 
-function DimensionSlider({
-  title,
-  desc,
-  detail,
-  value,
-  onChange,
-  lowLabel,
-  highLabel,
-  icon: Icon,
-  color
-}: {
-  title: string;
-  desc: string;
-  detail: string;
-  value: number;
-  onChange: (val: number) => void;
-  lowLabel: string;
-  highLabel: string;
-  icon: any;
-  color: string;
-}) {
-  return (
-    <div className="bg-surface rounded-xl p-4 border border-surface-elevated">
-      <div className="flex items-start gap-3 mb-3">
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: color + '20' }}>
-          <Icon className="w-5 h-5" style={{ color }} />
-        </div>
-        <div className="flex-1">
-          <h4 className="font-bold mb-1">{title}</h4>
-          <p className="text-xs text-foreground-muted mb-1">{desc}</p>
-          <p className="text-xs text-foreground-muted opacity-70">{detail}</p>
-        </div>
-      </div>
-
-      <div className="space-y-2 pt-6">
-        <div className="relative">
-          <div className="flex justify-between text-xs text-foreground-muted mb-1">
-            <span>{lowLabel}</span>
-            <span>{highLabel}</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={value}
-            onChange={(e) => onChange(parseFloat(e.target.value))}
-            className="calc-slider"
-            style={{
-              background: `linear-gradient(to right, ${color} 0%, ${color} ${value}%, var(--surface-elevated) ${value}%, var(--surface-elevated) 100%)`
-            }}
-          />
-          {/* 数值标签 - 跟随滑块位置, clamped at edges */}
-          <div
-            className="absolute -top-2 text-xs font-bold px-2 py-1 rounded text-white whitespace-nowrap transition-all duration-75"
-            style={{
-              left: `clamp(1rem, ${value}%, calc(100% - 1rem))`,
-              transform: 'translateX(-50%) translateY(-100%)',
-              backgroundColor: color
-            }}
-          >
-            {Math.round(value)}%
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ─── Sub-components ──────────────────────────────────────────────────────────
 
 function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string }) {
   const [display, setDisplay] = useState(0);
@@ -98,183 +42,181 @@ function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string
   return <>{display}{suffix}</>;
 }
 
-const PROFESSION_PRESETS: Record<string, {
-  name: { en: string; zh: string };
-  shortName?: { en: string; zh: string };
-  industry: string;
-  dimensions: {
-    dataOpenness: number;
-    workDataDigitalization: number;
-    processStandardization: number;
-    currentAIAdoption: number;
-  };
-  protections: {
-    creativeRequirement: number;
-    humanInteraction: number;
-    physicalOperation: number;
-  };
-}> = {
-  // 数据口径：analysis/iceberg_exposure/output/industry_ai_replacement_risk_top_model_task_aligned.csv
-  // + gdpval_complete_data.json(by_occupation, GPT-5.2) 中对应职业样本
-  // 客服/行政类（参考：行业暴露 43.84%，有效Win 49.92%，风险 21.89%）
-  'customer-service': {
-    name: { en: 'Customer Service / Admin', zh: '客服/行政' },
-    shortName: { en: 'Customer Support', zh: '客服支持' },
-    industry: 'customerService',
-    dimensions: {
-      dataOpenness: 60,
-      workDataDigitalization: 74,
-      processStandardization: 71,
-      currentAIAdoption: 53,
-    },
-    protections: {
-      creativeRequirement: 18,
-      humanInteraction: 72,
-      physicalOperation: 8,
-    },
-  },
+/** Progress bar showing current position in quiz */
+function QuizProgressBar({
+  current,
+  total,
+  phase,
+  lang,
+  t,
+}: {
+  current: number;
+  total: number;
+  phase: string;
+  lang: Language;
+  t: typeof translations.en;
+}) {
+  const pct = ((current) / total) * 100;
+  return (
+    <div className="mb-6">
+      <div className="flex items-center justify-between text-xs text-foreground-muted mb-2">
+        <span className="font-medium text-foreground">{phase}</span>
+        <span>
+          {lang === 'zh'
+            ? `${t.quizProgress} ${current} ${t.quizOf} ${total}`
+            : `${t.quizProgress} ${current} ${t.quizOf} ${total}`
+          }
+        </span>
+      </div>
+      <div className="w-full h-1.5 bg-surface-elevated rounded-full overflow-hidden">
+        <motion.div
+          className="h-full rounded-full bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400"
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+        />
+      </div>
+    </div>
+  );
+}
 
-  // 技术/开发类（参考：PSTS 行业暴露 48.78%，有效Win 47.30%；软件开发职业Win样本偏高）
-  'tech': {
-    name: { en: 'Developer / Tech', zh: '程序员/技术' },
-    shortName: { en: 'Developer', zh: '开发' },
-    industry: 'tech',
-    dimensions: {
-      dataOpenness: 72,
-      workDataDigitalization: 94,
-      processStandardization: 67,
-      currentAIAdoption: 65,
-    },
-    protections: {
-      creativeRequirement: 75,
-      humanInteraction: 45,
-      physicalOperation: 5,
-    },
-  },
+/** Dimension label pill shown above questions */
+function DimensionBadge({ icon: Icon, label, color }: { icon: React.ElementType; label: string; color: string }) {
+  return (
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4" style={{ borderColor: color + '40', backgroundColor: color + '10' }}>
+      <Icon className="w-4 h-4" style={{ color }} />
+      <span className="text-sm font-medium" style={{ color }}>{label}</span>
+    </div>
+  );
+}
 
-  // 创意/设计类（参考：Information 行业暴露 48.99%，有效Win 53.34%）
-  'creative': {
-    name: { en: 'Creative / Designer', zh: '创意/设计' },
-    shortName: { en: 'Creative Designer', zh: '创意设计' },
-    industry: 'marketing',
-    dimensions: {
-      dataOpenness: 68,
-      workDataDigitalization: 90,
-      processStandardization: 63,
-      currentAIAdoption: 58,
-    },
-    protections: {
-      creativeRequirement: 78,
-      humanInteraction: 52,
-      physicalOperation: 5,
-    },
-  },
+const DIMENSION_ICONS = [Brain, Target, Shield, Users];
+const DIMENSION_COLORS = ['#7c4dff', '#ff6e40', '#64ffda', '#b388ff'];
 
-  // 金融/分析类（参考：行业暴露 54.71%，有效Win 50.92%，风险 27.86%）
-  'finance': {
-    name: { en: 'Finance / Analyst', zh: '金融/分析' },
-    shortName: { en: 'Finance Analyst', zh: '金融分析' },
-    industry: 'finance',
-    dimensions: {
-      dataOpenness: 71,
-      workDataDigitalization: 86,
-      processStandardization: 76,
-      currentAIAdoption: 56,
-    },
-    protections: {
-      creativeRequirement: 45,
-      humanInteraction: 58,
-      physicalOperation: 5,
-    },
-  },
+// ─── Quiz phases ─────────────────────────────────────────────────────────────
 
-  // 销售/管理类（参考：Retail/Wholesale 合并口径，风险区间约 23%-27%）
-  'sales': {
-    name: { en: 'Sales / Management', zh: '销售/管理' },
-    shortName: { en: 'Sales Lead', zh: '销售管理' },
-    industry: 'sales',
-    dimensions: {
-      dataOpenness: 56,
-      workDataDigitalization: 72,
-      processStandardization: 61,
-      currentAIAdoption: 50,
-    },
-    protections: {
-      creativeRequirement: 58,
-      humanInteraction: 82,
-      physicalOperation: 12,
-    },
-  },
+type QuizPhase = 'intro' | 'core' | 'snapshot' | 'survey' | 'result';
 
-  // 医疗/教育类（参考：Healthcare 风险 15.88%，Education 风险 16.55%）
-  'healthcare-edu': {
-    name: { en: 'Healthcare / Education', zh: '医疗/教育' },
-    shortName: { en: 'Healthcare / Edu', zh: '医教行业' },
-    industry: 'healthcare',
-    dimensions: {
-      dataOpenness: 40,
-      workDataDigitalization: 55,
-      processStandardization: 42,
-      currentAIAdoption: 38,
-    },
-    protections: {
-      creativeRequirement: 70,
-      humanInteraction: 95,
-      physicalOperation: 55,
-    },
-  },
+// ─── Main Component ──────────────────────────────────────────────────────────
 
-  // 体力/手工类（参考：Manufacturing 风险 17.75%，但物理操作保护强）
-  'manual': {
-    name: { en: 'Manual / Skilled Trade', zh: '体力/技术工种' },
-    shortName: { en: 'Skilled Trade', zh: '技术工种' },
-    industry: 'manufacturing',
-    dimensions: {
-      dataOpenness: 28,
-      workDataDigitalization: 32,
-      processStandardization: 48,
-      currentAIAdoption: 24,
-    },
-    protections: {
-      creativeRequirement: 48,
-      humanInteraction: 45,
-      physicalOperation: 95,
-    },
-  },
-
-  // 内容/写作类（参考：Information 行业 + Editors/Journalists 职业样本）
-  'writer': {
-    name: { en: 'Writer / Content', zh: '写作/内容' },
-    shortName: { en: 'Content Writer', zh: '内容写作' },
-    industry: 'marketing',
-    dimensions: {
-      dataOpenness: 74,
-      workDataDigitalization: 96,
-      processStandardization: 67,
-      currentAIAdoption: 65,
-    },
-    protections: {
-      creativeRequirement: 66,
-      humanInteraction: 42,
-      physicalOperation: 5,
-    },
-  },
-};
-
-type DimensionKey = 'dataOpenness' | 'workDataDigitalization' | 'processStandardization' | 'currentAIAdoption';
-type ProtectionKey = 'creativeRequirement' | 'humanInteraction' | 'physicalOperation';
-
-// 生存指数测试 V2
 function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
-  const [showOptional, setShowOptional] = useState(false);
-  const [result, setResult] = useState<RiskOutputResult | null>(null);
+  // Quiz state
+  const [phase, setPhase] = useState<QuizPhase>('intro');
+  const [coreIndex, setCoreIndex] = useState(0); // 0-15
+  const [snapshotIndex, setSnapshotIndex] = useState(0); // 0-3
+  const [surveyIndex, setSurveyIndex] = useState(0); // 0-2
+
+  const [coreAnswers, setCoreAnswers] = useState<Record<string, QuizAnswer>>({});
+  const [snapshotAnswers, setSnapshotAnswers] = useState<Record<string, QuizAnswer>>({});
+  const [surveyAnswers, setSurveyAnswers] = useState<Record<string, number>>({});
+
+  const [result, setResult] = useState<QuizResult | null>(null);
+
+  // Share state
   const [copied, setCopied] = useState(false);
   const [wechatCopied, setWechatCopied] = useState(false);
   const [sharePanelOpen, setSharePanelOpen] = useState(false);
   const [telegramShareState, setTelegramShareState] = useState<'idle' | 'sending' | 'sent' | 'fallback'>('idle');
   const posterCaptureRef = useRef<HTMLDivElement>(null);
+  const questionContainerRef = useRef<HTMLDivElement>(null);
 
-  // 分享功能
+  // Current core question info
+  const currentCoreQ = ALL_CORE_QUESTIONS[coreIndex];
+  const currentDimIndex = Math.floor(coreIndex / 4);
+  const currentDim = QUIZ_DIMENSIONS[currentDimIndex];
+
+  // ─── Core question handlers ──────────────────────────────────────────────
+
+  const handleCoreAnswer = useCallback((answer: QuizAnswer) => {
+    const qId = currentCoreQ.id;
+    setCoreAnswers(prev => ({ ...prev, [qId]: answer }));
+    // Auto-advance after brief delay
+    setTimeout(() => {
+      if (coreIndex < CORE_QUESTION_COUNT - 1) {
+        setCoreIndex(prev => prev + 1);
+      } else {
+        setPhase('snapshot');
+        setSnapshotIndex(0);
+      }
+    }, 280);
+  }, [coreIndex, currentCoreQ]);
+
+  const handleSnapshotAnswer = useCallback((answer: QuizAnswer) => {
+    const qId = AI_SNAPSHOT_QUESTIONS[snapshotIndex].id;
+    setSnapshotAnswers(prev => ({ ...prev, [qId]: answer }));
+    setTimeout(() => {
+      if (snapshotIndex < SNAPSHOT_QUESTION_COUNT - 1) {
+        setSnapshotIndex(prev => prev + 1);
+      } else {
+        setPhase('survey');
+        setSurveyIndex(0);
+      }
+    }, 280);
+  }, [snapshotIndex]);
+
+  const handleSurveyAnswer = useCallback((optionIndex: number) => {
+    const qId = SURVEY_QUESTIONS[surveyIndex].id;
+    setSurveyAnswers(prev => ({ ...prev, [qId]: optionIndex }));
+    setTimeout(() => {
+      if (surveyIndex < SURVEY_QUESTIONS.length - 1) {
+        setSurveyIndex(prev => prev + 1);
+      } else {
+        finishQuiz();
+      }
+    }, 280);
+  }, [surveyIndex]);
+
+  const finishQuiz = useCallback(() => {
+    const answers: QuizAnswers = {
+      core: coreAnswers,
+      snapshot: snapshotAnswers,
+      survey: surveyAnswers,
+    };
+    const quizResult = calculateQuizResult(answers);
+    setResult(quizResult);
+    setPhase('result');
+    setSharePanelOpen(false);
+    setTelegramShareState('idle');
+    setCopied(false);
+    setWechatCopied(false);
+  }, [coreAnswers, snapshotAnswers, surveyAnswers]);
+
+  const skipSurvey = useCallback(() => {
+    finishQuiz();
+  }, [finishQuiz]);
+
+  // Go back
+  const goBack = useCallback(() => {
+    if (phase === 'core' && coreIndex > 0) {
+      setCoreIndex(prev => prev - 1);
+    } else if (phase === 'snapshot' && snapshotIndex > 0) {
+      setSnapshotIndex(prev => prev - 1);
+    } else if (phase === 'snapshot' && snapshotIndex === 0) {
+      setPhase('core');
+      setCoreIndex(CORE_QUESTION_COUNT - 1);
+    } else if (phase === 'survey' && surveyIndex > 0) {
+      setSurveyIndex(prev => prev - 1);
+    } else if (phase === 'survey' && surveyIndex === 0) {
+      setPhase('snapshot');
+      setSnapshotIndex(SNAPSHOT_QUESTION_COUNT - 1);
+    }
+  }, [phase, coreIndex, snapshotIndex, surveyIndex]);
+
+  // Reset
+  const resetQuiz = useCallback(() => {
+    setPhase('intro');
+    setCoreIndex(0);
+    setSnapshotIndex(0);
+    setSurveyIndex(0);
+    setCoreAnswers({});
+    setSnapshotAnswers({});
+    setSurveyAnswers({});
+    setResult(null);
+    setSharePanelOpen(false);
+  }, []);
+
+  // ─── Share functionality (preserved from V2) ─────────────────────────────
+
   const getShareText = () => {
     if (!result) return '';
     const levelText = result.riskLevel === 'very-low' ? (lang === 'en' ? 'Very Low' : '极低') :
@@ -299,7 +241,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       latestYear: result.confidenceInterval.latest,
       lang,
     });
-
     const runtimeOrigin = window.location.origin;
     const localhostPattern = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i;
     const configuredBase = (process.env.NEXT_PUBLIC_BASE_URL || '').trim().replace(/\/$/, '');
@@ -307,49 +248,37 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     const baseOrigin = localhostPattern.test(runtimeOrigin)
       ? (configuredBase || fallbackBase)
       : runtimeOrigin;
-
-    const shareUrl = new URL(`/share/${payload}`, baseOrigin);
-    return shareUrl.toString();
+    return new URL(`/share/${payload}`, baseOrigin).toString();
   };
 
   const copyText = async (text: string) => {
     if (navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch {
-        // Fallback below for older browsers or blocked clipboard access
-      }
+      try { await navigator.clipboard.writeText(text); return true; } catch { /* fallback */ }
     }
-
     try {
       const textarea = document.createElement('textarea');
       textarea.value = text;
       textarea.setAttribute('readonly', 'true');
       textarea.style.position = 'fixed';
       textarea.style.left = '-9999px';
-      textarea.style.top = '0';
       document.body.appendChild(textarea);
       textarea.select();
-      const copiedByCommand = document.execCommand('copy');
+      const ok = document.execCommand('copy');
       document.body.removeChild(textarea);
-      return copiedByCommand;
-    } catch {
-      return false;
-    }
+      return ok;
+    } catch { return false; }
   };
 
   const handleCopyLink = async () => {
-    const didCopy = await copyText(getShareUrl());
-    if (!didCopy) return;
+    const ok = await copyText(getShareUrl());
+    if (!ok) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleCopyForWechat = async () => {
-    const text = getShareText() + '\n' + getShareUrl();
-    const didCopy = await copyText(text);
-    if (!didCopy) return;
+    const ok = await copyText(getShareText() + '\n' + getShareUrl());
+    if (!ok) return;
     setWechatCopied(true);
     setTimeout(() => setWechatCopied(false), 3000);
   };
@@ -369,7 +298,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const buildShareImageBlob = async (): Promise<Blob | null> => {
     if (!result) return null;
     const shareUrl = getShareUrl();
-    const qrShareUrl = getShareUrl();
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
     canvas.height = 1920;
@@ -386,9 +314,9 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
         image.src = src;
       });
 
-    const roundedRect = (x: number, y: number, width: number, height: number, radius: number) => {
+    const roundedRect = (x: number, y: number, w: number, h: number, r: number) => {
       ctx.beginPath();
-      ctx.roundRect(x, y, width, height, radius);
+      ctx.roundRect(x, y, w, h, r);
     };
 
     const truncateText = (text: string, maxWidth: number) => {
@@ -413,13 +341,9 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     let contentBottom = 1500;
     try {
       const snapshot = await html2canvas(captureNode, {
-        backgroundColor: null,
-        scale: 2,
-        useCORS: true,
-        logging: false,
+        backgroundColor: null, scale: 2, useCORS: true, logging: false,
       });
-      const drawX = 48;
-      const drawY = 42;
+      const drawX = 48, drawY = 42;
       const drawW = 984;
       const drawH = Math.min(1490, (snapshot.height / snapshot.width) * drawW);
       ctx.save();
@@ -432,9 +356,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       roundedRect(drawX, drawY, drawW, drawH, 30);
       ctx.stroke();
       contentBottom = drawY + drawH + 20;
-    } catch {
-      contentBottom = 1500;
-    }
+    } catch { contentBottom = 1500; }
 
     const footerY = Math.max(1640, contentBottom);
     const footerH = 230;
@@ -457,10 +379,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     ctx.fillStyle = '#ffffff';
     ctx.fill();
     try {
-      const qrDataUrl = await QRCode.toDataURL(qrShareUrl, {
-        errorCorrectionLevel: 'L',
-        margin: 1,
-        width: qrSize,
+      const qrDataUrl = await QRCode.toDataURL(shareUrl, {
+        errorCorrectionLevel: 'L', margin: 1, width: qrSize,
         color: { dark: '#0c1322', light: '#ffffff' },
       });
       const qrImage = await loadImage(qrDataUrl);
@@ -499,7 +419,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     const shareUrl = getShareUrl();
     const fallbackUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}`;
     const deepLinkUrl = `tg://msg_url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-
     try {
       setTelegramShareState('sending');
       const imageBlob = await buildShareImageBlob();
@@ -507,41 +426,28 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
         const photoForm = new FormData();
         photoForm.append('photo', imageBlob, 'jobless-risk-poster.png');
         photoForm.append('caption', `${shareText}\n${shareUrl}`);
-
-        const photoResponse = await fetch('/api/share/telegram/photo', {
-          method: 'POST',
-          body: photoForm,
-        });
-
+        const photoResponse = await fetch('/api/share/telegram/photo', { method: 'POST', body: photoForm });
         if (photoResponse.ok) {
           setTelegramShareState('sent');
           setTimeout(() => setTelegramShareState('idle'), 2600);
           return;
         }
       }
-
       const textResponse = await fetch('/api/share/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: shareText, url: shareUrl }),
       });
-
       if (textResponse.ok) {
         setTelegramShareState('sent');
         setTimeout(() => setTelegramShareState('idle'), 2600);
         return;
       }
-    } catch {
-      // Fallback to Telegram Web share if API call fails
-    }
-
+    } catch { /* fallback */ }
     const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobileBrowser) {
-      // Try app deep link first; if it fails, fall back to Telegram web share.
       window.location.href = deepLinkUrl;
-      window.setTimeout(() => {
-        window.location.href = fallbackUrl;
-      }, 900);
+      window.setTimeout(() => { window.location.href = fallbackUrl; }, 900);
     } else {
       window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
     }
@@ -560,205 +466,9 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     URL.revokeObjectURL(url);
   };
 
-  // 核心维度状态
-  const [dimensions, setDimensions] = useState({
-    dataOpenness: 50,
-    workDataDigitalization: 50,
-    processStandardization: 50,
-    currentAIAdoption: 50,
-  });
+  // ─── Render ──────────────────────────────────────────────────────────────
 
-  // 可选保护因素状态
-  const [protections, setProtections] = useState({
-    creativeRequirement: 50,
-    humanInteraction: 50,
-    physicalOperation: 50,
-  });
-
-  // 职业选择状态
-  const [selectedProfession, setSelectedProfession] = useState<string | null>(null);
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('other');
-  const professionGridRef = useRef<HTMLDivElement>(null);
-  const [professionDensity, setProfessionDensity] = useState<'regular' | 'compact' | 'tight'>('regular');
-
-  const updateDimension = useCallback((key: DimensionKey, value: number) => {
-    setDimensions(prev => ({ ...prev, [key]: value }));
-  }, []);
-
-  const updateProtection = useCallback((key: ProtectionKey, value: number) => {
-    setProtections(prev => ({ ...prev, [key]: value }));
-  }, []);
-
-  const dimensionHandlers = useMemo(
-    () => ({
-      dataOpenness: (value: number) => updateDimension('dataOpenness', value),
-      workDataDigitalization: (value: number) => updateDimension('workDataDigitalization', value),
-      processStandardization: (value: number) => updateDimension('processStandardization', value),
-      currentAIAdoption: (value: number) => updateDimension('currentAIAdoption', value),
-    }),
-    [updateDimension],
-  );
-
-  const protectionHandlers = useMemo(
-    () => ({
-      creativeRequirement: (value: number) => updateProtection('creativeRequirement', value),
-      humanInteraction: (value: number) => updateProtection('humanInteraction', value),
-      physicalOperation: (value: number) => updateProtection('physicalOperation', value),
-    }),
-    [updateProtection],
-  );
-
-  const professionPreviewBadgeColors = useMemo(() => {
-    const entries = Object.entries(PROFESSION_PRESETS).map(([profKey, prof]) => {
-      const previewResult = calculateAIRisk({
-        jobTitle: '',
-        industry: prof.industry,
-        yearsOfExperience: 5,
-        ...prof.dimensions,
-        ...prof.protections,
-      }, lang);
-      return [profKey, RISK_LEVEL_INFO[previewResult.riskLevel].color] as const;
-    });
-    return Object.fromEntries(entries) as Record<string, string>;
-  }, [lang]);
-
-  // 应用职业预设
-  const applyProfessionPreset = (professionKey: string | null) => {
-    if (professionKey && PROFESSION_PRESETS[professionKey]) {
-      const preset = PROFESSION_PRESETS[professionKey];
-      setDimensions(preset.dimensions);
-      setProtections({
-        creativeRequirement: preset.protections.creativeRequirement,
-        humanInteraction: preset.protections.humanInteraction,
-        physicalOperation: preset.protections.physicalOperation,
-      });
-      setSelectedIndustry(preset.industry);
-      setSelectedProfession(professionKey);
-    } else {
-      setSelectedProfession(null);
-    }
-  };
-
-  const syncProfessionDensity = useCallback(() => {
-    const grid = professionGridRef.current;
-    if (!grid) return;
-    const labels = Array.from(grid.querySelectorAll<HTMLElement>('.profession-btn-label'));
-    if (!labels.length) return;
-
-    let maxLines = 1;
-    let minButtonWidth = Number.POSITIVE_INFINITY;
-    labels.forEach((label) => {
-      const computed = window.getComputedStyle(label);
-      const lineHeight = Number.parseFloat(computed.lineHeight || '0') || 16;
-      const lines = label.getBoundingClientRect().height / lineHeight;
-      maxLines = Math.max(maxLines, lines);
-      const button = label.closest('.profession-btn');
-      if (button instanceof HTMLElement) minButtonWidth = Math.min(minButtonWidth, button.clientWidth);
-    });
-
-    // Only allow downward transitions (regular → compact → tight) to
-    // avoid oscillation: switching density changes the displayed text
-    // (long name ↔ short name), which changes line counts, creating an
-    // infinite feedback loop that causes the UI to flash.
-    setProfessionDensity((prev) => {
-      if (prev === 'regular') {
-        if (maxLines > 1.56 || minButtonWidth < 140) return 'compact';
-        return prev;
-      }
-      if (prev === 'compact') {
-        if (maxLines > 1.96 || minButtonWidth < 122) return 'tight';
-        return prev;
-      }
-      return prev;
-    });
-  }, []);
-
-  useEffect(() => {
-    let frame: number | null = null;
-    const schedule = () => {
-      if (frame !== null) window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        frame = null;
-        syncProfessionDensity();
-      });
-    };
-
-    schedule();
-    const settleTimer = window.setTimeout(schedule, 280);
-    window.addEventListener('resize', schedule);
-
-    let observer: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined' && professionGridRef.current) {
-      observer = new ResizeObserver(schedule);
-      observer.observe(professionGridRef.current);
-    }
-
-    return () => {
-      if (frame !== null) window.cancelAnimationFrame(frame);
-      window.clearTimeout(settleTimer);
-      window.removeEventListener('resize', schedule);
-      observer?.disconnect();
-    };
-  }, [syncProfessionDensity, lang]);
-
-  // Restore last input state from localStorage on mount (but not result,
-  // so user always sees the input form first with presets visible)
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('ai-risk-last-result');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.dimensions) setDimensions(parsed.dimensions);
-        if (parsed.protections) setProtections(parsed.protections);
-        if (parsed.industry) setSelectedIndustry(parsed.industry);
-        if (parsed.profession) setSelectedProfession(parsed.profession);
-      }
-    } catch { /* ignore parse errors */ }
-  }, []);
-
-  const calculateRisk = () => {
-    const inputData: RiskInputData = {
-      jobTitle: 'User',
-      industry: selectedIndustry,
-      yearsOfExperience: 5,
-      ...dimensions,
-      ...protections,
-    };
-    const assessment = calculateAIRisk(inputData, lang);
-    setResult(assessment);
-    setSharePanelOpen(false);
-    setTelegramShareState('idle');
-    setCopied(false);
-    setWechatCopied(false);
-    try {
-      localStorage.setItem('ai-risk-last-result', JSON.stringify({
-        result: assessment, dimensions, protections,
-        industry: selectedIndustry, profession: selectedProfession,
-      }));
-    } catch { /* quota errors */ }
-  };
-
-  const resetCalculator = () => {
-    setResult(null);
-    setSharePanelOpen(false);
-    setTelegramShareState('idle');
-    setCopied(false);
-    setWechatCopied(false);
-    setDimensions({
-      dataOpenness: 50,
-      workDataDigitalization: 50,
-      processStandardization: 50,
-      currentAIAdoption: 50,
-    });
-    setProtections({
-      creativeRequirement: 50,
-      humanInteraction: 50,
-      physicalOperation: 50,
-    });
-    setSelectedProfession(null);
-    setSelectedIndustry('other');
-    try { localStorage.removeItem('ai-risk-last-result'); } catch { /* ignore */ }
-  };
+  const riskColor = result ? RISK_TIER_INFO[result.profile.riskTier].color : '#fff';
 
   return (
     <section
@@ -767,9 +477,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       data-lang={lang}
       className="py-12 sm:py-24 px-4 md:px-6 relative z-30 overflow-hidden scroll-mt-8 responsive-copy-scope"
     >
-
-      <div className="max-w-5xl mx-auto relative z-10">
-        {/* Title with distinctive styling */}
+      <div className="max-w-3xl mx-auto relative z-10">
+        {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -797,233 +506,288 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           transition={{ duration: 0.6, delay: 0.1 }}
           className="calc-container rounded-3xl p-6 md:p-10 relative"
         >
-          {!result ? (
-            <div className="space-y-8">
-              {/* 职业快速预设 - Redesigned */}
+          {/* ══════════════ INTRO PHASE ══════════════ */}
+          {phase === 'intro' && (
+            <div className="text-center space-y-6 py-8">
+              <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500/20 via-violet-500/20 to-rose-500/20 flex items-center justify-center border border-white/10">
+                <Brain className="w-10 h-10 text-violet-400" />
+              </div>
               <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">{t.selectProfession}</h3>
-                    <p className="text-sm text-foreground-muted">{t.selectProfessionDesc}</p>
-                  </div>
-                </div>
-
-                {/* 职业按钮网格 - with risk badge */}
-                <div
-                  ref={professionGridRef}
-                  data-density={professionDensity}
-                  className="profession-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-4"
-                >
-                  {Object.entries(PROFESSION_PRESETS).map(([profKey, prof], index) => {
-                    const isSelected = selectedProfession === profKey;
-                    const displayName = professionDensity === 'regular'
-                      ? prof.name[lang]
-                      : (prof.shortName?.[lang] ?? prof.name[lang]);
-                    const badgeColor = professionPreviewBadgeColors[profKey];
-                    return (
-                      <motion.button
-                        key={profKey}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        onClick={() => applyProfessionPreset(isSelected ? null : profKey)}
-                        className={`profession-btn relative px-3 sm:px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium border transition-all ${
-                          isSelected
-                            ? 'selected text-white border-transparent'
-                            : 'bg-surface-card border-white/8'
-                        }`}
-                      >
-                        <span className="profession-btn-content relative z-10">
-                          <span className="profession-btn-dot w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: badgeColor }} />
-                          <span className="profession-btn-label">{displayName}</span>
-                        </span>
-                      </motion.button>
-                    );
-                  })}
-                </div>
-
-                {/* 当前选择提示 - Enhanced */}
-                {selectedProfession && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="overflow-hidden"
-                  >
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-brand-primary/10 to-brand-secondary/10 border border-brand-primary/20">
-                      <CheckCircle2 className="w-5 h-5 text-brand-primary flex-shrink-0" />
-                      <span className="profession-summary-copy text-sm">
-                        <span className="text-foreground-muted shrink-0">
-                          {lang === 'en' ? 'Preset: ' : '预设：'}
-                        </span>
-                        <span className="font-semibold text-white">
-                          {PROFESSION_PRESETS[selectedProfession].name[lang]}
-                        </span>
-                        <span className="text-foreground-muted">
-                          {lang === 'en' ? '— adjust below' : '— 可在下方微调'}
-                        </span>
-                      </span>
+                <p className="text-foreground-muted text-sm mb-6">{t.quizStartDesc}</p>
+                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-8 text-left">
+                  {QUIZ_DIMENSIONS.map((dim, i) => (
+                    <div key={dim.id} className="flex items-center gap-2 p-3 rounded-xl bg-surface border border-surface-elevated">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: DIMENSION_COLORS[i] + '20' }}>
+                        {React.createElement(DIMENSION_ICONS[i], { className: 'w-4 h-4', style: { color: DIMENSION_COLORS[i] } })}
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold">{dim.name[lang]}</div>
+                        <div className="text-[10px] text-foreground-muted">{dim.favorableLabel[lang]} / {dim.resistantLabel[lang]}</div>
+                      </div>
                     </div>
-                  </motion.div>
-                )}
-              </div>
-
-              {/* 四个核心维度 - Redesigned */}
-              <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-rose-500 flex items-center justify-center">
-                    <Brain className="w-5 h-5 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-lg">{t.coreDimensions}</h3>
-                </div>
-                <div className="space-y-5">
-                  <DimensionSlider
-                    title={t.dim1Title}
-                    desc={t.dim1Desc}
-                    detail={t.dim1Detail}
-                    value={dimensions.dataOpenness}
-                    onChange={dimensionHandlers.dataOpenness}
-                    lowLabel={t.dim1Low}
-                    highLabel={t.dim1High}
-                    icon={Database}
-                    color="#7c4dff"
-                  />
-                  <DimensionSlider
-                    title={t.dim2Title}
-                    desc={t.dim2Desc}
-                    detail={t.dim2Detail}
-                    value={dimensions.workDataDigitalization}
-                    onChange={dimensionHandlers.workDataDigitalization}
-                    lowLabel={t.dim2Low}
-                    highLabel={t.dim2High}
-                    icon={FileText}
-                    color="#b388ff"
-                  />
-                  <DimensionSlider
-                    title={t.dim3Title}
-                    desc={t.dim3Desc}
-                    detail={t.dim3Detail}
-                    value={dimensions.processStandardization}
-                    onChange={dimensionHandlers.processStandardization}
-                    lowLabel={t.dim3Low}
-                    highLabel={t.dim3High}
-                    icon={Workflow}
-                    color="#64ffda"
-                  />
-                  <DimensionSlider
-                    title={t.dim4Title}
-                    desc={t.dim4Desc}
-                    detail={t.dim4Detail}
-                    value={dimensions.currentAIAdoption}
-                    onChange={dimensionHandlers.currentAIAdoption}
-                    lowLabel={t.dim4Low}
-                    highLabel={t.dim4High}
-                    icon={Bot}
-                    color="#ff6e40"
-                  />
+                  ))}
                 </div>
               </div>
-
-              {/* 可选保护因素切换按钮 - Enhanced */}
-              <button
-                onClick={() => setShowOptional(!showOptional)}
-                className="w-full py-3 px-4 bg-surface-elevated/50 hover:bg-surface-elevated rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 border border-surface-elevated"
-              >
-                {showOptional ? <ChevronRight className="w-4 h-4 rotate-90" /> : <ChevronRight className="w-4 h-4" />}
-                {showOptional ? t.toggleRequired : t.toggleOptional}
-              </button>
-
-              {/* 可选保护因素 - Enhanced */}
-              {showOptional && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-5 rounded-xl bg-surface border border-surface-elevated">
-                    <div className="flex items-center gap-2 mb-5">
-                      <Shield className="w-5 h-5 text-risk-low" />
-                      <h4 className="font-semibold">{t.protectiveFactors}</h4>
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-xs text-foreground-muted mb-2">
-                          <span>{t.ctx1Title}</span>
-                          <span className="data-value text-risk-safe">{Math.round(protections.creativeRequirement)}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={protections.creativeRequirement}
-                          onChange={(e) => protectionHandlers.creativeRequirement(parseFloat(e.target.value))}
-                          className="calc-slider"
-                          style={{
-                            background: `linear-gradient(to right, var(--risk-safe) 0%, var(--risk-safe) ${protections.creativeRequirement}%, var(--surface-elevated) ${protections.creativeRequirement}%, var(--surface-elevated) 100%)`
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs text-foreground-muted mb-2">
-                          <span>{t.ctx2Title}</span>
-                          <span className="data-value text-risk-safe">{Math.round(protections.humanInteraction)}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={protections.humanInteraction}
-                          onChange={(e) => protectionHandlers.humanInteraction(parseFloat(e.target.value))}
-                          className="calc-slider"
-                          style={{
-                            background: `linear-gradient(to right, var(--risk-safe) 0%, var(--risk-safe) ${protections.humanInteraction}%, var(--surface-elevated) ${protections.humanInteraction}%, var(--surface-elevated) 100%)`
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs text-foreground-muted mb-2">
-                          <span>{t.ctx3Title}</span>
-                          <span className="data-value text-risk-safe">{Math.round(protections.physicalOperation)}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={protections.physicalOperation}
-                          onChange={(e) => protectionHandlers.physicalOperation(parseFloat(e.target.value))}
-                          className="calc-slider"
-                          style={{
-                            background: `linear-gradient(to right, var(--risk-safe) 0%, var(--risk-safe) ${protections.physicalOperation}%, var(--surface-elevated) ${protections.physicalOperation}%, var(--surface-elevated) 100%)`
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Calculate button - Enhanced */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={calculateRisk}
-                className="calc-btn-primary w-full text-white py-5 rounded-xl font-semibold flex items-center justify-center gap-3 text-lg"
+                onClick={() => { setPhase('core'); setCoreIndex(0); }}
+                className="calc-btn-primary px-12 py-4 rounded-xl font-semibold text-white text-lg inline-flex items-center gap-3"
               >
-                <BarChart3 className="w-6 h-6" />
-                {t.calculate}
+                {t.quizStart}
+                <ArrowRight className="w-5 h-5" />
               </motion.button>
             </div>
-          ) : (
+          )}
+
+          {/* ══════════════ CORE QUESTIONS PHASE ══════════════ */}
+          {phase === 'core' && (
+            <div ref={questionContainerRef}>
+              <QuizProgressBar
+                current={coreIndex + 1}
+                total={CORE_QUESTION_COUNT}
+                phase={t.quizPhaseCore}
+                lang={lang}
+                t={t}
+              />
+
+              {/* Dimension badge - changes every 4 questions */}
+              <DimensionBadge
+                icon={DIMENSION_ICONS[currentDimIndex]}
+                label={`${t.quizDimension} ${currentDimIndex + 1}: ${currentDim.name[lang]}`}
+                color={DIMENSION_COLORS[currentDimIndex]}
+              />
+
+              <p className="text-xs text-foreground-muted mb-4">{currentDim.description[lang]}</p>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentCoreQ.id}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <h3 className="text-lg sm:text-xl font-bold mb-5">{currentCoreQ.question[lang]}</h3>
+                  <div className="space-y-2.5">
+                    {currentCoreQ.options.map((opt, idx) => {
+                      const score = (idx + 1) as QuizAnswer;
+                      const isSelected = coreAnswers[currentCoreQ.id] === score;
+                      return (
+                        <motion.button
+                          key={idx}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}
+                          onClick={() => handleCoreAnswer(score)}
+                          className={`w-full text-left p-4 rounded-xl border transition-all ${
+                            isSelected
+                              ? 'border-violet-400/60 bg-violet-500/15 text-white'
+                              : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 hover:border-white/20'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all ${
+                              isSelected
+                                ? 'border-violet-400 bg-violet-500 text-white'
+                                : 'border-white/20 text-foreground-muted'
+                            }`}>
+                              {score}
+                            </span>
+                            <span className="text-sm leading-relaxed">{opt[lang]}</span>
+                          </div>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-surface-elevated">
+                <button
+                  onClick={goBack}
+                  disabled={coreIndex === 0}
+                  className="flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  {t.quizPrev}
+                </button>
+                <div className="flex gap-1">
+                  {Array.from({ length: CORE_QUESTION_COUNT }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        i === coreIndex ? 'bg-violet-400 scale-125'
+                        : coreAnswers[ALL_CORE_QUESTIONS[i].id] ? 'bg-violet-400/40'
+                        : 'bg-surface-elevated'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="w-16" /> {/* spacer for alignment */}
+              </div>
+            </div>
+          )}
+
+          {/* ══════════════ SNAPSHOT PHASE ══════════════ */}
+          {phase === 'snapshot' && (
+            <div>
+              <QuizProgressBar
+                current={snapshotIndex + 1}
+                total={SNAPSHOT_QUESTION_COUNT}
+                phase={t.quizPhaseSnapshot}
+                lang={lang}
+                t={t}
+              />
+
+              <DimensionBadge icon={Zap} label={t.quizPhaseSnapshot} color="#ff9e1f" />
+              <p className="text-xs text-foreground-muted mb-4">{t.quizSnapshotIntro}</p>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={AI_SNAPSHOT_QUESTIONS[snapshotIndex].id}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <h3 className="text-lg sm:text-xl font-bold mb-5">
+                    {AI_SNAPSHOT_QUESTIONS[snapshotIndex].question[lang]}
+                  </h3>
+                  <div className="space-y-2.5">
+                    {AI_SNAPSHOT_QUESTIONS[snapshotIndex].options.map((opt, idx) => {
+                      const score = (idx + 1) as QuizAnswer;
+                      const isSelected = snapshotAnswers[AI_SNAPSHOT_QUESTIONS[snapshotIndex].id] === score;
+                      return (
+                        <motion.button
+                          key={idx}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}
+                          onClick={() => handleSnapshotAnswer(score)}
+                          className={`w-full text-left p-4 rounded-xl border transition-all ${
+                            isSelected
+                              ? 'border-amber-400/60 bg-amber-500/15 text-white'
+                              : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 hover:border-white/20'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all ${
+                              isSelected
+                                ? 'border-amber-400 bg-amber-500 text-white'
+                                : 'border-white/20 text-foreground-muted'
+                            }`}>
+                              {score}
+                            </span>
+                            <span className="text-sm leading-relaxed">{opt[lang]}</span>
+                          </div>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-surface-elevated">
+                <button
+                  onClick={goBack}
+                  className="flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  {t.quizPrev}
+                </button>
+                <div className="flex gap-1">
+                  {Array.from({ length: SNAPSHOT_QUESTION_COUNT }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        i === snapshotIndex ? 'bg-amber-400 scale-125'
+                        : snapshotAnswers[AI_SNAPSHOT_QUESTIONS[i].id] ? 'bg-amber-400/40'
+                        : 'bg-surface-elevated'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="w-16" />
+              </div>
+            </div>
+          )}
+
+          {/* ══════════════ SURVEY PHASE ══════════════ */}
+          {phase === 'survey' && (
+            <div>
+              <QuizProgressBar
+                current={surveyIndex + 1}
+                total={SURVEY_QUESTIONS.length}
+                phase={t.quizPhaseSurvey}
+                lang={lang}
+                t={t}
+              />
+
+              <p className="text-xs text-foreground-muted mb-4">{t.quizSurveyIntro}</p>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={SURVEY_QUESTIONS[surveyIndex].id}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <h3 className="text-lg sm:text-xl font-bold mb-5">
+                    {SURVEY_QUESTIONS[surveyIndex].question[lang]}
+                  </h3>
+                  <div className="space-y-2.5">
+                    {SURVEY_QUESTIONS[surveyIndex].options.map((opt, idx) => {
+                      const isSelected = surveyAnswers[SURVEY_QUESTIONS[surveyIndex].id] === idx;
+                      return (
+                        <motion.button
+                          key={idx}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}
+                          onClick={() => handleSurveyAnswer(idx)}
+                          className={`w-full text-left p-4 rounded-xl border transition-all ${
+                            isSelected
+                              ? 'border-emerald-400/60 bg-emerald-500/15 text-white'
+                              : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 hover:border-white/20'
+                          }`}
+                        >
+                          <span className="text-sm">{opt[lang]}</span>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-surface-elevated">
+                <button
+                  onClick={goBack}
+                  className="flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  {t.quizPrev}
+                </button>
+                <button
+                  onClick={skipSurvey}
+                  className="flex items-center gap-1 text-sm text-violet-400 hover:text-violet-300 transition-all"
+                >
+                  {t.quizSurveySkip}
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ══════════════ RESULT PHASE ══════════════ */}
+          {phase === 'result' && result && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
               <div data-testid="share-result-capture" className="space-y-6">
-                {/* Main Risk Level Display - Bold Typography */}
+
+                {/* Profile Type Display */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1031,27 +795,36 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 >
                   <div
                     className="absolute top-0 left-0 right-0 h-1"
-                    style={{ background: `linear-gradient(90deg, ${RISK_LEVEL_INFO[result.riskLevel].color}, transparent)` }}
+                    style={{ background: `linear-gradient(90deg, ${riskColor}, transparent)` }}
                   />
                   <div className="relative z-10">
-                    <div className="text-sm text-foreground-muted uppercase tracking-wider mb-3">{t.riskLevel}</div>
+                    <div className="text-sm text-foreground-muted uppercase tracking-wider mb-2">{t.yourType}</div>
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
+                      initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.2, type: 'spring' }}
-                      className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3"
-                      style={{ color: RISK_LEVEL_INFO[result.riskLevel].color, fontFamily: 'var(--font-display)' }}
+                      className="text-5xl sm:text-7xl md:text-8xl font-bold mb-2 tracking-widest"
+                      style={{ color: riskColor, fontFamily: 'var(--font-display)' }}
                     >
-                      {result.riskLevel === 'very-low' ? t.riskVeryLow :
-                       result.riskLevel === 'low' ? t.riskLow :
-                       result.riskLevel === 'medium' ? t.riskMedium :
-                       result.riskLevel === 'high' ? t.riskHigh : t.riskCritical}
+                      {result.profileCode}
                     </motion.div>
-                    <div className="text-sm text-foreground-muted">{RISK_LEVEL_INFO[result.riskLevel].description[lang]}</div>
+                    <div className="text-xl sm:text-2xl font-semibold mb-2">{result.profile.name[lang]}</div>
+                    <div className="text-sm text-foreground-muted max-w-lg mx-auto">{result.profile.description[lang]}</div>
                   </div>
                 </motion.div>
 
-                {/* Three Metrics - Clean Number Display */}
+                {/* Risk Level */}
+                <div className="result-card rounded-xl p-5 text-center">
+                  <div className="text-sm text-foreground-muted uppercase tracking-wider mb-1">{t.riskLevel}</div>
+                  <div className="text-2xl sm:text-3xl font-bold" style={{ color: riskColor }}>
+                    {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
+                  </div>
+                  <div className="text-xs text-foreground-muted mt-1">
+                    {result.favorableCount}/4 {lang === 'en' ? 'dimensions favor AI' : '个维度利于AI替代'}
+                  </div>
+                </div>
+
+                {/* Three Metrics */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -1084,14 +857,14 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     className="result-card rounded-xl p-6 text-center group hover-lift"
                   >
                     <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-2" style={{ color: 'var(--brand-primary)' }}>
-                      <AnimatedNumber value={result.currentReplacementDegree} suffix="%" />
+                      <AnimatedNumber value={result.currentAICapability} suffix="%" />
                     </div>
                     <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric3Title}</div>
                     <div className="text-xs text-foreground-muted/60 mt-1">{t.metric3Desc}</div>
                   </motion.div>
                 </div>
 
-                {/* Confidence Interval - Sleek Bar */}
+                {/* Confidence Interval */}
                 <div className="result-card rounded-xl p-4 flex items-center justify-between">
                   <span className="text-sm text-foreground-muted">{t.yearRange}</span>
                   <span className="font-mono font-bold text-lg">
@@ -1099,57 +872,54 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   </span>
                 </div>
 
-                {/* Insights - Modern Tags */}
+                {/* Dimension Breakdown */}
                 <div className="result-card rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center">
-                      <Eye className="w-4 h-4 text-white" />
-                    </div>
-                    <h5 className="font-semibold">{t.insights}</h5>
-                  </div>
+                  <h5 className="font-semibold mb-4">{t.dimensionBreakdown}</h5>
                   <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2 text-sm">
-                      <span className="text-foreground-muted">{t.primaryDriver}:</span>
-                      <span className="insight-tag px-3 py-1 rounded-full font-medium">{result.insights.primaryDriver}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {result.insights.secondaryFactors.map((factor, i) => (
-                        <span key={i} className="insight-tag px-3 py-1 rounded-full text-xs font-medium">{factor}</span>
-                      ))}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {result.insights.protectionFactors.map((factor, i) => (
-                        <span key={i} className="px-3 py-1 bg-risk-low/20 text-risk-low rounded-full text-xs font-medium border border-risk-low/30">{factor}</span>
-                      ))}
-                    </div>
+                    {result.dimensions.map((dim, i) => {
+                      const pct = ((dim.rawAverage - 1) / 4) * 100;
+                      const color = DIMENSION_COLORS[i];
+                      return (
+                        <div key={dim.dimensionId}>
+                          <div className="flex items-center justify-between text-sm mb-1">
+                            <div className="flex items-center gap-2">
+                              {React.createElement(DIMENSION_ICONS[i], { className: 'w-4 h-4', style: { color } })}
+                              <span>{dim.name[lang]}</span>
+                            </div>
+                            <span className={`font-bold text-xs px-2 py-0.5 rounded-full ${
+                              dim.isFavorable
+                                ? 'bg-rose-500/20 text-rose-400'
+                                : 'bg-emerald-500/20 text-emerald-400'
+                            }`}>
+                              {dim.letter} — {dim.isFavorable ? dim.favorableLabel[lang] : dim.resistantLabel[lang]}
+                            </span>
+                          </div>
+                          <div className="w-full h-2 bg-surface-elevated rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ duration: 0.8, delay: 0.3 + i * 0.1 }}
+                              className="h-full rounded-full"
+                              style={{ backgroundColor: color }}
+                            />
+                          </div>
+                          <div className="flex justify-between text-[10px] text-foreground-muted mt-0.5">
+                            <span>{QUIZ_DIMENSIONS[i].resistantLabel[lang]}</span>
+                            <span>{QUIZ_DIMENSIONS[i].favorableLabel[lang]}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Recommendations - Modern List */}
+                {/* Typical Jobs */}
                 <div className="result-card rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-rose-500 flex items-center justify-center">
-                      <Target className="w-4 h-4 text-white" />
-                    </div>
-                    <h5 className="font-semibold">{t.recommendations}</h5>
-                  </div>
-                  <div className="space-y-3">
-                    {result.insights.recommendations.slice(0, 4).map((rec, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.5 + i * 0.1 }}
-                        className="flex items-start gap-3 text-sm p-3 rounded-lg bg-surface-card/50 border border-white/5"
-                      >
-                        <CheckCircle2 className="w-5 h-5 text-risk-low flex-shrink-0 mt-0.5" />
-                        <span className="leading-relaxed">{rec}</span>
-                      </motion.div>
-                    ))}
-                  </div>
+                  <h5 className="font-semibold mb-2">{t.typicalJobs}</h5>
+                  <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.typicalJobs[lang]}</p>
                 </div>
 
-                {/* Reality Check - Alert Style */}
+                {/* Reality Check */}
                 <div className="rounded-xl p-5 bg-gradient-to-r from-risk-critical/10 to-risk-high/10 border border-risk-critical/20">
                   <p className="text-sm">
                     <Flame className="w-5 h-5 inline text-risk-critical mr-2 align-middle" />
@@ -1159,177 +929,59 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 </div>
               </div>
 
+              {/* Off-screen poster capture node */}
               <div
                 aria-hidden="true"
                 style={{
-                  position: 'fixed',
-                  left: '-99999px',
-                  top: '0',
-                  width: '880px',
-                  padding: '26px',
+                  position: 'fixed', left: '-99999px', top: '0', width: '880px', padding: '26px',
                   background: 'linear-gradient(145deg, #040811 0%, #0b1020 58%, #1a1320 100%)',
-                  borderRadius: '28px',
-                  boxSizing: 'border-box',
-                  color: '#eef2ff',
+                  borderRadius: '28px', boxSizing: 'border-box', color: '#eef2ff',
                   fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
                 }}
               >
                 <div ref={posterCaptureRef} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <div
-                    style={{
-                      borderRadius: '20px',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      background: 'linear-gradient(90deg, rgba(0,219,255,0.12), rgba(255,61,153,0.1))',
-                      padding: '10px 16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
+                  <div style={{
+                    borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)',
+                    background: 'linear-gradient(90deg, rgba(0,219,255,0.12), rgba(255,61,153,0.1))',
+                    padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  }}>
                     <span style={{ fontSize: '22px', letterSpacing: '0.6px', fontWeight: 700 }}>JOBLESS</span>
-                    <span style={{ fontSize: '16px', opacity: 0.74 }}>{lang === 'en' ? 'AI Risk Share' : 'AI 风险分享'}</span>
+                    <span style={{ fontSize: '16px', opacity: 0.74 }}>{lang === 'en' ? 'AIR Risk Profile' : 'AIR 风险画像'}</span>
                   </div>
 
-                  <div
-                    style={{
-                      borderRadius: '24px',
-                      border: `1.5px solid ${RISK_LEVEL_INFO[result.riskLevel].color}66`,
-                      background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
-                      padding: '24px',
-                    }}
-                  >
+                  <div style={{
+                    borderRadius: '24px', border: `1.5px solid ${riskColor}66`,
+                    background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
+                    padding: '24px', textAlign: 'center',
+                  }}>
                     <div style={{ fontSize: '12px', letterSpacing: '1.5px', opacity: 0.72 }}>
-                      {lang === 'en' ? 'YOUR AI RISK RESULT' : '你的 AI 风险结果'}
+                      {lang === 'en' ? 'YOUR AIR TYPE' : '你的 AIR 类型'}
                     </div>
-                    <div
-                      style={{
-                        marginTop: '10px',
-                        fontSize: '72px',
-                        fontWeight: 800,
-                        lineHeight: 1,
-                        color: RISK_LEVEL_INFO[result.riskLevel].color,
-                      }}
-                    >
-                      {result.riskLevel === 'very-low' ? (lang === 'en' ? 'VERY LOW' : '极低风险') :
-                       result.riskLevel === 'low' ? (lang === 'en' ? 'LOW RISK' : '低风险') :
-                       result.riskLevel === 'medium' ? (lang === 'en' ? 'MEDIUM RISK' : '中等风险') :
-                       result.riskLevel === 'high' ? (lang === 'en' ? 'HIGH RISK' : '高风险') :
-                       (lang === 'en' ? 'CRITICAL RISK' : '极高风险')}
+                    <div style={{ marginTop: '10px', fontSize: '96px', fontWeight: 800, lineHeight: 1, color: riskColor, letterSpacing: '0.15em' }}>
+                      {result.profileCode}
                     </div>
-                    <div style={{ marginTop: '10px', fontSize: '22px', opacity: 0.84 }}>
-                      {RISK_LEVEL_INFO[result.riskLevel].description[lang]}
+                    <div style={{ marginTop: '10px', fontSize: '36px', fontWeight: 700 }}>
+                      {result.profile.name[lang]}
+                    </div>
+                    <div style={{ marginTop: '8px', fontSize: '20px', opacity: 0.78 }}>
+                      {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
                     </div>
                   </div>
 
                   {[
-                    {
-                      value: `${result.replacementProbability}%`,
-                      label: lang === 'en' ? 'Replacement Probability' : '替代概率',
-                      desc: lang === 'en' ? 'Likelihood AI will replace your job' : '你的岗位被 AI 替代可能性',
-                      color: '#ff2f67',
-                    },
-                    {
-                      value: `${result.predictedReplacementYear}`,
-                      label: lang === 'en' ? 'AI Kill Line Year' : 'AI 斩杀线年份',
-                      desc: lang === 'en' ? 'Projected' : '预计年份',
-                      color: '#ff9e1f',
-                    },
-                    {
-                      value: `${result.currentReplacementDegree}%`,
-                      label: lang === 'en' ? 'Current Degree' : '当前程度',
-                      desc: lang === 'en' ? 'How much AI can already do now' : 'AI 当前可完成程度',
-                      color: '#57d9ef',
-                    },
+                    { value: `${result.replacementProbability}%`, label: t.metric1Title, color: '#ff2f67' },
+                    { value: `${result.predictedReplacementYear}`, label: t.metric2Title, color: '#ff9e1f' },
+                    { value: `${result.currentAICapability}%`, label: t.metric3Title, color: '#57d9ef' },
                   ].map((metric) => (
-                    <div
-                      key={metric.label}
-                      style={{
-                        borderRadius: '22px',
-                        border: `1.2px solid ${metric.color}66`,
-                        background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
-                        padding: '20px 24px',
-                      }}
-                    >
+                    <div key={metric.label} style={{
+                      borderRadius: '22px', border: `1.2px solid ${metric.color}66`,
+                      background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
+                      padding: '20px 24px',
+                    }}>
                       <div style={{ fontSize: '62px', fontWeight: 800, lineHeight: 1, color: metric.color }}>{metric.value}</div>
                       <div style={{ marginTop: '8px', fontSize: '38px', fontWeight: 700, lineHeight: 1.1 }}>{metric.label}</div>
-                      <div style={{ marginTop: '6px', fontSize: '24px', opacity: 0.72 }}>{metric.desc}</div>
                     </div>
                   ))}
-
-                  <div
-                    style={{
-                      borderRadius: '22px',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
-                      padding: '20px 24px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <span style={{ fontSize: '40px', opacity: 0.82 }}>{lang === 'en' ? 'Range' : '预测范围'}</span>
-                    <span style={{ fontSize: '52px', fontWeight: 700, fontFamily: 'monospace' }}>
-                      {result.confidenceInterval.earliest} — {result.confidenceInterval.latest}
-                    </span>
-                  </div>
-
-                  <div
-                    style={{
-                      borderRadius: '22px',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
-                      padding: '20px 24px',
-                    }}
-                  >
-                    <div style={{ fontSize: '52px', fontWeight: 700 }}>{lang === 'en' ? 'Key Insights' : '关键洞察'}</div>
-                    <div style={{ marginTop: '10px', fontSize: '26px', opacity: 0.78 }}>
-                      {lang === 'en' ? 'Primary Risk Driver:' : '主要风险驱动：'} {result.insights.primaryDriver}
-                    </div>
-                    <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      {result.insights.secondaryFactors.slice(0, 2).map((factor, idx) => (
-                        <span
-                          key={idx}
-                          style={{
-                            borderRadius: '999px',
-                            border: '1px solid rgba(132,145,255,0.65)',
-                            background: 'rgba(35,46,86,0.45)',
-                            padding: '6px 14px',
-                            fontSize: '24px',
-                          }}
-                        >
-                          {factor}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      borderRadius: '22px',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
-                      padding: '20px 24px',
-                    }}
-                  >
-                    <div style={{ fontSize: '46px', fontWeight: 700 }}>{lang === 'en' ? 'Recommendations' : '建议行动'}</div>
-                    <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {result.insights.recommendations.slice(0, 2).map((rec, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            borderRadius: '14px',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                            background: 'rgba(8,12,24,0.66)',
-                            padding: '8px 12px',
-                            fontSize: '20px',
-                            lineHeight: 1.35,
-                          }}
-                        >
-                          {rec}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -1339,11 +991,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
                 className="result-card rounded-xl p-6"
-                style={{ borderColor: RISK_LEVEL_INFO[result.riskLevel].color + '30', borderWidth: 1 }}
+                style={{ borderColor: riskColor + '30', borderWidth: 1 }}
               >
                 <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: RISK_LEVEL_INFO[result.riskLevel].color + '20' }}>
-                    <Share2 className="w-4 h-4" style={{ color: RISK_LEVEL_INFO[result.riskLevel].color }} />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: riskColor + '20' }}>
+                    <Share2 className="w-4 h-4" style={{ color: riskColor }} />
                   </div>
                   <div>
                     <h5 className="font-semibold">{t.shareTitle}</h5>
@@ -1371,70 +1023,24 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       className="space-y-3"
                     >
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleDownloadImage}
-                          data-testid="share-download-btn"
-                          className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/40 text-sm font-semibold text-brand-primary transition-all"
-                        >
-                          <Download className="w-4 h-4" />
-                          {t.shareDownload}
+                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }} onClick={handleDownloadImage} data-testid="share-download-btn" className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/40 text-sm font-semibold text-brand-primary transition-all">
+                          <Download className="w-4 h-4" />{t.shareDownload}
                         </motion.button>
-                        <motion.button
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleCopyLink}
-                          data-testid="share-copy-btn"
-                          className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 border border-white/10 text-sm font-medium transition-all"
-                        >
-                          <Copy className="w-4 h-4" />
-                          {copied ? t.shareCopied : t.shareCopyLink}
+                        <motion.button whileTap={{ scale: 0.95 }} onClick={handleCopyLink} data-testid="share-copy-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 border border-white/10 text-sm font-medium transition-all">
+                          <Copy className="w-4 h-4" />{copied ? t.shareCopied : t.shareCopyLink}
                         </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleShareTwitter}
-                          data-testid="share-twitter-btn"
-                          className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 border border-[#1DA1F2]/20 text-sm font-medium text-[#1DA1F2] transition-all"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          {t.shareTwitter}
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareTwitter} data-testid="share-twitter-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 border border-[#1DA1F2]/20 text-sm font-medium text-[#1DA1F2] transition-all">
+                          <ExternalLink className="w-4 h-4" />{t.shareTwitter}
                         </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleCopyForWechat}
-                          data-testid="share-wechat-btn"
-                          className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#07C160]/10 hover:bg-[#07C160]/20 border border-[#07C160]/20 text-sm font-medium text-[#07C160] transition-all"
-                        >
-                          <Copy className="w-4 h-4" />
-                          {wechatCopied ? t.shareWeChatCopied : t.shareWeChat}
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleCopyForWechat} data-testid="share-wechat-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#07C160]/10 hover:bg-[#07C160]/20 border border-[#07C160]/20 text-sm font-medium text-[#07C160] transition-all">
+                          <Copy className="w-4 h-4" />{wechatCopied ? t.shareWeChatCopied : t.shareWeChat}
                         </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleShareTelegram}
-                          data-testid="share-telegram-btn"
-                          className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#229ED9]/10 hover:bg-[#229ED9]/20 border border-[#229ED9]/20 text-sm font-medium text-[#229ED9] transition-all"
-                        >
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareTelegram} data-testid="share-telegram-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#229ED9]/10 hover:bg-[#229ED9]/20 border border-[#229ED9]/20 text-sm font-medium text-[#229ED9] transition-all">
                           <Send className="w-4 h-4" />
-                          {telegramShareState === 'sending'
-                            ? t.shareSending
-                            : telegramShareState === 'sent'
-                              ? t.shareSent
-                              : telegramShareState === 'fallback'
-                                ? t.shareTelegramFallback
-                                : t.shareTelegram}
+                          {telegramShareState === 'sending' ? t.shareSending : telegramShareState === 'sent' ? t.shareSent : telegramShareState === 'fallback' ? t.shareTelegramFallback : t.shareTelegram}
                         </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleShareWeibo}
-                          data-testid="share-weibo-btn"
-                          className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#E6162D]/10 hover:bg-[#E6162D]/20 border border-[#E6162D]/20 text-sm font-medium text-[#E6162D] transition-all"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          {t.shareWeibo}
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareWeibo} data-testid="share-weibo-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#E6162D]/10 hover:bg-[#E6162D]/20 border border-[#E6162D]/20 text-sm font-medium text-[#E6162D] transition-all">
+                          <ExternalLink className="w-4 h-4" />{t.shareWeibo}
                         </motion.button>
                       </div>
                       <p className="text-xs text-foreground-muted">{t.shareTelegramHint}</p>
@@ -1443,11 +1049,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 </AnimatePresence>
               </motion.div>
 
-              {/* Recalculate Button */}
+              {/* Recalculate */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={resetCalculator}
+                onClick={resetQuiz}
                 className="w-full bg-surface-elevated hover:bg-surface-elevated/80 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 border border-white/10"
               >
                 <RefreshCw className="w-5 h-5" />

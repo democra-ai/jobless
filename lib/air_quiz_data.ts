@@ -1,0 +1,756 @@
+/**
+ * AIR (AI Replacement Risk) Quiz Data
+ *
+ * 四维度 × 4题 = 16题核心问卷 + 4题AI现状快照 + 3题附加调研
+ * 每维度取极性 → 2⁴ = 16 种职业画像类型
+ */
+
+export type QuizAnswer = 1 | 2 | 3 | 4 | 5;
+
+export interface QuizQuestion {
+  id: string;
+  indicator: string;
+  direction: 'forward' | 'reverse'; // forward: high = AI favorable; reverse: high = AI resistant
+  question: { en: string; zh: string };
+  options: { en: string; zh: string }[]; // index 0 = score 1, index 4 = score 5
+}
+
+export interface QuizDimension {
+  id: string;
+  name: { en: string; zh: string };
+  description: { en: string; zh: string };
+  favorableLabel: { en: string; zh: string }; // E, O, F, P side
+  resistantLabel: { en: string; zh: string }; // T, S, R, H side
+  favorableLetter: string; // E, O, F, P
+  resistantLetter: string; // T, S, R, H
+  questions: QuizQuestion[];
+}
+
+export interface AISnapshotQuestion {
+  id: string;
+  indicator: string;
+  direction: 'forward' | 'reverse';
+  question: { en: string; zh: string };
+  options: { en: string; zh: string }[];
+}
+
+export interface SurveyQuestion {
+  id: string;
+  topic: { en: string; zh: string };
+  question: { en: string; zh: string };
+  options: { en: string; zh: string }[];
+}
+
+export interface ProfileType {
+  code: string;
+  name: { en: string; zh: string };
+  description: { en: string; zh: string };
+  typicalJobs: { en: string; zh: string };
+  riskTier: 'extreme-high' | 'high' | 'medium' | 'low' | 'extreme-low';
+}
+
+// ─── Dimension 1: Learnability ───────────────────────────────────────────────
+
+const DIMENSION_LEARNABILITY: QuizDimension = {
+  id: 'learnability',
+  name: { en: 'Learnability', zh: '可学习性' },
+  description: {
+    en: 'Can AI acquire and learn the knowledge and skills your job requires?',
+    zh: 'AI能否获取并学习你的工作所需的知识和技能？',
+  },
+  favorableLabel: { en: 'Explicit (E)', zh: '显性型 (E)' },
+  resistantLabel: { en: 'Tacit (T)', zh: '隐性型 (T)' },
+  favorableLetter: 'E',
+  resistantLetter: 'T',
+  questions: [
+    {
+      id: 'Q1',
+      indicator: 'Digitalization',
+      direction: 'forward',
+      question: {
+        en: 'Where is your daily work mainly done?',
+        zh: '你的日常工作主要在哪里完成？',
+      },
+      options: [
+        { en: 'Almost never use a computer — all hands-on physical work', zh: '几乎不碰电脑，全靠手和身体干活' },
+        { en: 'Occasionally use a computer, but core work is hands-on', zh: '偶尔用电脑查东西，但核心工作靠动手' },
+        { en: 'About half digital, half physical', zh: '电脑和动手差不多各占一半' },
+        { en: 'Mostly done on computers/systems', zh: '大部分在电脑/系统上完成' },
+        { en: 'Almost entirely in digital systems', zh: '几乎全在电脑或数字系统里完成' },
+      ],
+    },
+    {
+      id: 'Q2',
+      indicator: 'Openness',
+      direction: 'forward',
+      question: {
+        en: 'How easy is it for AI to access the knowledge and data your work involves?',
+        zh: '你工作涉及的知识和资料，AI容易获取吗？',
+      },
+      options: [
+        { en: 'Almost all confidential or only in people\'s heads', zh: '几乎都是内部机密或只存在脑子里，外面查不到' },
+        { en: 'Mostly confidential, some basics are public', zh: '大部分对外保密，少量基础知识公开' },
+        { en: 'Some available online, some internal', zh: '一部分网上能找到，一部分是内部积累' },
+        { en: 'Most knowledge has public resources', zh: '大部分有公开资料可学' },
+        { en: 'Tons of tutorials, standards, and cases online', zh: '网上基本都有，教程规范案例一抓一大把' },
+      ],
+    },
+    {
+      id: 'Q3',
+      indicator: 'Standardization',
+      direction: 'forward',
+      question: {
+        en: 'How "by the book" are your work processes?',
+        zh: '你的工作流程有多"按部就班"？',
+      },
+      options: [
+        { en: 'Almost no fixed process — every situation is new', zh: '几乎没有固定流程，每次都是全新情况' },
+        { en: 'Some basic steps, but mostly improvisation', zh: '有一些基本步骤，但大部分要灵活应变' },
+        { en: 'Half follows procedures, half improvisation', zh: '一半有章可循，一半随机应变' },
+        { en: 'Mostly standardized, occasional exceptions', zh: '大部分有标准流程，偶尔遇到例外' },
+        { en: 'Almost entirely by the manual — just follow it', zh: '几乎完全按操作手册来，照做就行' },
+      ],
+    },
+    {
+      id: 'Q4',
+      indicator: 'TacitKnowledge',
+      direction: 'reverse',
+      question: {
+        en: 'How much does your work depend on "hard to articulate" experience?',
+        zh: '你的工作有多依赖"只可意会不可言传"的经验？',
+      },
+      options: [
+        { en: 'Not at all — a newbie can do it with the manual', zh: '完全不依赖，照说明书新手也能做' },
+        { en: 'Some small tricks but learnable quickly', zh: '有一点小技巧但很快能学会' },
+        { en: 'Needs some experience, but can be taught', zh: '需要一定经验积累，但也能教会别人' },
+        { en: 'Heavily depends on long-accumulated intuition and feel', zh: '非常依赖长期积累的直觉和手感' },
+        { en: 'Entirely relies on years of cultivated "feel" — hard to explain', zh: '全靠多年修炼的"感觉"，说都说不清楚' },
+      ],
+    },
+  ],
+};
+
+// ─── Dimension 2: Evaluation Objectivity ─────────────────────────────────────
+
+const DIMENSION_EVALUATION: QuizDimension = {
+  id: 'evaluation',
+  name: { en: 'Evaluation Objectivity', zh: '评判客观性' },
+  description: {
+    en: 'Does your work have a "right answer"? Can quality be objectively measured?',
+    zh: '你的工作成果有没有"标准答案"？做得好不好，说得清吗？',
+  },
+  favorableLabel: { en: 'Objective (O)', zh: '客观型 (O)' },
+  resistantLabel: { en: 'Subjective (S)', zh: '主观型 (S)' },
+  favorableLetter: 'O',
+  resistantLetter: 'S',
+  questions: [
+    {
+      id: 'Q5',
+      indicator: 'Measurability',
+      direction: 'forward',
+      question: {
+        en: 'Can your work quality be measured with clear metrics?',
+        zh: '你的工作做得好不好，能用明确的指标来打分吗？',
+      },
+      options: [
+        { en: 'Impossible to score — quality is purely subjective', zh: '完全没法打分，好坏全凭感觉' },
+        { en: 'Mostly subjective, few things are quantifiable', zh: '大部分靠主观评价，少数能量化' },
+        { en: 'Half quantifiable, half subjective', zh: '一半量化打分，一半靠感觉' },
+        { en: 'Mostly clear metrics, few subjective ones', zh: '大部分有清晰指标，少数靠主观' },
+        { en: 'Almost everything has clear KPIs or benchmarks', zh: '几乎都有明确KPI或达标线' },
+      ],
+    },
+    {
+      id: 'Q6',
+      indicator: 'Convergence',
+      direction: 'forward',
+      question: {
+        en: 'For the same task, how much do results vary between different people?',
+        zh: '同一个任务，换不同的人来做，结果差异大吗？',
+      },
+      options: [
+        { en: 'Everyone produces completely different results', zh: '每个人做出来都截然不同' },
+        { en: 'Similar direction but big differences in detail', zh: '大体方向类似但细节差异很大' },
+        { en: 'Core is similar, with room for personal touch', zh: '核心差不多，有不少个人发挥空间' },
+        { en: 'Most results are basically the same, minor differences', zh: '大部分结果基本一样，只有小差异' },
+        { en: 'Regardless of who does it, results are nearly identical', zh: '不管谁做，结果几乎一模一样' },
+      ],
+    },
+    {
+      id: 'Q7',
+      indicator: 'GoalAmbiguity',
+      direction: 'reverse',
+      question: {
+        en: 'When you receive a task, does the requester know clearly what they want?',
+        zh: '你接到任务时，需求方清楚自己想要什么吗？',
+      },
+      options: [
+        { en: 'Requirements are always very clear — just execute', zh: '需求总是非常明确，按要求执行就行' },
+        { en: 'Mostly clear, occasionally need to confirm details', zh: '大多数时候清晰，偶尔确认细节' },
+        { en: 'Half clear, half need to figure out yourself', zh: '一半说得清，一半得自己揣摩' },
+        { en: 'Often "just figure it out" — need to define requirements myself', zh: '经常"你看着办"，得自己定义需求' },
+        { en: 'Almost always "help me think about it"', zh: '几乎总是"你帮我想想吧"' },
+      ],
+    },
+    {
+      id: 'Q8',
+      indicator: 'TasteDependence',
+      direction: 'reverse',
+      question: {
+        en: 'How much does your work depend on personal aesthetics, taste, or insight?',
+        zh: '你的工作有多依赖个人审美、品味或洞察力？',
+      },
+      options: [
+        { en: 'Not at all — standard operations only', zh: '完全不需要，执行标准操作' },
+        { en: 'Occasionally need a bit of aesthetic judgment', zh: '偶尔需要一点审美判断' },
+        { en: 'Half standards, half taste', zh: '一半靠规范标准，一半靠品味' },
+        { en: 'Heavily depends on aesthetics and insight', zh: '很依赖审美和洞察力' },
+        { en: 'Aesthetics and taste ARE my core competitive advantage', zh: '审美和品味就是我的核心竞争力' },
+      ],
+    },
+  ],
+};
+
+// ─── Dimension 3: Risk Tolerance ─────────────────────────────────────────────
+
+const DIMENSION_RISK: QuizDimension = {
+  id: 'riskTolerance',
+  name: { en: 'Risk Tolerance', zh: '容错性' },
+  description: {
+    en: 'If AI makes a mistake, can the consequences be tolerated? Can its output be trusted?',
+    zh: 'AI做错了，后果能承受吗？产出能被信任吗？',
+  },
+  favorableLabel: { en: 'Flexible (F)', zh: '弹性型 (F)' },
+  resistantLabel: { en: 'Rigid (R)', zh: '刚性型 (R)' },
+  favorableLetter: 'F',
+  resistantLetter: 'R',
+  questions: [
+    {
+      id: 'Q9',
+      indicator: 'ErrorSeverity',
+      direction: 'reverse',
+      question: {
+        en: 'If your work has an error, what\'s the worst that could happen?',
+        zh: '你的工作如果出了错，最严重会怎样？',
+      },
+      options: [
+        { en: 'No big deal — just redo it', zh: '没什么大不了，重新来就好' },
+        { en: 'Wastes some time/money, limited impact', zh: '浪费一些时间金钱，影响有限' },
+        { en: 'Noticeable financial loss or reputation damage', zh: '会造成明显经济损失或名誉受损' },
+        { en: 'Could cause serious property loss or health risks', zh: '可能导致严重财产损失或健康风险' },
+        { en: 'Could directly endanger lives or cause major safety incidents', zh: '可能直接危及人命或重大安全事故' },
+      ],
+    },
+    {
+      id: 'Q10',
+      indicator: 'Reversibility',
+      direction: 'reverse',
+      question: {
+        en: 'If your work has an error, can it still be fixed?',
+        zh: '你的工作出了错，还有机会补救吗？',
+      },
+      options: [
+        { en: 'Can always undo/fix, no pressure', zh: '随时可以撤回修改，没压力' },
+        { en: 'Most errors can be fixed after the fact', zh: '大部分错误都能事后弥补' },
+        { en: 'Some can be fixed, some can\'t', zh: '有些能补救有些不能' },
+        { en: 'Most errors are hard to reverse once made', zh: '大部分错误犯了就很难挽回' },
+        { en: 'Once wrong, almost impossible to fix', zh: '一旦出错几乎无法补救' },
+      ],
+    },
+    {
+      id: 'Q11',
+      indicator: 'Regulation',
+      direction: 'reverse',
+      question: {
+        en: 'How strictly is your work regulated by industry oversight and qualification requirements?',
+        zh: '你的工作受行业监管和资质要求的约束严格吗？',
+      },
+      options: [
+        { en: 'No barriers at all — anyone can do it', zh: '完全没有门槛，谁都可以做' },
+        { en: 'Some basic requirements but low barrier', zh: '有一些基本要求但门槛很低' },
+        { en: 'Requires certain certifications or training', zh: '需要一定的认证或培训资质' },
+        { en: 'Strict licensing and industry regulation', zh: '有严格的执照和行业监管' },
+        { en: 'Must hold license to practice — violations are prosecuted', zh: '必须持证上岗，违规会被追责' },
+      ],
+    },
+    {
+      id: 'Q12',
+      indicator: 'Liability',
+      direction: 'reverse',
+      question: {
+        en: 'If something goes wrong in your work, how much personal liability do you bear?',
+        zh: '如果你的工作出了问题，你个人要承担多大责任？',
+      },
+      options: [
+        { en: 'Basically none — the company covers it', zh: '基本不需要个人承担，公司兜底' },
+        { en: 'Might get criticized but no legal/financial liability', zh: '可能挨批评但不涉及法律经济责任' },
+        { en: 'Could face some financial compensation or disciplinary action', zh: '可能面临一定经济赔偿或处分' },
+        { en: 'Could face significant lawsuits or compensation', zh: '可能面临较大法律诉讼或赔偿' },
+        { en: 'Could go to jail or face huge compensation', zh: '出了事可能坐牢或巨额赔偿' },
+      ],
+    },
+  ],
+};
+
+// ─── Dimension 4: Human Presence ─────────────────────────────────────────────
+
+const DIMENSION_HUMAN: QuizDimension = {
+  id: 'humanPresence',
+  name: { en: 'Human Presence', zh: '人格依赖性' },
+  description: {
+    en: 'Is your value in "what you produce" or "who you are"?',
+    zh: '你的价值在于"做出了什么"，还是"你是谁"？',
+  },
+  favorableLabel: { en: 'Product (P)', zh: '对事型 (P)' },
+  resistantLabel: { en: 'Human (H)', zh: '对人型 (H)' },
+  favorableLetter: 'P',
+  resistantLetter: 'H',
+  questions: [
+    {
+      id: 'Q13',
+      indicator: 'Relationship',
+      direction: 'reverse',
+      question: {
+        en: 'Why do clients/partners choose you?',
+        zh: '客户或合作方选择你，主要是因为什么？',
+      },
+      options: [
+        { en: 'Purely price/efficiency — cheapest wins', zh: '纯粹看价格效率，谁便宜找谁' },
+        { en: 'Mainly skills/qualifications, no personal preference', zh: '主要看能力资质，对谁没偏好' },
+        { en: 'Skills matter, but also working rapport', zh: '能力重要，也考虑合作默契' },
+        { en: 'Many clients stay because of the relationship', zh: '很多客户因为关系好才长期合作' },
+        { en: 'Clients only work with me — would leave if I\'m gone', zh: '客户只认我，换人就不干了' },
+      ],
+    },
+    {
+      id: 'Q14',
+      indicator: 'Identity',
+      direction: 'reverse',
+      question: {
+        en: 'How many clients/audiences come specifically for "you as a person"?',
+        zh: '有多少客户/受众是冲着"你这个人"来的？',
+      },
+      options: [
+        { en: 'None at all — only care if I can do the job', zh: '完全没有，只看我能不能干好活' },
+        { en: 'Very few know me, vast majority look at skills', zh: '极少数人认我，绝大部分看能力' },
+        { en: 'Some come for me, more come for skills', zh: '有一部分冲我来的，更多看能力' },
+        { en: 'Quite a few come for me — some level of fame', zh: '不少人冲我来的，有一定知名度' },
+        { en: 'I AM the brand — people come specifically for me', zh: '我本身就是品牌，就是冲我来的' },
+      ],
+    },
+    {
+      id: 'Q15',
+      indicator: 'PhysicalPresence',
+      direction: 'reverse',
+      question: {
+        en: 'Must you be physically present in person to do your work?',
+        zh: '你的工作必须本人亲自到场、用身体完成吗？',
+      },
+      options: [
+        { en: 'Not at all — can do everything remotely', zh: '完全不用，在哪都能远程完成' },
+        { en: 'Occasionally need to be on-site, mostly remote', zh: '偶尔需要到场，大部分可远程' },
+        { en: 'Half on-site, half remote', zh: '一半到场，一半远程' },
+        { en: 'Mostly need to be physically present', zh: '大部分时候必须到场' },
+        { en: 'Must be physically there in person', zh: '必须本人在现场用身体完成' },
+      ],
+    },
+    {
+      id: 'Q16',
+      indicator: 'HumanPremium',
+      direction: 'reverse',
+      question: {
+        en: 'If clients discovered your work was actually done by AI?',
+        zh: '如果客户发现你的工作其实是AI完成的？',
+      },
+      options: [
+        { en: 'Wouldn\'t care — might even think it\'s more efficient', zh: '无所谓，甚至觉得更高效' },
+        { en: 'A bit surprised but basically OK', zh: '有点意外但基本能接受' },
+        { en: 'Feels like reduced value, but still somewhat OK', zh: '觉得打了折扣，但还算认可' },
+        { en: 'Clearly feels less valuable and dissatisfied', zh: '明显觉得价值降低、不满意' },
+        { en: 'Completely unacceptable — feels deceived', zh: '完全无法接受，觉得被欺骗了' },
+      ],
+    },
+  ],
+};
+
+// ─── AI Snapshot Questions ───────────────────────────────────────────────────
+
+export const AI_SNAPSHOT_QUESTIONS: AISnapshotQuestion[] = [
+  {
+    id: 'S1',
+    indicator: 'PromptFriction',
+    direction: 'reverse',
+    question: {
+      en: 'How much effort does it take to get AI to produce a usable first draft?',
+      zh: '让AI给出能用的初稿，要花多少功夫沟通？',
+    },
+    options: [
+      { en: 'Barely need to say anything — satisfied on first try', zh: '几乎不用说，一次就满意' },
+      { en: 'Simple description works, occasional tweaking', zh: '简单描述就行，偶尔微调' },
+      { en: 'Need to craft prompts carefully, several rounds', zh: '需要花时间组织提示词，来回几轮' },
+      { en: 'Takes a lot of effort for barely usable results', zh: '花很大功夫才得到勉强可用的结果' },
+      { en: 'No matter what I say, AI can\'t understand', zh: '怎么说AI都理解不了' },
+    ],
+  },
+  {
+    id: 'S2',
+    indicator: 'Coverage',
+    direction: 'forward',
+    question: {
+      en: 'How much of your daily work can AI currently help with?',
+      zh: '在你的日常工作中，AI目前能帮你分担多少？',
+    },
+    options: [
+      { en: 'Barely any help', zh: '几乎帮不上忙' },
+      { en: 'Can help with some simple auxiliary tasks', zh: '能帮一些简单辅助工作' },
+      { en: 'Can handle close to half the workload', zh: '能承担接近一半工作量' },
+      { en: 'Can do most of it — I mainly review and finalize', zh: '能做大部分，我主要把关收尾' },
+      { en: 'Handles almost everything — I just check', zh: '几乎全部搞定，我只需检查' },
+    ],
+  },
+  {
+    id: 'S3',
+    indicator: 'QualityParity',
+    direction: 'forward',
+    question: {
+      en: 'How would you rate the quality of AI\'s current output?',
+      zh: '你觉得AI目前产出的东西质量怎么样？',
+    },
+    options: [
+      { en: 'Completely unusable — need to redo everything', zh: '完全不能用，要全部重做' },
+      { en: 'Barely acceptable — needs major revisions', zh: '勉强能看，需大幅修改' },
+      { en: 'OK — usable with some edits', zh: '还行，修修改改能用' },
+      { en: 'Good quality — only needs minor tweaks', zh: '质量不错，只需微调' },
+      { en: 'Consistently better than what I\'d produce myself', zh: '质量稳定超过我自己做的' },
+    ],
+  },
+  {
+    id: 'S4',
+    indicator: 'EditLoad',
+    direction: 'reverse',
+    question: {
+      en: 'After AI generates something, how much editing before you can deliver it?',
+      zh: 'AI生成之后，你还需要花多少功夫修改才能交付？',
+    },
+    options: [
+      { en: 'Almost none — ready to deliver', zh: '几乎不用改，直接能交' },
+      { en: 'Just a quick polish', zh: '稍微润色一下就行' },
+      { en: 'Need a serious round of editing', zh: '需要比较认真地改一轮' },
+      { en: 'Major rework needed — lots of changes', zh: '要大幅返工，改动量很大' },
+      { en: 'Easier to just do it myself from scratch', zh: '不如自己从头做' },
+    ],
+  },
+];
+
+// ─── Survey Questions (non-scoring) ──────────────────────────────────────────
+
+export const SURVEY_QUESTIONS: SurveyQuestion[] = [
+  {
+    id: 'X1',
+    topic: { en: 'Company AI Support', zh: '公司AI支持' },
+    question: {
+      en: 'Does your company provide AI tools for you?',
+      zh: '你所在的公司有给你提供AI工具吗？',
+    },
+    options: [
+      { en: 'No', zh: '没有' },
+      { en: 'Yes but not great', zh: '有但不好用' },
+      { en: 'Yes and I use them often', zh: '有且经常用' },
+    ],
+  },
+  {
+    id: 'X2',
+    topic: { en: 'Company AI Layoffs', zh: '公司AI裁员' },
+    question: {
+      en: 'Has your company laid off people due to AI?',
+      zh: '你的公司有因为引入AI而裁员吗？',
+    },
+    options: [
+      { en: 'No', zh: '没有' },
+      { en: 'Heard rumors but unsure', zh: '听说有但不确定' },
+      { en: 'Yes, it\'s happening', zh: '确实在裁' },
+    ],
+  },
+  {
+    id: 'X3',
+    topic: { en: 'Willingness to Pay', zh: '个人付费意愿' },
+    question: {
+      en: 'Would you pay out of pocket for the best AI to boost your performance?',
+      zh: '你愿意自掏腰包买最好的AI来提升工作表现吗？',
+    },
+    options: [
+      { en: 'Not willing', zh: '不愿意' },
+      { en: 'Depends on the price', zh: '看价格' },
+      { en: 'Willing — already paying', zh: '愿意，已经在付了' },
+    ],
+  },
+];
+
+// ─── 16 Profile Types ────────────────────────────────────────────────────────
+
+export const PROFILE_TYPES: Record<string, ProfileType> = {
+  // Extreme high (4/4 AI favorable)
+  EOFP: {
+    code: 'EOFP',
+    name: { en: 'Full Chain Open', zh: '全链路畅通型' },
+    description: {
+      en: 'Explicit + Objective + Flexible + Product: Knowledge is transparent, evaluation is clear, errors are fixable, only results matter',
+      zh: '显+客+弹+事：知识透明、标准客观、出错可改、只看结果',
+    },
+    typicalJobs: {
+      en: 'Data entry, junior accountant, basic translator, report analyst, standardized customer service',
+      zh: '数据录入员、初级会计、基础翻译、报表分析师、标准化客服',
+    },
+    riskTier: 'extreme-high',
+  },
+  // High (3/4 AI favorable)
+  EOFH: {
+    code: 'EOFH',
+    name: { en: 'Relationship Anchored', zh: '关系锚定型' },
+    description: {
+      en: 'Explicit + Objective + Flexible + Human: AI can do everything, but clients trust YOU specifically',
+      zh: '显+客+弹+人：AI全都能做，但客户认的是你这个人',
+    },
+    typicalJobs: {
+      en: 'Bank relationship manager, insurance agent, established real estate agent',
+      zh: '银行客户经理、保险代理人、固定客源的房产中介',
+    },
+    riskTier: 'high',
+  },
+  EORP: {
+    code: 'EORP',
+    name: { en: 'Compliance Gatekeeper', zh: '合规守门型' },
+    description: {
+      en: 'Explicit + Objective + Rigid + Product: AI can learn and do it, but errors are too costly / regulated',
+      zh: '显+客+刚+事：AI能学也能做，但出错代价太大/有监管',
+    },
+    typicalJobs: {
+      en: 'Pharmacist, quality inspector, compliance auditor, nuclear plant operator',
+      zh: '药剂师、质检员、合规审计员、核电站操作员',
+    },
+    riskTier: 'high',
+  },
+  ESFP: {
+    code: 'ESFP',
+    name: { en: 'Creative Trial-and-Error', zh: '创意试错型' },
+    description: {
+      en: 'Explicit + Subjective + Flexible + Product: AI can learn, errors are tolerable, only results matter, but quality is subjective',
+      zh: '显+主+弹+事：AI能学、可以试错、只看结果，但好坏全靠主观判断',
+    },
+    typicalJobs: {
+      en: 'Marketing copywriter, UI designer, social media manager, ad planner',
+      zh: '营销文案、UI设计师、社媒运营、广告策划',
+    },
+    riskTier: 'high',
+  },
+  TOFP: {
+    code: 'TOFP',
+    name: { en: 'Skill Executor', zh: '技能执行型' },
+    description: {
+      en: 'Tacit + Objective + Flexible + Product: Clear standards, fixable errors, results-only, but needs physical experience',
+      zh: '隐+客+弹+事：标准客观、可试错、只看结果，但需要身体经验',
+    },
+    typicalJobs: {
+      en: 'Chain restaurant chef, auto mechanic, electrician, warehouse sorter',
+      zh: '连锁餐厅厨师、汽车维修技师、电工、仓库分拣员',
+    },
+    riskTier: 'high',
+  },
+  // Medium (2/4 AI favorable)
+  EORH: {
+    code: 'EORH',
+    name: { en: 'Licensed Trust', zh: '执证信任型' },
+    description: {
+      en: 'Explicit + Objective + Rigid + Human: Transparent knowledge + regulated + clients trust you — AI only lacks entry',
+      zh: '显+客+刚+人：知识透明+有监管+客户认人，AI只缺一个入口',
+    },
+    typicalJobs: {
+      en: 'Certified CPA (signing), notary public, licensed financial advisor',
+      zh: '签字注册会计师、公证员、持牌理财顾问',
+    },
+    riskTier: 'medium',
+  },
+  ESFH: {
+    code: 'ESFH',
+    name: { en: 'Digital Persona', zh: '数字人格型' },
+    description: {
+      en: 'Explicit + Subjective + Flexible + Human: AI can learn, but quality is subjective + fans trust the person',
+      zh: '显+主+弹+人：AI能学，但好坏靠主观+粉丝认的是人',
+    },
+    typicalJobs: {
+      en: 'KOL/influencer, content creator, brand founder',
+      zh: 'KOL/博主、自媒体创作者、品牌主理人',
+    },
+    riskTier: 'medium',
+  },
+  ESRP: {
+    code: 'ESRP',
+    name: { en: 'High-Stakes Creative', zh: '高压创造型' },
+    description: {
+      en: 'Explicit + Subjective + Rigid + Product: AI can learn, but quality is subjective + errors have serious consequences',
+      zh: '显+主+刚+事：AI能学，但好坏靠主观+出错后果严重',
+    },
+    typicalJobs: {
+      en: 'Architect, drug researcher, investment fund manager',
+      zh: '建筑师、药物研发员、投资基金经理',
+    },
+    riskTier: 'medium',
+  },
+  TOFH: {
+    code: 'TOFH',
+    name: { en: 'Craftsman Persona', zh: '手艺人格型' },
+    description: {
+      en: 'Tacit + Objective + Flexible + Human: Physical skills needed + clients come for you specifically',
+      zh: '隐+客+弹+人：需要身体技能+客户认你这个人',
+    },
+    typicalJobs: {
+      en: 'Barber, personal trainer, massage therapist, tailor',
+      zh: '理发师、私人健身教练、按摩师、裁缝',
+    },
+    riskTier: 'medium',
+  },
+  TORP: {
+    code: 'TORP',
+    name: { en: 'Precision Operator', zh: '精密操控型' },
+    description: {
+      en: 'Tacit + Objective + Rigid + Product: Physical experience needed + errors are irreversible',
+      zh: '隐+客+刚+事：需要身体经验+出错不可逆',
+    },
+    typicalJobs: {
+      en: 'Surgeon, pilot, specialized welder, bomb disposal expert',
+      zh: '外科医生、飞行员、特种焊接工、拆弹专家',
+    },
+    riskTier: 'medium',
+  },
+  TSFP: {
+    code: 'TSFP',
+    name: { en: 'Artisan Creator', zh: '匠心创作型' },
+    description: {
+      en: 'Tacit + Subjective + Flexible + Product: Physical experience + subjective quality, but fixable errors, results-only',
+      zh: '隐+主+弹+事：身体经验+好坏靠主观，但可试错、只看结果',
+    },
+    typicalJobs: {
+      en: 'Independent chef, florist, artisan craftsman, perfumer',
+      zh: '独立主厨、花艺师、手工匠人、调香师',
+    },
+    riskTier: 'medium',
+  },
+  // Low (1/4 AI favorable)
+  ESRH: {
+    code: 'ESRH',
+    name: { en: 'Authority Advisor', zh: '权威顾问型' },
+    description: {
+      en: 'Explicit + Subjective + Rigid + Human: AI can learn knowledge, but subjective quality + high liability + clients trust the person',
+      zh: '显+主+刚+人：AI能学知识，但好坏靠主观+高责任+客户认人',
+    },
+    typicalJobs: {
+      en: 'Law firm partner, attending physician, management consulting partner',
+      zh: '律所合伙人、主治医师、管理咨询合伙人',
+    },
+    riskTier: 'low',
+  },
+  TORH: {
+    code: 'TORH',
+    name: { en: 'Life Guardian', zh: '生命守护型' },
+    description: {
+      en: 'Tacit + Objective + Rigid + Human: Physical experience + irreversible errors + patient trust',
+      zh: '隐+客+刚+人：身体经验+出错不可逆+患者信任关系',
+    },
+    typicalJobs: {
+      en: 'Dentist, midwife, elderly care nurse',
+      zh: '牙医、助产士、老年护理师',
+    },
+    riskTier: 'low',
+  },
+  TSFH: {
+    code: 'TSFH',
+    name: { en: 'Soul Expresser', zh: '灵魂表达型' },
+    description: {
+      en: 'Tacit + Subjective + Flexible + Human: Physical experience + subjective quality + the person IS the work',
+      zh: '隐+主+弹+人：身体经验+好坏靠主观+人本身就是作品',
+    },
+    typicalJobs: {
+      en: 'Singer, actor, dancer, stand-up comedian, independent artist',
+      zh: '歌手、演员、舞者、脱口秀演员、独立艺术家',
+    },
+    riskTier: 'low',
+  },
+  TSRP: {
+    code: 'TSRP',
+    name: { en: 'Extreme Judgment', zh: '极限判断型' },
+    description: {
+      en: 'Tacit + Subjective + Rigid + Product: Physical experience + subjective quality + irreversible errors',
+      zh: '隐+主+刚+事：身体经验+好坏靠主观+出错不可逆',
+    },
+    typicalJobs: {
+      en: 'ER doctor, military commander, crisis negotiation expert',
+      zh: '急诊科医生、军事指挥官、危机谈判专家',
+    },
+    riskTier: 'low',
+  },
+  // Extreme low (0/4 AI favorable)
+  TSRH: {
+    code: 'TSRH',
+    name: { en: 'Full Barrier', zh: '全维壁垒型' },
+    description: {
+      en: 'Tacit + Subjective + Rigid + Human: All four dimensions block AI replacement',
+      zh: '隐+主+刚+人：四个维度全部阻断AI替代链路',
+    },
+    typicalJobs: {
+      en: 'CEO, political leader, religious leader, top athlete',
+      zh: 'CEO、政治领袖、宗教领袖、顶级运动员',
+    },
+    riskTier: 'extreme-low',
+  },
+};
+
+// ─── Exports ─────────────────────────────────────────────────────────────────
+
+export const QUIZ_DIMENSIONS: QuizDimension[] = [
+  DIMENSION_LEARNABILITY,
+  DIMENSION_EVALUATION,
+  DIMENSION_RISK,
+  DIMENSION_HUMAN,
+];
+
+/** All 16 core questions in order */
+export const ALL_CORE_QUESTIONS: QuizQuestion[] = QUIZ_DIMENSIONS.flatMap(d => d.questions);
+
+/** Total core questions count */
+export const CORE_QUESTION_COUNT = ALL_CORE_QUESTIONS.length; // 16
+
+/** Total snapshot questions count */
+export const SNAPSHOT_QUESTION_COUNT = AI_SNAPSHOT_QUESTIONS.length; // 4
+
+/** Risk tier display info */
+export const RISK_TIER_INFO: Record<ProfileType['riskTier'], {
+  label: { en: string; zh: string };
+  color: string;
+  probability: { min: number; max: number };
+}> = {
+  'extreme-high': {
+    label: { en: 'Extreme High Risk', zh: '极高风险' },
+    color: '#ff1744',
+    probability: { min: 80, max: 95 },
+  },
+  'high': {
+    label: { en: 'High Risk', zh: '高风险' },
+    color: '#ff6d00',
+    probability: { min: 60, max: 80 },
+  },
+  'medium': {
+    label: { en: 'Medium Risk', zh: '中等风险' },
+    color: '#ffc107',
+    probability: { min: 35, max: 60 },
+  },
+  'low': {
+    label: { en: 'Low Risk', zh: '低风险' },
+    color: '#00c853',
+    probability: { min: 15, max: 35 },
+  },
+  'extreme-low': {
+    label: { en: 'Very Low Risk', zh: '极低风险' },
+    color: '#00e676',
+    probability: { min: 5, max: 15 },
+  },
+};
