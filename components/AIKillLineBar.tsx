@@ -329,6 +329,21 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
 
       {/* Segmented Bar — outer allows overflow for labels, inner clips bar content */}
       <div className="relative h-10 sm:h-12 mt-6">
+        {/* Invisible hover zones on the bar for each stage (above the clipped layer) */}
+        {KILL_LINE_STAGES.map((stage) => {
+          const left = (stage.start / maxPct) * 100;
+          const width = ((stage.end - stage.start) / maxPct) * 100;
+          return (
+            <div
+              key={`bar-hover-${stage.id}`}
+              className="absolute top-0 bottom-0 z-[15] cursor-pointer"
+              style={{ left: `${left}%`, width: `${width}%` }}
+              onMouseEnter={() => setActiveTooltip(stage.id)}
+              onMouseLeave={() => setActiveTooltip(null)}
+              onClick={() => handleSelectStage(stage.id)}
+            />
+          );
+        })}
         <div className="absolute inset-0 rounded-xl overflow-hidden bar-track">
         {/* Stage 1–4 divider lines */}
         {KILL_LINE_STAGES.filter(s => s.id < 5).map((stage) => {
