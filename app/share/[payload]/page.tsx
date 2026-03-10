@@ -82,10 +82,21 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
 export default async function ShareResultPage({ params }: SharePageProps) {
   const { payload } = await params;
   const result = decodeSharePayload(payload);
+  const origin = await requestOrigin();
 
   if (!result) {
     return (
       <main className="min-h-screen flex items-center justify-center px-6 py-12">
+        {/* Hidden image for WeChat card preview */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${origin}/opengraph-image`}
+          alt="AIR"
+          width={600}
+          height={315}
+          aria-hidden="true"
+          style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}
+        />
         <div className="max-w-xl w-full rounded-2xl border border-surface-elevated bg-surface/70 p-8 text-center">
           <h1 className="text-2xl font-bold">Invalid Share Link</h1>
           <p className="mt-3 text-foreground-muted">
@@ -103,9 +114,20 @@ export default async function ShareResultPage({ params }: SharePageProps) {
   }
 
   const isZh = result.lang === 'zh';
+  const ogImageUrl = `${origin}/share/${payload}/opengraph-image`;
 
   return (
     <main className="min-h-screen px-4 py-10 sm:px-6 sm:py-12">
+      {/* Hidden image for WeChat card preview — WeChat needs a real <img> in DOM */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={ogImageUrl}
+        alt={isZh ? 'AI 风险结果' : 'AI Risk Result'}
+        width={600}
+        height={315}
+        aria-hidden="true"
+        style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}
+      />
       <div className="max-w-[640px] mx-auto">
         <div className="mb-4 text-sm text-foreground-muted text-center">
           {isZh ? '来自 AIR 的分享结果' : 'Shared from AIR'}
