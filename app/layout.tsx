@@ -56,14 +56,15 @@ export async function generateMetadata(): Promise<Metadata> {
       description: "Calculate your AI replacement risk. MIT: 11.7% replaceable now. McKinsey: 57% technically possible. Your data is training AI to replace you.",
       siteName: "AIR",
       type: "website",
+      url: metadataBase.toString(),
       locale: "en_US",
-      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "AIR - AI Replacement Risk Platform" }],
+      images: [{ url: "/share-card.png", width: 1200, height: 630, alt: "AIR - AI Replacement Risk Platform" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "AIR - How Fast Is AI Replacing Human Jobs?",
       description: "Calculate your AI replacement risk. MIT: 11.7% replaceable now. McKinsey: 57% technically possible.",
-      images: ["/opengraph-image"],
+      images: ["/share-card.png"],
     },
     robots: { index: true, follow: true },
   };

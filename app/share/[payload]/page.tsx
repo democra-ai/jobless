@@ -41,12 +41,16 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
     const title = 'AIR - Shared AI Risk Result';
     const description = 'Open this result in AIR to calculate and compare your AI replacement risk.';
     const fallbackImage = `${origin}/opengraph-image`;
+    const url = `${origin}/share/${payload}`;
     return {
       title,
       description,
       openGraph: {
         title,
         description,
+        type: 'website',
+        url,
+        siteName: 'AIR',
         images: [{ url: fallbackImage, width: 1200, height: 630, alt: title }],
       },
       twitter: {
@@ -61,6 +65,7 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
   const title = decoded.lang === 'zh' ? `AI 风险结果：${riskLabel(decoded)}` : `AI Risk Result: ${riskLabel(decoded)}`;
   const description = riskDescription(decoded);
   const shareImageUrl = `${origin}/share/${payload}/opengraph-image`;
+  const pageUrl = `${origin}/share/${payload}`;
 
   return {
     title,
@@ -68,6 +73,9 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
     openGraph: {
       title,
       description,
+      type: 'website',
+      url: pageUrl,
+      siteName: 'AIR',
       images: [{ url: shareImageUrl, width: 1200, height: 630, alt: 'AIR share card' }],
     },
     twitter: {
@@ -87,15 +95,15 @@ export default async function ShareResultPage({ params }: SharePageProps) {
   if (!result) {
     return (
       <main className="min-h-screen flex items-center justify-center px-6 py-12">
-        {/* Hidden image for WeChat card preview */}
+        {/* Static image for WeChat card preview — must have real dimensions ≥300×300 */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`${origin}/opengraph-image`}
+          src={`${origin}/share-card.png`}
           alt="AIR"
           width={600}
           height={315}
           aria-hidden="true"
-          style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}
+          style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}
         />
         <div className="max-w-xl w-full rounded-2xl border border-surface-elevated bg-surface/70 p-8 text-center">
           <h1 className="text-2xl font-bold">Invalid Share Link</h1>
@@ -118,15 +126,15 @@ export default async function ShareResultPage({ params }: SharePageProps) {
 
   return (
     <main className="min-h-screen px-4 py-10 sm:px-6 sm:py-12">
-      {/* Hidden image for WeChat card preview — WeChat needs a real <img> in DOM */}
+      {/* Static image for WeChat card preview — must have real dimensions ≥300×300 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={ogImageUrl}
+        src={`${origin}/share-card.png`}
         alt={isZh ? 'AI 风险结果' : 'AI Risk Result'}
         width={600}
         height={315}
         aria-hidden="true"
-        style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}
+        style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}
       />
       <div className="max-w-[640px] mx-auto">
         <div className="mb-4 text-sm text-foreground-muted text-center">
