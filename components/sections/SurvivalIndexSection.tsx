@@ -685,6 +685,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 const selectedColor = selectedGroup ? riskColorFromScore(selectedGroup.riskScore) : undefined;
                 return (
                   <div className="text-left max-w-md mx-auto">
+                    <p className="text-[11px] text-foreground-muted/50 mb-1.5 px-1">{t.selectOccupationHint}</p>
                     {/* Collapsed trigger */}
                     <button
                       type="button"
@@ -717,7 +718,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                           className="overflow-hidden"
                         >
                           <div className="pt-2 space-y-0.5 max-h-[240px] overflow-y-auto pr-1 custom-scrollbar">
-                            <p className="text-[10px] text-foreground-muted/50 px-3 pb-1">{t.selectOccupationHint}</p>
                             {[...SOC_MAJOR_GROUPS]
                               .sort((a, b) => b.riskScore - a.riskScore)
                               .map((soc) => {
