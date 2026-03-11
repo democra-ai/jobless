@@ -107,7 +107,7 @@ function DimensionBadge({ icon: Icon, label, color }: { icon: React.ElementType;
 const DIMENSION_ICONS = [Brain, Target, Shield, Users];
 const DIMENSION_COLORS = ['#7c4dff', '#ff6e40', '#64ffda', '#b388ff'];
 
-/** Horizontal axis slider with 5 discrete stops and hover tooltips */
+/** Horizontal axis slider with 5 discrete stops and inline hover description */
 function AxisSlider({
   options,
   value,
@@ -126,39 +126,12 @@ function AxisSlider({
   const [hoveredStop, setHoveredStop] = useState<number | null>(null);
   const [touchedStop, setTouchedStop] = useState<number | null>(null);
 
-  const tooltipStop = touchedStop ?? hoveredStop;
+  const activeStop = touchedStop ?? hoveredStop;
 
   return (
     <div className="pt-2 pb-1">
       {/* Axis track */}
       <div className="relative mx-2 sm:mx-4">
-        {/* Tooltip */}
-        <AnimatePresence>
-          {tooltipStop !== null && (
-            <motion.div
-              key={tooltipStop}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 4 }}
-              transition={{ duration: 0.15 }}
-              className="absolute -top-2 pointer-events-none z-20"
-              style={{
-                left: `${((tooltipStop - 1) / 4) * 100}%`,
-                transform: 'translate(-50%, -100%)',
-                maxWidth: 'min(260px, 80vw)',
-              }}
-            >
-              <div className="bg-surface-elevated border border-white/20 rounded-lg px-3 py-2 text-xs leading-relaxed shadow-xl text-center">
-                {options[tooltipStop - 1]}
-              </div>
-              <div
-                className="w-2 h-2 rotate-45 mx-auto -mt-1 border-r border-b border-white/20"
-                style={{ backgroundColor: 'var(--surface-elevated)' }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Track background */}
         <div className="h-2 bg-surface-elevated rounded-full relative">
           {/* Filled track */}
@@ -177,6 +150,7 @@ function AxisSlider({
         <div className="absolute inset-0 flex items-center justify-between" style={{ top: '-10px', height: '24px' }}>
           {[1, 2, 3, 4, 5].map((stop) => {
             const isSelected = value === stop;
+            const isHovered = activeStop === stop;
             return (
               <button
                 key={stop}
@@ -192,11 +166,11 @@ function AxisSlider({
                 <motion.div
                   className="rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors"
                   style={{
-                    width: isSelected ? '28px' : '22px',
-                    height: isSelected ? '28px' : '22px',
-                    borderColor: isSelected ? accentColor : 'rgba(255,255,255,0.2)',
-                    backgroundColor: isSelected ? accentColor : 'var(--surface)',
-                    color: isSelected ? '#fff' : 'rgba(255,255,255,0.5)',
+                    width: isSelected ? '28px' : isHovered ? '26px' : '22px',
+                    height: isSelected ? '28px' : isHovered ? '26px' : '22px',
+                    borderColor: isSelected ? accentColor : isHovered ? accentColor + '80' : 'rgba(255,255,255,0.2)',
+                    backgroundColor: isSelected ? accentColor : isHovered ? accentColor + '20' : 'var(--surface)',
+                    color: isSelected ? '#fff' : isHovered ? accentColor : 'rgba(255,255,255,0.5)',
                   }}
                   animate={{
                     scale: isSelected ? 1.1 : 1,
@@ -218,6 +192,27 @@ function AxisSlider({
           <span>{rightLabel}</span>
         </div>
       )}
+
+      {/* Inline description below slider — shows on hover/touch */}
+      <div className="min-h-[36px] mt-2">
+        <AnimatePresence mode="wait">
+          {activeStop !== null && (
+            <motion.div
+              key={activeStop}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+              className="text-center px-2"
+            >
+              <span className="inline-flex items-center gap-1.5 text-xs leading-relaxed rounded-lg px-3 py-1.5 bg-surface-elevated border border-white/10">
+                <span className="font-bold min-w-[16px] text-center" style={{ color: accentColor }}>{activeStop}</span>
+                <span className="text-foreground-muted">{options[activeStop - 1]}</span>
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
