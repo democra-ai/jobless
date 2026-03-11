@@ -384,45 +384,107 @@ function toRiskLevel(tier: ProfileType['riskTier']): QuizResult['riskLevel'] {
 }
 
 /**
- * Calculate replacement probability using per-profile calibration.
+ * Hierarchical Kill Chain scoring model.
  *
- * Within each profile type's [min, max] range, the exact position is determined by:
- * 1. Dimension strength: how strongly each dimension leans in its direction
- * 2. The specific COMBINATION of which dimensions are favorable matters
- *    (not just the count)
+ * The four dimensions form a cascading dependency chain for AI replacement:
+ *
+ *   ① Learnability (E/T)  — PREREQUISITE: Can AI access the data to learn?
+ *      If T (tacit), the entire kill chain is severely weakened.
+ *      Weight: 0.40 (the gatekeeper dimension)
+ *
+ *   ② Evaluation (O/S)    — OPTIMIZER: Does AI know what "good" looks like?
+ *      E+O together = AI can learn AND optimize freely → threat multiplied
+ *      T+O = AI can measure but can't learn → limited threat
+ *      Weight: 0.25, but AMPLIFIED when Learnability is also favorable
+ *
+ *   ③ Risk Tolerance (F/R) — DEPLOYMENT GATE: Will organizations dare deploy AI?
+ *      Even if AI is capable, R (rigid) means organizations won't risk it
+ *      Weight: 0.20, but DAMPENED if Learnability blocks the chain
+ *
+ *   ④ Human Presence (P/H) — LAST DEFENSE: Do people care who does the work?
+ *      The final barrier — if all else falls, H means humans still demand humans
+ *      Weight: 0.15, independent resilience
+ *
+ * Key insight: dimensions don't contribute equally or independently.
+ * T (tacit) as a prerequisite blocker reduces the effective threat of O, F, P.
+ * E+O together is more dangerous than their individual contributions suggest.
+ */
+
+/** Dimension weights in the kill chain */
+const DIMENSION_WEIGHTS: Record<string, number> = {
+  learnability: 0.40,    // Prerequisite gate
+  evaluation: 0.25,      // Optimization target
+  riskTolerance: 0.20,   // Deployment gate
+  humanPresence: 0.15,   // Last defense
+};
+
+/**
+ * Calculate replacement probability using hierarchical kill chain model.
+ *
+ * Instead of treating all dimensions equally, this model:
+ * 1. Uses asymmetric weights (learnability >> others)
+ * 2. Applies cascade effects (T blocks downstream threat)
+ * 3. Detects dangerous combos (E+O amplification)
+ * 4. Maps the weighted score to the profile's calibrated range
  */
 function calculateProbability(
   profileCode: string,
   dimensionResults: DimensionResult[],
 ): number {
   const cal = PROFILE_CALIBRATION[profileCode];
-  if (!cal) return 50; // fallback
+  if (!cal) return 50;
 
   const [min, max] = cal.prob;
 
-  // Calculate how "extreme" the answers are within this profile type
-  // For favorable dimensions: how far above 3 → pushes probability UP
-  // For resistant dimensions: how far below 3 → pushes probability DOWN
-  let strengthSignal = 0;
-  let maxPossibleStrength = 0;
-
+  // Extract dimension results by ID for easier access
+  const dimMap: Record<string, DimensionResult> = {};
   for (const d of dimensionResults) {
-    if (d.isFavorable) {
-      // Higher rawAverage (closer to 5) = more clearly AI-favorable
-      strengthSignal += (d.rawAverage - 3) / 2; // 0 to 1
-      maxPossibleStrength += 1;
-    } else {
-      // Lower rawAverage (closer to 1) = more clearly AI-resistant (reduces prob)
-      strengthSignal -= (3 - d.rawAverage) / 2; // 0 to -1
-      maxPossibleStrength += 1;
-    }
+    dimMap[d.dimensionId] = d;
   }
 
-  // Normalize to 0..1 range within the profile's calibrated range
-  // strengthSignal ranges from -maxPossible to +maxPossible
-  const normalizedStrength = (strengthSignal + maxPossibleStrength) / (2 * maxPossibleStrength);
+  const learn = dimMap['learnability'];
+  const evaluate = dimMap['evaluation'];
+  const risk = dimMap['riskTolerance'];
+  const human = dimMap['humanPresence'];
 
-  const probability = min + (max - min) * normalizedStrength;
+  if (!learn || !evaluate || !risk || !human) return min; // safety fallback
+
+  // ── Step 1: Calculate per-dimension threat scores (0 to 1) ──
+  // For each dimension: how favorable is it to AI?
+  // rawAverage 1-5, where >3 = favorable. Map to 0..1 threat level.
+  const threatScore = (d: DimensionResult) => Math.max(0, Math.min(1, (d.rawAverage - 1) / 4));
+
+  const learnThreat = threatScore(learn);      // 0 = fully tacit, 1 = fully explicit
+  const evalThreat = threatScore(evaluate);     // 0 = fully subjective, 1 = fully objective
+  const riskThreat = threatScore(risk);         // 0 = fully rigid, 1 = fully flexible
+  const humanThreat = threatScore(human);       // 0 = fully human-dependent, 1 = fully product-based
+
+  // ── Step 2: Apply cascade modifiers ──
+
+  // Cascade factor: if learnability is LOW (tacit), downstream dimensions
+  // contribute LESS to overall threat — AI can't exploit what it can't learn
+  // Range: 0.3 (fully tacit, severe dampening) to 1.0 (fully explicit, no dampening)
+  const cascadeFactor = 0.3 + 0.7 * learnThreat;
+
+  // E+O amplification: when BOTH learnability AND evaluation are favorable,
+  // the threat is more than additive — AI can learn freely AND knows the target
+  const eoAmplification = learnThreat > 0.5 && evalThreat > 0.5
+    ? 1 + 0.15 * (learnThreat - 0.5) * (evalThreat - 0.5) * 4  // up to 1.15x
+    : 1.0;
+
+  // ── Step 3: Weighted threat calculation ──
+  const weightedThreat =
+    DIMENSION_WEIGHTS.learnability * learnThreat * eoAmplification +
+    DIMENSION_WEIGHTS.evaluation * evalThreat * cascadeFactor * eoAmplification +
+    DIMENSION_WEIGHTS.riskTolerance * riskThreat * cascadeFactor +
+    DIMENSION_WEIGHTS.humanPresence * humanThreat;  // Human presence is independent
+
+  // weightedThreat ranges from ~0 (all resistant) to ~1.15 (all favorable + E+O amp)
+  // Normalize to 0..1
+  const normalizedThreat = Math.max(0, Math.min(1, weightedThreat));
+
+  // ── Step 4: Map to profile's calibrated range ──
+  const probability = min + (max - min) * normalizedThreat;
   return Math.round(Math.min(100, Math.max(0, probability)));
 }
 
