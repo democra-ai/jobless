@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Target, Share2, Download, Copy, ExternalLink,
   ChevronLeft, ChevronRight, Send, Flame, RefreshCw, ArrowRight,
-  Brain, Shield, Zap, Users,
+  Brain, Shield, Users,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
@@ -14,11 +14,8 @@ import { encodeSharePayload } from '@/lib/share_payload';
 import {
   QuizAnswer,
   QUIZ_DIMENSIONS,
-  AI_SNAPSHOT_QUESTIONS,
-  SURVEY_QUESTIONS,
   ALL_CORE_QUESTIONS,
   CORE_QUESTION_COUNT,
-  SNAPSHOT_QUESTION_COUNT,
   RISK_TIER_INFO,
   SOC_MAJOR_GROUPS,
 } from '@/lib/air_quiz_data';
@@ -227,7 +224,7 @@ function AxisSlider({
 
 // ─── Quiz phases ─────────────────────────────────────────────────────────────
 
-type QuizPhase = 'intro' | 'core' | 'snapshot' | 'survey' | 'result';
+type QuizPhase = 'intro' | 'core' | 'result';
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
@@ -235,12 +232,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   // Quiz state
   const [phase, setPhase] = useState<QuizPhase>('intro');
   const [coreIndex, setCoreIndex] = useState(0); // 0-15
-  const [snapshotIndex, setSnapshotIndex] = useState(0); // 0-3
-  const [surveyIndex, setSurveyIndex] = useState(0); // 0-2
 
   const [coreAnswers, setCoreAnswers] = useState<Record<string, QuizAnswer>>({});
-  const [snapshotAnswers, setSnapshotAnswers] = useState<Record<string, QuizAnswer>>({});
-  const [surveyAnswers, setSurveyAnswers] = useState<Record<string, number>>({});
   const [selectedSOC, setSelectedSOC] = useState<number | null>(null);
   const [socOpen, setSOCOpen] = useState(false);
 
@@ -261,40 +254,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
 
   // ─── Core question handlers ──────────────────────────────────────────────
 
-  const handleCoreAnswer = useCallback((answer: QuizAnswer) => {
-    const qId = currentCoreQ.id;
-    setCoreAnswers(prev => ({ ...prev, [qId]: answer }));
-    trackQuizAnswer(qId, answer, 'core', coreIndex);
-    // Auto-advance after brief delay
-    setTimeout(() => {
-      if (coreIndex < CORE_QUESTION_COUNT - 1) {
-        setCoreIndex(prev => prev + 1);
-      } else {
-        setPhase('snapshot');
-        setSnapshotIndex(0);
-      }
-    }, 280);
-  }, [coreIndex, currentCoreQ]);
-
-  const handleSnapshotAnswer = useCallback((answer: QuizAnswer) => {
-    const qId = AI_SNAPSHOT_QUESTIONS[snapshotIndex].id;
-    setSnapshotAnswers(prev => ({ ...prev, [qId]: answer }));
-    trackQuizAnswer(qId, answer, 'snapshot', snapshotIndex);
-    setTimeout(() => {
-      if (snapshotIndex < SNAPSHOT_QUESTION_COUNT - 1) {
-        setSnapshotIndex(prev => prev + 1);
-      } else {
-        setPhase('survey');
-        setSurveyIndex(0);
-      }
-    }, 280);
-  }, [snapshotIndex]);
-
-  const finishQuiz = useCallback(() => {
+  const finishQuiz = useCallback((overrideCoreAnswers?: Record<string, QuizAnswer>) => {
     const answers: QuizAnswers = {
-      core: coreAnswers,
-      snapshot: snapshotAnswers,
-      survey: surveyAnswers,
+      core: overrideCoreAnswers ?? coreAnswers,
+      snapshot: {},
+      survey: {},
     };
     const quizResult = calculateQuizResult(answers, selectedSOC);
     setResult(quizResult);
@@ -304,60 +268,43 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     setCopied(false);
     setWechatCopied(false);
     trackQuizComplete(quizResult, answers, lang);
-  }, [coreAnswers, snapshotAnswers, surveyAnswers, selectedSOC, lang]);
+  }, [coreAnswers, selectedSOC, lang]);
 
-  const handleSurveyAnswer = useCallback((optionIndex: number) => {
-    const qId = SURVEY_QUESTIONS[surveyIndex].id;
-    setSurveyAnswers(prev => ({ ...prev, [qId]: optionIndex }));
-    trackQuizAnswer(qId, optionIndex, 'survey', surveyIndex);
+  const handleCoreAnswer = useCallback((answer: QuizAnswer) => {
+    const qId = currentCoreQ.id;
+    const updatedAnswers = { ...coreAnswers, [qId]: answer };
+    setCoreAnswers(updatedAnswers);
+    trackQuizAnswer(qId, answer, 'core', coreIndex);
     setTimeout(() => {
-      if (surveyIndex < SURVEY_QUESTIONS.length - 1) {
-        setSurveyIndex(prev => prev + 1);
+      if (coreIndex < CORE_QUESTION_COUNT - 1) {
+        setCoreIndex(prev => prev + 1);
       } else {
-        finishQuiz();
+        finishQuiz(updatedAnswers);
       }
     }, 280);
-  }, [surveyIndex, finishQuiz]);
+  }, [coreIndex, currentCoreQ, coreAnswers, finishQuiz]);
 
-  const skipSurvey = useCallback(() => {
-    finishQuiz();
-  }, [finishQuiz]);
 
   // Go back
   const goBack = useCallback(() => {
     if (phase === 'core' && coreIndex > 0) {
       setCoreIndex(prev => prev - 1);
-    } else if (phase === 'snapshot' && snapshotIndex > 0) {
-      setSnapshotIndex(prev => prev - 1);
-    } else if (phase === 'snapshot' && snapshotIndex === 0) {
-      setPhase('core');
-      setCoreIndex(CORE_QUESTION_COUNT - 1);
-    } else if (phase === 'survey' && surveyIndex > 0) {
-      setSurveyIndex(prev => prev - 1);
-    } else if (phase === 'survey' && surveyIndex === 0) {
-      setPhase('snapshot');
-      setSnapshotIndex(SNAPSHOT_QUESTION_COUNT - 1);
     }
-  }, [phase, coreIndex, snapshotIndex, surveyIndex]);
+  }, [phase, coreIndex]);
 
   // Reset
   const resetQuiz = useCallback(() => {
     // Track abandon if resetting mid-quiz (not from result)
     if (phase !== 'intro' && phase !== 'result') {
-      const idx = phase === 'core' ? coreIndex : phase === 'snapshot' ? snapshotIndex : surveyIndex;
-      trackQuizAbandon(phase, idx, lang);
+      trackQuizAbandon(phase, coreIndex, lang);
     }
     setPhase('intro');
     setCoreIndex(0);
-    setSnapshotIndex(0);
-    setSurveyIndex(0);
     setCoreAnswers({});
-    setSnapshotAnswers({});
-    setSurveyAnswers({});
     setSelectedSOC(null);
     setResult(null);
     setSharePanelOpen(false);
-  }, [phase, coreIndex, snapshotIndex, surveyIndex, lang]);
+  }, [phase, coreIndex, lang]);
 
   // ─── Share functionality (preserved from V2) ─────────────────────────────
 
@@ -837,133 +784,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   ))}
                 </div>
                 <div className="w-16" /> {/* spacer for alignment */}
-              </div>
-            </div>
-          )}
-
-          {/* ══════════════ SNAPSHOT PHASE ══════════════ */}
-          {phase === 'snapshot' && (
-            <div>
-              <QuizProgressBar
-                current={snapshotIndex + 1}
-                total={SNAPSHOT_QUESTION_COUNT}
-                phase={t.quizPhaseSnapshot}
-                lang={lang}
-                t={t}
-              />
-
-              <DimensionBadge icon={Zap} label={t.quizPhaseSnapshot} color="#ff9e1f" />
-              <p className="text-xs text-foreground-muted mb-4">{t.quizSnapshotIntro}</p>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={AI_SNAPSHOT_QUESTIONS[snapshotIndex].id}
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <h3 className="text-lg sm:text-xl font-bold mb-6">
-                    {AI_SNAPSHOT_QUESTIONS[snapshotIndex].question[lang]}
-                  </h3>
-                  <AxisSlider
-                    options={AI_SNAPSHOT_QUESTIONS[snapshotIndex].options.map(o => o[lang])}
-                    value={snapshotAnswers[AI_SNAPSHOT_QUESTIONS[snapshotIndex].id] ?? null}
-                    onChange={handleSnapshotAnswer}
-                    accentColor="#ff9e1f"
-                    leftLabel={AI_SNAPSHOT_QUESTIONS[snapshotIndex].options[0][lang]}
-                    rightLabel={AI_SNAPSHOT_QUESTIONS[snapshotIndex].options[4][lang]}
-                  />
-                </motion.div>
-              </AnimatePresence>
-
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-surface-elevated">
-                <button
-                  onClick={goBack}
-                  className="flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground transition-all"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  {t.quizPrev}
-                </button>
-                <div className="flex gap-1">
-                  {Array.from({ length: SNAPSHOT_QUESTION_COUNT }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        i === snapshotIndex ? 'bg-amber-400 scale-125'
-                        : snapshotAnswers[AI_SNAPSHOT_QUESTIONS[i].id] ? 'bg-amber-400/40'
-                        : 'bg-surface-elevated'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <div className="w-16" />
-              </div>
-            </div>
-          )}
-
-          {/* ══════════════ SURVEY PHASE ══════════════ */}
-          {phase === 'survey' && (
-            <div>
-              <QuizProgressBar
-                current={surveyIndex + 1}
-                total={SURVEY_QUESTIONS.length}
-                phase={t.quizPhaseSurvey}
-                lang={lang}
-                t={t}
-              />
-
-              <p className="text-xs text-foreground-muted mb-4">{t.quizSurveyIntro}</p>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={SURVEY_QUESTIONS[surveyIndex].id}
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <h3 className="text-lg sm:text-xl font-bold mb-5">
-                    {SURVEY_QUESTIONS[surveyIndex].question[lang]}
-                  </h3>
-                  <div className="space-y-2.5">
-                    {SURVEY_QUESTIONS[surveyIndex].options.map((opt, idx) => {
-                      const isSelected = surveyAnswers[SURVEY_QUESTIONS[surveyIndex].id] === idx;
-                      return (
-                        <motion.button
-                          key={idx}
-                          whileHover={{ scale: 1.01 }}
-                          whileTap={{ scale: 0.99 }}
-                          onClick={() => handleSurveyAnswer(idx)}
-                          className={`w-full text-left p-4 rounded-xl border transition-all ${
-                            isSelected
-                              ? 'border-emerald-400/60 bg-emerald-500/15 text-white'
-                              : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 hover:border-white/20'
-                          }`}
-                        >
-                          <span className="text-sm">{opt[lang]}</span>
-                        </motion.button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-surface-elevated">
-                <button
-                  onClick={goBack}
-                  className="flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground transition-all"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  {t.quizPrev}
-                </button>
-                <button
-                  onClick={skipSurvey}
-                  className="flex items-center gap-1 text-sm text-violet-400 hover:text-violet-300 transition-all"
-                >
-                  {t.quizSurveySkip}
-                  <ChevronRight className="w-4 h-4" />
-                </button>
               </div>
             </div>
           )}
