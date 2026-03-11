@@ -290,19 +290,6 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     }, 280);
   }, [snapshotIndex]);
 
-  const handleSurveyAnswer = useCallback((optionIndex: number) => {
-    const qId = SURVEY_QUESTIONS[surveyIndex].id;
-    setSurveyAnswers(prev => ({ ...prev, [qId]: optionIndex }));
-    trackQuizAnswer(qId, optionIndex, 'survey', surveyIndex);
-    setTimeout(() => {
-      if (surveyIndex < SURVEY_QUESTIONS.length - 1) {
-        setSurveyIndex(prev => prev + 1);
-      } else {
-        finishQuiz();
-      }
-    }, 280);
-  }, [surveyIndex]);
-
   const finishQuiz = useCallback(() => {
     const answers: QuizAnswers = {
       core: coreAnswers,
@@ -318,6 +305,19 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     setWechatCopied(false);
     trackQuizComplete(quizResult, answers, lang);
   }, [coreAnswers, snapshotAnswers, surveyAnswers, selectedSOC, lang]);
+
+  const handleSurveyAnswer = useCallback((optionIndex: number) => {
+    const qId = SURVEY_QUESTIONS[surveyIndex].id;
+    setSurveyAnswers(prev => ({ ...prev, [qId]: optionIndex }));
+    trackQuizAnswer(qId, optionIndex, 'survey', surveyIndex);
+    setTimeout(() => {
+      if (surveyIndex < SURVEY_QUESTIONS.length - 1) {
+        setSurveyIndex(prev => prev + 1);
+      } else {
+        finishQuiz();
+      }
+    }, 280);
+  }, [surveyIndex, finishQuiz]);
 
   const skipSurvey = useCallback(() => {
     finishQuiz();
