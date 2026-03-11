@@ -834,8 +834,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     {/* Profile code + Name + Risk tier */}
                     <div className="text-center mb-6">
                       <div
-                        className="text-3xl sm:text-4xl font-bold tracking-[0.2em]"
-                        style={{ color: riskColor, fontFamily: 'var(--font-mono)' }}
+                        className="text-3xl sm:text-4xl font-extrabold tracking-[0.2em]"
+                        style={{ color: riskColor, fontFamily: 'var(--font-display)' }}
                       >
                         {result.profileCode}
                       </div>
@@ -875,8 +875,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                 style={{
                                   backgroundColor: color + '18',
                                   color,
-                                  fontFamily: 'var(--font-mono)',
-                                  fontFeatureSettings: '"ss01" on',
+                                  fontFamily: 'var(--font-display)',
                                 }}
                               >
                                 {dim.letter}
@@ -1226,7 +1225,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     <div style={{ fontSize: '12px', letterSpacing: '1.5px', opacity: 0.72 }}>
                       {lang === 'en' ? 'YOUR AIR TYPE' : '你的 AIR 类型'}
                     </div>
-                    <div style={{ marginTop: '10px', fontSize: '96px', fontWeight: 700, lineHeight: 1, color: riskColor, letterSpacing: '0.2em', fontFamily: 'var(--font-mono)' }}>
+                    <div style={{ marginTop: '10px', fontSize: '96px', fontWeight: 800, lineHeight: 1, color: riskColor, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>
                       {result.profileCode}
                     </div>
                     <div style={{ marginTop: '10px', fontSize: '36px', fontWeight: 700 }}>
