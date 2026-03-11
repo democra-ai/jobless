@@ -47,6 +47,8 @@ export interface ProfileType {
   description: { en: string; zh: string };
   typicalJobs: { en: string; zh: string };
   riskTier: 'extreme-high' | 'high' | 'medium' | 'low' | 'extreme-low';
+  /** Primary SOC major group code for job inference */
+  primarySOC: number;
 }
 
 // ─── Dimension 1: Learnability ───────────────────────────────────────────────
@@ -486,6 +488,34 @@ export const SURVEY_QUESTIONS: SurveyQuestion[] = [
   },
 ];
 
+// ─── SOC Major Occupational Groups (23 categories) ──────────────────────────
+
+export const SOC_MAJOR_GROUPS: { code: number; name: { en: string; zh: string } }[] = [
+  { code: 11, name: { en: 'Management', zh: '管理' } },
+  { code: 13, name: { en: 'Business & Financial Operations', zh: '商业与金融运营' } },
+  { code: 15, name: { en: 'Computer & Mathematical', zh: '计算机与数学' } },
+  { code: 17, name: { en: 'Architecture & Engineering', zh: '建筑与工程' } },
+  { code: 19, name: { en: 'Life, Physical & Social Science', zh: '生命、物理和社会科学' } },
+  { code: 21, name: { en: 'Community & Social Service', zh: '社区和社会服务' } },
+  { code: 23, name: { en: 'Legal', zh: '法律' } },
+  { code: 25, name: { en: 'Educational Instruction & Library', zh: '教育与图书馆' } },
+  { code: 27, name: { en: 'Arts, Design, Entertainment, Sports & Media', zh: '艺术、设计、娱乐、体育和媒体' } },
+  { code: 29, name: { en: 'Healthcare Practitioners & Technical', zh: '医疗从业者和技术人员' } },
+  { code: 31, name: { en: 'Healthcare Support', zh: '医疗辅助' } },
+  { code: 33, name: { en: 'Protective Service', zh: '保护性服务' } },
+  { code: 35, name: { en: 'Food Preparation & Serving', zh: '餐饮制备和服务' } },
+  { code: 37, name: { en: 'Building & Grounds Cleaning/Maintenance', zh: '建筑物和场地清洁维护' } },
+  { code: 39, name: { en: 'Personal Care & Service', zh: '个人护理和服务' } },
+  { code: 41, name: { en: 'Sales & Related', zh: '销售及相关' } },
+  { code: 43, name: { en: 'Office & Administrative Support', zh: '办公室和行政支持' } },
+  { code: 45, name: { en: 'Farming, Fishing & Forestry', zh: '农业、渔业和林业' } },
+  { code: 47, name: { en: 'Construction & Extraction', zh: '建筑施工和采掘' } },
+  { code: 49, name: { en: 'Installation, Maintenance & Repair', zh: '安装、维护和修理' } },
+  { code: 51, name: { en: 'Production', zh: '生产制造' } },
+  { code: 53, name: { en: 'Transportation & Material Moving', zh: '运输和物料搬运' } },
+  { code: 55, name: { en: 'Military Specific', zh: '军事专属' } },
+];
+
 // ─── 16 Profile Types ────────────────────────────────────────────────────────
 
 export const PROFILE_TYPES: Record<string, ProfileType> = {
@@ -498,10 +528,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '显+客+弹+事：知识透明、标准客观、出错可改、只看结果',
     },
     typicalJobs: {
-      en: 'Data entry, junior accountant, basic translator, report analyst, standardized customer service',
-      zh: '数据录入员、初级会计、基础翻译、报表分析师、标准化客服',
+      en: 'Office & Administrative Support (43), Business & Financial Operations (13) — entry-level positions',
+      zh: '办公室和行政支持(43)、商业与金融运营(13)基础岗',
     },
     riskTier: 'extreme-high',
+    primarySOC: 43,
   },
   // High (3/4 AI favorable)
   EOFH: {
@@ -512,10 +543,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '显+客+弹+人：AI全都能做，但客户认的是你这个人',
     },
     typicalJobs: {
-      en: 'Bank relationship manager, insurance agent, established real estate agent',
-      zh: '银行客户经理、保险代理人、固定客源的房产中介',
+      en: 'Sales & Related (41), Business & Financial Operations (13) — client relationship roles',
+      zh: '销售及相关(41)、商业与金融运营(13)客户经理方向',
     },
     riskTier: 'high',
+    primarySOC: 41,
   },
   EORP: {
     code: 'EORP',
@@ -525,10 +557,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '显+客+刚+事：AI能学也能做，但出错代价太大/有监管',
     },
     typicalJobs: {
-      en: 'Pharmacist, quality inspector, compliance auditor, nuclear plant operator',
-      zh: '药剂师、质检员、合规审计员、核电站操作员',
+      en: 'Production (51) — quality inspection, Healthcare Practitioners & Technical (29) — pharmacy/lab roles',
+      zh: '生产制造(51)质检方向、医疗从业者和技术人员(29)药剂/检验方向',
     },
     riskTier: 'high',
+    primarySOC: 51,
   },
   ESFP: {
     code: 'ESFP',
@@ -538,10 +571,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '显+主+弹+事：AI能学、可以试错、只看结果，但好坏全靠主观判断',
     },
     typicalJobs: {
-      en: 'Marketing copywriter, UI designer, social media manager, ad planner',
-      zh: '营销文案、UI设计师、社媒运营、广告策划',
+      en: 'Arts, Design, Entertainment, Sports & Media (27) — design/planning, Computer & Mathematical (15)',
+      zh: '艺术、设计、娱乐、体育和媒体(27)设计/策划方向、计算机与数学(15)',
     },
     riskTier: 'high',
+    primarySOC: 27,
   },
   TOFP: {
     code: 'TOFP',
@@ -551,10 +585,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '隐+客+弹+事：标准客观、可试错、只看结果，但需要身体经验',
     },
     typicalJobs: {
-      en: 'Chain restaurant chef, auto mechanic, electrician, warehouse sorter',
-      zh: '连锁餐厅厨师、汽车维修技师、电工、仓库分拣员',
+      en: 'Installation, Maintenance & Repair (49), Transportation & Material Moving (53) — warehouse, Food Preparation & Serving (35) — chain, Building & Grounds Cleaning/Maintenance (37)',
+      zh: '安装、维护和修理(49)、运输和物料搬运(53)仓储方向、餐饮制备和服务(35)连锁方向、建筑物和场地清洁维护(37)',
     },
     riskTier: 'high',
+    primarySOC: 49,
   },
   // Medium (2/4 AI favorable)
   EORH: {
@@ -565,10 +600,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '显+客+刚+人：知识透明+有监管+客户认人，AI只缺一个入口',
     },
     typicalJobs: {
-      en: 'Certified CPA (signing), notary public, licensed financial advisor',
-      zh: '签字注册会计师、公证员、持牌理财顾问',
+      en: 'Business & Financial Operations (13) — licensed roles, Legal (23) — notary/compliance',
+      zh: '商业与金融运营(13)持证方向、法律(23)公证/合规方向',
     },
     riskTier: 'medium',
+    primarySOC: 13,
   },
   ESFH: {
     code: 'ESFH',
@@ -578,10 +614,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '显+主+弹+人：AI能学，但好坏靠主观+粉丝认的是人',
     },
     typicalJobs: {
-      en: 'KOL/influencer, content creator, brand founder',
-      zh: 'KOL/博主、自媒体创作者、品牌主理人',
+      en: 'Arts, Design, Entertainment, Sports & Media (27) — content creators, Educational Instruction & Library (25)',
+      zh: '艺术、设计、娱乐、体育和媒体(27)自媒体/内容方向、教育与图书馆(25)',
     },
     riskTier: 'medium',
+    primarySOC: 25,
   },
   ESRP: {
     code: 'ESRP',
@@ -591,10 +628,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '显+主+刚+事：AI能学，但好坏靠主观+出错后果严重',
     },
     typicalJobs: {
-      en: 'Architect, drug researcher, investment fund manager',
-      zh: '建筑师、药物研发员、投资基金经理',
+      en: 'Architecture & Engineering (17), Life, Physical & Social Science (19), Business & Financial Operations (13) — investment management',
+      zh: '建筑与工程(17)、生命、物理和社会科学(19)、商业与金融运营(13)投资管理方向',
     },
     riskTier: 'medium',
+    primarySOC: 17,
   },
   TOFH: {
     code: 'TOFH',
@@ -604,10 +642,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '隐+客+弹+人：需要身体技能+客户认你这个人',
     },
     typicalJobs: {
-      en: 'Barber, personal trainer, massage therapist, tailor',
-      zh: '理发师、私人健身教练、按摩师、裁缝',
+      en: 'Personal Care & Service (39)',
+      zh: '个人护理和服务(39)',
     },
     riskTier: 'medium',
+    primarySOC: 39,
   },
   TORP: {
     code: 'TORP',
@@ -617,10 +656,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '隐+客+刚+事：需要身体经验+出错不可逆',
     },
     typicalJobs: {
-      en: 'Surgeon, pilot, specialized welder, bomb disposal expert',
-      zh: '外科医生、飞行员、特种焊接工、拆弹专家',
+      en: 'Healthcare Practitioners & Technical (29) — surgical, Transportation & Material Moving (53) — aviation, Construction & Extraction (47) — precision',
+      zh: '医疗从业者和技术人员(29)外科方向、运输和物料搬运(53)飞行方向、建筑施工和采掘(47)精密方向',
     },
     riskTier: 'medium',
+    primarySOC: 29,
   },
   TSFP: {
     code: 'TSFP',
@@ -630,10 +670,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '隐+主+弹+事：身体经验+好坏靠主观，但可试错、只看结果',
     },
     typicalJobs: {
-      en: 'Independent chef, florist, artisan craftsman, perfumer',
-      zh: '独立主厨、花艺师、手工匠人、调香师',
+      en: 'Food Preparation & Serving (35) — independent chef, Farming, Fishing & Forestry (45)',
+      zh: '餐饮制备和服务(35)独立主厨方向、农业、渔业和林业(45)',
     },
     riskTier: 'medium',
+    primarySOC: 35,
   },
   // Low (1/4 AI favorable)
   ESRH: {
@@ -644,10 +685,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '显+主+刚+人：AI能学知识，但好坏靠主观+高责任+客户认人',
     },
     typicalJobs: {
-      en: 'Law firm partner, attending physician, management consulting partner',
-      zh: '律所合伙人、主治医师、管理咨询合伙人',
+      en: 'Legal (23) — partners, Management (11) — consulting, Healthcare Practitioners & Technical (29) — attending physicians',
+      zh: '法律(23)合伙人方向、管理(11)咨询方向、医疗从业者和技术人员(29)主治方向',
     },
     riskTier: 'low',
+    primarySOC: 23,
   },
   TORH: {
     code: 'TORH',
@@ -657,10 +699,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '隐+客+刚+人：身体经验+出错不可逆+患者信任关系',
     },
     typicalJobs: {
-      en: 'Dentist, midwife, elderly care nurse',
-      zh: '牙医、助产士、老年护理师',
+      en: 'Healthcare Practitioners & Technical (29) — dental/obstetric, Healthcare Support (31)',
+      zh: '医疗从业者和技术人员(29)口腔/产科方向、医疗辅助(31)',
     },
     riskTier: 'low',
+    primarySOC: 29,
   },
   TSFH: {
     code: 'TSFH',
@@ -670,10 +713,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '隐+主+弹+人：身体经验+好坏靠主观+人本身就是作品',
     },
     typicalJobs: {
-      en: 'Singer, actor, dancer, stand-up comedian, independent artist',
-      zh: '歌手、演员、舞者、脱口秀演员、独立艺术家',
+      en: 'Arts, Design, Entertainment, Sports & Media (27) — performing arts',
+      zh: '艺术、设计、娱乐、体育和媒体(27)表演方向',
     },
     riskTier: 'low',
+    primarySOC: 27,
   },
   TSRP: {
     code: 'TSRP',
@@ -683,10 +727,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '隐+主+刚+事：身体经验+好坏靠主观+出错不可逆',
     },
     typicalJobs: {
-      en: 'ER doctor, military commander, crisis negotiation expert',
-      zh: '急诊科医生、军事指挥官、危机谈判专家',
+      en: 'Protective Service (33), Military Specific (55), Healthcare Practitioners & Technical (29) — emergency medicine',
+      zh: '保护性服务(33)、军事专属(55)、医疗从业者和技术人员(29)急诊方向',
     },
     riskTier: 'low',
+    primarySOC: 33,
   },
   // Extreme low (0/4 AI favorable)
   TSRH: {
@@ -697,10 +742,11 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
       zh: '隐+主+刚+人：四个维度全部阻断AI替代链路',
     },
     typicalJobs: {
-      en: 'CEO, political leader, religious leader, top athlete',
-      zh: 'CEO、政治领袖、宗教领袖、顶级运动员',
+      en: 'Management (11) — top executives, Community & Social Service (21), Arts, Design, Entertainment, Sports & Media (27) — elite athletes',
+      zh: '管理(11)最高层、社区和社会服务(21)、艺术、设计、娱乐、体育和媒体(27)顶级运动员方向',
     },
     riskTier: 'extreme-low',
+    primarySOC: 11,
   },
 };
 

@@ -20,6 +20,7 @@ import {
   RISK_TIER_INFO,
   ProfileType,
   AISnapshotQuestion,
+  SOC_MAJOR_GROUPS,
 } from './air_quiz_data';
 
 export type Language = 'en' | 'zh';
@@ -64,6 +65,8 @@ export interface QuizResult {
   riskLevel: 'very-low' | 'low' | 'medium' | 'high' | 'critical';
   /** Current replacement degree (for share compat) */
   currentReplacementDegree: number;
+  /** Resolved occupation SOC group */
+  occupationSOC: { code: number; name: { en: string; zh: string }; inferred: boolean } | null;
 }
 
 /** Normalize a single answer based on direction. Result: 1-5 where higher = AI favorable. */
@@ -178,8 +181,26 @@ function predictYear(probability: number, snapshotScore: number): {
   };
 }
 
+/** Resolve occupation from user selection or profile inference */
+function resolveOccupation(
+  selectedSOC: number | null,
+  profileCode: string,
+): { code: number; name: { en: string; zh: string }; inferred: boolean } | null {
+  if (selectedSOC !== null) {
+    const soc = SOC_MAJOR_GROUPS.find(s => s.code === selectedSOC);
+    if (soc) return { code: soc.code, name: soc.name, inferred: false };
+  }
+  // Infer from profile's primarySOC
+  const profile = PROFILE_TYPES[profileCode];
+  if (profile) {
+    const soc = SOC_MAJOR_GROUPS.find(s => s.code === profile.primarySOC);
+    if (soc) return { code: soc.code, name: soc.name, inferred: true };
+  }
+  return null;
+}
+
 /** Main calculation function */
-export function calculateQuizResult(answers: QuizAnswers): QuizResult {
+export function calculateQuizResult(answers: QuizAnswers, selectedSOC?: number | null): QuizResult {
   // Score each dimension
   const dimensionResults = QUIZ_DIMENSIONS.map(d => scoreDimension(d, answers.core));
 
@@ -214,5 +235,6 @@ export function calculateQuizResult(answers: QuizAnswers): QuizResult {
     confidenceInterval,
     riskLevel: toRiskLevel(profile.riskTier),
     currentReplacementDegree: snapshotScore,
+    occupationSOC: resolveOccupation(selectedSOC ?? null, profileCode),
   };
 }

@@ -20,8 +20,16 @@ import {
   CORE_QUESTION_COUNT,
   SNAPSHOT_QUESTION_COUNT,
   RISK_TIER_INFO,
+  SOC_MAJOR_GROUPS,
 } from '@/lib/air_quiz_data';
 import { calculateQuizResult, QuizAnswers, QuizResult } from '@/lib/air_quiz_calculator';
+import {
+  trackQuizStart,
+  trackQuizAnswer,
+  trackQuizComplete,
+  trackShareClick,
+  trackQuizAbandon,
+} from '@/lib/analytics';
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -93,6 +101,121 @@ function DimensionBadge({ icon: Icon, label, color }: { icon: React.ElementType;
 const DIMENSION_ICONS = [Brain, Target, Shield, Users];
 const DIMENSION_COLORS = ['#7c4dff', '#ff6e40', '#64ffda', '#b388ff'];
 
+/** Horizontal axis slider with 5 discrete stops and hover tooltips */
+function AxisSlider({
+  options,
+  value,
+  onChange,
+  accentColor,
+  leftLabel,
+  rightLabel,
+}: {
+  options: string[];
+  value: number | null; // 1-5 or null
+  onChange: (v: QuizAnswer) => void;
+  accentColor: string;
+  leftLabel?: string;
+  rightLabel?: string;
+}) {
+  const [hoveredStop, setHoveredStop] = useState<number | null>(null);
+  const [touchedStop, setTouchedStop] = useState<number | null>(null);
+
+  const tooltipStop = touchedStop ?? hoveredStop;
+
+  return (
+    <div className="pt-2 pb-1">
+      {/* Axis track */}
+      <div className="relative mx-2 sm:mx-4">
+        {/* Tooltip */}
+        <AnimatePresence>
+          {tooltipStop !== null && (
+            <motion.div
+              key={tooltipStop}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 4 }}
+              transition={{ duration: 0.15 }}
+              className="absolute -top-2 pointer-events-none z-20"
+              style={{
+                left: `${((tooltipStop - 1) / 4) * 100}%`,
+                transform: 'translate(-50%, -100%)',
+                maxWidth: 'min(260px, 80vw)',
+              }}
+            >
+              <div className="bg-surface-elevated border border-white/20 rounded-lg px-3 py-2 text-xs leading-relaxed shadow-xl text-center">
+                {options[tooltipStop - 1]}
+              </div>
+              <div
+                className="w-2 h-2 rotate-45 mx-auto -mt-1 border-r border-b border-white/20"
+                style={{ backgroundColor: 'var(--surface-elevated)' }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Track background */}
+        <div className="h-2 bg-surface-elevated rounded-full relative">
+          {/* Filled track */}
+          {value && (
+            <motion.div
+              className="absolute top-0 left-0 h-full rounded-full"
+              style={{ backgroundColor: accentColor + '60' }}
+              initial={{ width: 0 }}
+              animate={{ width: `${((value - 1) / 4) * 100}%` }}
+              transition={{ duration: 0.2 }}
+            />
+          )}
+        </div>
+
+        {/* Stop circles */}
+        <div className="absolute inset-0 flex items-center justify-between" style={{ top: '-10px', height: '24px' }}>
+          {[1, 2, 3, 4, 5].map((stop) => {
+            const isSelected = value === stop;
+            return (
+              <button
+                key={stop}
+                type="button"
+                className="relative flex items-center justify-center"
+                style={{ width: '44px', height: '44px', marginLeft: stop === 1 ? '-22px' : undefined, marginRight: stop === 5 ? '-22px' : undefined }}
+                onMouseEnter={() => setHoveredStop(stop)}
+                onMouseLeave={() => setHoveredStop(null)}
+                onTouchStart={() => setTouchedStop(stop)}
+                onTouchEnd={() => { setTimeout(() => setTouchedStop(null), 1500); }}
+                onClick={() => onChange(stop as QuizAnswer)}
+              >
+                <motion.div
+                  className="rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors"
+                  style={{
+                    width: isSelected ? '28px' : '22px',
+                    height: isSelected ? '28px' : '22px',
+                    borderColor: isSelected ? accentColor : 'rgba(255,255,255,0.2)',
+                    backgroundColor: isSelected ? accentColor : 'var(--surface)',
+                    color: isSelected ? '#fff' : 'rgba(255,255,255,0.5)',
+                  }}
+                  animate={{
+                    scale: isSelected ? 1.1 : 1,
+                  }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                >
+                  {stop}
+                </motion.div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Pole labels */}
+      {(leftLabel || rightLabel) && (
+        <div className="flex justify-between text-[11px] text-foreground-muted mt-5 mx-1">
+          <span>{leftLabel}</span>
+          <span>{rightLabel}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Quiz phases ─────────────────────────────────────────────────────────────
 
 type QuizPhase = 'intro' | 'core' | 'snapshot' | 'survey' | 'result';
@@ -109,6 +232,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const [coreAnswers, setCoreAnswers] = useState<Record<string, QuizAnswer>>({});
   const [snapshotAnswers, setSnapshotAnswers] = useState<Record<string, QuizAnswer>>({});
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, number>>({});
+  const [selectedSOC, setSelectedSOC] = useState<number | null>(null);
 
   const [result, setResult] = useState<QuizResult | null>(null);
 
@@ -130,6 +254,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const handleCoreAnswer = useCallback((answer: QuizAnswer) => {
     const qId = currentCoreQ.id;
     setCoreAnswers(prev => ({ ...prev, [qId]: answer }));
+    trackQuizAnswer(qId, answer, 'core', coreIndex);
     // Auto-advance after brief delay
     setTimeout(() => {
       if (coreIndex < CORE_QUESTION_COUNT - 1) {
@@ -144,6 +269,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const handleSnapshotAnswer = useCallback((answer: QuizAnswer) => {
     const qId = AI_SNAPSHOT_QUESTIONS[snapshotIndex].id;
     setSnapshotAnswers(prev => ({ ...prev, [qId]: answer }));
+    trackQuizAnswer(qId, answer, 'snapshot', snapshotIndex);
     setTimeout(() => {
       if (snapshotIndex < SNAPSHOT_QUESTION_COUNT - 1) {
         setSnapshotIndex(prev => prev + 1);
@@ -157,6 +283,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const handleSurveyAnswer = useCallback((optionIndex: number) => {
     const qId = SURVEY_QUESTIONS[surveyIndex].id;
     setSurveyAnswers(prev => ({ ...prev, [qId]: optionIndex }));
+    trackQuizAnswer(qId, optionIndex, 'survey', surveyIndex);
     setTimeout(() => {
       if (surveyIndex < SURVEY_QUESTIONS.length - 1) {
         setSurveyIndex(prev => prev + 1);
@@ -172,14 +299,15 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       snapshot: snapshotAnswers,
       survey: surveyAnswers,
     };
-    const quizResult = calculateQuizResult(answers);
+    const quizResult = calculateQuizResult(answers, selectedSOC);
     setResult(quizResult);
     setPhase('result');
     setSharePanelOpen(false);
     setTelegramShareState('idle');
     setCopied(false);
     setWechatCopied(false);
-  }, [coreAnswers, snapshotAnswers, surveyAnswers]);
+    trackQuizComplete(quizResult, answers, lang);
+  }, [coreAnswers, snapshotAnswers, surveyAnswers, selectedSOC, lang]);
 
   const skipSurvey = useCallback(() => {
     finishQuiz();
@@ -204,6 +332,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
 
   // Reset
   const resetQuiz = useCallback(() => {
+    // Track abandon if resetting mid-quiz (not from result)
+    if (phase !== 'intro' && phase !== 'result') {
+      const idx = phase === 'core' ? coreIndex : phase === 'snapshot' ? snapshotIndex : surveyIndex;
+      trackQuizAbandon(phase, idx, lang);
+    }
     setPhase('intro');
     setCoreIndex(0);
     setSnapshotIndex(0);
@@ -211,9 +344,10 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     setCoreAnswers({});
     setSnapshotAnswers({});
     setSurveyAnswers({});
+    setSelectedSOC(null);
     setResult(null);
     setSharePanelOpen(false);
-  }, []);
+  }, [phase, coreIndex, snapshotIndex, surveyIndex, lang]);
 
   // ─── Share functionality (preserved from V2) ─────────────────────────────
 
@@ -270,6 +404,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   };
 
   const handleCopyLink = async () => {
+    trackShareClick('copy_link', lang);
     const ok = await copyText(getShareUrl());
     if (!ok) return;
     setCopied(true);
@@ -277,6 +412,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   };
 
   const handleCopyForWechat = async () => {
+    trackShareClick('wechat', lang);
     const ok = await copyText(getShareText() + '\n' + getShareUrl());
     if (!ok) return;
     setWechatCopied(true);
@@ -284,12 +420,14 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   };
 
   const handleShareTwitter = () => {
+    trackShareClick('twitter', lang);
     const text = encodeURIComponent(getShareText());
     const url = encodeURIComponent(getShareUrl());
     window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
   };
 
   const handleShareWeibo = () => {
+    trackShareClick('weibo', lang);
     const text = encodeURIComponent(getShareText());
     const url = encodeURIComponent(getShareUrl());
     window.open(`https://service.weibo.com/share/share.php?title=${text}&url=${url}`, '_blank');
@@ -415,6 +553,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   };
 
   const handleShareTelegram = async () => {
+    trackShareClick('telegram', lang);
     const shareText = getShareText();
     const shareUrl = getShareUrl();
     const fallbackUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}`;
@@ -456,6 +595,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   };
 
   const handleDownloadImage = async () => {
+    trackShareClick('download_image', lang);
     const blob = await buildShareImageBlob();
     if (!blob) return;
     const url = URL.createObjectURL(blob);
@@ -514,7 +654,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
               </div>
               <div>
                 <p className="text-foreground-muted text-sm mb-6">{t.quizStartDesc}</p>
-                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-8 text-left">
+                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-6 text-left">
                   {QUIZ_DIMENSIONS.map((dim, i) => (
                     <div key={dim.id} className="flex items-center gap-2 p-3 rounded-xl bg-surface border border-surface-elevated">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: DIMENSION_COLORS[i] + '20' }}>
@@ -528,10 +668,45 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   ))}
                 </div>
               </div>
+
+              {/* SOC Occupation Selector */}
+              <div className="text-left max-w-lg mx-auto">
+                <h4 className="text-sm font-semibold mb-1">{t.selectOccupation}</h4>
+                <p className="text-xs text-foreground-muted mb-3">{t.selectOccupationHint}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
+                  {SOC_MAJOR_GROUPS.map((soc) => (
+                    <button
+                      key={soc.code}
+                      type="button"
+                      onClick={() => setSelectedSOC(selectedSOC === soc.code ? null : soc.code)}
+                      className={`text-left px-2.5 py-2 rounded-lg border text-xs transition-all ${
+                        selectedSOC === soc.code
+                          ? 'border-violet-400/60 bg-violet-500/15 text-white'
+                          : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 hover:border-white/20 text-foreground-muted'
+                      }`}
+                    >
+                      <span className="font-mono text-[10px] opacity-50 mr-1">{soc.code}</span>
+                      {soc.name[lang]}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSOC(null)}
+                    className={`text-left px-2.5 py-2 rounded-lg border text-xs transition-all ${
+                      selectedSOC === null
+                        ? 'border-white/20 bg-white/5 text-foreground-muted'
+                        : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 text-foreground-muted/60'
+                    }`}
+                  >
+                    {t.occupationOtherSkip}
+                  </button>
+                </div>
+              </div>
+
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => { setPhase('core'); setCoreIndex(0); }}
+                onClick={() => { setPhase('core'); setCoreIndex(0); trackQuizStart(lang); }}
                 className="calc-btn-primary px-12 py-4 rounded-xl font-semibold text-white text-lg inline-flex items-center gap-3"
               >
                 {t.quizStart}
@@ -568,37 +743,15 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <h3 className="text-lg sm:text-xl font-bold mb-5">{currentCoreQ.question[lang]}</h3>
-                  <div className="space-y-2.5">
-                    {currentCoreQ.options.map((opt, idx) => {
-                      const score = (idx + 1) as QuizAnswer;
-                      const isSelected = coreAnswers[currentCoreQ.id] === score;
-                      return (
-                        <motion.button
-                          key={idx}
-                          whileHover={{ scale: 1.01 }}
-                          whileTap={{ scale: 0.99 }}
-                          onClick={() => handleCoreAnswer(score)}
-                          className={`w-full text-left p-4 rounded-xl border transition-all ${
-                            isSelected
-                              ? 'border-violet-400/60 bg-violet-500/15 text-white'
-                              : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 hover:border-white/20'
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <span className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all ${
-                              isSelected
-                                ? 'border-violet-400 bg-violet-500 text-white'
-                                : 'border-white/20 text-foreground-muted'
-                            }`}>
-                              {score}
-                            </span>
-                            <span className="text-sm leading-relaxed">{opt[lang]}</span>
-                          </div>
-                        </motion.button>
-                      );
-                    })}
-                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold mb-6">{currentCoreQ.question[lang]}</h3>
+                  <AxisSlider
+                    options={currentCoreQ.options.map(o => o[lang])}
+                    value={coreAnswers[currentCoreQ.id] ?? null}
+                    onChange={handleCoreAnswer}
+                    accentColor={DIMENSION_COLORS[currentDimIndex]}
+                    leftLabel={currentCoreQ.options[0][lang]}
+                    rightLabel={currentCoreQ.options[4][lang]}
+                  />
                 </motion.div>
               </AnimatePresence>
 
@@ -651,39 +804,17 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <h3 className="text-lg sm:text-xl font-bold mb-5">
+                  <h3 className="text-lg sm:text-xl font-bold mb-6">
                     {AI_SNAPSHOT_QUESTIONS[snapshotIndex].question[lang]}
                   </h3>
-                  <div className="space-y-2.5">
-                    {AI_SNAPSHOT_QUESTIONS[snapshotIndex].options.map((opt, idx) => {
-                      const score = (idx + 1) as QuizAnswer;
-                      const isSelected = snapshotAnswers[AI_SNAPSHOT_QUESTIONS[snapshotIndex].id] === score;
-                      return (
-                        <motion.button
-                          key={idx}
-                          whileHover={{ scale: 1.01 }}
-                          whileTap={{ scale: 0.99 }}
-                          onClick={() => handleSnapshotAnswer(score)}
-                          className={`w-full text-left p-4 rounded-xl border transition-all ${
-                            isSelected
-                              ? 'border-amber-400/60 bg-amber-500/15 text-white'
-                              : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 hover:border-white/20'
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <span className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all ${
-                              isSelected
-                                ? 'border-amber-400 bg-amber-500 text-white'
-                                : 'border-white/20 text-foreground-muted'
-                            }`}>
-                              {score}
-                            </span>
-                            <span className="text-sm leading-relaxed">{opt[lang]}</span>
-                          </div>
-                        </motion.button>
-                      );
-                    })}
-                  </div>
+                  <AxisSlider
+                    options={AI_SNAPSHOT_QUESTIONS[snapshotIndex].options.map(o => o[lang])}
+                    value={snapshotAnswers[AI_SNAPSHOT_QUESTIONS[snapshotIndex].id] ?? null}
+                    onChange={handleSnapshotAnswer}
+                    accentColor="#ff9e1f"
+                    leftLabel={AI_SNAPSHOT_QUESTIONS[snapshotIndex].options[0][lang]}
+                    rightLabel={AI_SNAPSHOT_QUESTIONS[snapshotIndex].options[4][lang]}
+                  />
                 </motion.div>
               </AnimatePresence>
 
@@ -912,6 +1043,22 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     })}
                   </div>
                 </div>
+
+                {/* Your Occupation */}
+                {result.occupationSOC && (
+                  <div className="result-card rounded-xl p-6">
+                    <h5 className="font-semibold mb-2">{t.yourOccupation}</h5>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs px-2 py-0.5 rounded bg-surface-elevated text-foreground-muted">
+                        SOC {result.occupationSOC.code}
+                      </span>
+                      <span className="text-sm font-medium">{result.occupationSOC.name[lang]}</span>
+                    </div>
+                    {result.occupationSOC.inferred && (
+                      <p className="text-[11px] text-foreground-muted/60 mt-1">{t.occupationInferred}</p>
+                    )}
+                  </div>
+                )}
 
                 {/* Typical Jobs */}
                 <div className="result-card rounded-xl p-6">
