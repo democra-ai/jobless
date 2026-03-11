@@ -11,6 +11,7 @@ import DataThreatSection from '@/components/sections/DataThreatSection';
 import AnalysisLinkSection from '@/components/sections/AnalysisLinkSection';
 import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
+import { trackCtaClick } from '@/lib/analytics';
 
 // Lazy-load heavy below-fold components (bundle-dynamic-imports rule)
 const InteractiveTimeline = dynamic(() => import('@/components/InteractiveTimeline'), { ssr: false });
@@ -235,7 +236,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25, duration: 0.28 }}
-        onClick={() => scrollToSection('risk')}
+        onClick={() => { trackCtaClick('risk_fab', 'mobile'); scrollToSection('risk'); }}
         className="mobile-risk-fab fixed right-3 sm:right-5 bottom-[calc(var(--safe-bottom)+5.1rem)] sm:bottom-[calc(var(--safe-bottom)+1.25rem)] z-[96] w-12 h-12 rounded-full border flex items-center justify-center"
         style={{
           background: 'color-mix(in srgb, var(--surface) 88%, transparent)',

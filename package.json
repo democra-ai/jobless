@@ -12,6 +12,7 @@
     "test:ui": "playwright test --ui"
   },
   "dependencies": {
+    "firebase": "^12.10.0",
     "framer-motion": "^12.34.0",
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.564.0",

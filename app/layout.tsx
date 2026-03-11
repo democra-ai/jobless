@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Syne, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import AnalyticsProvider from "@/components/AnalyticsProvider";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -85,6 +86,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased font-body bg-background text-foreground transition-colors duration-300">
+        <AnalyticsProvider />
         {children}
       </body>
     </html>

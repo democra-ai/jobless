@@ -6,6 +6,7 @@ import { AlertCircle, Eye, Zap, TrendingDown, ExternalLink, ChevronDown } from '
 import { Language, translations } from '@/lib/translations';
 import Counter from '@/components/Counter';
 import AIKillLineBar from '@/components/AIKillLineBar';
+import { trackCtaClick } from '@/lib/analytics';
 
 function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   const [activeStat, setActiveStat] = useState<number | null>(null);
@@ -171,7 +172,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           className="mt-10 flex justify-center"
         >
           <button
-            onClick={() => document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            onClick={() => { trackCtaClick('scroll_to_calculator', 'hero'); document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
             className="group flex items-center gap-1.5 cursor-pointer"
           >
             <motion.div

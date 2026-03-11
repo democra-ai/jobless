@@ -4,12 +4,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Languages, Sun, Moon, Activity, Target, Shield, Clock } from 'lucide-react';
 import { Language, Theme, MobileSection } from '@/lib/translations';
+import { trackThemeToggle, trackLangToggle, trackNavigation } from '@/lib/analytics';
 
 // 语言切换按钮
 export function LanguageButton({ lang, setLang }: { lang: Language; setLang: (lang: Language) => void }) {
   return (
     <motion.button
-      onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+      onClick={() => { const next = lang === 'en' ? 'zh' : 'en'; setLang(next); trackLangToggle(next); }}
       className="z-50 flex items-center justify-center bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white w-10 h-10 rounded-lg border border-surface-elevated transition-all card-hover lang-toggle-btn"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -29,6 +30,7 @@ export function ThemeButton({ theme, setTheme }: { theme: Theme; setTheme: (them
         setTheme(next);
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('air-theme', next);
+        trackThemeToggle(next);
       }}
       className="z-50 flex items-center justify-center w-10 h-10 bg-surface-elevated hover:bg-brand-accent/80 text-foreground hover:text-white rounded-lg border border-surface-elevated transition-all theme-toggle-btn"
       whileHover={{ scale: 1.05 }}
@@ -122,7 +124,7 @@ export function MobileBottomNav({
                 key={item.id}
                 ref={(el) => { buttonRefs.current[item.id] = el; }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => onNavigate(item.id)}
+                onClick={() => { onNavigate(item.id); trackNavigation(item.id); }}
                 className="relative z-10 flex min-h-[48px] flex-col items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-medium transition-all"
                 style={{
                   color: active ? '#fff' : 'var(--foreground-muted)',
