@@ -30,13 +30,13 @@ import {
   trackQuizAbandon,
 } from '@/lib/analytics';
 
-/** Get risk color from a 0-100 risk score */
+/** Get risk color matching the AI Kill Line progress bar stages */
 function riskColorFromScore(score: number): string {
-  if (score >= 80) return '#ff1744';   // extreme-high
-  if (score >= 60) return '#ff6d00';   // high
-  if (score >= 35) return '#ffc107';   // medium
-  if (score >= 15) return '#00c853';   // low
-  return '#00e676';                    // extreme-low
+  if (score >= 80) return '#ff1744';   // 80-100%: critical (same as --risk-critical)
+  if (score >= 60) return '#ff1744';   // 60-80%:  critical (same as --risk-critical)
+  if (score >= 40) return '#ff5722';   // 40-60%:  high (same as --risk-high)
+  if (score >= 20) return '#ffc107';   // 20-40%:  medium (same as --risk-medium)
+  return '#00e676';                    // 0-20%:   low (same as --risk-low)
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -1057,31 +1057,61 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     {/* ── Personalized Advice ── */}
                     {(() => {
                       const adviceList = generateAdvice(result.dimensions);
+                      const accentColors = ['#ff1744', '#ffc107', '#00e676', '#448aff', '#e040fb'];
                       return (
-                        <div className="pt-4 mt-2 border-t border-white/[0.06]">
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70 mb-3">
-                            {lang === 'zh' ? '个性化建议' : 'Personalized Advice'}
+                        <div className="pt-5 mt-3 border-t border-white/[0.06]">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70 mb-4 flex items-center gap-2">
+                            <span className="inline-block w-4 h-px" style={{ background: 'linear-gradient(90deg, #ff1744, #ffc107, #00e676)' }} />
+                            {lang === 'zh' ? '行动建议' : 'Action Plan'}
+                            <span className="inline-block flex-1 h-px bg-white/[0.06]" />
                           </h4>
-                          <div className="space-y-2.5">
-                            {adviceList.map((advice, ai) => (
-                              <motion.div
-                                key={ai}
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.8 + ai * 0.08 }}
-                                className="group/advice"
-                              >
-                                <div className="flex items-start gap-2.5 rounded-lg p-2.5 bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] transition-colors">
-                                  <span className="text-base leading-none mt-0.5 flex-shrink-0">{advice.icon}</span>
-                                  <div className="min-w-0">
-                                    <div className="text-xs font-semibold">{advice.title[lang]}</div>
-                                    <p className="text-[10px] sm:text-[11px] text-foreground-muted/60 leading-relaxed mt-0.5">
-                                      {advice.body[lang]}
-                                    </p>
+                          <div className="space-y-0">
+                            {adviceList.map((advice, ai) => {
+                              const accent = accentColors[ai % accentColors.length];
+                              const isFirst = ai === 0;
+                              return (
+                                <motion.div
+                                  key={ai}
+                                  initial={{ opacity: 0, x: -12 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: 0.8 + ai * 0.1, type: 'spring', stiffness: 200, damping: 25 }}
+                                >
+                                  <div className={`relative flex items-start gap-3 py-3.5 ${ai > 0 ? 'border-t border-white/[0.04]' : ''}`}>
+                                    {/* Accent bar + number */}
+                                    <div className="flex flex-col items-center gap-1 flex-shrink-0 w-7">
+                                      <div
+                                        className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm ${isFirst ? 'ring-1 ring-white/20' : ''}`}
+                                        style={{ background: isFirst ? `${accent}20` : `${accent}10`, color: accent }}
+                                      >
+                                        {advice.icon}
+                                      </div>
+                                      {ai < adviceList.length - 1 && (
+                                        <div className="w-px flex-1 min-h-[8px] bg-white/[0.06]" />
+                                      )}
+                                    </div>
+                                    {/* Content */}
+                                    <div className="min-w-0 flex-1 pt-0.5">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-[11px] sm:text-xs font-bold" style={{ color: isFirst ? accent : undefined }}>
+                                          {advice.title[lang]}
+                                        </span>
+                                        {isFirst && (
+                                          <span
+                                            className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                                            style={{ background: `${accent}20`, color: accent }}
+                                          >
+                                            {lang === 'zh' ? '首要' : 'Priority'}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-1">
+                                        {advice.body[lang]}
+                                      </p>
+                                    </div>
                                   </div>
-                                </div>
-                              </motion.div>
-                            ))}
+                                </motion.div>
+                              );
+                            })}
                           </div>
                         </div>
                       );

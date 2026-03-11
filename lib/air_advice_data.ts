@@ -109,14 +109,14 @@ export function generateAdvice(
 ): Advice[] {
   const advice: Advice[] = [];
 
+  // Data privacy advice FIRST — always the most important
+  advice.push(DATA_PRIVACY_ADVICE);
+
   for (const dim of dimensions) {
     const pool = dim.isFavorable ? FAVORABLE_ADVICE : RESISTANT_ADVICE;
     const entry = pool[dim.dimensionId];
     if (entry) advice.push(entry);
   }
-
-  // Always add data privacy advice last
-  advice.push(DATA_PRIVACY_ADVICE);
 
   return advice;
 }
