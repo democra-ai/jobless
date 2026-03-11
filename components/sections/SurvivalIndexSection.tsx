@@ -242,6 +242,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const [snapshotAnswers, setSnapshotAnswers] = useState<Record<string, QuizAnswer>>({});
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, number>>({});
   const [selectedSOC, setSelectedSOC] = useState<number | null>(null);
+  const [socOpen, setSOCOpen] = useState(false);
 
   const [result, setResult] = useState<QuizResult | null>(null);
 
@@ -678,59 +679,88 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 </div>
               </div>
 
-              {/* SOC Occupation Selector — sorted by risk */}
-              <div className="text-left max-w-md mx-auto">
-                <h4 className="text-sm font-semibold mb-1">{t.selectOccupation}</h4>
-                <p className="text-xs text-foreground-muted mb-3">{t.selectOccupationHint}</p>
-                <div className="space-y-1 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
-                  {[...SOC_MAJOR_GROUPS]
-                    .sort((a, b) => b.riskScore - a.riskScore)
-                    .map((soc) => {
-                      const color = riskColorFromScore(soc.riskScore);
-                      const isSelected = selectedSOC === soc.code;
-                      return (
-                        <button
-                          key={soc.code}
-                          type="button"
-                          onClick={() => setSelectedSOC(isSelected ? null : soc.code)}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-all ${
-                            isSelected
-                              ? 'text-white'
-                              : 'hover:bg-white/[0.04] text-foreground-muted'
-                          }`}
-                          style={isSelected ? {
-                            backgroundColor: color + '15',
-                            boxShadow: `inset 0 0 0 1px ${color}40`,
-                          } : undefined}
+              {/* SOC Occupation Selector — collapsible dropdown */}
+              {(() => {
+                const selectedGroup = SOC_MAJOR_GROUPS.find(s => s.code === selectedSOC);
+                const selectedColor = selectedGroup ? riskColorFromScore(selectedGroup.riskScore) : undefined;
+                return (
+                  <div className="text-left max-w-md mx-auto">
+                    {/* Collapsed trigger */}
+                    <button
+                      type="button"
+                      onClick={() => setSOCOpen(prev => !prev)}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] transition-all text-sm"
+                    >
+                      {selectedGroup ? (
+                        <>
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: selectedColor }} />
+                          <span className="flex-1 text-left font-medium">{selectedGroup.name[lang]}</span>
+                          <span className="text-[10px] font-mono tabular-nums" style={{ color: selectedColor + 'cc' }}>{selectedGroup.riskScore}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Target className="w-4 h-4 text-foreground-muted/50 flex-shrink-0" />
+                          <span className="flex-1 text-left text-foreground-muted">{t.selectOccupation}</span>
+                        </>
+                      )}
+                      <ChevronRight className={`w-4 h-4 text-foreground-muted/40 transition-transform ${socOpen ? 'rotate-90' : ''}`} />
+                    </button>
+
+                    {/* Expandable list */}
+                    <AnimatePresence initial={false}>
+                      {socOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25, ease: 'easeInOut' }}
+                          className="overflow-hidden"
                         >
-                          {/* Risk bar */}
-                          <div className="flex-shrink-0 w-12 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all"
-                              style={{ width: `${soc.riskScore}%`, backgroundColor: color }}
-                            />
+                          <div className="pt-2 space-y-0.5 max-h-[240px] overflow-y-auto pr-1 custom-scrollbar">
+                            <p className="text-[10px] text-foreground-muted/50 px-3 pb-1">{t.selectOccupationHint}</p>
+                            {[...SOC_MAJOR_GROUPS]
+                              .sort((a, b) => b.riskScore - a.riskScore)
+                              .map((soc) => {
+                                const color = riskColorFromScore(soc.riskScore);
+                                const isSelected = selectedSOC === soc.code;
+                                return (
+                                  <button
+                                    key={soc.code}
+                                    type="button"
+                                    onClick={() => { setSelectedSOC(isSelected ? null : soc.code); setSOCOpen(false); }}
+                                    className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition-all ${
+                                      isSelected
+                                        ? 'text-white'
+                                        : 'hover:bg-white/[0.04] text-foreground-muted'
+                                    }`}
+                                    style={isSelected ? {
+                                      backgroundColor: color + '15',
+                                      boxShadow: `inset 0 0 0 1px ${color}40`,
+                                    } : undefined}
+                                  >
+                                    <div className="flex-shrink-0 w-10 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                                      <div className="h-full rounded-full" style={{ width: `${soc.riskScore}%`, backgroundColor: color }} />
+                                    </div>
+                                    <span className="flex-1 text-left truncate">{soc.name[lang]}</span>
+                                    <span className="flex-shrink-0 tabular-nums text-[10px] font-mono" style={{ color: color + 'cc' }}>{soc.riskScore}</span>
+                                  </button>
+                                );
+                              })}
+                            <button
+                              type="button"
+                              onClick={() => { setSelectedSOC(null); setSOCOpen(false); }}
+                              className="w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs hover:bg-white/[0.04] text-foreground-muted/50 transition-all"
+                            >
+                              <div className="flex-shrink-0 w-10 h-1 rounded-full bg-white/[0.06]" />
+                              <span className="flex-1 text-left">{t.occupationOtherSkip}</span>
+                            </button>
                           </div>
-                          <span className="flex-1 text-left truncate">{soc.name[lang]}</span>
-                          <span className="flex-shrink-0 tabular-nums text-[10px] font-mono" style={{ color: color + 'cc' }}>
-                            {soc.riskScore}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedSOC(null)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-all ${
-                      selectedSOC === null
-                        ? 'bg-white/[0.06] text-foreground-muted'
-                        : 'hover:bg-white/[0.04] text-foreground-muted/50'
-                    }`}
-                  >
-                    <div className="flex-shrink-0 w-12 h-1.5 rounded-full bg-white/[0.06]" />
-                    <span className="flex-1 text-left">{t.occupationOtherSkip}</span>
-                  </button>
-                </div>
-              </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })()}
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
