@@ -831,9 +831,15 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full blur-[120px] opacity-15" style={{ backgroundColor: riskColor }} />
 
                   <div className="relative z-10 p-6 sm:p-8">
-                    {/* Name + Risk tier */}
+                    {/* Profile code + Name + Risk tier */}
                     <div className="text-center mb-6">
-                      <div className="text-lg sm:text-xl font-semibold">{result.profile.name[lang]}</div>
+                      <div
+                        className="text-3xl sm:text-4xl font-bold tracking-[0.2em]"
+                        style={{ color: riskColor, fontFamily: 'var(--font-mono)' }}
+                      >
+                        {result.profileCode}
+                      </div>
+                      <div className="text-lg sm:text-xl font-semibold mt-1.5">{result.profile.name[lang]}</div>
                       <div className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: riskColor }}>
                         {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
                       </div>
@@ -869,7 +875,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                 style={{
                                   backgroundColor: color + '18',
                                   color,
-                                  fontFamily: 'var(--font-display)',
+                                  fontFamily: 'var(--font-mono)',
+                                  fontFeatureSettings: '"ss01" on',
                                 }}
                               >
                                 {dim.letter}
@@ -1219,7 +1226,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     <div style={{ fontSize: '12px', letterSpacing: '1.5px', opacity: 0.72 }}>
                       {lang === 'en' ? 'YOUR AIR TYPE' : '你的 AIR 类型'}
                     </div>
-                    <div style={{ marginTop: '10px', fontSize: '96px', fontWeight: 800, lineHeight: 1, color: riskColor, letterSpacing: '0.15em' }}>
+                    <div style={{ marginTop: '10px', fontSize: '96px', fontWeight: 700, lineHeight: 1, color: riskColor, letterSpacing: '0.2em', fontFamily: 'var(--font-mono)' }}>
                       {result.profileCode}
                     </div>
                     <div style={{ marginTop: '10px', fontSize: '36px', fontWeight: 700 }}>
