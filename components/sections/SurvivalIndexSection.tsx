@@ -31,6 +31,15 @@ import {
   trackQuizAbandon,
 } from '@/lib/analytics';
 
+/** Get risk color from a 0-100 risk score */
+function riskColorFromScore(score: number): string {
+  if (score >= 80) return '#ff1744';   // extreme-high
+  if (score >= 60) return '#ff6d00';   // high
+  if (score >= 35) return '#ffc107';   // medium
+  if (score >= 15) return '#00c853';   // low
+  return '#00e676';                    // extreme-low
+}
+
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string }) {
@@ -674,21 +683,29 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 <h4 className="text-sm font-semibold mb-1">{t.selectOccupation}</h4>
                 <p className="text-xs text-foreground-muted mb-3">{t.selectOccupationHint}</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
-                  {SOC_MAJOR_GROUPS.map((soc) => (
-                    <button
-                      key={soc.code}
-                      type="button"
-                      onClick={() => setSelectedSOC(selectedSOC === soc.code ? null : soc.code)}
-                      className={`text-left px-2.5 py-2 rounded-lg border text-xs transition-all ${
-                        selectedSOC === soc.code
-                          ? 'border-violet-400/60 bg-violet-500/15 text-white'
-                          : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 hover:border-white/20 text-foreground-muted'
-                      }`}
-                    >
-                      <span className="font-mono text-[10px] opacity-50 mr-1">{soc.code}</span>
-                      {soc.name[lang]}
-                    </button>
-                  ))}
+                  {SOC_MAJOR_GROUPS.map((soc) => {
+                    const color = riskColorFromScore(soc.riskScore);
+                    const isSelected = selectedSOC === soc.code;
+                    return (
+                      <button
+                        key={soc.code}
+                        type="button"
+                        onClick={() => setSelectedSOC(isSelected ? null : soc.code)}
+                        className={`text-left px-2.5 py-2 rounded-lg border text-xs transition-all ${
+                          isSelected
+                            ? 'text-white'
+                            : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 text-foreground-muted'
+                        }`}
+                        style={isSelected ? {
+                          borderColor: color + '60',
+                          backgroundColor: color + '15',
+                        } : undefined}
+                      >
+                        <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 align-middle" style={{ backgroundColor: color }} />
+                        {soc.name[lang]}
+                      </button>
+                    );
+                  })}
                   <button
                     type="button"
                     onClick={() => setSelectedSOC(null)}
@@ -1045,20 +1062,22 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 </div>
 
                 {/* Your Occupation */}
-                {result.occupationSOC && (
-                  <div className="result-card rounded-xl p-6">
-                    <h5 className="font-semibold mb-2">{t.yourOccupation}</h5>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs px-2 py-0.5 rounded bg-surface-elevated text-foreground-muted">
-                        SOC {result.occupationSOC.code}
-                      </span>
-                      <span className="text-sm font-medium">{result.occupationSOC.name[lang]}</span>
+                {result.occupationSOC && (() => {
+                  const socGroup = SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code);
+                  const socColor = socGroup ? riskColorFromScore(socGroup.riskScore) : riskColor;
+                  return (
+                    <div className="result-card rounded-xl p-6">
+                      <h5 className="font-semibold mb-2">{t.yourOccupation}</h5>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: socColor }} />
+                        <span className="text-sm font-medium">{result.occupationSOC!.name[lang]}</span>
+                      </div>
+                      {result.occupationSOC!.inferred && (
+                        <p className="text-[11px] text-foreground-muted/60 mt-1">{t.occupationInferred}</p>
+                      )}
                     </div>
-                    {result.occupationSOC.inferred && (
-                      <p className="text-[11px] text-foreground-muted/60 mt-1">{t.occupationInferred}</p>
-                    )}
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Typical Jobs */}
                 <div className="result-card rounded-xl p-6">
