@@ -933,135 +933,169 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
-              <div data-testid="share-result-capture" className="space-y-6">
+              <div data-testid="share-result-capture" className="space-y-5">
 
-                {/* Profile Type + Risk Level (merged) */}
+                {/* ── Hero: Profile Code + Inline Metrics ── */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="result-card rounded-2xl p-8 text-center relative overflow-hidden"
+                  className="relative overflow-hidden rounded-2xl p-6 sm:p-8 text-center"
+                  style={{ background: `linear-gradient(145deg, ${riskColor}08, ${riskColor}04)`, border: `1px solid ${riskColor}20` }}
                 >
-                  <div
-                    className="absolute top-0 left-0 right-0 h-1"
-                    style={{ background: `linear-gradient(90deg, ${riskColor}, transparent)` }}
-                  />
+                  {/* Ambient glow */}
+                  <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full blur-[100px] opacity-20" style={{ backgroundColor: riskColor }} />
+
                   <div className="relative z-10">
-                    <div className="text-sm text-foreground-muted uppercase tracking-wider mb-2">{t.yourType}</div>
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
+                      initial={{ opacity: 0, scale: 0.7 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2, type: 'spring' }}
-                      className="text-5xl sm:text-7xl md:text-8xl font-bold mb-2 tracking-widest"
+                      transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
+                      className="text-5xl sm:text-7xl font-bold tracking-[0.2em] mb-1"
                       style={{ color: riskColor, fontFamily: 'var(--font-display)' }}
                     >
                       {result.profileCode}
                     </motion.div>
-                    <div className="text-xl sm:text-2xl font-semibold mb-1">{result.profile.name[lang]}</div>
-                    <div className="text-base font-bold mb-2" style={{ color: riskColor }}>
+                    <div className="text-lg sm:text-xl font-semibold">{result.profile.name[lang]}</div>
+                    <div className="text-xs font-bold uppercase tracking-widest mt-1 mb-3" style={{ color: riskColor }}>
                       {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
                     </div>
-                    <div className="text-sm text-foreground-muted max-w-lg mx-auto">{result.profile.description[lang]}</div>
+
+                    {/* Inline metrics strip */}
+                    <div className="flex items-center justify-center gap-4 sm:gap-6 pt-3 border-t" style={{ borderColor: riskColor + '15' }}>
+                      <div className="text-center">
+                        <div className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--risk-critical)' }}>
+                          <AnimatedNumber value={result.replacementProbability} suffix="%" />
+                        </div>
+                        <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric1Title}</div>
+                      </div>
+                      <div className="w-px h-10 bg-white/10" />
+                      <div className="text-center">
+                        <div className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--risk-high)' }}>
+                          <AnimatedNumber value={result.predictedReplacementYear} />
+                        </div>
+                        <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric2Title}</div>
+                        <div className="text-[10px] text-foreground-muted/40 font-mono">
+                          {result.confidenceInterval.earliest}–{result.confidenceInterval.latest}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
 
-                {/* Key Metrics (2 columns) */}
+                {/* ── Dimensions: 2×2 Card Grid (visual hero) ── */}
                 <div className="grid grid-cols-2 gap-3">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="result-card rounded-xl p-5 text-center"
-                  >
-                    <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-1" style={{ color: 'var(--risk-critical)' }}>
-                      <AnimatedNumber value={result.replacementProbability} suffix="%" />
-                    </div>
-                    <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric1Title}</div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="result-card rounded-xl p-5 text-center"
-                  >
-                    <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-1" style={{ color: 'var(--risk-high)' }}>
-                      <AnimatedNumber value={result.predictedReplacementYear} />
-                    </div>
-                    <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric2Title}</div>
-                    <div className="text-[11px] text-foreground-muted/50 mt-0.5 font-mono">
-                      {result.confidenceInterval.earliest}–{result.confidenceInterval.latest}
-                    </div>
-                  </motion.div>
-                </div>
+                  {result.dimensions.map((dim, i) => {
+                    const pct = ((dim.rawAverage - 1) / 4) * 100;
+                    const color = DIMENSION_COLORS[i];
+                    const Icon = DIMENSION_ICONS[i];
+                    const arcRadius = 36;
+                    const arcCircumference = Math.PI * arcRadius; // semicircle
+                    const arcOffset = arcCircumference * (1 - pct / 100);
 
-                {/* Dimension Breakdown */}
-                <div className="result-card rounded-xl p-6">
-                  <h5 className="font-semibold mb-4">{t.dimensionBreakdown}</h5>
-                  <div className="space-y-3">
-                    {result.dimensions.map((dim, i) => {
-                      const pct = ((dim.rawAverage - 1) / 4) * 100;
-                      const color = DIMENSION_COLORS[i];
-                      return (
-                        <div key={dim.dimensionId}>
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <div className="flex items-center gap-2">
-                              {React.createElement(DIMENSION_ICONS[i], { className: 'w-4 h-4', style: { color } })}
-                              <span>{dim.name[lang]}</span>
-                            </div>
-                            <span className={`font-bold text-xs px-2 py-0.5 rounded-full ${
-                              dim.isFavorable
-                                ? 'bg-rose-500/20 text-rose-400'
-                                : 'bg-emerald-500/20 text-emerald-400'
-                            }`}>
-                              {dim.letter} — {dim.isFavorable ? dim.favorableLabel[lang] : dim.resistantLabel[lang]}
-                            </span>
-                          </div>
-                          <div className="w-full h-2 bg-surface-elevated rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${pct}%` }}
-                              transition={{ duration: 0.8, delay: 0.3 + i * 0.1 }}
-                              className="h-full rounded-full"
-                              style={{ backgroundColor: color }}
+                    return (
+                      <motion.div
+                        key={dim.dimensionId}
+                        initial={{ opacity: 0, y: 24 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 + i * 0.08 }}
+                        className="relative rounded-2xl p-4 sm:p-5 overflow-hidden group"
+                        style={{
+                          background: `linear-gradient(160deg, ${color}0a, transparent)`,
+                          border: `1px solid ${color}20`,
+                        }}
+                      >
+                        {/* Corner glow */}
+                        <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-[40px] opacity-15 transition-opacity group-hover:opacity-30" style={{ backgroundColor: color }} />
+
+                        <div className="relative z-10 flex flex-col items-center text-center">
+                          {/* Arc gauge */}
+                          <svg width="80" height="48" viewBox="0 0 80 48" className="mb-2">
+                            {/* Background arc */}
+                            <path
+                              d={`M 4 44 A ${arcRadius} ${arcRadius} 0 0 1 76 44`}
+                              fill="none"
+                              stroke="rgba(255,255,255,0.08)"
+                              strokeWidth="6"
+                              strokeLinecap="round"
                             />
+                            {/* Filled arc */}
+                            <motion.path
+                              d={`M 4 44 A ${arcRadius} ${arcRadius} 0 0 1 76 44`}
+                              fill="none"
+                              stroke={color}
+                              strokeWidth="6"
+                              strokeLinecap="round"
+                              strokeDasharray={arcCircumference}
+                              initial={{ strokeDashoffset: arcCircumference }}
+                              animate={{ strokeDashoffset: arcOffset }}
+                              transition={{ duration: 1, delay: 0.4 + i * 0.1, ease: 'easeOut' }}
+                            />
+                            {/* Icon in center */}
+                            <foreignObject x="28" y="16" width="24" height="24">
+                              <Icon style={{ width: 20, height: 20, color, margin: '2px auto', display: 'block' }} />
+                            </foreignObject>
+                          </svg>
+
+                          {/* Letter result — big */}
+                          <div className="text-2xl sm:text-3xl font-bold tracking-wider mb-0.5" style={{ color }}>
+                            {dim.letter}
                           </div>
-                          <div className="flex justify-between text-[10px] text-foreground-muted mt-0.5">
-                            <span>{QUIZ_DIMENSIONS[i].resistantLabel[lang]}</span>
-                            <span>{QUIZ_DIMENSIONS[i].favorableLabel[lang]}</span>
+
+                          {/* Dimension name */}
+                          <div className="text-[11px] sm:text-xs font-medium text-foreground/80 leading-tight">
+                            {dim.name[lang]}
+                          </div>
+
+                          {/* Verdict pill */}
+                          <div className={`mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            dim.isFavorable
+                              ? 'bg-rose-500/15 text-rose-400'
+                              : 'bg-emerald-500/15 text-emerald-400'
+                          }`}>
+                            {dim.isFavorable ? dim.favorableLabel[lang] : dim.resistantLabel[lang]}
                           </div>
                         </div>
-                      );
-                    })}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* ── Description + Occupation (compact) ── */}
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="result-card rounded-xl p-5 space-y-3"
+                >
+                  <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.description[lang]}</p>
+                  {result.occupationSOC && (() => {
+                    const socGroup = SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code);
+                    const socColor = socGroup ? riskColorFromScore(socGroup.riskScore) : riskColor;
+                    return (
+                      <div className="flex items-center gap-2 pt-3 border-t border-white/5">
+                        <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: socColor }} />
+                        <span className="text-xs font-semibold">{result.occupationSOC!.name[lang]}</span>
+                        {result.occupationSOC!.inferred && (
+                          <span className="text-[10px] text-foreground-muted/40">({t.occupationInferred})</span>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </motion.div>
+
+                {/* Reality Check — subtle inline */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="flex items-start gap-3 rounded-xl px-5 py-4 bg-white/[0.02] border border-white/[0.06]"
+                >
+                  <Flame className="w-4 h-4 text-risk-critical flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-xs font-semibold text-foreground">{t.realityCheck}</span>
+                    <p className="text-xs text-foreground-muted/70 mt-0.5 leading-relaxed">{t.realityCheckText}</p>
                   </div>
-                </div>
-
-                {/* Occupation & Typical Jobs (merged) */}
-                {(() => {
-                  const socGroup = result.occupationSOC ? SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code) : null;
-                  const socColor = socGroup ? riskColorFromScore(socGroup.riskScore) : riskColor;
-                  return (
-                    <div className="result-card rounded-xl p-6">
-                      {result.occupationSOC && (
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: socColor }} />
-                          <span className="text-sm font-semibold">{result.occupationSOC.name[lang]}</span>
-                          {result.occupationSOC.inferred && (
-                            <span className="text-[10px] text-foreground-muted/50 ml-1">({t.occupationInferred})</span>
-                          )}
-                        </div>
-                      )}
-                      <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.typicalJobs[lang]}</p>
-                    </div>
-                  );
-                })()}
-
-                {/* Reality Check */}
-                <div className="rounded-xl p-5 bg-gradient-to-r from-risk-critical/10 to-risk-high/10 border border-risk-critical/20">
-                  <p className="text-sm">
-                    <Flame className="w-5 h-5 inline text-risk-critical mr-2 align-middle" />
-                    <span className="font-semibold text-foreground">{t.realityCheck}</span>
-                  </p>
-                  <p className="text-sm text-foreground-muted mt-2 leading-relaxed">{t.realityCheckText}</p>
-                </div>
+                </motion.div>
               </div>
 
               {/* Off-screen poster capture node */}
