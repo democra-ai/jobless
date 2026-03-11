@@ -935,33 +935,86 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
             >
               <div data-testid="share-result-capture" className="space-y-5">
 
-                {/* ── Hero: Profile Code + Inline Metrics ── */}
+                {/* ── Unified Result Card ── */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="relative overflow-hidden rounded-2xl p-6 sm:p-8 text-center"
-                  style={{ background: `linear-gradient(145deg, ${riskColor}08, ${riskColor}04)`, border: `1px solid ${riskColor}20` }}
+                  className="relative overflow-hidden rounded-2xl"
+                  style={{ border: `1px solid ${riskColor}20` }}
                 >
-                  {/* Ambient glow */}
-                  <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full blur-[100px] opacity-20" style={{ backgroundColor: riskColor }} />
+                  {/* Background glow */}
+                  <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full blur-[120px] opacity-15" style={{ backgroundColor: riskColor }} />
 
-                  <div className="relative z-10">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.7 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
-                      className="text-5xl sm:text-7xl font-bold tracking-[0.2em] mb-1"
-                      style={{ color: riskColor, fontFamily: 'var(--font-display)' }}
-                    >
-                      {result.profileCode}
-                    </motion.div>
-                    <div className="text-lg sm:text-xl font-semibold">{result.profile.name[lang]}</div>
-                    <div className="text-xs font-bold uppercase tracking-widest mt-1 mb-3" style={{ color: riskColor }}>
-                      {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
+                  <div className="relative z-10 p-6 sm:p-8">
+                    {/* Name + Risk tier */}
+                    <div className="text-center mb-6">
+                      <div className="text-lg sm:text-xl font-semibold">{result.profile.name[lang]}</div>
+                      <div className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: riskColor }}>
+                        {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
+                      </div>
                     </div>
 
-                    {/* Inline metrics strip */}
-                    <div className="flex items-center justify-center gap-4 sm:gap-6 pt-3 border-t" style={{ borderColor: riskColor + '15' }}>
+                    {/* ── 4-Letter Dimensional Display (the hero) ── */}
+                    <div className="flex items-start justify-center gap-2 sm:gap-4 mb-6">
+                      {result.dimensions.map((dim, i) => {
+                        const pct = ((dim.rawAverage - 1) / 4) * 100;
+                        const color = DIMENSION_COLORS[i];
+                        const Icon = DIMENSION_ICONS[i];
+                        const barHeight = 48;
+
+                        return (
+                          <motion.div
+                            key={dim.dimensionId}
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 + i * 0.08 }}
+                            className="flex flex-col items-center flex-1 max-w-[100px]"
+                          >
+                            {/* Icon */}
+                            <Icon className="w-4 h-4 mb-2 opacity-60" style={{ color }} />
+
+                            {/* Big Letter */}
+                            <motion.div
+                              initial={{ scale: 0.5, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ delay: 0.25 + i * 0.1, type: 'spring', stiffness: 300 }}
+                              className="text-4xl sm:text-5xl font-bold leading-none mb-2"
+                              style={{ color, fontFamily: 'var(--font-display)' }}
+                            >
+                              {dim.letter}
+                            </motion.div>
+
+                            {/* Vertical fill bar */}
+                            <div className="w-3 rounded-full overflow-hidden bg-white/[0.06]" style={{ height: barHeight }}>
+                              <motion.div
+                                className="w-full rounded-full"
+                                style={{ backgroundColor: color, originY: 1 }}
+                                initial={{ height: 0 }}
+                                animate={{ height: `${pct}%` }}
+                                transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
+                              />
+                            </div>
+
+                            {/* Dimension name */}
+                            <div className="text-[10px] sm:text-[11px] text-foreground-muted/70 mt-2 leading-tight text-center">
+                              {dim.name[lang]}
+                            </div>
+
+                            {/* Verdict */}
+                            <div className={`mt-1.5 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap ${
+                              dim.isFavorable
+                                ? 'bg-rose-500/15 text-rose-400'
+                                : 'bg-emerald-500/15 text-emerald-400'
+                            }`}>
+                              {dim.isFavorable ? dim.favorableLabel[lang] : dim.resistantLabel[lang]}
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+
+                    {/* ── Metrics strip ── */}
+                    <div className="flex items-center justify-center gap-5 sm:gap-8 py-4 border-t border-b border-white/[0.06]">
                       <div className="text-center">
                         <div className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--risk-critical)' }}>
                           <AnimatedNumber value={result.replacementProbability} suffix="%" />
@@ -979,121 +1032,33 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                         </div>
                       </div>
                     </div>
+
+                    {/* ── Description + Occupation ── */}
+                    <div className="pt-4 space-y-2">
+                      <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.description[lang]}</p>
+                      {result.occupationSOC && (() => {
+                        const socGroup = SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code);
+                        const socColor = socGroup ? riskColorFromScore(socGroup.riskScore) : riskColor;
+                        return (
+                          <div className="flex items-center gap-2">
+                            <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: socColor }} />
+                            <span className="text-xs font-semibold">{result.occupationSOC!.name[lang]}</span>
+                            {result.occupationSOC!.inferred && (
+                              <span className="text-[10px] text-foreground-muted/40">({t.occupationInferred})</span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
                   </div>
-                </motion.div>
 
-                {/* ── Dimensions: 2×2 Card Grid (visual hero) ── */}
-                <div className="grid grid-cols-2 gap-3">
-                  {result.dimensions.map((dim, i) => {
-                    const pct = ((dim.rawAverage - 1) / 4) * 100;
-                    const color = DIMENSION_COLORS[i];
-                    const Icon = DIMENSION_ICONS[i];
-                    const arcRadius = 36;
-                    const arcCircumference = Math.PI * arcRadius; // semicircle
-                    const arcOffset = arcCircumference * (1 - pct / 100);
-
-                    return (
-                      <motion.div
-                        key={dim.dimensionId}
-                        initial={{ opacity: 0, y: 24 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + i * 0.08 }}
-                        className="relative rounded-2xl p-4 sm:p-5 overflow-hidden group"
-                        style={{
-                          background: `linear-gradient(160deg, ${color}0a, transparent)`,
-                          border: `1px solid ${color}20`,
-                        }}
-                      >
-                        {/* Corner glow */}
-                        <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-[40px] opacity-15 transition-opacity group-hover:opacity-30" style={{ backgroundColor: color }} />
-
-                        <div className="relative z-10 flex flex-col items-center text-center">
-                          {/* Arc gauge */}
-                          <svg width="80" height="48" viewBox="0 0 80 48" className="mb-2">
-                            {/* Background arc */}
-                            <path
-                              d={`M 4 44 A ${arcRadius} ${arcRadius} 0 0 1 76 44`}
-                              fill="none"
-                              stroke="rgba(255,255,255,0.08)"
-                              strokeWidth="6"
-                              strokeLinecap="round"
-                            />
-                            {/* Filled arc */}
-                            <motion.path
-                              d={`M 4 44 A ${arcRadius} ${arcRadius} 0 0 1 76 44`}
-                              fill="none"
-                              stroke={color}
-                              strokeWidth="6"
-                              strokeLinecap="round"
-                              strokeDasharray={arcCircumference}
-                              initial={{ strokeDashoffset: arcCircumference }}
-                              animate={{ strokeDashoffset: arcOffset }}
-                              transition={{ duration: 1, delay: 0.4 + i * 0.1, ease: 'easeOut' }}
-                            />
-                            {/* Icon in center */}
-                            <foreignObject x="28" y="16" width="24" height="24">
-                              <Icon style={{ width: 20, height: 20, color, margin: '2px auto', display: 'block' }} />
-                            </foreignObject>
-                          </svg>
-
-                          {/* Letter result — big */}
-                          <div className="text-2xl sm:text-3xl font-bold tracking-wider mb-0.5" style={{ color }}>
-                            {dim.letter}
-                          </div>
-
-                          {/* Dimension name */}
-                          <div className="text-[11px] sm:text-xs font-medium text-foreground/80 leading-tight">
-                            {dim.name[lang]}
-                          </div>
-
-                          {/* Verdict pill */}
-                          <div className={`mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                            dim.isFavorable
-                              ? 'bg-rose-500/15 text-rose-400'
-                              : 'bg-emerald-500/15 text-emerald-400'
-                          }`}>
-                            {dim.isFavorable ? dim.favorableLabel[lang] : dim.resistantLabel[lang]}
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-
-                {/* ── Description + Occupation (compact) ── */}
-                <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="result-card rounded-xl p-5 space-y-3"
-                >
-                  <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.description[lang]}</p>
-                  {result.occupationSOC && (() => {
-                    const socGroup = SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code);
-                    const socColor = socGroup ? riskColorFromScore(socGroup.riskScore) : riskColor;
-                    return (
-                      <div className="flex items-center gap-2 pt-3 border-t border-white/5">
-                        <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: socColor }} />
-                        <span className="text-xs font-semibold">{result.occupationSOC!.name[lang]}</span>
-                        {result.occupationSOC!.inferred && (
-                          <span className="text-[10px] text-foreground-muted/40">({t.occupationInferred})</span>
-                        )}
-                      </div>
-                    );
-                  })()}
-                </motion.div>
-
-                {/* Reality Check — subtle inline */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="flex items-start gap-3 rounded-xl px-5 py-4 bg-white/[0.02] border border-white/[0.06]"
-                >
-                  <Flame className="w-4 h-4 text-risk-critical flex-shrink-0 mt-0.5" />
-                  <div>
-                    <span className="text-xs font-semibold text-foreground">{t.realityCheck}</span>
-                    <p className="text-xs text-foreground-muted/70 mt-0.5 leading-relaxed">{t.realityCheckText}</p>
+                  {/* Reality check footer */}
+                  <div className="flex items-start gap-3 px-6 sm:px-8 py-3 bg-white/[0.02] border-t border-white/[0.04]">
+                    <Flame className="w-3.5 h-3.5 text-risk-critical flex-shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-foreground-muted/60 leading-relaxed">
+                      <span className="font-semibold text-foreground-muted/80">{t.realityCheck}</span>{' '}
+                      {t.realityCheckText}
+                    </p>
                   </div>
                 </motion.div>
               </div>
