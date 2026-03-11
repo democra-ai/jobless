@@ -21,6 +21,7 @@ import {
 } from '@/lib/air_quiz_data';
 import { calculateQuizResult, QuizAnswers, QuizResult } from '@/lib/air_quiz_calculator';
 import { PROFILE_CAREERS } from '@/lib/air_career_data';
+import { generateAdvice } from '@/lib/air_advice_data';
 import {
   trackQuizStart,
   trackQuizAnswer,
@@ -944,38 +945,44 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     </div>
 
                     {/* ── Metrics strip ── */}
-                    <div className="flex items-center justify-center gap-5 sm:gap-8 py-4 border-t border-b border-white/[0.06]">
-                      <div className="text-center">
-                        <div className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--risk-critical)' }}>
-                          <AnimatedNumber value={result.replacementProbability} suffix="%" />
+                    {(() => {
+                      const probColor = riskColorFromScore(result.replacementProbability);
+                      // Year urgency: sooner = more red
+                      const yearsAway = result.predictedReplacementYear - new Date().getFullYear();
+                      const yearColor = riskColorFromScore(Math.max(0, Math.min(100, 100 - yearsAway * 5)));
+                      return (
+                        <div className="flex items-center justify-center gap-5 sm:gap-8 py-4 border-t border-b border-white/[0.06]">
+                          <div className="text-center">
+                            <div className="text-2xl sm:text-3xl font-bold" style={{ color: probColor }}>
+                              <AnimatedNumber value={result.replacementProbability} suffix="%" />
+                            </div>
+                            <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric1Title}</div>
+                          </div>
+                          <div className="w-px h-10 bg-white/10" />
+                          <div className="text-center">
+                            <div className="text-2xl sm:text-3xl font-bold" style={{ color: yearColor }}>
+                              <AnimatedNumber value={result.predictedReplacementYear} />
+                            </div>
+                            <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric2Title}</div>
+                            <div className="text-[10px] text-foreground-muted/40 font-mono">
+                              {result.confidenceInterval.earliest}–{result.confidenceInterval.latest}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric1Title}</div>
-                      </div>
-                      <div className="w-px h-10 bg-white/10" />
-                      <div className="text-center">
-                        <div className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--risk-high)' }}>
-                          <AnimatedNumber value={result.predictedReplacementYear} />
-                        </div>
-                        <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric2Title}</div>
-                        <div className="text-[10px] text-foreground-muted/40 font-mono">
-                          {result.confidenceInterval.earliest}–{result.confidenceInterval.latest}
-                        </div>
-                      </div>
-                    </div>
+                      );
+                    })()}
 
                     {/* ── Description ── */}
                     <div className="pt-4">
                       <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.description[lang]}</p>
-                      {result.occupationSOC && (() => {
+                      {/* Only show occupation if user explicitly selected one */}
+                      {result.occupationSOC && !result.occupationSOC.inferred && (() => {
                         const socGroup = SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code);
                         const socColor = socGroup ? riskColorFromScore(socGroup.riskScore) : riskColor;
                         return (
                           <div className="flex items-center gap-2 mt-2">
                             <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: socColor }} />
                             <span className="text-xs font-semibold">{result.occupationSOC!.name[lang]}</span>
-                            {result.occupationSOC!.inferred && (
-                              <span className="text-[10px] text-foreground-muted/40">({t.occupationInferred})</span>
-                            )}
                           </div>
                         );
                       })()}
@@ -1042,6 +1049,39 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                 </motion.div>
                               );
                             })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* ── Personalized Advice ── */}
+                    {(() => {
+                      const adviceList = generateAdvice(result.dimensions);
+                      return (
+                        <div className="pt-4 mt-2 border-t border-white/[0.06]">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70 mb-3">
+                            {lang === 'zh' ? '个性化建议' : 'Personalized Advice'}
+                          </h4>
+                          <div className="space-y-2.5">
+                            {adviceList.map((advice, ai) => (
+                              <motion.div
+                                key={ai}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.8 + ai * 0.08 }}
+                                className="group/advice"
+                              >
+                                <div className="flex items-start gap-2.5 rounded-lg p-2.5 bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] transition-colors">
+                                  <span className="text-base leading-none mt-0.5 flex-shrink-0">{advice.icon}</span>
+                                  <div className="min-w-0">
+                                    <div className="text-xs font-semibold">{advice.title[lang]}</div>
+                                    <p className="text-[10px] sm:text-[11px] text-foreground-muted/60 leading-relaxed mt-0.5">
+                                      {advice.body[lang]}
+                                    </p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            ))}
                           </div>
                         </div>
                       );
