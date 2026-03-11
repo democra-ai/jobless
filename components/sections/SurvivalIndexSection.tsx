@@ -678,44 +678,56 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 </div>
               </div>
 
-              {/* SOC Occupation Selector */}
-              <div className="text-left max-w-lg mx-auto">
+              {/* SOC Occupation Selector — sorted by risk */}
+              <div className="text-left max-w-md mx-auto">
                 <h4 className="text-sm font-semibold mb-1">{t.selectOccupation}</h4>
                 <p className="text-xs text-foreground-muted mb-3">{t.selectOccupationHint}</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
-                  {SOC_MAJOR_GROUPS.map((soc) => {
-                    const color = riskColorFromScore(soc.riskScore);
-                    const isSelected = selectedSOC === soc.code;
-                    return (
-                      <button
-                        key={soc.code}
-                        type="button"
-                        onClick={() => setSelectedSOC(isSelected ? null : soc.code)}
-                        className={`text-left px-2.5 py-2 rounded-lg border text-xs transition-all ${
-                          isSelected
-                            ? 'text-white'
-                            : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 text-foreground-muted'
-                        }`}
-                        style={isSelected ? {
-                          borderColor: color + '60',
-                          backgroundColor: color + '15',
-                        } : undefined}
-                      >
-                        <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 align-middle" style={{ backgroundColor: color }} />
-                        {soc.name[lang]}
-                      </button>
-                    );
-                  })}
+                <div className="space-y-1 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
+                  {[...SOC_MAJOR_GROUPS]
+                    .sort((a, b) => b.riskScore - a.riskScore)
+                    .map((soc) => {
+                      const color = riskColorFromScore(soc.riskScore);
+                      const isSelected = selectedSOC === soc.code;
+                      return (
+                        <button
+                          key={soc.code}
+                          type="button"
+                          onClick={() => setSelectedSOC(isSelected ? null : soc.code)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-all ${
+                            isSelected
+                              ? 'text-white'
+                              : 'hover:bg-white/[0.04] text-foreground-muted'
+                          }`}
+                          style={isSelected ? {
+                            backgroundColor: color + '15',
+                            boxShadow: `inset 0 0 0 1px ${color}40`,
+                          } : undefined}
+                        >
+                          {/* Risk bar */}
+                          <div className="flex-shrink-0 w-12 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{ width: `${soc.riskScore}%`, backgroundColor: color }}
+                            />
+                          </div>
+                          <span className="flex-1 text-left truncate">{soc.name[lang]}</span>
+                          <span className="flex-shrink-0 tabular-nums text-[10px] font-mono" style={{ color: color + 'cc' }}>
+                            {soc.riskScore}
+                          </span>
+                        </button>
+                      );
+                    })}
                   <button
                     type="button"
                     onClick={() => setSelectedSOC(null)}
-                    className={`text-left px-2.5 py-2 rounded-lg border text-xs transition-all ${
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-all ${
                       selectedSOC === null
-                        ? 'border-white/20 bg-white/5 text-foreground-muted'
-                        : 'border-surface-elevated bg-surface hover:bg-surface-elevated/70 text-foreground-muted/60'
+                        ? 'bg-white/[0.06] text-foreground-muted'
+                        : 'hover:bg-white/[0.04] text-foreground-muted/50'
                     }`}
                   >
-                    {t.occupationOtherSkip}
+                    <div className="flex-shrink-0 w-12 h-1.5 rounded-full bg-white/[0.06]" />
+                    <span className="flex-1 text-left">{t.occupationOtherSkip}</span>
                   </button>
                 </div>
               </div>
