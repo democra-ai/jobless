@@ -19,7 +19,7 @@ import {
   RISK_TIER_INFO,
   SOC_MAJOR_GROUPS,
 } from '@/lib/air_quiz_data';
-import { calculateQuizResult, QuizAnswers, QuizResult } from '@/lib/air_quiz_calculator';
+import { calculateQuizResult, QuizAnswers, QuizResult, getProfileCalibration } from '@/lib/air_quiz_calculator';
 import { PROFILE_CAREERS } from '@/lib/air_career_data';
 import { generateAdvice } from '@/lib/air_advice_data';
 import {
@@ -337,10 +337,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       result.riskLevel === 'medium' ? (lang === 'en' ? 'Medium' : '中等') :
       result.riskLevel === 'high' ? (lang === 'en' ? 'High' : '高') :
       (lang === 'en' ? 'Critical' : '极高');
+    const yearText = isFinite(result.predictedReplacementYear) ? String(result.predictedReplacementYear) : '∞';
     return t.shareText
       .replace('{level}', levelText)
       .replace('{prob}', String(result.replacementProbability))
-      .replace('{year}', String(result.predictedReplacementYear));
+      .replace('{year}', yearText);
   };
 
   const getShareUrl = () => {
@@ -348,10 +349,10 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     const payload = encodeSharePayload({
       riskLevel: result.riskLevel,
       replacementProbability: result.replacementProbability,
-      predictedReplacementYear: result.predictedReplacementYear,
+      predictedReplacementYear: isFinite(result.predictedReplacementYear) ? result.predictedReplacementYear : 9999,
       currentReplacementDegree: result.currentReplacementDegree,
       earliestYear: result.confidenceInterval.earliest,
-      latestYear: result.confidenceInterval.latest,
+      latestYear: isFinite(result.confidenceInterval.latest) ? result.confidenceInterval.latest : 9999,
       lang,
     });
     const runtimeOrigin = window.location.origin;
@@ -947,9 +948,10 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     {/* ── Metrics strip ── */}
                     {(() => {
                       const probColor = riskColorFromScore(result.replacementProbability);
-                      // Year urgency: sooner = more red
-                      const yearsAway = result.predictedReplacementYear - new Date().getFullYear();
-                      const yearColor = riskColorFromScore(Math.max(0, Math.min(100, 100 - yearsAway * 5)));
+                      const isInfinity = !isFinite(result.predictedReplacementYear);
+                      // Year urgency: sooner = more red, ∞ = green
+                      const yearsAway = isInfinity ? 99 : result.predictedReplacementYear - new Date().getFullYear();
+                      const yearColor = isInfinity ? '#00e676' : riskColorFromScore(Math.max(0, Math.min(100, 100 - yearsAway * 4)));
                       return (
                         <div className="flex items-center justify-center gap-5 sm:gap-8 py-4 border-t border-b border-white/[0.06]">
                           <div className="text-center">
@@ -960,13 +962,23 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                           </div>
                           <div className="w-px h-10 bg-white/10" />
                           <div className="text-center">
-                            <div className="text-2xl sm:text-3xl font-bold" style={{ color: yearColor }}>
-                              <AnimatedNumber value={result.predictedReplacementYear} />
-                            </div>
+                            {isInfinity ? (
+                              <div className="text-2xl sm:text-3xl font-bold" style={{ color: yearColor }}>∞</div>
+                            ) : (
+                              <div className="text-2xl sm:text-3xl font-bold" style={{ color: yearColor }}>
+                                <AnimatedNumber value={result.predictedReplacementYear} />
+                              </div>
+                            )}
                             <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric2Title}</div>
-                            <div className="text-[10px] text-foreground-muted/40 font-mono">
-                              {result.confidenceInterval.earliest}–{result.confidenceInterval.latest}
-                            </div>
+                            {isInfinity ? (
+                              <div className="text-[10px] text-foreground-muted/40">
+                                {lang === 'zh' ? '不可预测' : 'Unpredictable'}
+                              </div>
+                            ) : (
+                              <div className="text-[10px] text-foreground-muted/40 font-mono">
+                                {result.confidenceInterval.earliest}–{result.confidenceInterval.latest}
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -987,6 +999,56 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                         );
                       })()}
                     </div>
+
+                    {/* ── Vulnerability & Strength Analysis ── */}
+                    {(() => {
+                      const cal = getProfileCalibration(result.profileCode);
+                      if (!cal) return null;
+                      return (
+                        <div className="pt-4 mt-2 border-t border-white/[0.06] space-y-3">
+                          {/* Vulnerability */}
+                          <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                          >
+                            <div className="flex items-start gap-2.5">
+                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#ff174420' }}>
+                                <span className="text-[10px]">⚡</span>
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-[11px] font-bold" style={{ color: '#ff1744' }}>
+                                  {lang === 'zh' ? '为什么你容易被替代' : 'Why You\'re Vulnerable'}
+                                </div>
+                                <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-0.5">
+                                  {cal.vulnerabilities[lang]}
+                                </p>
+                              </div>
+                            </div>
+                          </motion.div>
+                          {/* Strength */}
+                          <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.65 }}
+                          >
+                            <div className="flex items-start gap-2.5">
+                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#00e67620' }}>
+                                <span className="text-[10px]">🛡️</span>
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-[11px] font-bold" style={{ color: '#00e676' }}>
+                                  {lang === 'zh' ? '你的防御优势' : 'Your Defense'}
+                                </div>
+                                <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-0.5">
+                                  {cal.strengths[lang]}
+                                </p>
+                              </div>
+                            </div>
+                          </motion.div>
+                        </div>
+                      );
+                    })()}
 
                     {/* ── Career Path Risk Breakdown ── */}
                     {(() => {
@@ -1170,7 +1232,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
 
                   {[
                     { value: `${result.replacementProbability}%`, label: t.metric1Title, color: '#ff2f67' },
-                    { value: `${result.predictedReplacementYear}`, label: t.metric2Title, color: '#ff9e1f' },
+                    { value: isFinite(result.predictedReplacementYear) ? `${result.predictedReplacementYear}` : '∞', label: t.metric2Title, color: '#ff9e1f' },
                     { value: `${result.currentAICapability}%`, label: t.metric3Title, color: '#57d9ef' },
                   ].map((metric) => (
                     <div key={metric.label} style={{
