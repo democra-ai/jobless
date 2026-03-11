@@ -20,6 +20,7 @@ import {
   SOC_MAJOR_GROUPS,
 } from '@/lib/air_quiz_data';
 import { calculateQuizResult, QuizAnswers, QuizResult } from '@/lib/air_quiz_calculator';
+import { PROFILE_CAREERS } from '@/lib/air_career_data';
 import {
   trackQuizStart,
   trackQuizAnswer,
@@ -937,14 +938,14 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       </div>
                     </div>
 
-                    {/* ── Description + Occupation ── */}
-                    <div className="pt-4 space-y-2">
+                    {/* ── Description ── */}
+                    <div className="pt-4">
                       <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.description[lang]}</p>
                       {result.occupationSOC && (() => {
                         const socGroup = SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code);
                         const socColor = socGroup ? riskColorFromScore(socGroup.riskScore) : riskColor;
                         return (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 mt-2">
                             <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: socColor }} />
                             <span className="text-xs font-semibold">{result.occupationSOC!.name[lang]}</span>
                             {result.occupationSOC!.inferred && (
@@ -954,6 +955,72 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                         );
                       })()}
                     </div>
+
+                    {/* ── Career Path Risk Breakdown ── */}
+                    {(() => {
+                      const careers = PROFILE_CAREERS[result.profileCode];
+                      if (!careers || careers.length === 0) return null;
+                      return (
+                        <div className="pt-4 mt-2 border-t border-white/[0.06]">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70">
+                              {lang === 'zh' ? '相关职业风险图谱' : 'Career Risk Spectrum'}
+                            </h4>
+                            <span className="text-[9px] text-foreground-muted/40">
+                              {lang === 'zh' ? '风险越高 = 越易被AI替代' : 'Higher risk = easier to replace'}
+                            </span>
+                          </div>
+                          <div className="space-y-2">
+                            {careers.map((career, ci) => {
+                              const cColor = riskColorFromScore(career.riskScore);
+                              return (
+                                <motion.div
+                                  key={ci}
+                                  initial={{ opacity: 0, x: -12 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: 0.5 + ci * 0.06 }}
+                                  className="group/career"
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    {/* Risk score badge */}
+                                    <div
+                                      className="flex-shrink-0 w-9 h-6 rounded flex items-center justify-center text-[10px] font-bold"
+                                      style={{ backgroundColor: cColor + '18', color: cColor }}
+                                    >
+                                      {career.riskScore}
+                                    </div>
+
+                                    {/* Career info */}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs font-medium truncate">{career.title[lang]}</span>
+                                      </div>
+                                      {/* Risk bar */}
+                                      <div className="h-1 rounded-full bg-white/[0.06] mt-1 overflow-hidden">
+                                        <motion.div
+                                          className="h-full rounded-full"
+                                          style={{ backgroundColor: cColor }}
+                                          initial={{ width: 0 }}
+                                          animate={{ width: `${career.riskScore}%` }}
+                                          transition={{ duration: 0.6, delay: 0.6 + ci * 0.06 }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Reason - shows on hover */}
+                                  <div className="max-h-0 group-hover/career:max-h-16 overflow-hidden transition-all duration-200 ease-out">
+                                    <p className="text-[10px] text-foreground-muted/50 leading-relaxed mt-1 ml-[46px]">
+                                      {career.reason[lang]}
+                                    </p>
+                                  </div>
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Reality check footer */}
