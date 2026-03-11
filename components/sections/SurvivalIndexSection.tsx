@@ -249,52 +249,68 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const currentDimIndex = Math.floor(safeCoreIndex / 4);
   const currentDim = QUIZ_DIMENSIONS[currentDimIndex];
 
-  // Track which question index was last answered to prevent double-clicks on same question
-  const lastAnsweredIndexRef = useRef(-1);
+  // Pending advance: when set, a useEffect will auto-advance after delay
+  const [pendingAdvance, setPendingAdvance] = useState<{
+    nextIndex: number;
+    answers: Record<string, QuizAnswer>;
+  } | null>(null);
 
   // ─── Core question handlers ──────────────────────────────────────────────
 
-  const finishQuiz = useCallback((overrideCoreAnswers?: Record<string, QuizAnswer>) => {
-    const answers: QuizAnswers = {
-      core: overrideCoreAnswers ?? coreAnswers,
-      snapshot: {},
-      survey: {},
-    };
-    const quizResult = calculateQuizResult(answers, selectedSOC);
-    setResult(quizResult);
-    setPhase('result');
-    setSharePanelOpen(false);
-    setTelegramShareState('idle');
-    setCopied(false);
-    setWechatCopied(false);
-    trackQuizComplete(quizResult, answers, lang);
-  }, [coreAnswers, selectedSOC, lang]);
-
   const handleCoreAnswer = useCallback((answer: QuizAnswer) => {
-    // Prevent double-click on the same question
-    if (lastAnsweredIndexRef.current === coreIndex) return;
-    lastAnsweredIndexRef.current = coreIndex;
+    // Prevent double-click: ignore if we're already waiting to advance
+    if (pendingAdvance) return;
 
     const qId = currentCoreQ.id;
     const updatedAnswers = { ...coreAnswers, [qId]: answer };
     setCoreAnswers(updatedAnswers);
     trackQuizAnswer(qId, answer, 'core', coreIndex);
-    setTimeout(() => {
-      if (coreIndex < CORE_QUESTION_COUNT - 1) {
-        setCoreIndex(prev => prev + 1);
+
+    // Signal that we need to advance (useEffect handles the delay)
+    setPendingAdvance({
+      nextIndex: coreIndex + 1,
+      answers: updatedAnswers,
+    });
+  }, [coreIndex, currentCoreQ, coreAnswers, pendingAdvance]);
+
+  // Auto-advance after 280ms delay — replaces setTimeout in handler
+  useEffect(() => {
+    if (!pendingAdvance) return;
+    const timer = setTimeout(() => {
+      if (pendingAdvance.nextIndex < CORE_QUESTION_COUNT) {
+        setCoreIndex(pendingAdvance.nextIndex);
       } else {
-        finishQuiz(updatedAnswers);
+        // Finish quiz — all state is fresh from pendingAdvance
+        const answers: QuizAnswers = {
+          core: pendingAdvance.answers,
+          snapshot: {},
+          survey: {},
+        };
+        try {
+          const quizResult = calculateQuizResult(answers, selectedSOC);
+          setResult(quizResult);
+          setPhase('result');
+          setSharePanelOpen(false);
+          setTelegramShareState('idle');
+          setCopied(false);
+          setWechatCopied(false);
+          trackQuizComplete(quizResult, answers, lang);
+        } catch (err) {
+          console.error('Quiz calculation error:', err);
+        }
       }
+      setPendingAdvance(null);
     }, 280);
-  }, [coreIndex, currentCoreQ, coreAnswers, finishQuiz]);
+    return () => clearTimeout(timer);
+  }, [pendingAdvance, selectedSOC, lang]);
 
 
   // Go back
   const goBack = useCallback(() => {
-    if (phase === 'core' && coreIndex > 0) {
+    if (phase === 'core' && coreIndex > 0 && !pendingAdvance) {
       setCoreIndex(prev => prev - 1);
     }
-  }, [phase, coreIndex]);
+  }, [phase, coreIndex, pendingAdvance]);
 
   // Reset
   const resetQuiz = useCallback(() => {
@@ -308,7 +324,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     setSelectedSOC(null);
     setResult(null);
     setSharePanelOpen(false);
-    lastAnsweredIndexRef.current = -1;
+    setPendingAdvance(null);
   }, [phase, coreIndex, lang]);
 
   // ─── Share functionality (preserved from V2) ─────────────────────────────
@@ -1181,4 +1197,52 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   );
 }
 
-export default SurvivalIndexSection;
+// ─── Error Boundary ──────────────────────────────────────────────────────────
+// Catches any runtime errors in the quiz so the user sees a retry button
+// instead of the generic Vercel "Application error" page.
+
+class QuizErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error) {
+    console.error('Quiz error caught by boundary:', error);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="py-24 px-4 text-center">
+          <div className="max-w-md mx-auto space-y-4">
+            <p className="text-foreground-muted">Something went wrong. Please try again.</p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false });
+                window.scrollTo({ top: 0 });
+              }}
+              className="px-6 py-3 bg-surface-elevated hover:bg-surface-elevated/80 rounded-xl font-semibold border border-white/10 transition-all"
+            >
+              <RefreshCw className="w-4 h-4 inline mr-2" />
+              Retry
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function SurvivalIndexSectionWithBoundary(props: { lang: Language; t: typeof translations.en }) {
+  return (
+    <QuizErrorBoundary>
+      <SurvivalIndexSection {...props} />
+    </QuizErrorBoundary>
+  );
+}
