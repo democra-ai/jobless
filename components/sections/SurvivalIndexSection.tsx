@@ -935,7 +935,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
             >
               <div data-testid="share-result-capture" className="space-y-6">
 
-                {/* Profile Type Display */}
+                {/* Profile Type + Risk Level (merged) */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -956,68 +956,41 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     >
                       {result.profileCode}
                     </motion.div>
-                    <div className="text-xl sm:text-2xl font-semibold mb-2">{result.profile.name[lang]}</div>
+                    <div className="text-xl sm:text-2xl font-semibold mb-1">{result.profile.name[lang]}</div>
+                    <div className="text-base font-bold mb-2" style={{ color: riskColor }}>
+                      {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
+                    </div>
                     <div className="text-sm text-foreground-muted max-w-lg mx-auto">{result.profile.description[lang]}</div>
                   </div>
                 </motion.div>
 
-                {/* Risk Level */}
-                <div className="result-card rounded-xl p-5 text-center">
-                  <div className="text-sm text-foreground-muted uppercase tracking-wider mb-1">{t.riskLevel}</div>
-                  <div className="text-2xl sm:text-3xl font-bold" style={{ color: riskColor }}>
-                    {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
-                  </div>
-                  <div className="text-xs text-foreground-muted mt-1">
-                    {result.favorableCount}/4 {lang === 'en' ? 'dimensions favor AI' : '个维度利于AI替代'}
-                  </div>
-                </div>
-
-                {/* Three Metrics */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+                {/* Key Metrics (2 columns) */}
+                <div className="grid grid-cols-2 gap-3">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="result-card rounded-xl p-6 text-center group hover-lift"
+                    className="result-card rounded-xl p-5 text-center"
                   >
-                    <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-2" style={{ color: 'var(--risk-critical)' }}>
+                    <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-1" style={{ color: 'var(--risk-critical)' }}>
                       <AnimatedNumber value={result.replacementProbability} suffix="%" />
                     </div>
                     <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric1Title}</div>
-                    <div className="text-xs text-foreground-muted/60 mt-1">{t.metric1Desc}</div>
                   </motion.div>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="result-card rounded-xl p-6 text-center group hover-lift"
+                    className="result-card rounded-xl p-5 text-center"
                   >
-                    <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-2" style={{ color: 'var(--risk-high)' }}>
+                    <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-1" style={{ color: 'var(--risk-high)' }}>
                       <AnimatedNumber value={result.predictedReplacementYear} />
                     </div>
                     <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric2Title}</div>
-                    <div className="text-xs text-foreground-muted/60 mt-1">{lang === 'en' ? 'Projected' : '预计年份'}</div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="result-card rounded-xl p-6 text-center group hover-lift"
-                  >
-                    <div className="metric-value text-3xl sm:text-4xl md:text-5xl mb-2" style={{ color: 'var(--brand-primary)' }}>
-                      <AnimatedNumber value={result.currentAICapability} suffix="%" />
+                    <div className="text-[11px] text-foreground-muted/50 mt-0.5 font-mono">
+                      {result.confidenceInterval.earliest}–{result.confidenceInterval.latest}
                     </div>
-                    <div className="text-xs text-foreground-muted uppercase tracking-wider">{t.metric3Title}</div>
-                    <div className="text-xs text-foreground-muted/60 mt-1">{t.metric3Desc}</div>
                   </motion.div>
-                </div>
-
-                {/* Confidence Interval */}
-                <div className="result-card rounded-xl p-4 flex items-center justify-between">
-                  <span className="text-sm text-foreground-muted">{t.yearRange}</span>
-                  <span className="font-mono font-bold text-lg">
-                    {result.confidenceInterval.earliest} — {result.confidenceInterval.latest}
-                  </span>
                 </div>
 
                 {/* Dimension Breakdown */}
@@ -1061,29 +1034,25 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   </div>
                 </div>
 
-                {/* Your Occupation */}
-                {result.occupationSOC && (() => {
-                  const socGroup = SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code);
+                {/* Occupation & Typical Jobs (merged) */}
+                {(() => {
+                  const socGroup = result.occupationSOC ? SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code) : null;
                   const socColor = socGroup ? riskColorFromScore(socGroup.riskScore) : riskColor;
                   return (
                     <div className="result-card rounded-xl p-6">
-                      <h5 className="font-semibold mb-2">{t.yourOccupation}</h5>
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: socColor }} />
-                        <span className="text-sm font-medium">{result.occupationSOC!.name[lang]}</span>
-                      </div>
-                      {result.occupationSOC!.inferred && (
-                        <p className="text-[11px] text-foreground-muted/60 mt-1">{t.occupationInferred}</p>
+                      {result.occupationSOC && (
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: socColor }} />
+                          <span className="text-sm font-semibold">{result.occupationSOC.name[lang]}</span>
+                          {result.occupationSOC.inferred && (
+                            <span className="text-[10px] text-foreground-muted/50 ml-1">({t.occupationInferred})</span>
+                          )}
+                        </div>
                       )}
+                      <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.typicalJobs[lang]}</p>
                     </div>
                   );
                 })()}
-
-                {/* Typical Jobs */}
-                <div className="result-card rounded-xl p-6">
-                  <h5 className="font-semibold mb-2">{t.typicalJobs}</h5>
-                  <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.typicalJobs[lang]}</p>
-                </div>
 
                 {/* Reality Check */}
                 <div className="rounded-xl p-5 bg-gradient-to-r from-risk-critical/10 to-risk-high/10 border border-risk-critical/20">
