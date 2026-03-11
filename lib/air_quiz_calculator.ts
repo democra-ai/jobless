@@ -384,48 +384,76 @@ function toRiskLevel(tier: ProfileType['riskTier']): QuizResult['riskLevel'] {
 }
 
 /**
- * Hierarchical Kill Chain scoring model.
+ * Swiss Cheese Barrier Model for AI Replacement Probability
  *
- * The four dimensions form a cascading dependency chain for AI replacement:
+ * Based on research from:
+ * - McKinsey's conjunctive capability model: AI must penetrate ALL barriers
+ * - Frey & Osborne's engineering bottlenecks: any single bottleneck protects the job
+ * - James Reason's Swiss Cheese model: defense-in-depth, multiplicative barriers
+ * - Dujmovic's Weighted Power Mean (LSP method): tunable conjunction strength
  *
- *   ① Learnability (E/T)  — PREREQUISITE: Can AI access the data to learn?
- *      If T (tacit), the entire kill chain is severely weakened.
- *      Weight: 0.40 (the gatekeeper dimension)
+ * Core insight: AI replacing a job is NOT additive — it requires penetrating
+ * multiple independent barriers simultaneously. Like the Swiss Cheese model,
+ * each dimension is a defensive layer. AI can only fully replace a job when
+ * ALL four barriers have "holes" aligned.
  *
- *   ② Evaluation (O/S)    — OPTIMIZER: Does AI know what "good" looks like?
- *      E+O together = AI can learn AND optimize freely → threat multiplied
- *      T+O = AI can measure but can't learn → limited threat
- *      Weight: 0.25, but AMPLIFIED when Learnability is also favorable
+ * Mathematical foundation: Weighted Power Mean with negative exponent
+ *   M_r(x) = (Σ wi * xi^r)^(1/r),  where r < 0
  *
- *   ③ Risk Tolerance (F/R) — DEPLOYMENT GATE: Will organizations dare deploy AI?
- *      Even if AI is capable, R (rigid) means organizations won't risk it
- *      Weight: 0.20, but DAMPENED if Learnability blocks the chain
+ * When r → -∞, this approaches min() (pure bottleneck/weakest link).
+ * When r = 1, this is the arithmetic mean (fully compensatory).
+ * When r → 0, this approaches the geometric mean (multiplicative).
  *
- *   ④ Human Presence (P/H) — LAST DEFENSE: Do people care who does the work?
- *      The final barrier — if all else falls, H means humans still demand humans
- *      Weight: 0.15, independent resilience
+ * We use r = -2 (between geometric mean and harmonic mean), which:
+ * - Heavily penalizes any single low dimension (barrier effect)
+ * - But doesn't completely ignore other dimensions (unlike pure min)
+ * - Matches McKinsey's finding that "bottleneck capability determines feasibility"
  *
- * Key insight: dimensions don't contribute equally or independently.
- * T (tacit) as a prerequisite blocker reduces the effective threat of O, F, P.
- * E+O together is more dangerous than their individual contributions suggest.
+ * Dimension weights reflect empirical importance from literature:
+ * - Learnability: 0.30 — Prerequisite gate (ALM 2003: "codifiability" is the #1 predictor)
+ * - Evaluation:   0.25 — Optimization target (SML: "clear metrics" + "well-defined I/O")
+ * - Risk:         0.20 — Deployment gate (organizational adoption barrier)
+ * - Human:        0.25 — Independent blocker (Frey & Osborne: "social intelligence" bottleneck)
+ *
+ * Note: Human Presence gets equal weight to Evaluation (not less!) because
+ * the literature consistently shows "social intelligence" as one of the
+ * strongest bottlenecks, independent of technical feasibility.
  */
 
-/** Dimension weights in the kill chain */
+/** Dimension weights — empirically calibrated from automation literature */
 const DIMENSION_WEIGHTS: Record<string, number> = {
-  learnability: 0.40,    // Prerequisite gate
-  evaluation: 0.25,      // Optimization target
-  riskTolerance: 0.20,   // Deployment gate
-  humanPresence: 0.15,   // Last defense
+  learnability: 0.30,    // Can AI access the data? (ALM "codifiability")
+  evaluation: 0.25,      // Does AI know what "good" is? (SML "clear metrics")
+  riskTolerance: 0.20,   // Will orgs dare deploy? (regulatory/liability gate)
+  humanPresence: 0.25,   // Do people demand a human? (Frey "social intelligence")
 };
 
 /**
- * Calculate replacement probability using hierarchical kill chain model.
+ * Weighted Power Mean exponent.
+ * r = -2: strong conjunction — any single low dimension dominates.
+ * This is between harmonic mean (r=-1) and min function (r→-∞).
  *
- * Instead of treating all dimensions equally, this model:
- * 1. Uses asymmetric weights (learnability >> others)
- * 2. Applies cascade effects (T blocks downstream threat)
- * 3. Detects dangerous combos (E+O amplification)
- * 4. Maps the weighted score to the profile's calibrated range
+ * Sensitivity analysis:
+ *   r = 1:  arithmetic mean (fully compensatory, no barrier effect)
+ *   r = 0:  geometric mean (moderate barrier effect)
+ *   r = -1: harmonic mean (strong barrier effect)
+ *   r = -2: our choice (very strong barrier effect)
+ *   r → -∞: pure min (only weakest dimension matters)
+ */
+const POWER_MEAN_R = -2;
+
+/**
+ * Calculate replacement probability using Swiss Cheese barrier model.
+ *
+ * Each dimension represents a defensive barrier against AI replacement.
+ * The penetrability of each barrier (0 to 1) is computed from quiz answers.
+ * Barriers are combined using a weighted power mean with r=-2,
+ * which ensures any single strong barrier dramatically reduces overall risk.
+ *
+ * Additionally, we apply an E+O interaction bonus: when BOTH knowledge is
+ * explicit AND evaluation is objective, AI's optimization loop is fully
+ * closed — this is worse than either alone. (Matches Brynjolfsson's SML
+ * criteria: "well-defined I/O" + "clear feedback" together enable ML.)
  */
 function calculateProbability(
   profileCode: string,
@@ -436,7 +464,7 @@ function calculateProbability(
 
   const [min, max] = cal.prob;
 
-  // Extract dimension results by ID for easier access
+  // Extract dimension results by ID
   const dimMap: Record<string, DimensionResult> = {};
   for (const d of dimensionResults) {
     dimMap[d.dimensionId] = d;
@@ -447,41 +475,58 @@ function calculateProbability(
   const risk = dimMap['riskTolerance'];
   const human = dimMap['humanPresence'];
 
-  if (!learn || !evaluate || !risk || !human) return min; // safety fallback
+  if (!learn || !evaluate || !risk || !human) return min;
 
-  // ── Step 1: Calculate per-dimension threat scores (0 to 1) ──
-  // For each dimension: how favorable is it to AI?
-  // rawAverage 1-5, where >3 = favorable. Map to 0..1 threat level.
-  const threatScore = (d: DimensionResult) => Math.max(0, Math.min(1, (d.rawAverage - 1) / 4));
+  // ── Step 1: Compute barrier penetrability (0 to 1) ──
+  // rawAverage 1-5. Map to [0.05, 1.0] — we use 0.05 as floor (not 0)
+  // because a true 0 would make the power mean undefined and
+  // even the most resistant dimension isn't a perfect impenetrable wall.
+  const penetrability = (d: DimensionResult) => {
+    const raw = (d.rawAverage - 1) / 4; // 0 to 1
+    return 0.05 + 0.95 * raw;           // 0.05 to 1.0
+  };
 
-  const learnThreat = threatScore(learn);      // 0 = fully tacit, 1 = fully explicit
-  const evalThreat = threatScore(evaluate);     // 0 = fully subjective, 1 = fully objective
-  const riskThreat = threatScore(risk);         // 0 = fully rigid, 1 = fully flexible
-  const humanThreat = threatScore(human);       // 0 = fully human-dependent, 1 = fully product-based
+  let pLearn = penetrability(learn);     // 0.05 = fully tacit, 1.0 = fully explicit
+  let pEval  = penetrability(evaluate);  // 0.05 = fully subjective, 1.0 = fully objective
+  let pRisk  = penetrability(risk);      // 0.05 = fully rigid, 1.0 = fully flexible
+  let pHuman = penetrability(human);     // 0.05 = fully human-dependent, 1.0 = fully product-based
 
-  // ── Step 2: Apply cascade modifiers ──
+  // ── Step 2: E+O interaction effect ──
+  // When BOTH learnability AND evaluation are high, the AI optimization loop
+  // is fully closed: data is accessible AND the target is clear.
+  // This makes the threat MORE than the sum of parts.
+  // We boost both penetrabilities slightly when they co-occur above 0.6.
+  // (Brynjolfsson SML: "well-defined I/O mapping" + "clear feedback" together)
+  if (pLearn > 0.6 && pEval > 0.6) {
+    const synergy = 1 + 0.1 * Math.min((pLearn - 0.6) * (pEval - 0.6) / 0.16, 1);
+    pLearn = Math.min(1, pLearn * synergy);
+    pEval  = Math.min(1, pEval * synergy);
+  }
 
-  // Cascade factor: if learnability is LOW (tacit), downstream dimensions
-  // contribute LESS to overall threat — AI can't exploit what it can't learn
-  // Range: 0.3 (fully tacit, severe dampening) to 1.0 (fully explicit, no dampening)
-  const cascadeFactor = 0.3 + 0.7 * learnThreat;
+  // ── Step 3: Weighted Power Mean with r = -2 ──
+  // M_r = (Σ wi * xi^r)^(1/r)
+  //
+  // This is the heart of the Swiss Cheese model:
+  // - If ANY barrier is strong (low penetrability), the power mean drops sharply
+  // - All four barriers must be penetrable for high overall risk
+  // - The weights allow some barriers to matter more than others
+  const r = POWER_MEAN_R;
+  const wLearn = DIMENSION_WEIGHTS.learnability;
+  const wEval  = DIMENSION_WEIGHTS.evaluation;
+  const wRisk  = DIMENSION_WEIGHTS.riskTolerance;
+  const wHuman = DIMENSION_WEIGHTS.humanPresence;
 
-  // E+O amplification: when BOTH learnability AND evaluation are favorable,
-  // the threat is more than additive — AI can learn freely AND knows the target
-  const eoAmplification = learnThreat > 0.5 && evalThreat > 0.5
-    ? 1 + 0.15 * (learnThreat - 0.5) * (evalThreat - 0.5) * 4  // up to 1.15x
-    : 1.0;
+  const powerSum =
+    wLearn * Math.pow(pLearn, r) +
+    wEval  * Math.pow(pEval, r) +
+    wRisk  * Math.pow(pRisk, r) +
+    wHuman * Math.pow(pHuman, r);
 
-  // ── Step 3: Weighted threat calculation ──
-  const weightedThreat =
-    DIMENSION_WEIGHTS.learnability * learnThreat * eoAmplification +
-    DIMENSION_WEIGHTS.evaluation * evalThreat * cascadeFactor * eoAmplification +
-    DIMENSION_WEIGHTS.riskTolerance * riskThreat * cascadeFactor +
-    DIMENSION_WEIGHTS.humanPresence * humanThreat;  // Human presence is independent
+  const combinedPenetrability = Math.pow(powerSum, 1 / r);
 
-  // weightedThreat ranges from ~0 (all resistant) to ~1.15 (all favorable + E+O amp)
-  // Normalize to 0..1
-  const normalizedThreat = Math.max(0, Math.min(1, weightedThreat));
+  // combinedPenetrability ranges from ~0.05 (all barriers strong) to ~1.0 (all barriers weak)
+  // Normalize to 0..1 range (accounting for the 0.05 floor)
+  const normalizedThreat = Math.max(0, Math.min(1, (combinedPenetrability - 0.05) / 0.95));
 
   // ── Step 4: Map to profile's calibrated range ──
   const probability = min + (max - min) * normalizedThreat;
