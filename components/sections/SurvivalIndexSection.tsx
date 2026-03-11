@@ -243,10 +243,14 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   const posterCaptureRef = useRef<HTMLDivElement>(null);
   const questionContainerRef = useRef<HTMLDivElement>(null);
 
-  // Current core question info
-  const currentCoreQ = ALL_CORE_QUESTIONS[coreIndex];
-  const currentDimIndex = Math.floor(coreIndex / 4);
+  // Current core question info (clamped to valid range for safety)
+  const safeCoreIndex = Math.min(coreIndex, CORE_QUESTION_COUNT - 1);
+  const currentCoreQ = ALL_CORE_QUESTIONS[safeCoreIndex];
+  const currentDimIndex = Math.floor(safeCoreIndex / 4);
   const currentDim = QUIZ_DIMENSIONS[currentDimIndex];
+
+  // Track which question index was last answered to prevent double-clicks on same question
+  const lastAnsweredIndexRef = useRef(-1);
 
   // ─── Core question handlers ──────────────────────────────────────────────
 
@@ -267,6 +271,10 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   }, [coreAnswers, selectedSOC, lang]);
 
   const handleCoreAnswer = useCallback((answer: QuizAnswer) => {
+    // Prevent double-click on the same question
+    if (lastAnsweredIndexRef.current === coreIndex) return;
+    lastAnsweredIndexRef.current = coreIndex;
+
     const qId = currentCoreQ.id;
     const updatedAnswers = { ...coreAnswers, [qId]: answer };
     setCoreAnswers(updatedAnswers);
@@ -300,6 +308,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
     setSelectedSOC(null);
     setResult(null);
     setSharePanelOpen(false);
+    lastAnsweredIndexRef.current = -1;
   }, [phase, coreIndex, lang]);
 
   // ─── Share functionality (preserved from V2) ─────────────────────────────
