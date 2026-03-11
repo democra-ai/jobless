@@ -996,59 +996,106 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       </div>
                     </div>
 
-                    {/* ── 4-Letter Dimensional Display (the hero) ── */}
-                    <div className="flex items-start justify-center gap-2 sm:gap-4 mb-6">
+                    {/* ── 4-Dimension Horizontal Axis Display (the hero) ── */}
+                    <div className="space-y-3 mb-6">
                       {result.dimensions.map((dim, i) => {
-                        const pct = ((dim.rawAverage - 1) / 4) * 100;
+                        const quizDim = QUIZ_DIMENSIONS[i];
                         const color = DIMENSION_COLORS[i];
                         const Icon = DIMENSION_ICONS[i];
-                        const barHeight = 48;
+                        // rawAverage 1-5: 1 = fully resistant, 5 = fully favorable
+                        // Map to 0-100% where 0% = resistant side, 100% = favorable side
+                        const positionPct = ((dim.rawAverage - 1) / 4) * 100;
+                        const leftPct = Math.round(100 - positionPct);
+                        const rightPct = Math.round(positionPct);
 
                         return (
                           <motion.div
                             key={dim.dimensionId}
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.15 + i * 0.08 }}
-                            className="flex flex-col items-center flex-1 max-w-[100px]"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.15 + i * 0.1 }}
+                            className="group relative"
                           >
-                            {/* Icon */}
-                            <Icon className="w-4 h-4 mb-2 opacity-60" style={{ color }} />
-
-                            {/* Big Letter */}
-                            <motion.div
-                              initial={{ scale: 0.5, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              transition={{ delay: 0.25 + i * 0.1, type: 'spring', stiffness: 300 }}
-                              className="text-4xl sm:text-5xl font-bold leading-none mb-2"
-                              style={{ color, fontFamily: 'var(--font-display)' }}
-                            >
-                              {dim.letter}
-                            </motion.div>
-
-                            {/* Vertical fill bar */}
-                            <div className="w-3 rounded-full overflow-hidden bg-white/[0.06]" style={{ height: barHeight }}>
+                            <div className="flex items-center gap-3">
+                              {/* Letter badge */}
                               <motion.div
-                                className="w-full rounded-full"
-                                style={{ backgroundColor: color, originY: 1 }}
-                                initial={{ height: 0 }}
-                                animate={{ height: `${pct}%` }}
-                                transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
-                              />
-                            </div>
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.25 + i * 0.1, type: 'spring', stiffness: 300 }}
+                                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-lg sm:text-xl"
+                                style={{
+                                  backgroundColor: color + '18',
+                                  color,
+                                  fontFamily: 'var(--font-display)',
+                                }}
+                              >
+                                {dim.letter}
+                              </motion.div>
 
-                            {/* Dimension name */}
-                            <div className="text-[10px] sm:text-[11px] text-foreground-muted/70 mt-2 leading-tight text-center">
-                              {dim.name[lang]}
-                            </div>
+                              {/* Axis bar area */}
+                              <div className="flex-1 min-w-0">
+                                {/* Axis labels */}
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className={`text-[10px] sm:text-[11px] font-medium ${
+                                    !dim.isFavorable ? 'text-emerald-400' : 'text-foreground-muted/50'
+                                  }`}>
+                                    {quizDim.resistantLabel[lang]}
+                                  </span>
+                                  <span className="text-[10px] text-foreground-muted/40">{dim.name[lang]}</span>
+                                  <span className={`text-[10px] sm:text-[11px] font-medium ${
+                                    dim.isFavorable ? 'text-rose-400' : 'text-foreground-muted/50'
+                                  }`}>
+                                    {quizDim.favorableLabel[lang]}
+                                  </span>
+                                </div>
 
-                            {/* Verdict */}
-                            <div className={`mt-1.5 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap ${
-                              dim.isFavorable
-                                ? 'bg-rose-500/15 text-rose-400'
-                                : 'bg-emerald-500/15 text-emerald-400'
-                            }`}>
-                              {dim.isFavorable ? dim.favorableLabel[lang] : dim.resistantLabel[lang]}
+                                {/* Horizontal bar */}
+                                <div className="relative h-2.5">
+                                  {/* Bar track */}
+                                  <div className="absolute inset-0 rounded-full bg-white/[0.06] overflow-hidden">
+                                    {/* Filled portion */}
+                                    <motion.div
+                                      className="absolute inset-y-0 left-0 rounded-full"
+                                      style={{
+                                        background: `linear-gradient(to right, ${color}20, ${color}80)`,
+                                      }}
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${positionPct}%` }}
+                                      transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
+                                    />
+                                  </div>
+                                  {/* Position indicator dot (outside overflow) */}
+                                  <motion.div
+                                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 z-10"
+                                    style={{
+                                      backgroundColor: color,
+                                      borderColor: 'rgba(0,0,0,0.4)',
+                                      boxShadow: `0 0 8px ${color}60`,
+                                    }}
+                                    initial={{ left: '0%' }}
+                                    animate={{ left: `${positionPct}%` }}
+                                    transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
+                                  />
+                                </div>
+
+                                {/* Hover tooltip - ratio display */}
+                                <div className="h-0 overflow-visible">
+                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-between mt-1">
+                                    <span className="text-[9px] font-mono text-foreground-muted/50">
+                                      {leftPct}%
+                                    </span>
+                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ color, backgroundColor: color + '15' }}>
+                                      {dim.isFavorable
+                                        ? `→ ${dim.favorableLabel[lang]}`
+                                        : `← ${dim.resistantLabel[lang]}`
+                                      }
+                                    </span>
+                                    <span className="text-[9px] font-mono text-foreground-muted/50">
+                                      {rightPct}%
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </motion.div>
                         );
