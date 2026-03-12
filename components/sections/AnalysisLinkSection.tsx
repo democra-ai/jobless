@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Language } from '@/lib/translations';
+import { trackInternalNavigation } from '@/lib/analytics';
 
 // 深度分析链接板块
 function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, any> }) {
@@ -49,6 +50,7 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, an
         >
           <Link
             href="/analysis"
+            onClick={() => trackInternalNavigation('/analysis', 'analysis_link_section')}
             className="inline-flex items-center gap-2 bg-risk-high hover:bg-risk-high/80 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all card-hover"
           >
             {text.buttonText}

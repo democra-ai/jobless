@@ -6,7 +6,7 @@ import { AlertCircle, Eye, Zap, TrendingDown, ExternalLink, ChevronDown } from '
 import { Language, translations } from '@/lib/translations';
 import Counter from '@/components/Counter';
 import AIKillLineBar from '@/components/AIKillLineBar';
-import { trackCtaClick } from '@/lib/analytics';
+import { trackCtaClick, trackStatCardExpand } from '@/lib/analytics';
 
 function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   const [activeStat, setActiveStat] = useState<number | null>(null);
@@ -73,7 +73,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
                         <div
                           key={i}
                           className="px-4 py-3 cursor-pointer transition-colors active:bg-surface-elevated/50"
-                          onClick={() => setActiveStat(activeStat === i ? null : i)}
+                          onClick={() => { const next = activeStat === i ? null : i; setActiveStat(next); if (next !== null) trackStatCardExpand(i, stat.label as string); }}
                         >
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2.5 min-w-0">

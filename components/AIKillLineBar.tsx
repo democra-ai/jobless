@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Skull, Info, ChevronDown, Cpu, Bot, Sparkles } from 'lucide-react';
 import { Language, translations } from '@/lib/translations';
 import Counter from '@/components/Counter';
+import { trackStageInteraction, trackInfoPopup } from '@/lib/analytics';
 
 // 核心数据
 export const CURRENT_REPLACEMENT_RATE = 21.37;
@@ -167,6 +168,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
     const next = activeTooltip === id ? null : id;
     setActiveTooltip(next);
     if (next !== null) {
+      const stage = KILL_LINE_STAGES.find(s => s.id === id);
+      if (stage) trackStageInteraction(id, stage.label.en, 'click');
       requestAnimationFrame(() => {
         chipRefs.current[next]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       });
@@ -199,8 +202,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           </div>
           <div
             className="relative inline-flex items-center justify-center"
-            onClick={() => setShowCalc(!showCalc)}
-            onMouseEnter={() => setShowCalc(true)}
+            onClick={() => { const next = !showCalc; setShowCalc(next); trackInfoPopup('kill_line_calc', next); }}
+            onMouseEnter={() => { setShowCalc(true); trackInfoPopup('kill_line_calc', true); }}
             onMouseLeave={() => setShowCalc(false)}
           >
             <span

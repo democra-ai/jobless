@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import { X, Zap, Brain, Cpu, Sparkles, ChevronRight, ChevronDown, Flame, Settings } from 'lucide-react';
+import { trackTimelineInteraction } from '@/lib/analytics';
 
 // ============================================
 // TYPES & DATA
@@ -304,11 +305,13 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
     if (!isDesktop) {
       const shouldOpen = selectedMilestone?.id !== m.id;
       setSelectedMilestone(shouldOpen ? m : null);
+      trackTimelineInteraction(m.id, m.name.en, shouldOpen ? 'select' : 'deselect');
       return;
     }
 
     const shouldOpen = selectedMilestone?.id !== m.id;
     setSelectedMilestone(shouldOpen ? m : null);
+    trackTimelineInteraction(m.id, m.name.en, shouldOpen ? 'select' : 'deselect');
     if (!shouldOpen) return;
     setTimeout(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
   }, [isDesktop, selectedMilestone]);

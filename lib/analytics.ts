@@ -251,6 +251,100 @@ export function trackExternalLink(url: string, label: string) {
   safeLogEvent('external_link_click', { url, label });
 }
 
+/** Track internal navigation (e.g. link to /analysis, /data-protection) */
+export function trackInternalNavigation(destination: string, source: string) {
+  safeLogEvent('internal_navigation', { destination, source });
+}
+
+/** Track scroll depth milestones (25%, 50%, 75%, 100%) */
+export function trackScrollDepth(depth: number) {
+  safeLogEvent('scroll_depth', { depth_percent: depth });
+}
+
+/** Track SOC occupation group selection */
+export function trackSOCSelect(socCode: number, socName: string, lang: Language) {
+  safeLogEvent('soc_select', {
+    soc_code: socCode,
+    soc_name: socName,
+    language: lang,
+    session_id: _sessionId,
+  });
+}
+
+/** Track progress bar stage interaction (hover/click on AI kill line stages) */
+export function trackStageInteraction(stageId: number, stageName: string, action: 'hover' | 'click') {
+  safeLogEvent('stage_interaction', {
+    stage_id: stageId,
+    stage_name: stageName,
+    action,
+  });
+}
+
+/** Track expandable section toggle */
+export function trackExpandToggle(sectionId: string, expanded: boolean) {
+  safeLogEvent('expand_toggle', {
+    section_id: sectionId,
+    expanded,
+  });
+}
+
+/** Track timeline milestone interaction */
+export function trackTimelineInteraction(milestoneId: string, milestoneName: string, action: 'select' | 'deselect') {
+  safeLogEvent('timeline_interaction', {
+    milestone_id: milestoneId,
+    milestone_name: milestoneName,
+    action,
+  });
+}
+
+/** Track quiz back button click */
+export function trackQuizBack(phase: string, fromIndex: number) {
+  safeLogEvent('quiz_back', {
+    phase,
+    from_index: fromIndex,
+    session_id: _sessionId,
+  });
+}
+
+/** Track share panel open/close */
+export function trackSharePanelToggle(opened: boolean) {
+  safeLogEvent('share_panel_toggle', {
+    opened,
+    session_id: _sessionId,
+  });
+}
+
+/** Track info popup open (e.g. kill line calculation explanation) */
+export function trackInfoPopup(popupId: string, opened: boolean) {
+  safeLogEvent('info_popup', { popup_id: popupId, opened });
+}
+
+/** Track hero stat card expand (mobile) */
+export function trackStatCardExpand(statIndex: number, label: string) {
+  safeLogEvent('stat_card_expand', { stat_index: statIndex, label });
+}
+
+/** Track page visibility change (tab switch) */
+export function trackVisibilityChange(visible: boolean) {
+  safeLogEvent('visibility_change', { visible });
+}
+
+/** Track session engagement time */
+export function trackEngagementTime(totalSeconds: number) {
+  safeLogEvent('engagement_time', { total_seconds: totalSeconds });
+}
+
+/** Track UTM parameters from URL */
+export function trackUtmParams(params: Record<string, string>) {
+  if (Object.keys(params).length === 0) return;
+  safeLogEvent('utm_captured', params);
+}
+
+/** Track preset career panel open/close */
+export function trackPresetPanelToggle(opened: boolean, lang: Language) {
+  safeLogEvent('preset_panel_toggle', { opened, language: lang });
+}
+
 /**
  * Initialize analytics on app mount.
  * Call once from the root client component.

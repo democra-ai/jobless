@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Language, translations } from '@/lib/translations';
 import { dataProtectionTranslations } from '@/lib/data-protection';
 import { Cpu, Skull, Sparkles } from 'lucide-react';
+import { trackExpandToggle, trackInternalNavigation } from '@/lib/analytics';
 
 // 数据威胁板块（精简版，完整版在 /data-protection）
 function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
@@ -44,7 +45,7 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
         >
           <div className="result-card rounded-2xl p-8 border border-surface-elevated">
             <button
-              onClick={() => setExpanded(!expanded)}
+              onClick={() => { const next = !expanded; setExpanded(next); trackExpandToggle('last_mile_concept', next); }}
               className="w-full flex items-center justify-between gap-3 cursor-pointer"
             >
               <div className="flex items-center gap-3">
@@ -174,6 +175,7 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
           <p className="text-foreground-muted mb-4">{t.viewFullDetailsCta}</p>
           <Link
             href="/data-protection"
+            onClick={() => trackInternalNavigation('/data-protection', 'data_threat_section')}
             className="inline-flex items-center gap-2 bg-risk-critical hover:bg-risk-critical/80 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all card-hover"
           >
             <Shield className="w-5 h-5" />

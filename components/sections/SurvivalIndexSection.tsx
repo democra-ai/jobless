@@ -28,6 +28,10 @@ import {
   trackQuizComplete,
   trackShareClick,
   trackQuizAbandon,
+  trackSOCSelect,
+  trackQuizBack,
+  trackSharePanelToggle,
+  trackPresetPanelToggle,
 } from '@/lib/analytics';
 
 /** Get risk color matching the AI Kill Line progress bar stages */
@@ -309,6 +313,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   // Go back
   const goBack = useCallback(() => {
     if (phase === 'core' && coreIndex > 0 && !pendingAdvance) {
+      trackQuizBack(phase, coreIndex);
       setCoreIndex(prev => prev - 1);
     }
   }, [phase, coreIndex, pendingAdvance]);
@@ -659,7 +664,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     {/* Collapsed trigger */}
                     <button
                       type="button"
-                      onClick={() => setSOCOpen(prev => !prev)}
+                      onClick={() => setSOCOpen(prev => { trackPresetPanelToggle(!prev, lang); return !prev; })}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] transition-all text-sm"
                     >
                       {selectedGroup ? (
@@ -697,7 +702,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                   <button
                                     key={soc.code}
                                     type="button"
-                                    onClick={() => { setSelectedSOC(isSelected ? null : soc.code); setSOCOpen(false); }}
+                                    onClick={() => { const next = isSelected ? null : soc.code; setSelectedSOC(next); setSOCOpen(false); if (next !== null) trackSOCSelect(soc.code, soc.name.en, lang); }}
                                     className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition-all ${
                                       isSelected
                                         ? 'text-white'
@@ -1271,7 +1276,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   </div>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setSharePanelOpen((prev) => !prev)}
+                    onClick={() => setSharePanelOpen((prev) => { trackSharePanelToggle(!prev); return !prev; })}
                     data-testid="share-trigger"
                     className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-surface-elevated/70 hover:bg-surface-elevated text-sm font-medium transition-all"
                   >

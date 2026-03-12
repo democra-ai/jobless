@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /quiz_sessions/{doc} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if false;
+    }
+  }
+}
