@@ -225,7 +225,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                     className="hidden sm:block absolute top-full right-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 mt-3 z-[120] w-[calc(100vw-2rem)] max-w-[400px] rounded-xl border border-surface-elevated/50 p-4 sm:p-5 text-left"
                     style={{
                       background: 'var(--surface-card)',
-                      boxShadow: '0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)',
+                      boxShadow: 'var(--card-shadow)',
                       backdropFilter: 'blur(16px)',
                     }}
                     onClick={(e) => e.stopPropagation()}
@@ -283,7 +283,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                       style={{
                         background: 'var(--surface-card)',
                         borderColor: 'var(--surface-elevated)',
-                        boxShadow: '0 -20px 40px rgba(0,0,0,0.45)',
+                        boxShadow: '0 -20px 40px var(--shadow-soft)',
                         paddingBottom: 'calc(1rem + var(--safe-bottom))',
                       }}
                     >
@@ -429,7 +429,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               >
                 {/* Glass highlight on top */}
                 <div className="absolute inset-x-0 top-0 h-[40%]" style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%)',
+                  background: 'linear-gradient(180deg, var(--overlay-15), transparent)',
                 }} />
                 {/* Skull icon for Kill Line stage */}
                 {hl.id === 5 && (
@@ -466,12 +466,12 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           })}
           {/* Top highlight */}
           <div className="absolute inset-x-0 top-0 h-[38%]" style={{
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)',
+            background: 'linear-gradient(180deg, var(--overlay-18), transparent)',
           }} />
           {/* Shimmer LTR */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0" style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%)',
+              background: 'linear-gradient(90deg, transparent 0%, var(--overlay-12) 50%, transparent 100%)',
               animation: 'shimmerLTR 2.5s ease-in-out infinite',
             }} />
           </div>
@@ -565,8 +565,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                     style={{
                       ...(stage.id <= 2 ? { left: 0 } : stage.id >= 4 ? { right: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
                       background: 'var(--surface-card)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      boxShadow: '0 24px 48px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
+                      border: '1px solid var(--tooltip-border)',
+                      boxShadow: 'var(--tooltip-shadow)',
                       backdropFilter: 'blur(20px)',
                     }}
                     onClick={(e) => e.stopPropagation()}
@@ -586,7 +586,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                         <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
                         <span className="text-foreground-muted">{stage.tooltip[lang].relationship}</span>
                       </div>
-                      <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid var(--overlay-5)' }}>
                         <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
                         <span className="text-xs font-bold px-2.5 py-1 rounded-md" style={{ background: `${stage.color}15`, color: stage.color }}>{stage.tooltip[lang].coreNature}</span>
                       </div>
@@ -625,7 +625,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 className="absolute top-full mt-2 z-[120] w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
-                style={{ right: 0, background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}
+                style={{ right: 0, background: 'var(--surface-card)', border: '1px solid var(--tooltip-border)', boxShadow: 'var(--tooltip-shadow)', backdropFilter: 'blur(20px)' }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="px-4 py-3 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, rgba(255,23,68,0.12), transparent)', borderBottom: '1px solid rgba(255,23,68,0.12)' }}>
@@ -643,7 +643,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                     <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
                     <span className="text-foreground-muted">{KILL_LINE_STAGES[4].tooltip[lang].relationship}</span>
                   </div>
-                  <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid var(--overlay-5)' }}>
                     <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
                     <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-risk-critical/12 text-risk-critical">{KILL_LINE_STAGES[4].tooltip[lang].coreNature}</span>
                   </div>

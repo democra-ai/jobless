@@ -224,7 +224,7 @@ function FeedbackLoopSection({ lang, t }: { lang: Language; t: typeof dataProtec
               ))}
             </div>
 
-            <div className="bg-surface-card rounded-xl p-5 mb-4 border border-white/5">
+            <div className="bg-surface-card rounded-xl p-5 mb-4 border border-overlay-4">
               <p className="text-sm text-foreground-muted">
                 <Info className="w-4 h-4 inline text-brand-accent mr-2 align-middle" />
                 {t.feedbackLoopExample}
@@ -270,7 +270,7 @@ function ProtectionChecklistSection({ lang, t }: { lang: Language; t: typeof dat
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-start gap-3 p-4 rounded-xl bg-surface-card/50 border border-white/5"
+                  className="flex items-start gap-3 p-4 rounded-xl bg-surface-card/50 border border-overlay-4"
                 >
                   <CheckCircle2 className="w-5 h-5 text-risk-low flex-shrink-0 mt-0.5" />
                   <span className="text-sm leading-relaxed">{item}</span>

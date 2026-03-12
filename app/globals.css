@@ -36,6 +36,12 @@
   --accent-coral: #ff6e40;
   --accent-teal: #1de9b6;
 
+  /* Dimension Colors (Quiz) */
+  --dim-1: #7c4dff;   /* Automation Exposure — purple */
+  --dim-2: #ff6e40;   /* Data Openness — orange */
+  --dim-3: #64ffda;   /* Risk Tolerance — cyan */
+  --dim-4: #b388ff;   /* Social Complexity — lavender */
+
   /* Bar Dividers */
   --bar-divider: rgba(255, 255, 255, 0.10);
 
@@ -93,6 +99,35 @@
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
+
+  /* Theme-aware overlay colors (for inline styles in components) */
+  --overlay-2: rgba(255, 255, 255, 0.02);
+  --overlay-3: rgba(255, 255, 255, 0.03);
+  --overlay-4: rgba(255, 255, 255, 0.04);
+  --overlay-5: rgba(255, 255, 255, 0.05);
+  --overlay-6: rgba(255, 255, 255, 0.06);
+  --overlay-8: rgba(255, 255, 255, 0.08);
+  --overlay-10: rgba(255, 255, 255, 0.10);
+  --overlay-12: rgba(255, 255, 255, 0.12);
+  --overlay-14: rgba(255, 255, 255, 0.14);
+  --overlay-15: rgba(255, 255, 255, 0.15);
+  --overlay-18: rgba(255, 255, 255, 0.18);
+  --overlay-20: rgba(255, 255, 255, 0.20);
+  --overlay-30: rgba(255, 255, 255, 0.30);
+  --overlay-40: rgba(255, 255, 255, 0.40);
+  --overlay-50: rgba(255, 255, 255, 0.50);
+  --inset-highlight-6: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --inset-highlight-8: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --inner-glow-20: inset 0 0 10px rgba(255, 255, 255, 0.2);
+  --inner-glow-8: inset 0 0 8px rgba(255, 255, 255, 0.2);
+  --shadow-soft: rgba(0, 0, 0, 0.4);
+  --shadow-heavy: rgba(0, 0, 0, 0.5);
+  --tooltip-bg: var(--surface-card);
+  --tooltip-border: rgba(255, 255, 255, 0.08);
+  --tooltip-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --pill-gradient: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(255, 23, 68, 0.88));
+  --pill-shadow: 0 8px 18px rgba(255, 23, 68, 0.22);
 }
 
 [data-theme="light"] {
@@ -127,6 +162,12 @@
   --accent-coral: #e64a19;
   --accent-teal: #00897b;
 
+  /* Dimension Colors (Quiz) — darker for white bg readability */
+  --dim-1: #5c35cc;   /* Automation Exposure — deep purple */
+  --dim-2: #d84315;   /* Data Openness — deep orange */
+  --dim-3: #00897b;   /* Risk Tolerance — teal (readable on white) */
+  --dim-4: #7b1fa2;   /* Social Complexity — deep purple */
+
   /* Bar Dividers */
   --bar-divider: rgba(0, 0, 0, 0.10);
 
@@ -134,6 +175,35 @@
   --glow-primary: rgba(230, 81, 0, 0.12);
   --glow-secondary: rgba(244, 81, 30, 0.08);
   --glow-accent: rgba(0, 131, 143, 0.08);
+
+  /* Theme-aware overlay colors (light mode — flipped to black-based) */
+  --overlay-2: rgba(0, 0, 0, 0.02);
+  --overlay-3: rgba(0, 0, 0, 0.03);
+  --overlay-4: rgba(0, 0, 0, 0.03);
+  --overlay-5: rgba(0, 0, 0, 0.04);
+  --overlay-6: rgba(0, 0, 0, 0.05);
+  --overlay-8: rgba(0, 0, 0, 0.06);
+  --overlay-10: rgba(0, 0, 0, 0.08);
+  --overlay-12: rgba(0, 0, 0, 0.08);
+  --overlay-14: rgba(0, 0, 0, 0.10);
+  --overlay-15: rgba(0, 0, 0, 0.06);
+  --overlay-18: rgba(0, 0, 0, 0.05);
+  --overlay-20: rgba(0, 0, 0, 0.12);
+  --overlay-30: rgba(0, 0, 0, 0.15);
+  --overlay-40: rgba(0, 0, 0, 0.20);
+  --overlay-50: rgba(0, 0, 0, 0.25);
+  --inset-highlight-6: inset 0 1px 0 rgba(0, 0, 0, 0.04);
+  --inset-highlight-8: inset 0 1px 0 rgba(0, 0, 0, 0.06);
+  --inner-glow-20: inset 0 0 10px rgba(0, 0, 0, 0.08);
+  --inner-glow-8: inset 0 0 8px rgba(0, 0, 0, 0.06);
+  --shadow-soft: rgba(0, 0, 0, 0.12);
+  --shadow-heavy: rgba(0, 0, 0, 0.18);
+  --tooltip-bg: #ffffff;
+  --tooltip-border: rgba(0, 0, 0, 0.1);
+  --tooltip-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --pill-gradient: linear-gradient(135deg, rgba(230, 81, 0, 0.9), rgba(211, 47, 47, 0.88));
+  --pill-shadow: 0 4px 12px rgba(211, 47, 47, 0.18);
 
   /* Timeline section colors - light */
   --timeline-bg-from: #f1f5f9;
@@ -1558,3 +1628,21 @@ section.no-contain {
     transition: opacity 220ms ease, transform 220ms ease;
   }
 }
+
+/* ── Theme-aware overlay utilities ── */
+/* Replace Tailwind bg-white/[...] and border-white/[...] with theme-aware versions */
+.bg-overlay-2  { background-color: var(--overlay-2); }
+.bg-overlay-4  { background-color: var(--overlay-4); }
+.bg-overlay-6  { background-color: var(--overlay-6); }
+.bg-overlay-8  { background-color: var(--overlay-8); }
+.bg-overlay-10 { background-color: var(--overlay-10); }
+.bg-overlay-12 { background-color: var(--overlay-12); }
+.bg-overlay-40 { background-color: var(--overlay-40); }
+.hover\:bg-overlay-4:hover  { background-color: var(--overlay-4); }
+.border-overlay-4  { border-color: var(--overlay-4); }
+.border-overlay-6  { border-color: var(--overlay-6); }
+.border-overlay-8  { border-color: var(--overlay-8); }
+.border-overlay-10 { border-color: var(--overlay-10); }
+.border-overlay-12 { border-color: var(--overlay-12); }
+.divide-overlay-6 > :not(:first-child) { border-color: var(--overlay-6); }
+.ring-overlay-10 { --tw-ring-color: var(--overlay-10); }

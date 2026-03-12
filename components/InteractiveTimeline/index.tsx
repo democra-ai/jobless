@@ -347,7 +347,7 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
           className="text-center mb-16 md:mb-24">
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }} className="inline-block mb-6">
-            <div className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 via-emerald-500/20 to-red-500/20 border border-white/10">
+            <div className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 via-emerald-500/20 to-red-500/20 border border-overlay-10">
               <span className="text-sm font-medium bg-gradient-to-r from-amber-400 via-emerald-400 to-red-400 bg-clip-text text-transparent">
                 {lang === 'en' ? '6 Milestones That Changed Everything' : '改变一切的6个里程碑'}
               </span>
@@ -556,7 +556,7 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
           <motion.div initial={{ left: '-10%' }} animate={{ left: '110%' }}
             transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
             className="absolute top-1/2 -translate-y-1/2 w-32 h-2"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }} />
+            style={{ background: `linear-gradient(90deg, transparent, var(--overlay-30), transparent)` }} />
         </div>
 
         {/* AI Era divider — vertical line down from Deep Learning node */}
@@ -603,8 +603,8 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
               style={{
                 background: 'linear-gradient(135deg, #ef4444, #ef444480)',
                 boxShadow: (selectedMilestone === null || selectedMilestone?.id === 'we-are-here')
-                  ? '0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(255,255,255,0.2)'
-                  : 'inset 0 0 10px rgba(255,255,255,0.2)',
+                  ? `0 0 20px rgba(239, 68, 68, 0.6), var(--inner-glow-20)`
+                  : 'var(--inner-glow-20)',
               }}>
               <Flame className="w-4 h-4 text-white" />
             </div>
@@ -617,7 +617,7 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
               className="px-4 py-2 rounded-xl backdrop-blur-md border border-red-500/40 transition-all"
               style={{
                 background: selectedMilestone?.id === 'we-are-here' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)',
-                boxShadow: selectedMilestone?.id === 'we-are-here' ? '0 0 30px rgba(239, 68, 68, 0.3)' : '0 4px 20px rgba(0,0,0,0.3)'
+                boxShadow: selectedMilestone?.id === 'we-are-here' ? '0 0 30px rgba(239, 68, 68, 0.3)' : `0 4px 20px var(--shadow-soft)`
               }}>
               <span className="text-base font-semibold text-red-400">{t.weAreHere}</span>
             </motion.div>
@@ -670,11 +670,11 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                     background: `linear-gradient(135deg, ${milestone.color}, ${milestone.color}80)`,
                     borderColor: milestone.color,
                     borderStyle: milestone.isProjected ? 'dashed' : 'solid',
-                    boxShadow: isSelected ? `0 0 14px ${milestone.color}60, inset 0 0 8px rgba(255,255,255,0.2)` : 'inset 0 0 8px rgba(255,255,255,0.2)',
+                    boxShadow: isSelected ? `0 0 14px ${milestone.color}60, var(--inner-glow-8)` : 'var(--inner-glow-8)',
                   }}>
                   <Icon className="w-3 h-3 text-white" />
                 </div>
-                <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 bg-white/40 rounded-full blur-[1px]" />
+                <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 bg-overlay-40 rounded-full blur-[1px]" />
               </motion.div>
 
               {/* Name card */}
@@ -689,7 +689,7 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                   style={{
                     background: isSelected ? `${milestone.color}20` : 'var(--timeline-card-bg)',
                     borderColor: isSelected ? milestone.color : 'var(--timeline-card-border)',
-                    boxShadow: isSelected ? `0 0 30px ${milestone.color}30` : '0 4px 20px rgba(0,0,0,0.3)',
+                    boxShadow: isSelected ? `0 0 30px ${milestone.color}30` : `0 4px 20px var(--shadow-soft)`,
                     whiteSpace: isCompactDesktop ? 'normal' : 'nowrap',
                     maxWidth: isCompactDesktop ? '112px' : undefined,
                     textAlign: 'center',
@@ -1140,11 +1140,11 @@ function MobileDetailSheet({ milestone, onClose, lang, t }: {
           <div
             className="pointer-events-auto rounded-2xl border p-1.5 backdrop-blur-xl overflow-x-auto scrollbar-hide"
             style={{
-              borderColor: 'rgba(255,255,255,0.12)',
+              borderColor: 'var(--overlay-12)',
               background: dockActive
                 ? 'color-mix(in srgb, var(--surface) 92%, transparent)'
                 : 'color-mix(in srgb, var(--surface) 72%, transparent)',
-              boxShadow: dockActive ? '0 14px 30px rgba(0,0,0,0.3)' : '0 10px 20px rgba(0,0,0,0.14)',
+              boxShadow: dockActive ? `0 14px 30px var(--shadow-soft)` : `0 10px 20px var(--shadow-soft)`,
             }}
           >
             <div className="flex gap-1 min-w-max">
@@ -1223,10 +1223,10 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
             background: 'var(--timeline-panel-bg)', borderColor: `${milestone.color}30`,
             borderStyle: milestone.isProjected ? 'dashed' : 'solid',
             boxShadow: isMobileInline
-              ? `0 4px 16px ${milestone.color}12, inset 0 1px 0 rgba(255,255,255,0.06)`
+              ? `0 4px 16px ${milestone.color}12, var(--inset-highlight-6)`
               : compactMode
-              ? `0 10px 30px ${milestone.color}16, inset 0 1px 0 rgba(255,255,255,0.08)`
-              : `0 0 40px ${milestone.color}12, inset 0 1px 0 rgba(255,255,255,0.06)`,
+              ? `0 10px 30px ${milestone.color}16, var(--inset-highlight-8)`
+              : `0 0 40px ${milestone.color}12, var(--inset-highlight-6)`,
             maxWidth: compactMode ? undefined : '56rem',
             margin: compactMode ? undefined : '0 auto',
           }}>

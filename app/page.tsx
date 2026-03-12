@@ -240,7 +240,7 @@ export default function Home() {
         className="mobile-risk-fab fixed right-3 sm:right-5 bottom-[calc(var(--safe-bottom)+5.1rem)] sm:bottom-[calc(var(--safe-bottom)+1.25rem)] z-[96] w-12 h-12 rounded-full border flex items-center justify-center"
         style={{
           background: 'color-mix(in srgb, var(--surface) 88%, transparent)',
-          borderColor: 'rgba(255,255,255,0.14)',
+          borderColor: 'var(--overlay-14)',
           boxShadow: '0 12px 24px rgba(255,23,68,0.22)',
         }}
         whileTap={{ scale: 0.94 }}

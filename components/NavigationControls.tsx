@@ -100,8 +100,8 @@ export function MobileBottomNav({
         className="rounded-2xl border p-1.5 backdrop-blur-xl"
         style={{
           background: 'color-mix(in srgb, var(--surface) 90%, transparent)',
-          borderColor: 'rgba(255,255,255,0.12)',
-          boxShadow: '0 16px 36px rgba(0,0,0,0.38)',
+          borderColor: 'var(--overlay-12)',
+          boxShadow: '0 16px 36px var(--shadow-soft)',
         }}
         aria-label={lang === 'zh' ? '移动端导航' : 'Mobile navigation'}
       >
@@ -112,8 +112,8 @@ export function MobileBottomNav({
             animate={{ x: pill.x, width: pill.width, opacity: pill.ready ? 1 : 0 }}
             transition={{ type: 'spring', stiffness: 420, damping: 34, mass: 0.8 }}
             style={{
-              background: 'linear-gradient(135deg, rgba(255,107,53,0.9), rgba(255,23,68,0.88))',
-              boxShadow: '0 8px 18px rgba(255,23,68,0.22)',
+              background: 'var(--pill-gradient)',
+              boxShadow: 'var(--pill-shadow)',
             }}
           />
           {navItems.map((item) => {

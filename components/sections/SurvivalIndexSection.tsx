@@ -111,7 +111,23 @@ function DimensionBadge({ icon: Icon, label, color }: { icon: React.ElementType;
 }
 
 const DIMENSION_ICONS = [Brain, Target, Shield, Users];
-const DIMENSION_COLORS = ['#7c4dff', '#ff6e40', '#64ffda', '#b388ff'];
+const DIMENSION_COLORS_DARK = ['#7c4dff', '#ff6e40', '#64ffda', '#b388ff'];
+
+function useDimensionColors(): string[] {
+  const [colors, setColors] = useState(DIMENSION_COLORS_DARK);
+  useEffect(() => {
+    const read = () => {
+      const s = getComputedStyle(document.documentElement);
+      const c = [1, 2, 3, 4].map(i => s.getPropertyValue(`--dim-${i}`).trim());
+      if (c.every(v => v)) setColors(c);
+    };
+    read();
+    const obs = new MutationObserver(read);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => obs.disconnect();
+  }, []);
+  return colors;
+}
 
 /** Horizontal axis slider with 5 discrete stops and inline hover description */
 function AxisSlider({
@@ -174,9 +190,9 @@ function AxisSlider({
                   style={{
                     width: isSelected ? '28px' : isHovered ? '26px' : '22px',
                     height: isSelected ? '28px' : isHovered ? '26px' : '22px',
-                    borderColor: isSelected ? accentColor : isHovered ? accentColor + '80' : 'rgba(255,255,255,0.2)',
+                    borderColor: isSelected ? accentColor : isHovered ? accentColor + '80' : 'var(--overlay-20)',
                     backgroundColor: isSelected ? accentColor : isHovered ? accentColor + '20' : 'var(--surface)',
-                    color: isSelected ? '#fff' : isHovered ? accentColor : 'rgba(255,255,255,0.5)',
+                    color: isSelected ? '#fff' : isHovered ? accentColor : 'var(--foreground-dim)',
                   }}
                   animate={{
                     scale: isSelected ? 1.1 : 1,
@@ -211,7 +227,7 @@ function AxisSlider({
               transition={{ duration: 0.12 }}
               className="text-center px-2"
             >
-              <span className="inline-flex items-center gap-1.5 text-xs leading-relaxed rounded-lg px-3 py-1.5 bg-surface-elevated border border-white/10">
+              <span className="inline-flex items-center gap-1.5 text-xs leading-relaxed rounded-lg px-3 py-1.5 bg-surface-elevated border border-overlay-10">
                 <span className="font-bold min-w-[16px] text-center" style={{ color: accentColor }}>{activeStop}</span>
                 <span className="text-foreground-muted">{options[activeStop - 1]}</span>
               </span>
@@ -230,6 +246,7 @@ type QuizPhase = 'intro' | 'core' | 'result';
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
+  const DIMENSION_COLORS = useDimensionColors();
   // Quiz state
   const [phase, setPhase] = useState<QuizPhase>('intro');
   const [coreIndex, setCoreIndex] = useState(0); // 0-15
@@ -611,7 +628,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border border-white/10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border border-overlay-10">
             <Target className="w-4 h-4" style={{ stroke: 'url(#badge-gradient)' }} />
             <svg width="0" height="0"><defs><linearGradient id="badge-gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#38bdf8" /><stop offset="50%" stopColor="#a78bfa" /><stop offset="100%" stopColor="#fb7185" /></linearGradient></defs></svg>
             <span className="text-sm font-medium bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400 bg-clip-text text-transparent">{t.survivalBadge}</span>
@@ -634,7 +651,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           {/* ══════════════ INTRO PHASE ══════════════ */}
           {phase === 'intro' && (
             <div className="text-center space-y-6 py-8">
-              <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500/20 via-violet-500/20 to-rose-500/20 flex items-center justify-center border border-white/10">
+              <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500/20 via-violet-500/20 to-rose-500/20 flex items-center justify-center border border-overlay-10">
                 <Brain className="w-10 h-10 text-violet-400" />
               </div>
               <div>
@@ -665,7 +682,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     <button
                       type="button"
                       onClick={() => setSOCOpen(prev => { trackPresetPanelToggle(!prev, lang); return !prev; })}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] transition-all text-sm"
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-overlay-8 bg-overlay-2 hover:bg-overlay-4 transition-all text-sm"
                     >
                       {selectedGroup ? (
                         <>
@@ -706,14 +723,14 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                     className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs transition-all ${
                                       isSelected
                                         ? 'text-white'
-                                        : 'hover:bg-white/[0.04] text-foreground-muted'
+                                        : 'hover:bg-overlay-4 text-foreground-muted'
                                     }`}
                                     style={isSelected ? {
                                       backgroundColor: color + '15',
                                       boxShadow: `inset 0 0 0 1px ${color}40`,
                                     } : undefined}
                                   >
-                                    <div className="flex-shrink-0 w-10 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                                    <div className="flex-shrink-0 w-10 h-1 rounded-full bg-overlay-6 overflow-hidden">
                                       <div className="h-full rounded-full" style={{ width: `${soc.riskScore}%`, backgroundColor: color }} />
                                     </div>
                                     <span className="flex-1 text-left truncate">{soc.name[lang]}</span>
@@ -724,9 +741,9 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                             <button
                               type="button"
                               onClick={() => { setSelectedSOC(null); setSOCOpen(false); }}
-                              className="w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs hover:bg-white/[0.04] text-foreground-muted/50 transition-all"
+                              className="w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-xs hover:bg-overlay-4 text-foreground-muted/50 transition-all"
                             >
-                              <div className="flex-shrink-0 w-10 h-1 rounded-full bg-white/[0.06]" />
+                              <div className="flex-shrink-0 w-10 h-1 rounded-full bg-overlay-6" />
                               <span className="flex-1 text-left">{t.occupationOtherSkip}</span>
                             </button>
                           </div>
@@ -906,7 +923,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                 {/* Horizontal bar */}
                                 <div className="relative h-2.5">
                                   {/* Bar track */}
-                                  <div className="absolute inset-0 rounded-full bg-white/[0.06] overflow-hidden">
+                                  <div className="absolute inset-0 rounded-full bg-overlay-6 overflow-hidden">
                                     {/* Filled portion */}
                                     <motion.div
                                       className="absolute inset-y-0 left-0 rounded-full"
@@ -923,7 +940,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                     className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 z-10"
                                     style={{
                                       backgroundColor: color,
-                                      borderColor: 'rgba(0,0,0,0.4)',
+                                      borderColor: 'var(--shadow-soft)',
                                       boxShadow: `0 0 8px ${color}60`,
                                     }}
                                     initial={{ left: '0%' }}
@@ -964,14 +981,14 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       const yearsAway = isInfinity ? 99 : result.predictedReplacementYear - new Date().getFullYear();
                       const yearColor = isInfinity ? '#00e676' : riskColorFromScore(Math.max(0, Math.min(100, 100 - yearsAway * 4)));
                       return (
-                        <div className="flex items-center justify-center gap-5 sm:gap-8 py-4 border-t border-b border-white/[0.06]">
+                        <div className="flex items-center justify-center gap-5 sm:gap-8 py-4 border-t border-b border-overlay-6">
                           <div className="text-center">
                             <div className="text-2xl sm:text-3xl font-bold" style={{ color: probColor }}>
                               <AnimatedNumber value={result.replacementProbability} suffix="%" />
                             </div>
                             <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric1Title}</div>
                           </div>
-                          <div className="w-px h-10 bg-white/10" />
+                          <div className="w-px h-10 bg-overlay-10" />
                           <div className="text-center">
                             {isInfinity ? (
                               <div className="text-2xl sm:text-3xl font-bold" style={{ color: yearColor }}>∞</div>
@@ -1016,7 +1033,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       const cal = getProfileCalibration(result.profileCode);
                       if (!cal) return null;
                       return (
-                        <div className="pt-4 mt-2 border-t border-white/[0.06] space-y-3">
+                        <div className="pt-4 mt-2 border-t border-overlay-6 space-y-3">
                           {/* Vulnerability */}
                           <motion.div
                             initial={{ opacity: 0, y: 8 }}
@@ -1066,7 +1083,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       const careers = PROFILE_CAREERS[result.profileCode];
                       if (!careers || careers.length === 0) return null;
                       return (
-                        <div className="pt-4 mt-2 border-t border-white/[0.06]">
+                        <div className="pt-4 mt-2 border-t border-overlay-6">
                           <div className="flex items-center justify-between mb-3">
                             <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70">
                               {lang === 'zh' ? '相关职业风险图谱' : 'Career Risk Spectrum'}
@@ -1101,7 +1118,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                         <span className="text-xs font-medium truncate">{career.title[lang]}</span>
                                       </div>
                                       {/* Risk bar */}
-                                      <div className="h-1 rounded-full bg-white/[0.06] mt-1 overflow-hidden">
+                                      <div className="h-1 rounded-full bg-overlay-6 mt-1 overflow-hidden">
                                         <motion.div
                                           className="h-full rounded-full"
                                           style={{ backgroundColor: cColor }}
@@ -1132,11 +1149,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       const adviceList = generateAdvice(result.dimensions);
                       const accentColors = ['#ff1744', '#ffc107', '#00e676', '#448aff', '#e040fb'];
                       return (
-                        <div className="pt-5 mt-3 border-t border-white/[0.06]">
+                        <div className="pt-5 mt-3 border-t border-overlay-6">
                           <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70 mb-4 flex items-center gap-2">
                             <span className="inline-block w-4 h-px" style={{ background: 'linear-gradient(90deg, #ff1744, #ffc107, #00e676)' }} />
                             {lang === 'zh' ? '行动建议' : 'Action Plan'}
-                            <span className="inline-block flex-1 h-px bg-white/[0.06]" />
+                            <span className="inline-block flex-1 h-px bg-overlay-6" />
                           </h4>
                           <div className="space-y-0">
                             {adviceList.map((advice, ai) => {
@@ -1149,17 +1166,17 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ delay: 0.8 + ai * 0.1, type: 'spring', stiffness: 200, damping: 25 }}
                                 >
-                                  <div className={`relative flex items-start gap-3 py-3.5 ${ai > 0 ? 'border-t border-white/[0.04]' : ''}`}>
+                                  <div className={`relative flex items-start gap-3 py-3.5 ${ai > 0 ? 'border-t border-overlay-4' : ''}`}>
                                     {/* Accent bar + number */}
                                     <div className="flex flex-col items-center gap-1 flex-shrink-0 w-7">
                                       <div
-                                        className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm ${isFirst ? 'ring-1 ring-white/20' : ''}`}
+                                        className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm ${isFirst ? 'ring-1 ring-overlay-10' : ''}`}
                                         style={{ background: isFirst ? `${accent}20` : `${accent}10`, color: accent }}
                                       >
                                         {advice.icon}
                                       </div>
                                       {ai < adviceList.length - 1 && (
-                                        <div className="w-px flex-1 min-h-[8px] bg-white/[0.06]" />
+                                        <div className="w-px flex-1 min-h-[8px] bg-overlay-6" />
                                       )}
                                     </div>
                                     {/* Content */}
@@ -1192,7 +1209,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   </div>
 
                   {/* Reality check footer */}
-                  <div className="flex items-start gap-3 px-6 sm:px-8 py-3 bg-white/[0.02] border-t border-white/[0.04]">
+                  <div className="flex items-start gap-3 px-6 sm:px-8 py-3 bg-overlay-2 border-t border-overlay-4">
                     <Flame className="w-3.5 h-3.5 text-risk-critical flex-shrink-0 mt-0.5" />
                     <p className="text-[11px] text-foreground-muted/60 leading-relaxed">
                       <span className="font-semibold text-foreground-muted/80">{t.realityCheck}</span>{' '}
@@ -1278,7 +1295,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSharePanelOpen((prev) => { trackSharePanelToggle(!prev); return !prev; })}
                     data-testid="share-trigger"
-                    className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-surface-elevated/70 hover:bg-surface-elevated text-sm font-medium transition-all"
+                    className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-overlay-10 bg-surface-elevated/70 hover:bg-surface-elevated text-sm font-medium transition-all"
                   >
                     <Share2 className="w-4 h-4" />
                     {sharePanelOpen ? t.shareClose : t.shareOpen}
@@ -1299,7 +1316,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }} onClick={handleDownloadImage} data-testid="share-download-btn" className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/40 text-sm font-semibold text-brand-primary transition-all">
                           <Download className="w-4 h-4" />{t.shareDownload}
                         </motion.button>
-                        <motion.button whileTap={{ scale: 0.95 }} onClick={handleCopyLink} data-testid="share-copy-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 border border-white/10 text-sm font-medium transition-all">
+                        <motion.button whileTap={{ scale: 0.95 }} onClick={handleCopyLink} data-testid="share-copy-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 border border-overlay-10 text-sm font-medium transition-all">
                           <Copy className="w-4 h-4" />{copied ? t.shareCopied : t.shareCopyLink}
                         </motion.button>
                         <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareTwitter} data-testid="share-twitter-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 border border-[#1DA1F2]/20 text-sm font-medium text-[#1DA1F2] transition-all">
@@ -1327,7 +1344,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={resetQuiz}
-                className="w-full bg-surface-elevated hover:bg-surface-elevated/80 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 border border-white/10"
+                className="w-full bg-surface-elevated hover:bg-surface-elevated/80 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 border border-overlay-10"
               >
                 <RefreshCw className="w-5 h-5" />
                 {t.recalculate}
@@ -1369,7 +1386,7 @@ class QuizErrorBoundary extends React.Component<
                 this.setState({ hasError: false });
                 window.scrollTo({ top: 0 });
               }}
-              className="px-6 py-3 bg-surface-elevated hover:bg-surface-elevated/80 rounded-xl font-semibold border border-white/10 transition-all"
+              className="px-6 py-3 bg-surface-elevated hover:bg-surface-elevated/80 rounded-xl font-semibold border border-overlay-10 transition-all"
             >
               <RefreshCw className="w-4 h-4 inline mr-2" />
               Retry
