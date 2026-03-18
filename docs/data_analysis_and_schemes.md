@@ -188,3 +188,88 @@
 
 
 **建议**：**方案D** 最接近原始概念定义。方案B是一个不错的简化版。
+
+---
+
+## 仓库3: Eloundou et al. (2023) — `openai/GPTs-are-GPTs`
+
+> 论文: *GPTs are GPTs: An Early Look at the Labor Market Impact Potential of Large Language Models* (Eloundou, Manning, Mishkin, Rock, 2023)
+> 数据地址: `data/gpts-are-gpts/`（本地已下载自 https://github.com/openai/GPTs-are-GPTs/tree/main/data）
+
+### 方法论
+
+Eloundou (2023) 的 Exposure 计算方法：
+
+1. **任务级标注**：对 O*NET 全部 19,265 个任务，分别由**人类标注者**和 **GPT-4** 各自独立标注 exposure 等级：
+   - `E0` = 不暴露：LLM 无法将完成时间减少至少 50%
+   - `E1` = 直接暴露：仅靠 LLM 文本能力（无额外工具）就能将时间减少 ≥50%
+   - `E2` = 间接暴露：需要在 LLM 基础上构建额外软件/工具才能减少 ≥50% 时间
+
+2. **职业级汇总**：将任务级标签转为职业级 exposure 分数：
+   - `alpha (α)` = 该职业中被标为 E1（直接暴露）的任务占比
+   - `beta (β)` = 被标为 E1 或 E2 的任务占比（含间接暴露）
+   - `gamma (γ)` = alpha 和 beta 的上界聚合（最宽泛的暴露度定义）
+   - 分别有 `dv_rating`（GPT-4 标注）和 `human_rating`（人类标注）两个版本
+
+3. **关键统计**：
+   - 全职业均值：α=0.14, β=0.35, **γ=0.55**（GPT-4标注）
+   - 即 GPT-4 认为 **55% 的 O*NET 任务**在工具辅助下可被 LLM 加速 ≥50%
+   - 人类标注更保守：α=0.14, β=0.30, γ=0.46
+
+### 数据文件清单
+
+| 文件 | 行数 | 含义 | 关键字段 | 对我们的价值 |
+| --- | --- | --- | --- | --- |
+| **full_labelset.tsv** | 19,265 | 每个 O*NET 任务的完整 exposure 标签集 | `O*NET-SOC Code`, `Task ID`, `Task`, `human_exposure_agg`(E0/E1/E2), `gpt4_exposure`(E0/E1/E2), `alpha`, `beta`, `gamma`, `automation`(0-1), `human_labels` | **极高** — 这是最完整的任务级 AI exposure 标签，923个职业 × 19,265个任务 |
+| **occ_level.csv** | 923 | 职业级 exposure 评分汇总 | `O*NET-SOC Code`, `Title`, `dv_rating_alpha/beta/gamma`, `human_rating_alpha/beta/gamma` | **极高** — 直接可用的职业级 E 值，覆盖全部 923 个 O*NET 职业 |
+| **automation_gpt4_human_labels.tsv** | 19,265 | GPT-4 和人类对每个任务的自动化等级标注 | `O*NET-SOC Code`, `Task ID`, `Task`, `gpt4_automation`(T1-T4), `human_automation`(T1-T4) | **高** — T1=无自动化, T2=部分, T3=大部分, T4=完全自动化 |
+| **full_onet_data.tsv** | 19,265 | O*NET 任务原始数据 + 权重 | `O*NET-SOC Code`, `Task ID`, `Task`, `Task Type`(Core/Supplemental), `coreweight`, `equalweight` | **高** — 区分核心/补充任务，提供权重 |
+| **occupations_onet_bls_matched.csv** | 972 | O*NET 职业与 BLS 就业/薪资数据匹配 | `OCC_CODE`, `TOT_EMP`, `A_MEAN`, `A_MEDIAN` | **高** — 包含就业人数和薪资，可用于加权计算 |
+| **occupations_onet_basic_skills.csv** | 873 | 每个职业需要的基础技能 | `Occupation`, `Job Zone`(1-5), `Critical_Thinking`, `Programming`, `Mathematics`, `Writing` 等 12 项 | **中** — 可分析哪些技能组合导致高/低 exposure |
+| **occupations_onet_work_contexts.csv** | 873 | 职业的工作环境特征 | `degree_of_automation_context`, `importance_of_being_exact`, `structured_vs_unstructured` | **中** — 原有自动化程度 vs AI 新增暴露度 |
+| **occupations_projections_processed.csv** | 1,049 | 就业增长预测 | `occupation`, `pct_emp_change_2020_2030` | **低** — 2020-2030 预测，已过时 |
+| **national_May2021_dl.csv** | 1,403 | BLS 2021 年 5 月全国就业薪资数据 | `OCC_CODE`, `OCC_TITLE`, `TOT_EMP`, `A_MEAN`, `A_MEDIAN` | **中** — 薪资数据，但是2021年 |
+| **autoScores.csv** | 6,633 | 多维度自动化评分面板数据（含时间序列） | `simpleOcc`, `year`, `pct_software/robot/ai`, `freyOsborne`, `felten_raj_seamans`, `tot_emp`, `a_mean` | **中** — 整合了多个经典自动化指标，可做纵向对比 |
+| **BEA_BLS_industry_lp.csv** | 63 | 行业劳动生产率时间序列 (1987-2020) | 行业名, 年度劳动生产率指数 | **低** — 宏观经济背景 |
+| **BEA_BLS_industry_tfp.csv** | 63 | 行业全要素生产率时间序列 (1987-2020) | 同上，TFP版 | **低** — 宏观经济背景 |
+| **bls_occupation_demographics_2022.xlsx** | — | 职业人口统计（性别、种族） | — | **低** — 公平性分析 |
+| **cpsaat11.xlsx** | — | CPS 调查数据 | — | **低** — 背景数据 |
+| **nem-onet-to-soc-crosswalk.xlsx** | — | O*NET SOC → BLS SOC 交叉映射表 | — | **高** — 数据对齐必备 |
+| **occupation_2023_final.xlsx** | — | 论文最终使用的职业级汇总 | — | **高** — 可能包含论文表格的完整数据 |
+
+### 样例：full_labelset.tsv 一条记录
+
+```
+O*NET-SOC Code: 13-2011.00
+Task ID:        21519
+Task:           "Analyze business operations, trends, costs, revenues, financial commitments,
+                 and obligations to project future revenues and expenses or to provide advice."
+Title:          Accountants and Auditors
+Task Type:      Core
+human_exposure: E2 (间接暴露 — 需要工具辅助)
+gpt4_exposure:  E2
+alpha:          0.0  (不算直接暴露)
+beta:           0.5  (算间接暴露)
+gamma:          1.0  (最宽口径下算暴露)
+automation:     0.50 (GPT-4 判断部分可自动化)
+```
+
+### 与我们其他数据的关系
+
+| 对接 | 方法 | 覆盖度 |
+| --- | --- | --- |
+| **Eloundou → O*NET** | 直接使用 O*NET-SOC Code，完全对齐 | 923 职业, 19,265 任务 |
+| **Eloundou → BLS** | 通过 `nem-onet-to-soc-crosswalk.xlsx` 或 `occupations_onet_bls_matched.csv` | 972 个匹配 |
+| **Eloundou → GDPval** | GDPval 44 职业 → SOC → O*NET-SOC，可提取其 exposure | 44/923 直接匹配 |
+| **Eloundou → Anthropic EI** | 均使用 O*NET 任务体系，Task ID 可直接 join | 完全对齐 |
+| **Eloundou → Karpathy** | Karpathy 是 BLS OOH (342职业)，需通过 SOC 映射到 O*NET 的 923 职业 | 约 300+ 可匹配 |
+
+### 对我们的核心价值
+
+**full_labelset.tsv + occ_level.csv 直接解决了 E（曝光度）的问题**：
+
+- 这是最早、最权威的 AI 任务级 exposure 标注数据
+- 覆盖 O*NET 全部 923 个职业、19,265 个任务
+- 同时有人类标注和 GPT-4 标注，可以交叉验证
+- `gamma` 值可以直接作为我们公式中的 **E（曝光度）**
+- 结合 GDPval 的 **P（胜率）** 和 BLS 的就业数据，可以计算完整的 Kill Line

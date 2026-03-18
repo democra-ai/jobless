@@ -60,6 +60,9 @@ venv/
 *.egg-info/
 *.egg
 
+# Consolidated data directory — raw datasets, too large for git
+/data/
+
 # Analysis data (raw + interim) — 可从脚本或 DVC 恢复，不纳入版本库
 /analysis/iceberg_exposure/data/
 

@@ -44,7 +44,7 @@ const WE_ARE_HERE_MILESTONE: Milestone = {
   icon: Flame,
   color: '#ef4444',
   gradient: 'from-red-500 to-red-600',
-  impact: { en: 'AI already replacing 21.37% of jobs — and accelerating', zh: 'AI 已替代 21.37% 的岗位——且在加速' },
+  impact: { en: 'AI already replacing 24.7% of jobs — and accelerating', zh: 'AI 已替代 24.7% 的岗位——且在加速' },
   details: {
     description: {
       en: 'We stand at the inflection point. AI has moved from demo to deployment. Companies are writing AI into layoff announcements. 89% of HR leaders admit AI is affecting headcount decisions.',
@@ -55,11 +55,11 @@ const WE_ARE_HERE_MILESTONE: Milestone = {
       zh: '不同于过去需要数十年的革命，这次以季度为单位推进。适应的窗口以月计算，而不是年。'
     },
     jobsAffected: {
-      en: '21.37% replaceable now (task-aligned estimate). McKinsey: 57% of hours technically automatable.',
-      zh: '目前 21.37% 可被替代（任务对齐估计）。麦肯锡：57% 的工时理论上可自动化。'
+      en: '24.7% replaceable now (task-aligned estimate). McKinsey: 57% of hours technically automatable.',
+      zh: '目前 24.7% 可被替代（任务对齐估计）。麦肯锡：57% 的工时理论上可自动化。'
     },
     sources: [
-      'Task-aligned GDPval × O*NET pipeline (2026)',
+      'Eloundou et al. 2023 (E) × OpenAI GDPval GPT-5.2 (P) × BLS 2024',
       'McKinsey Global Institute (2025)',
       'World Economic Forum Future of Jobs Report (2025)',
     ]
@@ -174,7 +174,7 @@ const MILESTONES: Milestone[] = [
         zh: 'GPT-3.5的聊天界面让每个人都能使用AI。无需编程。'
       },
       significance: { en: 'The fastest technology adoption in human history.', zh: '人类历史上最快的技术采用速度。' },
-      jobsAffected: { en: '21.37% of work currently replaceable (task-aligned estimate)', zh: '目前21.37%的工作可被替代（任务对齐估计）' },
+      jobsAffected: { en: '24.7% of work currently replaceable (task-aligned estimate)', zh: '目前24.7%的工作可被替代（任务对齐估计）' },
       sources: ['Task-aligned GDPval × O*NET pipeline (2026)', 'OpenAI Usage Statistics', 'Goldman Sachs Economic Research (2023)']
     },
     inventions: [

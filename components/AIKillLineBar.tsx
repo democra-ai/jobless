@@ -8,7 +8,7 @@ import Counter from '@/components/Counter';
 import { trackStageInteraction, trackInfoPopup } from '@/lib/analytics';
 
 // 核心数据
-export const CURRENT_REPLACEMENT_RATE = 21.37;
+export const CURRENT_REPLACEMENT_RATE = 24.7;
 
 // 五阶段模型（按暴露度分档：<20%, 20-40%, 40-60%, 60-80%, ≥80%）
 export const KILL_LINE_STAGES = [
