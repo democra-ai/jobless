@@ -43,7 +43,7 @@ export const translations = {
     icebergWarning: 'What you see is already 24.7%. The AI Kill Line is approaching.',
 
     // 统计数据
-    exposureLabel: 'Task Exposure (E)',
+    exposureLabel: 'Exposure (E)',
     exposureDesc: 'Approximate estimate. Employment-weighted average of Eloundou et al. (2023) β: the proportion of O*NET tasks where LLM + tools can reduce completion time by ≥50%. Based on 19,265 tasks across 923 occupations, labeled by human experts and GPT-4. Aggregated: Σ(β_occ × emp_occ) / Σ(emp_occ).',
     exposureSource: 'Eloundou et al. 2023',
     exposureUrl: 'https://arxiv.org/abs/2303.10130',

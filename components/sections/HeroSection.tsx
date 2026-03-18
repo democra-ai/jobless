@@ -117,18 +117,18 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
                     })}
                   </div>
 
-                  {/* Desktop: 3-column grid */}
+                  {/* Desktop: 3-column grid — fixed min-height so EN/ZH switching doesn't shift layout */}
                   <div className="hidden sm:grid grid-cols-3 gap-2 md:gap-3 mt-4 overflow-visible">
                     {stats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (
-                        <div key={i} className="group relative z-20 hover:z-[220] rounded-xl p-3 md:p-4 bg-surface border border-surface-elevated overflow-visible">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-center gap-2 min-w-0">
+                        <div key={i} className="group relative z-20 hover:z-[220] rounded-xl p-3 md:p-4 bg-surface border border-surface-elevated overflow-visible" style={{ minHeight: '60px' }}>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
                                 <Icon className="w-4 h-4" style={{ color: stat.color }} />
                               </div>
-                              <span className="hero-stat-label text-sm text-foreground-muted font-medium">{stat.label}</span>
+                              <span className="hero-stat-label text-xs md:text-sm text-foreground-muted font-medium leading-tight">{stat.label}</span>
                             </div>
                             <span
                               className="inline-flex items-center rounded-md px-2 py-0.5 text-base mono font-semibold leading-none flex-shrink-0"
