@@ -619,7 +619,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       data-lang={lang}
       className="py-12 sm:py-24 px-4 md:px-6 relative z-30 overflow-hidden scroll-mt-8 responsive-copy-scope"
     >
-      <div className="max-w-3xl mx-auto relative z-10">
+      <div className="max-w-4xl mx-auto relative z-10">
         {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}

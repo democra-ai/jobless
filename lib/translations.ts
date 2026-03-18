@@ -145,7 +145,7 @@ export const translations = {
 
     // AIR Quiz V3
     survivalBadge: 'AIR RISK TEST',
-    survivalTitle: 'Your AI Replacement Profile',
+    survivalTitle: 'AIR: AI Replacement Risk',
     survivalSubtitle: '16 questions, 4 dimensions, find your type',
     quizStart: 'Start Test',
     quizStartDesc: '16 core questions + 4 AI snapshot questions, about 3 minutes',
