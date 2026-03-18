@@ -255,6 +255,9 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                     <div className="text-center mb-2 py-2 px-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
                       <span className="mono text-[11px] font-bold text-foreground-muted">{t.killLineAggregation}</span>
                     </div>
+                    <div className="text-[11px] text-foreground-dim text-center italic mb-2 px-2" style={{ color: 'var(--risk-medium)' }}>
+                      {t.killLineNote}
+                    </div>
                     <div className="text-[11px] text-foreground-dim text-center">
                       {t.killLineSource}
                     </div>
@@ -320,6 +323,9 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                       </div>
                       <div className="text-center py-2 px-3 rounded-lg mb-1" style={{ background: 'var(--surface-elevated)' }}>
                         <span className="mono text-[10px] font-bold text-foreground-muted">{t.killLineAggregation}</span>
+                      </div>
+                      <div className="text-[10px] text-center italic px-2 mb-1" style={{ color: 'var(--risk-medium)' }}>
+                        {t.killLineNote}
                       </div>
                     </motion.div>
                   </motion.div>

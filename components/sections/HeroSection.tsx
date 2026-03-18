@@ -58,8 +58,8 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
             {/* Stat cards — unified card on mobile, 3-col on sm+ */}
             {(() => {
               const stats = [
-                { value: <Counter end={43.64} suffix="%" />, color: 'var(--risk-high)', icon: Eye, label: t.exposureLabel, desc: t.exposureDesc, source: t.exposureSource, url: t.exposureUrl },
-                { value: <Counter end={49.75} suffix="%" />, color: 'var(--brand-accent)', icon: Zap, label: t.proficiencyLabel, desc: t.proficiencyDesc, source: t.proficiencySource, url: t.proficiencyUrl },
+                { value: <Counter end={34.8} suffix="%" />, color: 'var(--risk-high)', icon: Eye, label: t.exposureLabel, desc: t.exposureDesc, source: t.exposureSource, url: t.exposureUrl },
+                { value: <Counter end={71.3} suffix="%" />, color: 'var(--brand-accent)', icon: Zap, label: t.proficiencyLabel, desc: t.proficiencyDesc, source: t.proficiencySource, url: t.proficiencyUrl },
                 { value: <>92M</>, color: 'var(--risk-critical)', icon: TrendingDown, label: t.jobsBy2030, desc: t.jobsBy2030Desc, source: t.jobsBy2030Source, url: t.jobsBy2030Url },
               ] as const;
 
