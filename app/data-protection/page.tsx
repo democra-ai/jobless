@@ -1,24 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Shield, Zap, Skull, Flame, Cpu, Database, FileText, RefreshCw, Info, Lock, CheckCircle2, ChevronDown } from 'lucide-react';
+import { AlertTriangle, Shield, Zap, Skull, Flame, Cpu, Database, FileText, RefreshCw, Info, Lock, CheckCircle2, ChevronDown, Target } from 'lucide-react';
 import Link from 'next/link';
 import { platformAgreements, dataProtectionTranslations } from '@/lib/data-protection';
 import type { Language } from '@/lib/data-protection';
-
-function LanguageButton({ lang, setLang }: { lang: Language; setLang: (lang: Language) => void }) {
-  return (
-    <motion.button
-      onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-      className="z-50 flex items-center gap-2 bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white px-3 py-2 rounded-lg border border-surface-elevated transition-all card-hover lang-toggle-btn"
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      <span className="font-medium">{lang === 'en' ? '中文' : 'EN'}</span>
-    </motion.button>
-  );
-}
+import { LanguageButton, ThemeButton } from '@/components/NavigationControls';
+import type { Theme } from '@/lib/translations';
 
 function LastMileSection({ lang, t }: { lang: Language; t: typeof dataProtectionTranslations.en }) {
   return (
@@ -286,11 +275,34 @@ function ProtectionChecklistSection({ lang, t }: { lang: Language; t: typeof dat
 
 export default function DataProtectionPage() {
   const [lang, setLang] = useState<Language>('en');
+  const [theme, setTheme] = useState<Theme>('dark');
   const t = dataProtectionTranslations[lang];
+
+  useEffect(() => {
+    const saved = (localStorage.getItem('air-theme') as Theme) || 'dark';
+    setTheme(saved);
+    document.documentElement.setAttribute('data-theme', saved);
+  }, []);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <LanguageButton lang={lang} setLang={setLang} />
+      {/* Global navigation controls */}
+      <div
+        className="fixed z-[96] flex flex-col gap-2"
+        style={{ top: 'calc(var(--safe-top) + 1rem)', right: 'calc(var(--safe-right) + 1rem)' }}
+      >
+        <LanguageButton lang={lang} setLang={setLang} />
+        <ThemeButton theme={theme} setTheme={setTheme} />
+        <Link href="/#risk-calculator">
+          <motion.div
+            className="flex items-center justify-center w-10 h-10 bg-surface-elevated hover:bg-risk-critical/80 text-foreground hover:text-white rounded-lg border border-surface-elevated transition-all"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Target className="w-5 h-5" />
+          </motion.div>
+        </Link>
+      </div>
 
       {/* Page Header */}
       <section className="py-20 px-6 bg-gradient-to-br from-surface to-background border-b border-surface-elevated relative overflow-hidden">
