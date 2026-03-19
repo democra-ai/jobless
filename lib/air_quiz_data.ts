@@ -1,8 +1,9 @@
 /**
  * AIR (AI Replacement Risk) Quiz Data
  *
- * 四维度 × 4题 = 16题核心问卷 + 4题AI现状快照 + 3题附加调研
+ * 四维度 × 5题 = 20题核心问卷 + 4题AI现状快照 + 3题附加调研
  * 每维度取极性 → 2⁴ = 16 种职业画像类型
+ * 奇数题（5题/维度）避免了偶数题的五五开问题
  */
 
 export type QuizAnswer = 1 | 2 | 3 | 4 | 5;
@@ -129,6 +130,22 @@ const DIMENSION_LEARNABILITY: QuizDimension = {
         { en: 'Entirely relies on years of cultivated "feel" — hard to explain', zh: '全靠多年修炼的"感觉"，说都说不清楚' },
       ],
     },
+    {
+      id: 'Q5',
+      indicator: 'DataVolume',
+      direction: 'forward',
+      question: {
+        en: 'How much training material exists for someone to learn your job?',
+        zh: '有多少现成的材料可以让人学会你的工作？',
+      },
+      options: [
+        { en: 'Almost nothing — must apprentice for years', zh: '几乎没有，必须跟师傅学好几年' },
+        { en: 'A few niche resources, mostly word of mouth', zh: '少量小众资料，主要靠口口相传' },
+        { en: 'Decent textbooks and courses exist', zh: '有不错的教材和课程' },
+        { en: 'Tons of online courses, books, and documentation', zh: '大量在线课程、书籍和文档' },
+        { en: 'Endless tutorials, examples, and open-source resources', zh: '无穷无尽的教程、案例和开源资源' },
+      ],
+    },
   ],
 };
 
@@ -147,7 +164,7 @@ const DIMENSION_EVALUATION: QuizDimension = {
   resistantLetter: 'S',
   questions: [
     {
-      id: 'Q5',
+      id: 'Q6',
       indicator: 'Measurability',
       direction: 'forward',
       question: {
@@ -163,7 +180,7 @@ const DIMENSION_EVALUATION: QuizDimension = {
       ],
     },
     {
-      id: 'Q6',
+      id: 'Q7',
       indicator: 'Convergence',
       direction: 'forward',
       question: {
@@ -179,7 +196,7 @@ const DIMENSION_EVALUATION: QuizDimension = {
       ],
     },
     {
-      id: 'Q7',
+      id: 'Q8',
       indicator: 'GoalAmbiguity',
       direction: 'reverse',
       question: {
@@ -195,7 +212,7 @@ const DIMENSION_EVALUATION: QuizDimension = {
       ],
     },
     {
-      id: 'Q8',
+      id: 'Q9',
       indicator: 'TasteDependence',
       direction: 'reverse',
       question: {
@@ -208,6 +225,22 @@ const DIMENSION_EVALUATION: QuizDimension = {
         { en: 'Half standards, half taste', zh: '一半靠规范标准，一半靠品味' },
         { en: 'Heavily depends on aesthetics and insight', zh: '很依赖审美和洞察力' },
         { en: 'Aesthetics and taste ARE my core competitive advantage', zh: '审美和品味就是我的核心竞争力' },
+      ],
+    },
+    {
+      id: 'Q10',
+      indicator: 'FeedbackLoop',
+      direction: 'forward',
+      question: {
+        en: 'How quickly can you tell if your work output is correct?',
+        zh: '你多快能知道自己的工作成果对不对？',
+      },
+      options: [
+        { en: 'May never know — impact unfolds over years', zh: '可能永远不知道，影响要几年才显现' },
+        { en: 'Takes months to see if it worked', zh: '要几个月才知道效果如何' },
+        { en: 'Feedback comes in days to weeks', zh: '几天到几周能看到反馈' },
+        { en: 'Know within hours — systems give fast feedback', zh: '几小时内就知道，系统很快反馈' },
+        { en: 'Instant — pass/fail is immediately clear', zh: '立刻就知道，对错一目了然' },
       ],
     },
   ],
@@ -228,7 +261,7 @@ const DIMENSION_RISK: QuizDimension = {
   resistantLetter: 'R',
   questions: [
     {
-      id: 'Q9',
+      id: 'Q11',
       indicator: 'ErrorSeverity',
       direction: 'reverse',
       question: {
@@ -244,7 +277,7 @@ const DIMENSION_RISK: QuizDimension = {
       ],
     },
     {
-      id: 'Q10',
+      id: 'Q12',
       indicator: 'Reversibility',
       direction: 'reverse',
       question: {
@@ -260,7 +293,7 @@ const DIMENSION_RISK: QuizDimension = {
       ],
     },
     {
-      id: 'Q11',
+      id: 'Q13',
       indicator: 'Regulation',
       direction: 'reverse',
       question: {
@@ -276,7 +309,7 @@ const DIMENSION_RISK: QuizDimension = {
       ],
     },
     {
-      id: 'Q12',
+      id: 'Q14',
       indicator: 'Liability',
       direction: 'reverse',
       question: {
@@ -289,6 +322,22 @@ const DIMENSION_RISK: QuizDimension = {
         { en: 'Could face some financial compensation or disciplinary action', zh: '可能面临一定经济赔偿或处分' },
         { en: 'Could face significant lawsuits or compensation', zh: '可能面临较大法律诉讼或赔偿' },
         { en: 'Could go to jail or face huge compensation', zh: '出了事可能坐牢或巨额赔偿' },
+      ],
+    },
+    {
+      id: 'Q15',
+      indicator: 'PublicTrust',
+      direction: 'reverse',
+      question: {
+        en: 'Would the public accept AI making decisions in your role?',
+        zh: '公众能接受让AI在你的岗位上做决策吗？',
+      },
+      options: [
+        { en: 'Totally fine — nobody cares who/what does it', zh: '完全可以，没人在乎是谁做的' },
+        { en: 'Most people wouldn\'t mind', zh: '大部分人不介意' },
+        { en: 'Mixed feelings — some OK, some uncomfortable', zh: '看情况，有人OK有人不舒服' },
+        { en: 'Most people would feel uneasy', zh: '大部分人会觉得不放心' },
+        { en: 'Absolutely unacceptable — public would strongly oppose', zh: '完全不能接受，公众会强烈反对' },
       ],
     },
   ],
@@ -309,7 +358,7 @@ const DIMENSION_HUMAN: QuizDimension = {
   resistantLetter: 'H',
   questions: [
     {
-      id: 'Q13',
+      id: 'Q16',
       indicator: 'Relationship',
       direction: 'reverse',
       question: {
@@ -325,7 +374,7 @@ const DIMENSION_HUMAN: QuizDimension = {
       ],
     },
     {
-      id: 'Q14',
+      id: 'Q17',
       indicator: 'Identity',
       direction: 'reverse',
       question: {
@@ -341,7 +390,7 @@ const DIMENSION_HUMAN: QuizDimension = {
       ],
     },
     {
-      id: 'Q15',
+      id: 'Q18',
       indicator: 'PhysicalPresence',
       direction: 'reverse',
       question: {
@@ -357,7 +406,7 @@ const DIMENSION_HUMAN: QuizDimension = {
       ],
     },
     {
-      id: 'Q16',
+      id: 'Q19',
       indicator: 'HumanPremium',
       direction: 'reverse',
       question: {
@@ -370,6 +419,22 @@ const DIMENSION_HUMAN: QuizDimension = {
         { en: 'Feels like reduced value, but still somewhat OK', zh: '觉得打了折扣，但还算认可' },
         { en: 'Clearly feels less valuable and dissatisfied', zh: '明显觉得价值降低、不满意' },
         { en: 'Completely unacceptable — feels deceived', zh: '完全无法接受，觉得被欺骗了' },
+      ],
+    },
+    {
+      id: 'Q20',
+      indicator: 'EmotionalLabor',
+      direction: 'reverse',
+      question: {
+        en: 'How much of your work involves reading emotions, comforting, or persuading people?',
+        zh: '你的工作有多少需要察言观色、安抚情绪或说服他人？',
+      },
+      options: [
+        { en: 'None — I work with data/machines, not people', zh: '完全没有，我对着数据/机器干活' },
+        { en: 'Occasionally deal with people, mostly solo work', zh: '偶尔跟人打交道，大部分独立工作' },
+        { en: 'About half people interaction, half solo', zh: '差不多一半对人、一半独立' },
+        { en: 'Most of my day is managing people and emotions', zh: '大部分时间在跟人打交道、处理情绪' },
+        { en: 'My entire value IS understanding and connecting with people', zh: '我的全部价值就在于理解人、连接人' },
       ],
     },
   ],

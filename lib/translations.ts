@@ -146,9 +146,9 @@ export const translations = {
     // AIR Quiz V3
     survivalBadge: 'AIR RISK TEST',
     survivalTitle: 'AIR: AI Replacement Risk',
-    survivalSubtitle: '16 questions, 4 dimensions, find your type',
+    survivalSubtitle: '20 questions, 4 dimensions, find your type',
     quizStart: 'Start Test',
-    quizStartDesc: '16 core questions + 4 AI snapshot questions, about 3 minutes',
+    quizStartDesc: '20 core questions + 4 AI snapshot questions, about 4 minutes',
     selectOccupation: 'What field do you work in?',
     selectOccupationHint: 'Select your field for a more accurate result, or skip',
     occupationOtherSkip: 'Other / Skip',
@@ -530,9 +530,9 @@ export const translations = {
     // AIR 问卷 V3
     survivalBadge: 'AIR 职业风险测试',
     survivalTitle: 'AIR：你的 AI 替代风险画像',
-    survivalSubtitle: '16 道题，4 个维度，找到你的类型',
+    survivalSubtitle: '20 道题，4 个维度，找到你的类型',
     quizStart: '开始测试',
-    quizStartDesc: '16 道核心题 + 4 道 AI 现状题，约 3 分钟',
+    quizStartDesc: '20 道核心题 + 4 道 AI 现状题，约 4 分钟',
     selectOccupation: '你从事什么领域？',
     selectOccupationHint: '选择你的领域以获得更准确的结果，或跳过',
     occupationOtherSkip: '其他 / 跳过',

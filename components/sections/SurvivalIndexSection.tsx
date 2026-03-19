@@ -823,7 +823,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 </button>
                 <div className="flex gap-1">
                   {Array.from({ length: CORE_QUESTION_COUNT }).map((_, i) => {
-                    const dimColor = DIMENSION_COLORS[Math.floor(i / 4)];
+                    const dimColor = DIMENSION_COLORS[Math.floor(i / 5)];
                     const isCurrent = i === coreIndex;
                     const isAnswered = !!coreAnswers[ALL_CORE_QUESTIONS[i].id];
                     return (
