@@ -261,7 +261,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   // Share state
   const [copied, setCopied] = useState(false);
   const [wechatCopied, setWechatCopied] = useState(false);
-  const [sharePanelOpen, setSharePanelOpen] = useState(false);
+  const [sharePanelOpen, setSharePanelOpen] = useState(true);
   const [telegramShareState, setTelegramShareState] = useState<'idle' | 'sending' | 'sent' | 'fallback'>('idle');
   const posterCaptureRef = useRef<HTMLDivElement>(null);
   const questionContainerRef = useRef<HTMLDivElement>(null);
@@ -313,7 +313,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           const quizResult = calculateQuizResult(answers, selectedSOC);
           setResult(quizResult);
           setPhase('result');
-          setSharePanelOpen(false);
+          setSharePanelOpen(true);
           setTelegramShareState('idle');
           setCopied(false);
           setWechatCopied(false);

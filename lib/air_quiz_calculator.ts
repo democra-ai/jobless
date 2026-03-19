@@ -13,7 +13,8 @@
  * - Reverse questions: flip (6 - answer), so always higher = more AI-replaceable
  * - Dimension score = average of 4 normalized questions (1-5 scale)
  * - If dimension avg > 3: AI favorable letter (E, O, F, P)
- * - If dimension avg ≤ 3: AI resistant letter (T, S, R, H)
+ * - If dimension avg < 3: AI resistant letter (T, S, R, H)
+ * - If dimension avg = 3 (exact neutral): AI favorable (tie-break toward risk)
  */
 
 import {
@@ -347,7 +348,7 @@ function scoreDimension(dimension: QuizDimension, answers: Record<string, QuizAn
   });
 
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-  const isFavorable = avg > 3;
+  const isFavorable = avg >= 3;
 
   return {
     dimensionId: dimension.id,
