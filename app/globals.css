@@ -37,10 +37,10 @@
   --accent-teal: #1de9b6;
 
   /* Dimension Colors (Quiz) */
-  --dim-1: #ff5252;   /* Learnability — red */
-  --dim-2: #ffca28;   /* Evaluation — yellow */
-  --dim-3: #448aff;   /* Risk Tolerance — blue */
-  --dim-4: #69f0ae;   /* Human Presence — green */
+  --dim-1: #7c4dff;   /* Learnability — purple */
+  --dim-2: #ff6e40;   /* Evaluation — orange */
+  --dim-3: #64ffda;   /* Risk Tolerance — cyan */
+  --dim-4: #b388ff;   /* Human Presence — lavender */
 
   /* Bar Dividers */
   --bar-divider: rgba(255, 255, 255, 0.10);
@@ -163,10 +163,10 @@
   --accent-teal: #00897b;
 
   /* Dimension Colors (Quiz) — darker for white bg readability */
-  --dim-1: #d32f2f;   /* Learnability — deep red */
-  --dim-2: #f9a825;   /* Evaluation — deep yellow */
-  --dim-3: #1565c0;   /* Risk Tolerance — deep blue */
-  --dim-4: #2e7d32;   /* Human Presence — deep green */
+  --dim-1: #5c35cc;   /* Learnability — deep purple */
+  --dim-2: #d84315;   /* Evaluation — deep orange */
+  --dim-3: #00897b;   /* Risk Tolerance — teal */
+  --dim-4: #7b1fa2;   /* Human Presence — deep purple */
 
   /* Bar Dividers */
   --bar-divider: rgba(0, 0, 0, 0.10);
