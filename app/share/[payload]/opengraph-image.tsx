@@ -10,32 +10,21 @@ type ShareOgProps = {
   params: Promise<{ payload: string }>;
 };
 
-function riskLabel(level: SharePayload['riskLevel'], isZh: boolean): string {
-  const map: Record<string, [string, string]> = {
-    'very-low': ['VERY LOW', '极低'],
-    'low': ['LOW', '低'],
-    'medium': ['MEDIUM', '中等'],
-    'high': ['HIGH', '高'],
-    'critical': ['CRITICAL', '极高'],
-  };
-  const [en, zh] = map[level] || map.critical;
-  return isZh ? zh : en;
+function riskLabel(payload: SharePayload): string {
+  const isZh = payload.lang === 'zh';
+  if (payload.riskLevel === 'very-low') return isZh ? '极低风险' : 'VERY LOW';
+  if (payload.riskLevel === 'low') return isZh ? '低风险' : 'LOW RISK';
+  if (payload.riskLevel === 'medium') return isZh ? '中等风险' : 'MEDIUM';
+  if (payload.riskLevel === 'high') return isZh ? '高风险' : 'HIGH RISK';
+  return isZh ? '极高风险' : 'CRITICAL';
 }
 
 function riskColor(level: SharePayload['riskLevel']): string {
   if (level === 'very-low') return '#22c55e';
-  if (level === 'low') return '#4ade80';
-  if (level === 'medium') return '#fbbf24';
+  if (level === 'low') return '#00d66b';
+  if (level === 'medium') return '#f59e0b';
   if (level === 'high') return '#f97316';
-  return '#ef4444';
-}
-
-function riskGradient(level: SharePayload['riskLevel']): string {
-  if (level === 'very-low') return 'linear-gradient(135deg, #22c55e, #10b981)';
-  if (level === 'low') return 'linear-gradient(135deg, #4ade80, #22d3ee)';
-  if (level === 'medium') return 'linear-gradient(135deg, #fbbf24, #f97316)';
-  if (level === 'high') return 'linear-gradient(135deg, #f97316, #ef4444)';
-  return 'linear-gradient(135deg, #ef4444, #dc2626)';
+  return '#ff1744';
 }
 
 export default async function Image({ params }: ShareOgProps) {
@@ -45,13 +34,21 @@ export default async function Image({ params }: ShareOgProps) {
   if (!data) {
     return new ImageResponse(
       (
-        <div style={{
-          width: '100%', height: '100%', display: 'flex',
-          alignItems: 'center', justifyContent: 'center', flexDirection: 'column',
-          background: '#08090f', color: '#fafafa', fontFamily: 'sans-serif',
-        }}>
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            background: 'linear-gradient(135deg, #050507 0%, #0d0b10 40%, #15121a 100%)',
+            color: '#fafafa',
+            fontFamily: 'sans-serif',
+          }}
+        >
           <span style={{ fontSize: 72, fontWeight: 800 }}>AIR</span>
-          <span style={{ fontSize: 28, opacity: 0.6, marginTop: 12 }}>AI Replacement Index</span>
+          <span style={{ fontSize: 30, opacity: 0.85, marginTop: 10 }}>Shared AI Risk Result</span>
         </div>
       ),
       { ...size },
@@ -60,15 +57,7 @@ export default async function Image({ params }: ShareOgProps) {
 
   const isZh = data.lang === 'zh';
   const color = riskColor(data.riskLevel);
-  const gradient = riskGradient(data.riskLevel);
-  const label = riskLabel(data.riskLevel, isZh);
-  const prob = data.replacementProbability;
-  const yearDisplay = data.predictedReplacementYear >= 2100 ? '∞' : `${data.predictedReplacementYear}`;
-
-  // Progress ring calculation (for a circular gauge)
-  const radius = 100;
-  const circumference = 2 * Math.PI * radius;
-  const fillPct = prob / 100;
+  const label = riskLabel(data);
 
   return new ImageResponse(
     (
@@ -77,153 +66,146 @@ export default async function Image({ params }: ShareOgProps) {
           width: '100%',
           height: '100%',
           display: 'flex',
-          background: '#0a0b10',
+          background: 'linear-gradient(135deg, #05070d 0%, #0f1322 52%, #18121f 100%)',
+          color: '#f7f9ff',
           fontFamily: 'sans-serif',
+          padding: '30px 34px',
+          gap: '20px',
+          boxSizing: 'border-box',
           position: 'relative',
-          overflow: 'hidden',
         }}
       >
-        {/* Background grid pattern */}
-        <div style={{
-          position: 'absolute', inset: 0, display: 'flex',
-          backgroundImage: 'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-        }} />
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 6,
+            display: 'flex',
+            background: `linear-gradient(90deg, #00dbff 0%, ${color} 60%, #ff3d99 100%)`,
+          }}
+        />
 
-        {/* Large glow behind gauge */}
-        <div style={{
-          position: 'absolute', top: '50%', left: '320px',
-          width: 500, height: 500, borderRadius: '50%',
-          background: `radial-gradient(circle, ${color}12 0%, transparent 65%)`,
-          transform: 'translateY(-50%)',
-          display: 'flex',
-        }} />
-
-        {/* Top accent line */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 3,
-          background: gradient, display: 'flex',
-        }} />
-
-        {/* Main layout */}
-        <div style={{
-          display: 'flex', flexDirection: 'row', width: '100%', height: '100%',
-          padding: '40px 56px', alignItems: 'center',
-        }}>
-
-          {/* LEFT: Circular gauge + number */}
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            width: '48%', position: 'relative',
-          }}>
-            {/* Circular gauge */}
-            <div style={{ position: 'relative', width: 260, height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {/* Track */}
-              <svg width="260" height="260" viewBox="0 0 260 260" style={{ position: 'absolute' }}>
-                <circle cx="130" cy="130" r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="14" />
-                <circle
-                  cx="130" cy="130" r={radius} fill="none"
-                  stroke={color} strokeWidth="14"
-                  strokeLinecap="round"
-                  strokeDasharray={`${circumference * fillPct} ${circumference * (1 - fillPct)}`}
-                  transform="rotate(-90 130 130)"
-                  style={{ filter: `drop-shadow(0 0 12px ${color}80)` }}
-                />
-              </svg>
-              {/* Number in center */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline' }}>
-                  <span style={{
-                    fontSize: 96, fontWeight: 900, color: '#ffffff', lineHeight: 1, letterSpacing: -3,
-                  }}>
-                    {prob}
-                  </span>
-                  <span style={{ fontSize: 36, fontWeight: 700, color: '#ffffff', opacity: 0.5, marginLeft: 2 }}>%</span>
-                </div>
-                <span style={{ fontSize: 14, color, fontWeight: 700, letterSpacing: 3, marginTop: 4 }}>
-                  {label} {isZh ? '风险' : 'RISK'}
-                </span>
-              </div>
-            </div>
-
-            {/* Brand below gauge */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 20 }}>
-              <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: 4, color: '#ffffff', opacity: 0.35 }}>AIR</span>
-              <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.15)', display: 'flex' }} />
-              <span style={{ fontSize: 12, opacity: 0.25, letterSpacing: 1 }}>
-                {isZh ? 'AI 替代风险指数' : 'AI Replacement Index'}
-              </span>
-            </div>
-          </div>
-
-          {/* RIGHT: Stats + CTA */}
-          <div style={{
-            display: 'flex', flexDirection: 'column', width: '52%',
-            justifyContent: 'center', gap: 16, paddingLeft: 24,
-          }}>
-            {/* Kill Line Year */}
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '20px 28px', borderRadius: 16,
-              border: '1px solid rgba(255,255,255,0.08)',
-              background: 'rgba(255,255,255,0.03)',
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: 12, opacity: 0.4, letterSpacing: 2, fontWeight: 600 }}>
-                  {isZh ? 'AI 斩杀线' : 'AI KILL LINE'}
-                </span>
-                <span style={{ fontSize: 48, fontWeight: 900, color: '#ffffff', lineHeight: 1, marginTop: 4 }}>
-                  {yearDisplay}
-                </span>
-              </div>
-              {data.predictedReplacementYear < 2100 && (
-                <span style={{ fontSize: 16, opacity: 0.3, fontFamily: 'monospace' }}>
-                  {data.earliestYear}–{data.latestYear}
-                </span>
-              )}
-            </div>
-
-            {/* Current Degree */}
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '16px 28px', borderRadius: 16,
-              border: '1px solid rgba(255,255,255,0.06)',
-              background: 'rgba(255,255,255,0.02)',
-            }}>
-              <span style={{ fontSize: 14, opacity: 0.35 }}>
-                {isZh ? '当前替代程度' : 'Current AI Progress'}
-              </span>
-              <span style={{ fontSize: 28, fontWeight: 800, color: '#67e8f9' }}>
-                {data.currentReplacementDegree}%
-              </span>
-            </div>
-
-            {/* CTA — the viral hook */}
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: '22px 28px', borderRadius: 16,
-              background: gradient,
-              position: 'relative', overflow: 'hidden',
-            }}>
-              {/* Glass overlay */}
-              <div style={{
-                position: 'absolute', top: 0, left: 0, right: 0, height: '50%',
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.15), transparent)',
-                display: 'flex',
-              }} />
-              <span style={{
-                fontSize: 24, fontWeight: 800, color: '#ffffff', letterSpacing: 0.5,
-                zIndex: 1, textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-              }}>
-                {isZh ? '你的 AI 替代风险是多少？→' : "What's your risk? Take the test →"}
-              </span>
-            </div>
-
-            {/* URL */}
-            <span style={{ fontSize: 14, opacity: 0.2, textAlign: 'center', letterSpacing: 1 }}>
-              air.democra.ai
+        <div
+          style={{
+            width: '56%',
+            borderRadius: 24,
+            border: '1px solid rgba(255,255,255,0.14)',
+            background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            boxSizing: 'border-box',
+          }}
+        >
+          <span style={{ fontSize: 18, opacity: 0.78, letterSpacing: 1.1 }}>AIR · {isZh ? '风险预览' : 'RISK PREVIEW'}</span>
+          <div
+            style={{
+              marginTop: 14,
+              borderRadius: 18,
+              border: `1.2px solid ${color}66`,
+              background: 'linear-gradient(140deg, rgba(8,14,31,0.92), rgba(13,19,35,0.84))',
+              padding: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <span style={{ fontSize: 14, opacity: 0.7, letterSpacing: 1.2 }}>{isZh ? '你的 AI 风险结果' : 'YOUR AI RISK RESULT'}</span>
+            <span style={{ marginTop: 8, fontSize: 54, fontWeight: 900, color, lineHeight: 1 }}>{label}</span>
+            <span style={{ marginTop: 8, fontSize: 20, opacity: 0.82 }}>
+              {isZh ? '替代概率与时间区间预估' : 'Replacement probability and timeline estimate'}
             </span>
           </div>
+
+          <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div
+              style={{
+                borderRadius: 14,
+                border: '1px solid rgba(255,47,103,0.45)',
+                background: 'rgba(10,14,25,0.72)',
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span style={{ fontSize: 16, opacity: 0.78 }}>{isZh ? '替代概率' : 'Replacement Probability'}</span>
+              <span style={{ fontSize: 32, color: '#ff2f67', fontWeight: 800 }}>{`${data.replacementProbability}%`}</span>
+            </div>
+            <div
+              style={{
+                borderRadius: 14,
+                border: '1px solid rgba(87,217,239,0.45)',
+                background: 'rgba(10,14,25,0.72)',
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span style={{ fontSize: 16, opacity: 0.78 }}>{isZh ? '当前程度' : 'Current Degree'}</span>
+              <span style={{ fontSize: 32, color: '#57d9ef', fontWeight: 800 }}>{`${data.currentReplacementDegree}%`}</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            width: '44%',
+            borderRadius: 24,
+            border: '1px solid rgba(255,255,255,0.14)',
+            background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            boxSizing: 'border-box',
+          }}
+        >
+          <span style={{ fontSize: 16, opacity: 0.78, letterSpacing: 1 }}>{isZh ? '时间预测' : 'TIMELINE'}</span>
+
+          <div
+            style={{
+              marginTop: 14,
+              borderRadius: 14,
+              border: '1px solid rgba(255,255,255,0.14)',
+              background: 'rgba(10,14,24,0.66)',
+              padding: '14px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <span style={{ fontSize: 14, opacity: 0.64 }}>{isZh ? 'AI 斩杀线' : 'AI Kill Line'}</span>
+            <span style={{ marginTop: 6, fontSize: 56, fontWeight: 900, lineHeight: 1 }}>
+              {data.predictedReplacementYear >= 2100 ? '∞' : `${data.predictedReplacementYear}`}
+            </span>
+            {data.predictedReplacementYear < 2100 && (
+              <span style={{ marginTop: 6, fontSize: 16, opacity: 0.45, fontFamily: 'monospace' }}>
+                {`${data.earliestYear} — ${data.latestYear}`}
+              </span>
+            )}
+          </div>
+
+          <div
+            style={{
+              marginTop: 12,
+              borderRadius: 14,
+              border: `1px solid ${color}40`,
+              background: `linear-gradient(140deg, ${color}12, ${color}06)`,
+              padding: '14px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span style={{ fontSize: 20, fontWeight: 700, color, opacity: 0.95 }}>
+              {isZh ? '→ 测测你的 AI 替代风险' : '→ Test your AI risk'}
+            </span>
+          </div>
+
+          <span style={{ marginTop: 'auto', fontSize: 14, opacity: 0.35, textAlign: 'center' }}>
+            air.democra.ai
+          </span>
         </div>
       </div>
     ),
