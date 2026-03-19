@@ -942,22 +942,31 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                   </span>
                                 </div>
 
-                                {/* Horizontal bar */}
+                                {/* Horizontal bar — center-out design */}
                                 <div className="relative h-2.5">
                                   {/* Bar track */}
                                   <div className="absolute inset-0 rounded-full bg-overlay-6 overflow-hidden">
-                                    {/* Filled portion */}
+                                    {/* Filled portion: extends from center (50%) toward the score */}
                                     <motion.div
-                                      className="absolute inset-y-0 left-0 rounded-full"
+                                      className="absolute inset-y-0 rounded-full"
                                       style={{
-                                        background: `linear-gradient(to right, ${color}20, ${color}80)`,
+                                        background: positionPct >= 50
+                                          ? `linear-gradient(to right, ${color}30, ${color}80)`
+                                          : `linear-gradient(to left, ${color}30, ${color}80)`,
+                                        left: positionPct >= 50 ? '50%' : undefined,
+                                        right: positionPct < 50 ? '50%' : undefined,
                                       }}
                                       initial={{ width: 0 }}
-                                      animate={{ width: `${positionPct}%` }}
+                                      animate={{ width: `${Math.abs(positionPct - 50)}%` }}
                                       transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
                                     />
                                   </div>
-                                  {/* Position indicator dot (outside overflow) */}
+                                  {/* Center line marker */}
+                                  <div
+                                    className="absolute top-0 bottom-0 w-px z-[5]"
+                                    style={{ left: '50%', backgroundColor: 'var(--foreground-dim)', opacity: 0.4 }}
+                                  />
+                                  {/* Position indicator dot */}
                                   <motion.div
                                     className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 z-10"
                                     style={{
@@ -965,28 +974,20 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                       borderColor: 'var(--shadow-soft)',
                                       boxShadow: `0 0 8px ${color}60`,
                                     }}
-                                    initial={{ left: '0%' }}
+                                    initial={{ left: '50%' }}
                                     animate={{ left: `${positionPct}%` }}
                                     transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
                                   />
                                 </div>
 
-                                {/* Hover tooltip - ratio display */}
-                                <div className="h-0 overflow-visible">
-                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-between mt-1">
-                                    <span className="text-[9px] font-mono text-foreground-muted/50">
-                                      {leftPct}%
-                                    </span>
-                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ color, backgroundColor: color + '15' }}>
-                                      {dim.isFavorable
-                                        ? `→ ${dim.favorableLabel[lang]}`
-                                        : `← ${dim.resistantLabel[lang]}`
-                                      }
-                                    </span>
-                                    <span className="text-[9px] font-mono text-foreground-muted/50">
-                                      {rightPct}%
-                                    </span>
-                                  </div>
+                                {/* Direction indicator */}
+                                <div className="flex items-center justify-center mt-1.5">
+                                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ color, backgroundColor: color + '15' }}>
+                                    {dim.isFavorable
+                                      ? `→ ${quizDim.favorableLabel[lang]} (${rightPct}%)`
+                                      : `← ${quizDim.resistantLabel[lang]} (${leftPct}%)`
+                                    }
+                                  </span>
                                 </div>
                               </div>
                             </div>
