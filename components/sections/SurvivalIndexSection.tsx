@@ -155,7 +155,7 @@ function AxisSlider({
       {/* Axis track */}
       <div className="relative mx-2 sm:mx-4">
         {/* Track background */}
-        <div className="h-2 bg-surface-elevated rounded-full relative">
+        <div className="h-2 rounded-full relative" style={{ background: 'var(--overlay-15)', boxShadow: 'inset 0 1px 3px var(--overlay-10)' }}>
           {/* Filled track */}
           {value && (
             <motion.div
@@ -758,7 +758,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => { setPhase('core'); setCoreIndex(0); trackQuizStart(lang); }}
-                className="calc-btn-primary px-12 py-4 rounded-xl font-semibold text-white text-lg inline-flex items-center gap-3"
+                className="px-12 py-4 rounded-xl font-semibold text-white text-lg inline-flex items-center gap-3 relative overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, #38bdf8, #a78bfa, #fb7185)',
+                  boxShadow: '0 4px 20px -5px rgba(167, 139, 250, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                }}
               >
                 {t.quizStart}
                 <ArrowRight className="w-5 h-5" />
