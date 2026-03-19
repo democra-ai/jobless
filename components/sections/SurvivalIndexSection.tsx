@@ -111,7 +111,7 @@ function DimensionBadge({ icon: Icon, label, color }: { icon: React.ElementType;
 }
 
 const DIMENSION_ICONS = [Brain, Target, Shield, Users];
-const DIMENSION_COLORS_DARK = ['#7c4dff', '#ff6e40', '#64ffda', '#b388ff'];
+const DIMENSION_COLORS_DARK = ['#ff5252', '#ffca28', '#448aff', '#69f0ae'];
 
 function useDimensionColors(): string[] {
   const [colors, setColors] = useState(DIMENSION_COLORS_DARK);
