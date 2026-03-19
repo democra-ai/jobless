@@ -348,7 +348,9 @@ function scoreDimension(dimension: QuizDimension, answers: Record<string, QuizAn
   });
 
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-  const isFavorable = avg >= 3;
+  // Exactly 3.0 = neutral → lean resistant (conservative, protects user)
+  // The letter code is for display only; probability is fully continuous
+  const isFavorable = avg > 3;
 
   return {
     dimensionId: dimension.id,
@@ -457,14 +459,9 @@ const POWER_MEAN_R = -2;
  * criteria: "well-defined I/O" + "clear feedback" together enable ML.)
  */
 function calculateProbability(
-  profileCode: string,
+  _profileCode: string,
   dimensionResults: DimensionResult[],
 ): number {
-  const cal = PROFILE_CALIBRATION[profileCode];
-  if (!cal) return 50;
-
-  const [min, max] = cal.prob;
-
   // Extract dimension results by ID
   const dimMap: Record<string, DimensionResult> = {};
   for (const d of dimensionResults) {
@@ -476,7 +473,7 @@ function calculateProbability(
   const risk = dimMap['riskTolerance'];
   const human = dimMap['humanPresence'];
 
-  if (!learn || !evaluate || !risk || !human) return min;
+  if (!learn || !evaluate || !risk || !human) return 50;
 
   // ── Step 1: Compute barrier penetrability (0 to 1) ──
   // rawAverage 1-5. Map to [0.05, 1.0] — we use 0.05 as floor (not 0)
@@ -529,63 +526,68 @@ function calculateProbability(
   // Normalize to 0..1 range (accounting for the 0.05 floor)
   const normalizedThreat = Math.max(0, Math.min(1, (combinedPenetrability - 0.05) / 0.95));
 
-  // ── Step 4: Map to profile's calibrated range ──
-  const probability = min + (max - min) * normalizedThreat;
+  // ── Step 4: Map directly to global probability range [5%, 95%] ──
+  // This is a CONTINUOUS mapping — no discrete profile bins.
+  // All-1s (every barrier strong) → ~5%
+  // All-3s (perfectly neutral)    → ~50%
+  // All-5s (every barrier weak)   → ~95%
+  //
+  // We use a slight S-curve (power 1.3) to spread the middle range
+  // while compressing extremes, making results more differentiated.
+  const GLOBAL_MIN = 5;
+  const GLOBAL_MAX = 95;
+  const curved = Math.pow(normalizedThreat, 1.3);
+  const probability = GLOBAL_MIN + (GLOBAL_MAX - GLOBAL_MIN) * curved;
   return Math.round(Math.min(100, Math.max(0, probability)));
 }
 
 /**
- * Predict replacement year using AGI-2030 model.
+ * Predict replacement year — continuous model.
  *
- * The timeline model considers:
- * 1. Profile-specific year range (or ∞ for TSRH)
- * 2. Pre-AGI exposure: how much of the threat exists BEFORE AGI
- * 3. Dimension strength: strong favorable answers accelerate, strong resistant slow down
- * 4. AGI as inflection: profiles with high preAGI exposure face imminent risk
+ * Maps probability directly to a year range:
+ * - prob ~95% → ~2027 (imminent)
+ * - prob ~50% → ~2038 (mid-range)
+ * - prob ~5%  → ~2060+ (far future / effectively never)
+ * - prob < 8% → Infinity (beyond prediction horizon)
  */
 function predictYear(
-  profileCode: string,
-  dimensionResults: DimensionResult[],
+  _profileCode: string,
+  _dimensionResults: DimensionResult[],
   probability: number,
 ): {
-  year: number; // Infinity for unpredictable
+  year: number;
   confidenceInterval: { earliest: number; latest: number };
 } {
-  const cal = PROFILE_CALIBRATION[profileCode];
-  if (!cal) {
-    const currentYear = new Date().getFullYear();
-    return { year: currentYear + 10, confidenceInterval: { earliest: currentYear + 7, latest: currentYear + 13 } };
-  }
+  const currentYear = new Date().getFullYear();
 
-  // ∞ case: truly unpredictable
-  if (cal.year === null) {
+  // Below 8% probability → effectively unreplaceable in foreseeable future
+  if (probability < 8) {
     return {
       year: Infinity,
       confidenceInterval: { earliest: 2060, latest: 9999 },
     };
   }
 
-  const [earliest, latest] = cal.year;
-
-  // Use probability position within the profile's probability range
-  // to position within the year range (higher prob = earlier year)
-  const [probMin, probMax] = cal.prob;
-  const probPosition = probMax > probMin
-    ? (probability - probMin) / (probMax - probMin)
-    : 0.5;
-
-  // Invert: higher probability = earlier year
-  const yearFloat = latest - (latest - earliest) * probPosition;
-  const year = Math.round(yearFloat);
+  // Continuous mapping: probability → years from now
+  // Higher probability = sooner replacement
+  // Using inverse relationship: yearsAway = base / (probability ^ curve)
+  // Calibrated so that:
+  //   prob=95 → ~2027 (1-2 years)
+  //   prob=70 → ~2031 (5 years)
+  //   prob=50 → ~2036 (10 years)
+  //   prob=30 → ~2042 (16 years)
+  //   prob=10 → ~2055 (29 years)
+  const normalizedProb = probability / 100; // 0 to 1
+  const yearsAway = Math.round(2 + 30 * Math.pow(1 - normalizedProb, 1.8));
+  const year = currentYear + yearsAway;
 
   // Confidence interval: wider for further-out predictions
-  const yearsFromNow = year - new Date().getFullYear();
-  const uncertaintyYears = Math.max(2, Math.round(yearsFromNow * 0.25));
+  const uncertaintyYears = Math.max(2, Math.round(yearsAway * 0.25));
 
   return {
     year,
     confidenceInterval: {
-      earliest: Math.max(new Date().getFullYear() + 1, year - uncertaintyYears),
+      earliest: Math.max(currentYear + 1, year - uncertaintyYears),
       latest: year + uncertaintyYears,
     },
   };
