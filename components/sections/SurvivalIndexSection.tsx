@@ -191,8 +191,9 @@ function AxisSlider({
                     width: isSelected ? '28px' : isHovered ? '26px' : '22px',
                     height: isSelected ? '28px' : isHovered ? '26px' : '22px',
                     borderColor: isSelected ? accentColor : isHovered ? accentColor + '80' : 'var(--overlay-20)',
-                    backgroundColor: isSelected ? accentColor : isHovered ? accentColor + '20' : 'var(--surface)',
+                    backgroundColor: isSelected ? accentColor : isHovered ? 'var(--surface-card)' : 'var(--surface)',
                     color: isSelected ? '#fff' : isHovered ? accentColor : 'var(--foreground-dim)',
+                    boxShadow: isHovered && !isSelected ? `0 0 0 3px ${accentColor}25` : undefined,
                   }}
                   animate={{
                     scale: isSelected ? 1.1 : 1,
@@ -821,16 +822,22 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   {t.quizPrev}
                 </button>
                 <div className="flex gap-1">
-                  {Array.from({ length: CORE_QUESTION_COUNT }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        i === coreIndex ? 'bg-violet-400 scale-125'
-                        : coreAnswers[ALL_CORE_QUESTIONS[i].id] ? 'bg-violet-400/40'
-                        : 'bg-surface-elevated'
-                      }`}
-                    />
-                  ))}
+                  {Array.from({ length: CORE_QUESTION_COUNT }).map((_, i) => {
+                    const dimColor = DIMENSION_COLORS[Math.floor(i / 4)];
+                    const isCurrent = i === coreIndex;
+                    const isAnswered = !!coreAnswers[ALL_CORE_QUESTIONS[i].id];
+                    return (
+                      <div
+                        key={i}
+                        className="w-2 h-2 rounded-full transition-all"
+                        style={{
+                          backgroundColor: isCurrent ? dimColor : isAnswered ? dimColor + '50' : 'var(--overlay-15)',
+                          transform: isCurrent ? 'scale(1.25)' : undefined,
+                          boxShadow: isCurrent ? `0 0 6px ${dimColor}80` : undefined,
+                        }}
+                      />
+                    );
+                  })}
                 </div>
                 <div className="w-16" /> {/* spacer for alignment */}
               </div>
