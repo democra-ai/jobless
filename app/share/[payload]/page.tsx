@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
   if (!decoded) {
     const title = 'AIR - Shared AI Risk Result';
     const description = 'Open this result in AIR to calculate and compare your AI replacement risk.';
-    const fallbackImage = `${origin}/opengraph-image`;
+    const fallbackImage = `${origin}/share-card.png`;
     const url = `${origin}/share/${payload}`;
     return {
       title,
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
 
   const title = decoded.lang === 'zh' ? `AI 风险结果：${riskLabel(decoded)}` : `AI Risk Result: ${riskLabel(decoded)}`;
   const description = riskDescription(decoded);
-  const shareImageUrl = `${origin}/share/${payload}/opengraph-image`;
+  const shareImageUrl = `${origin}/share/${payload}/opengraph-image?v=2`;
   const pageUrl = `${origin}/share/${payload}`;
 
   return {
