@@ -269,7 +269,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
   // Current core question info (clamped to valid range for safety)
   const safeCoreIndex = Math.min(coreIndex, CORE_QUESTION_COUNT - 1);
   const currentCoreQ = ALL_CORE_QUESTIONS[safeCoreIndex];
-  const currentDimIndex = Math.floor(safeCoreIndex / 4);
+  const currentDimIndex = Math.floor(safeCoreIndex / 5);
   const currentDim = QUIZ_DIMENSIONS[currentDimIndex];
 
   // Pending advance: when set, a useEffect will auto-advance after delay
