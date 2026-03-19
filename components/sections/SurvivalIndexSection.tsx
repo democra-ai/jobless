@@ -111,7 +111,7 @@ function DimensionBadge({ icon: Icon, label, color }: { icon: React.ElementType;
 }
 
 const DIMENSION_ICONS = [Brain, Target, Shield, Users];
-const DIMENSION_COLORS_DARK = ['#7c4dff', '#ff6e40', '#64ffda', '#b388ff'];
+const DIMENSION_COLORS_DARK = ['#7c4dff', '#ff6e40', '#64ffda', '#ff80ab'];
 
 function useDimensionColors(): string[] {
   const [colors, setColors] = useState(DIMENSION_COLORS_DARK);
@@ -839,7 +839,18 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     );
                   })}
                 </div>
-                <div className="w-16" /> {/* spacer for alignment */}
+                <button
+                  onClick={() => {
+                    if (coreIndex < CORE_QUESTION_COUNT - 1) {
+                      setCoreIndex(coreIndex + 1);
+                    }
+                  }}
+                  disabled={!coreAnswers[ALL_CORE_QUESTIONS[coreIndex]?.id] || coreIndex >= CORE_QUESTION_COUNT - 1}
+                  className="flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  {t.quizNext}
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
           )}

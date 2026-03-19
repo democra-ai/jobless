@@ -40,7 +40,7 @@
   --dim-1: #7c4dff;   /* Learnability — purple */
   --dim-2: #ff6e40;   /* Evaluation — orange */
   --dim-3: #64ffda;   /* Risk Tolerance — cyan */
-  --dim-4: #b388ff;   /* Human Presence — lavender */
+  --dim-4: #ff80ab;   /* Human Presence — pink */
 
   /* Bar Dividers */
   --bar-divider: rgba(255, 255, 255, 0.10);
@@ -166,7 +166,7 @@
   --dim-1: #5c35cc;   /* Learnability — deep purple */
   --dim-2: #d84315;   /* Evaluation — deep orange */
   --dim-3: #00897b;   /* Risk Tolerance — teal */
-  --dim-4: #7b1fa2;   /* Human Presence — deep purple */
+  --dim-4: #c2185b;   /* Human Presence — deep pink */
 
   /* Bar Dividers */
   --bar-divider: rgba(0, 0, 0, 0.10);
