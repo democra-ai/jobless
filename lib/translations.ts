@@ -408,7 +408,7 @@ export const translations = {
     shareWeibo: 'Weibo',
     shareDownload: 'Save Image',
     shareTelegramHint: 'Poster includes a QR code for your result page. Telegram sends the poster first, then falls back to link if needed.',
-    shareText: 'My AI Replacement Risk: {level} ({prob}%). AI Kill Line: {year}. What\'s yours?',
+    shareText: 'I just took the AI Replacement Risk test. {prob}% chance AI replaces my job by {year}. What about you?',
   },
   zh: {
     alertBadge: '2026：AI 已经开始让人下车了',
@@ -785,6 +785,6 @@ export const translations = {
     shareWeibo: '微博',
     shareDownload: '保存图片',
     shareTelegramHint: '海报右下角含结果二维码。Telegram 会优先发送海报，不可用时自动回退为链接分享。',
-    shareText: '我的 AI 替代风险：{level}（{prob}%）。AI 斩杀线：{year}年。你呢？',
+    shareText: '刚测了 AI 替代风险，{prob}% 的概率在 {year} 年前被 AI 取代。你呢？',
   },
 };
