@@ -1,4 +1,4 @@
-export type ShareLang = 'en' | 'zh';
+export type ShareLang = 'en' | 'zh' | 'ja' | 'ko' | 'de';
 
 type SharePayloadBase = {
   riskLevel: 'very-low' | 'low' | 'medium' | 'high' | 'critical';
@@ -25,7 +25,7 @@ export type SharePayloadV2 = SharePayloadBase & {
 export type SharePayload = SharePayloadV1 | SharePayloadV2;
 
 const RISK_LEVELS: SharePayload['riskLevel'][] = ['very-low', 'low', 'medium', 'high', 'critical'];
-const LANGS: ShareLang[] = ['en', 'zh'];
+const LANGS: ShareLang[] = ['en', 'zh', 'ja', 'ko', 'de'];
 
 function toBase64Url(input: string): string {
   if (typeof window === 'undefined' && typeof Buffer !== 'undefined') {

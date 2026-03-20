@@ -5,10 +5,10 @@ import { motion } from 'framer-motion';
 import { Flame, Building2, Info, Brain, Clock, TrendingDown, Zap, ArrowUpRight, CheckCircle2, AlertTriangle, RefreshCw, Users, TrendingUp, Target } from 'lucide-react';
 import Link from 'next/link';
 import { LanguageButton as SharedLanguageButton, ThemeButton } from '@/components/NavigationControls';
-import type { Theme } from '@/lib/translations';
+import type { Theme, Language } from '@/lib/translations';
 
-// 语言类型
-type Language = 'en' | 'zh';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function L(obj: any, lang: Language) { return obj[lang] ?? obj['en']; }
 
 // 翻译数据
 const translations = {
@@ -315,7 +315,7 @@ function HighRiskJobsSection({ lang, t }: { lang: Language; t: typeof translatio
                     transition={{ delay: index * 0.05 }}
                     className="border-b border-surface-elevated hover:bg-surface-elevated/50 transition-colors"
                   >
-                    <td className="py-4 px-4 font-semibold">{job.industry[lang]}</td>
+                    <td className="py-4 px-4 font-semibold">{job.industry[lang as 'en' | 'zh'] || ''}</td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">
                         <div className="w-24 h-2 bg-surface rounded-full overflow-hidden">
@@ -330,14 +330,14 @@ function HighRiskJobsSection({ lang, t }: { lang: Language; t: typeof translatio
                         <span className="font-bold mono" style={{ color: config.color }}>{job.risk}%</span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-foreground-muted">{job.jobs[lang]}</td>
+                    <td className="py-4 px-4 text-sm text-foreground-muted">{job.jobs[lang as 'en' | 'zh'] || ''}</td>
                     <td className="py-4 px-4">
                       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium`} style={{ backgroundColor: config.color + '20', color: config.color }}>
                         <Icon className="w-3 h-3" />
-                        <span>{config.label[lang]}</span>
+                        <span>{config.label[lang as 'en' | 'zh'] || ''}</span>
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-sm text-foreground-muted">{job.reason[lang]}</td>
+                    <td className="py-4 px-4 text-sm text-foreground-muted">{job.reason[lang as 'en' | 'zh'] || ''}</td>
                   </motion.tr>
                 );
               })}
@@ -397,14 +397,14 @@ function LayoffCasesSection({ lang, t }: { lang: Language; t: typeof translation
               <div className="flex items-center gap-3 mb-4">
                 <Building2 className="w-8 h-8 text-risk-high" />
                 <div>
-                  <h3 className="font-bold text-xl">{case_.company[lang]}</h3>
-                  <span className="text-xs text-foreground-muted">{case_.industry[lang]}</span>
+                  <h3 className="font-bold text-xl">{case_.company[lang as 'en' | 'zh'] || ''}</h3>
+                  <span className="text-xs text-foreground-muted">{case_.industry[lang as 'en' | 'zh'] || ''}</span>
                 </div>
               </div>
               <div className="text-4xl font-bold text-risk-high mono mb-3">{case_.layoffs}</div>
               <div className="text-sm text-foreground-muted mb-2">{t.jobsCut}</div>
               <div className="text-sm p-3 bg-background/50 rounded border border-surface-elevated">
-                <span className="text-risk-high font-medium">{t.reason}: </span>{case_.reason[lang]}
+                <span className="text-risk-high font-medium">{t.reason}: </span>{case_.reason[lang as 'en' | 'zh'] || ''}
               </div>
             </motion.div>
           ))}
@@ -452,7 +452,7 @@ function NetJobImpactSection({ lang, t }: { lang: Language; t: typeof translatio
               className="bg-background rounded-xl p-6 border-2"
               style={{ borderColor: item.color + '30' }}
             >
-              <h3 className="font-bold text-sm mb-4" style={{ color: item.color }}>{item.source[lang]}</h3>
+              <h3 className="font-bold text-sm mb-4" style={{ color: item.color }}>{item.source[lang as 'en' | 'zh'] || ''}</h3>
               {item.displaced && (
                 <>
                   <div className="flex justify-between items-center mb-2">
@@ -542,7 +542,7 @@ function IndustryDeepDiveSection({ lang, t }: { lang: Language; t: typeof transl
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span>{industry.title[lang]}</span>
+                <span>{industry.title[lang as 'en' | 'zh'] || ''}</span>
               </button>
             );
           })}
@@ -567,9 +567,9 @@ function IndustryDeepDiveSection({ lang, t }: { lang: Language; t: typeof transl
                     <Icon className="w-8 h-8" style={{ color: config.color }} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-1">{industry.title[lang]}</h3>
+                    <h3 className="text-2xl font-bold mb-1">{industry.title[lang as 'en' | 'zh'] || ''}</h3>
                     <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium`} style={{ backgroundColor: config.color + '20', color: config.color }}>
-                      <span>{config.label[lang]}</span>
+                      <span>{config.label[lang as 'en' | 'zh'] || ''}</span>
                     </div>
                   </div>
                 </div>
@@ -578,21 +578,21 @@ function IndustryDeepDiveSection({ lang, t }: { lang: Language; t: typeof transl
                   <div className="space-y-4">
                     <div className="bg-background/50 rounded-lg p-4 border border-surface-elevated">
                       <div className="text-xs text-foreground-muted mb-1">主导模式</div>
-                      <div className="font-semibold">{industry.desc[lang]}</div>
+                      <div className="font-semibold">{industry.desc[lang as 'en' | 'zh'] || ''}</div>
                     </div>
                     <div className="bg-background/50 rounded-lg p-4 border border-surface-elevated">
                       <div className="text-xs text-foreground-muted mb-1">典型岗位</div>
-                      <div className="font-semibold">{industry.jobs[lang]}</div>
+                      <div className="font-semibold">{industry.jobs[lang as 'en' | 'zh'] || ''}</div>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div className="bg-background/50 rounded-lg p-4 border border-surface-elevated">
                       <div className="text-xs text-foreground-muted mb-1">就业趋势</div>
-                      <div className="font-semibold text-foreground">{industry.trend[lang]}</div>
+                      <div className="font-semibold text-foreground">{industry.trend[lang as 'en' | 'zh'] || ''}</div>
                     </div>
                     <div className="bg-background/50 rounded-lg p-4 border border-surface-elevated">
                       <div className="text-xs text-foreground-muted mb-1">数据来源</div>
-                      <div className="text-xs text-foreground-muted">{industry.source[lang]}</div>
+                      <div className="text-xs text-foreground-muted">{industry.source[lang as 'en' | 'zh'] || ''}</div>
                     </div>
                   </div>
                 </div>
@@ -788,7 +788,7 @@ function CareerDivergenceSection({ lang, t }: { lang: Language; t: typeof transl
 export default function AnalysisPage() {
   const [lang, setLang] = useState<Language>('en');
   const [theme, setTheme] = useState<Theme>('dark');
-  const t = translations[lang];
+  const t = (translations as Record<string, typeof translations.en>)[lang] ?? translations['en'];
 
   useEffect(() => {
     const saved = (localStorage.getItem('air-theme') as Theme) || 'dark';

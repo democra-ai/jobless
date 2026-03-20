@@ -7,6 +7,12 @@ import { Language, translations } from '@/lib/translations';
 import Counter from '@/components/Counter';
 import { trackStageInteraction, trackInfoPopup } from '@/lib/analytics';
 
+/** Safely get a localized string from an object with en/zh keys, falling back to en */
+function L<T extends Record<string, unknown>>(obj: T, lang: Language): T extends Record<string, infer V> ? V : unknown {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (obj as any)[lang] ?? (obj as any)['en'];
+}
+
 // 核心数据
 export const CURRENT_REPLACEMENT_RATE = 24.7;
 
@@ -135,7 +141,7 @@ function TechTag({ tech, lang }: { tech: string; lang: Language }) {
       {tech === 'LLM' && <Cpu className="w-3 h-3" />}
       {tech === 'Agent' && <Bot className="w-3 h-3" />}
       {tech === 'Skills' && <Sparkles className="w-3 h-3" />}
-      <span>{label[lang]}</span>
+      <span>{L(label, lang)}</span>
     </span>
   );
 }
@@ -545,7 +551,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
             >
               <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: stage.color, opacity: 0.9 }} />
               <span className="inline-flex items-center justify-center gap-1 text-sm sm:text-base font-bold leading-tight cursor-pointer" style={{ color: stage.color }}>
-                {stage.label[lang]}
+                {L(stage.label, lang)}
                 <span
                   className="inline-flex items-center justify-center transition-opacity flex-shrink-0"
                   style={{ opacity: activeTooltip === stage.id ? 1 : 0.55 }}
@@ -579,22 +585,22 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                   >
                     <div className="px-4 py-3 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${stage.color}20, transparent)`, borderBottom: `1px solid ${stage.color}20` }}>
                       <div className="w-2 h-2 rounded-full" style={{ background: stage.color }} />
-                      <span className="text-sm font-bold" style={{ color: stage.color }}>{stage.label[lang]}</span>
+                      <span className="text-sm font-bold" style={{ color: stage.color }}>{L(stage.label, lang)}</span>
                       <span className="text-xs mono font-semibold text-foreground-dim ml-auto">{stage.start}–{stage.end}%</span>
                     </div>
                     <div className="p-4 space-y-3">
-                      <div className="text-xs text-foreground-muted leading-relaxed">{stage.tooltip[lang].definition}</div>
+                      <div className="text-xs text-foreground-muted leading-relaxed">{L(stage.tooltip, lang).definition}</div>
                       <div className="flex gap-2">
                         <div className="w-0.5 rounded-full flex-shrink-0 self-stretch" style={{ background: stage.color, opacity: 0.5 }} />
-                        <div className="text-xs text-foreground-muted leading-relaxed">{stage.tooltip[lang].control}</div>
+                        <div className="text-xs text-foreground-muted leading-relaxed">{L(stage.tooltip, lang).control}</div>
                       </div>
                       <div className="text-xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
                         <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
-                        <span className="text-foreground-muted">{stage.tooltip[lang].relationship}</span>
+                        <span className="text-foreground-muted">{L(stage.tooltip, lang).relationship}</span>
                       </div>
                       <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid var(--overlay-5)' }}>
                         <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
-                        <span className="text-xs font-bold px-2.5 py-1 rounded-md" style={{ background: `${stage.color}15`, color: stage.color }}>{stage.tooltip[lang].coreNature}</span>
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-md" style={{ background: `${stage.color}15`, color: stage.color }}>{L(stage.tooltip, lang).coreNature}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -640,18 +646,18 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                   <span className="text-xs mono font-semibold text-foreground-dim ml-auto">80–100%</span>
                 </div>
                 <div className="p-4 space-y-3">
-                  <div className="text-xs text-foreground-muted leading-relaxed">{KILL_LINE_STAGES[4].tooltip[lang].definition}</div>
+                  <div className="text-xs text-foreground-muted leading-relaxed">{L(KILL_LINE_STAGES[4].tooltip, lang).definition}</div>
                   <div className="flex gap-2">
                     <div className="w-0.5 rounded-full flex-shrink-0 self-stretch bg-risk-critical" style={{ opacity: 0.5 }} />
-                    <div className="text-xs text-foreground-muted leading-relaxed">{KILL_LINE_STAGES[4].tooltip[lang].control}</div>
+                    <div className="text-xs text-foreground-muted leading-relaxed">{L(KILL_LINE_STAGES[4].tooltip, lang).control}</div>
                   </div>
                   <div className="text-xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
                     <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
-                    <span className="text-foreground-muted">{KILL_LINE_STAGES[4].tooltip[lang].relationship}</span>
+                    <span className="text-foreground-muted">{L(KILL_LINE_STAGES[4].tooltip, lang).relationship}</span>
                   </div>
                   <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid var(--overlay-5)' }}>
                     <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-risk-critical/12 text-risk-critical">{KILL_LINE_STAGES[4].tooltip[lang].coreNature}</span>
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-risk-critical/12 text-risk-critical">{L(KILL_LINE_STAGES[4].tooltip, lang).coreNature}</span>
                   </div>
                 </div>
               </motion.div>
@@ -683,7 +689,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                 }}
               >
                 {stage.id === 5 && <Skull className="w-3.5 h-3.5" />}
-                <span>{stage.label[lang]}</span>
+                <span>{L(stage.label, lang)}</span>
                 {isCurrent && (
                   <span className="w-2 h-2 rounded-full bg-risk-high animate-pulse flex-shrink-0" />
                 )}
@@ -717,14 +723,14 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                       className="w-2 h-2 rounded-full flex-shrink-0"
                       style={{ background: stage.color, boxShadow: `0 0 6px ${stage.color}` }}
                     />
-                    <span className="text-sm font-bold" style={{ color: stage.color }}>{stage.label[lang]}</span>
+                    <span className="text-sm font-bold" style={{ color: stage.color }}>{L(stage.label, lang)}</span>
                   </div>
                   <span className="text-[11px] mono font-semibold text-foreground-dim">{stage.start}–{stage.end}%</span>
                 </div>
 
                 {/* Definition */}
                 <p className="text-xs text-foreground-muted leading-relaxed mb-3">
-                  {stage.tooltip[lang].definition}
+                  {L(stage.tooltip, lang).definition}
                 </p>
 
                 {/* Relationship */}
@@ -733,7 +739,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                   style={{ background: 'var(--surface-card)', borderLeft: `2px solid ${stage.color}` }}
                 >
                   <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human / AI'}: </span>
-                  <span className="text-foreground-muted">{stage.tooltip[lang].relationship}</span>
+                  <span className="text-foreground-muted">{L(stage.tooltip, lang).relationship}</span>
                 </div>
 
                 {/* Nature tag */}
@@ -748,7 +754,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                       color: stage.color,
                     }}
                   >
-                    {stage.tooltip[lang].coreNature}
+                    {L(stage.tooltip, lang).coreNature}
                   </span>
                 </div>
               </motion.div>

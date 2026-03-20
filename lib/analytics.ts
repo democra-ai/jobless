@@ -22,7 +22,7 @@ import type { QuizAnswer } from './air_quiz_data';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Language = 'en' | 'zh';
+type Language = 'en' | 'zh' | 'ja' | 'ko' | 'de';
 type Theme = 'dark' | 'light';
 
 interface QuizSessionData {
@@ -177,7 +177,7 @@ export async function trackQuizComplete(
       ),
       result: {
         profileCode: result.profileCode,
-        profileName: result.profile.name[lang],
+        profileName: (result.profile.name as Record<string, string>)[lang] ?? result.profile.name['en'],
         riskTier: result.profile.riskTier,
         probability: result.replacementProbability,
         year: result.predictedReplacementYear,

@@ -1,23 +1,63 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Languages, Sun, Moon, Activity, Target, Shield, Clock } from 'lucide-react';
-import { Language, Theme, MobileSection } from '@/lib/translations';
+import { Language, Theme, MobileSection, SUPPORTED_LANGUAGES } from '@/lib/translations';
 import { trackThemeToggle, trackLangToggle, trackNavigation } from '@/lib/analytics';
 
-// 语言切换按钮
+// 语言切换按钮（下拉选择）
 export function LanguageButton({ lang, setLang }: { lang: Language; setLang: (lang: Language) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const current = SUPPORTED_LANGUAGES.find((l) => l.code === lang);
+
   return (
-    <motion.button
-      onClick={() => { const next = lang === 'en' ? 'zh' : 'en'; setLang(next); trackLangToggle(next); }}
-      className="z-50 flex items-center justify-center bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white w-10 h-10 rounded-lg border border-surface-elevated transition-all card-hover lang-toggle-btn"
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      aria-label={lang === 'en' ? 'Switch to Chinese' : '切换到英文'}
-    >
-      <Languages className="w-5 h-5" />
-    </motion.button>
+    <div ref={ref} className="relative">
+      <motion.button
+        onClick={() => setOpen((prev) => !prev)}
+        className="z-50 flex items-center justify-center bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white w-10 h-10 rounded-lg border border-surface-elevated transition-all card-hover lang-toggle-btn"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Switch language"
+        aria-expanded={open}
+      >
+        <span className="text-sm font-bold leading-none">{current?.code.toUpperCase()}</span>
+      </motion.button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 mt-1.5 w-36 rounded-lg border border-surface-elevated bg-surface-elevated backdrop-blur-xl shadow-lg overflow-hidden z-[100]"
+          >
+            {SUPPORTED_LANGUAGES.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => { setLang(l.code); trackLangToggle(l.code); setOpen(false); }}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-risk-high/20 ${
+                  lang === l.code ? 'text-risk-high font-semibold' : 'text-foreground'
+                }`}
+              >
+                <span className="text-base leading-none">{l.flag}</span>
+                <span>{l.label}</span>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -50,15 +90,21 @@ export function MobileBottomNav({
   activeSection: MobileSection;
   onNavigate: (section: MobileSection) => void;
 }) {
+  const navLabels: Record<MobileSection, Record<Language, string>> = {
+    overview: { en: 'Overview', zh: '概览', ja: '概要', ko: '개요', de: 'Übersicht' },
+    risk: { en: 'Risk', zh: '评估', ja: 'リスク', ko: '위험', de: 'Risiko' },
+    threat: { en: 'Threat', zh: '数据威胁', ja: '脅威', ko: '위협', de: 'Bedrohung' },
+    timeline: { en: 'Timeline', zh: '时间线', ja: '年表', ko: '타임라인', de: 'Zeitstrahl' },
+  };
   const navItems: Array<{
     id: MobileSection;
     label: string;
     icon: React.ComponentType<{ className?: string }>;
   }> = [
-    { id: 'overview', label: lang === 'zh' ? '概览' : 'Overview', icon: Activity },
-    { id: 'risk', label: lang === 'zh' ? '评估' : 'Risk', icon: Target },
-    { id: 'threat', label: lang === 'zh' ? '数据威胁' : 'Threat', icon: Shield },
-    { id: 'timeline', label: lang === 'zh' ? '时间线' : 'Timeline', icon: Clock },
+    { id: 'overview', label: navLabels.overview[lang], icon: Activity },
+    { id: 'risk', label: navLabels.risk[lang], icon: Target },
+    { id: 'threat', label: navLabels.threat[lang], icon: Shield },
+    { id: 'timeline', label: navLabels.timeline[lang], icon: Clock },
   ];
 
   const trackRef = useRef<HTMLDivElement>(null);
@@ -103,7 +149,7 @@ export function MobileBottomNav({
           borderColor: 'var(--overlay-12)',
           boxShadow: '0 16px 36px var(--shadow-soft)',
         }}
-        aria-label={lang === 'zh' ? '移动端导航' : 'Mobile navigation'}
+        aria-label={{ en: 'Mobile navigation', zh: '移动端导航', ja: 'モバイルナビゲーション', ko: '모바일 내비게이션', de: 'Mobile Navigation' }[lang]}
       >
         <div ref={trackRef} className="relative grid grid-cols-4 gap-1">
           <motion.div

@@ -28,7 +28,7 @@ import {
   SOC_MAJOR_GROUPS,
 } from './air_quiz_data';
 
-export type Language = 'en' | 'zh';
+export type Language = 'en' | 'zh' | 'ja' | 'ko' | 'de';
 
 export interface QuizAnswers {
   /** Q1-Q16 answers keyed by question ID */

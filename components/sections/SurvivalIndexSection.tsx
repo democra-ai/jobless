@@ -10,6 +10,10 @@ import {
 import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
+
+/** Safely get a localized string from an object with en/zh keys, falling back to en */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function L(obj: any, lang: Language) { return obj[lang] ?? obj['en']; }
 import { encodeSharePayload } from '@/lib/share_payload';
 import {
   QuizAnswer,
@@ -431,7 +435,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       currentReplacementDegree: result.currentReplacementDegree,
       earliestYear: result.confidenceInterval.earliest,
       latestYear: isFinite(result.confidenceInterval.latest) ? result.confidenceInterval.latest : 9999,
-      lang,
+      lang: lang === 'zh' ? 'zh' : 'en',
     });
     const runtimeOrigin = window.location.origin;
     const localhostPattern = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i;
@@ -719,8 +723,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                         {React.createElement(DIMENSION_ICONS[i], { className: 'w-4 h-4', style: { color: DIMENSION_COLORS[i] } })}
                       </div>
                       <div>
-                        <div className="text-xs font-semibold">{dim.name[lang]}</div>
-                        <div className="text-[10px] text-foreground-muted">{dim.favorableLabel[lang]} / {dim.resistantLabel[lang]}</div>
+                        <div className="text-xs font-semibold">{L(dim.name, lang)}</div>
+                        <div className="text-[10px] text-foreground-muted">{L(dim.favorableLabel, lang)} / {L(dim.resistantLabel, lang)}</div>
                       </div>
                     </div>
                   ))}
@@ -743,7 +747,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       {selectedGroup ? (
                         <>
                           <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: selectedColor }} />
-                          <span className="flex-1 text-left font-medium">{selectedGroup.name[lang]}</span>
+                          <span className="flex-1 text-left font-medium">{L(selectedGroup.name, lang)}</span>
                           <span className="text-[10px] font-mono tabular-nums" style={{ color: selectedColor + 'cc' }}>{selectedGroup.riskScore}</span>
                         </>
                       ) : (
@@ -789,7 +793,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                     <div className="flex-shrink-0 w-10 h-1 rounded-full bg-overlay-6 overflow-hidden">
                                       <div className="h-full rounded-full" style={{ width: `${soc.riskScore}%`, backgroundColor: color }} />
                                     </div>
-                                    <span className="flex-1 text-left truncate">{soc.name[lang]}</span>
+                                    <span className="flex-1 text-left truncate">{L(soc.name, lang)}</span>
                                     <span className="flex-shrink-0 tabular-nums text-[10px] font-mono" style={{ color: color + 'cc' }}>{soc.riskScore}</span>
                                   </button>
                                 );
@@ -840,11 +844,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
               {/* Dimension badge - changes every 4 questions */}
               <DimensionBadge
                 icon={DIMENSION_ICONS[currentDimIndex]}
-                label={`${t.quizDimension} ${currentDimIndex + 1}: ${currentDim.name[lang]}`}
+                label={`${t.quizDimension} ${currentDimIndex + 1}: ${L(currentDim.name, lang)}`}
                 color={DIMENSION_COLORS[currentDimIndex]}
               />
 
-              <p className="text-xs text-foreground-muted mb-4">{currentDim.description[lang]}</p>
+              <p className="text-xs text-foreground-muted mb-4">{L(currentDim.description, lang)}</p>
 
               <AnimatePresence mode="wait">
                 <motion.div
@@ -854,14 +858,14 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                   exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <h3 className="text-lg sm:text-xl font-bold mb-6">{currentCoreQ.question[lang]}</h3>
+                  <h3 className="text-lg sm:text-xl font-bold mb-6">{L(currentCoreQ.question, lang)}</h3>
                   <AxisSlider
-                    options={currentCoreQ.options.map(o => o[lang])}
+                    options={currentCoreQ.options.map(o => L(o, lang))}
                     value={coreAnswers[currentCoreQ.id] ?? null}
                     onChange={handleCoreAnswer}
                     accentColor={DIMENSION_COLORS[currentDimIndex]}
-                    leftLabel={currentCoreQ.options[0][lang]}
-                    rightLabel={currentCoreQ.options[4][lang]}
+                    leftLabel={L(currentCoreQ.options[0], lang)}
+                    rightLabel={L(currentCoreQ.options[4], lang)}
                   />
                 </motion.div>
               </AnimatePresence>
@@ -938,9 +942,9 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       >
                         {result.profileCode}
                       </div>
-                      <div className="text-lg sm:text-xl font-semibold mt-1.5">{result.profile.name[lang]}</div>
+                      <div className="text-lg sm:text-xl font-semibold mt-1.5">{L(result.profile.name, lang)}</div>
                       <div className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: riskColor }}>
-                        {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
+                        {L(RISK_TIER_INFO[result.profile.riskTier].label, lang)}
                       </div>
                     </div>
 
@@ -987,13 +991,13 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                   <span className={`text-[10px] sm:text-[11px] font-medium ${
                                     !dim.isFavorable ? 'text-emerald-400' : 'text-foreground-muted/50'
                                   }`}>
-                                    {quizDim.resistantLabel[lang]}
+                                    {L(quizDim.resistantLabel, lang)}
                                   </span>
-                                  <span className="text-[10px] text-foreground-muted/40">{dim.name[lang]}</span>
+                                  <span className="text-[10px] text-foreground-muted/40">{L(dim.name, lang)}</span>
                                   <span className={`text-[10px] sm:text-[11px] font-medium ${
                                     dim.isFavorable ? 'text-rose-400' : 'text-foreground-muted/50'
                                   }`}>
-                                    {quizDim.favorableLabel[lang]}
+                                    {L(quizDim.favorableLabel, lang)}
                                   </span>
                                 </div>
 
@@ -1039,8 +1043,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                 <div className="flex items-center justify-center mt-1.5">
                                   <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ color, backgroundColor: color + '15' }}>
                                     {dim.isFavorable
-                                      ? `→ ${quizDim.favorableLabel[lang]} (${rightPct}%)`
-                                      : `← ${quizDim.resistantLabel[lang]} (${leftPct}%)`
+                                      ? `→ ${L(quizDim.favorableLabel, lang)} (${rightPct}%)`
+                                      : `← ${L(quizDim.resistantLabel, lang)} (${leftPct}%)`
                                     }
                                   </span>
                                 </div>
@@ -1092,7 +1096,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
 
                     {/* ── Description ── */}
                     <div className="pt-4">
-                      <p className="text-sm text-foreground-muted leading-relaxed">{result.profile.description[lang]}</p>
+                      <p className="text-sm text-foreground-muted leading-relaxed">{L(result.profile.description, lang)}</p>
                       {/* Only show occupation if user explicitly selected one */}
                       {result.occupationSOC && !result.occupationSOC.inferred && (() => {
                         const socGroup = SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code);
@@ -1100,7 +1104,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                         return (
                           <div className="flex items-center gap-2 mt-2">
                             <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: socColor }} />
-                            <span className="text-xs font-semibold">{result.occupationSOC!.name[lang]}</span>
+                            <span className="text-xs font-semibold">{L(result.occupationSOC!.name, lang)}</span>
                           </div>
                         );
                       })()}
@@ -1127,7 +1131,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                   {lang === 'zh' ? '为什么你容易被替代' : 'Why You\'re Vulnerable'}
                                 </div>
                                 <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-0.5">
-                                  {cal.vulnerabilities[lang]}
+                                  {L(cal.vulnerabilities, lang)}
                                 </p>
                               </div>
                             </div>
@@ -1147,7 +1151,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                   {lang === 'zh' ? '你的防御优势' : 'Your Defense'}
                                 </div>
                                 <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-0.5">
-                                  {cal.strengths[lang]}
+                                  {L(cal.strengths, lang)}
                                 </p>
                               </div>
                             </div>
@@ -1193,7 +1197,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                     {/* Career info */}
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-2">
-                                        <span className="text-xs font-medium truncate">{career.title[lang]}</span>
+                                        <span className="text-xs font-medium truncate">{L(career.title, lang)}</span>
                                       </div>
                                       {/* Risk bar */}
                                       <div className="h-1 rounded-full bg-overlay-6 mt-1 overflow-hidden">
@@ -1211,7 +1215,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                   {/* Reason - shows on hover */}
                                   <div className="max-h-0 group-hover/career:max-h-16 overflow-hidden transition-all duration-200 ease-out">
                                     <p className="text-[10px] text-foreground-muted/50 leading-relaxed mt-1 ml-[46px]">
-                                      {career.reason[lang]}
+                                      {L(career.reason, lang)}
                                     </p>
                                   </div>
                                 </motion.div>
@@ -1261,7 +1265,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                     <div className="min-w-0 flex-1 pt-0.5">
                                       <div className="flex items-center gap-2">
                                         <span className="text-[11px] sm:text-xs font-bold" style={{ color: isFirst ? accent : undefined }}>
-                                          {advice.title[lang]}
+                                          {L(advice.title, lang)}
                                         </span>
                                         {isFirst && (
                                           <span
@@ -1273,7 +1277,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                                         )}
                                       </div>
                                       <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-1">
-                                        {advice.body[lang]}
+                                        {L(advice.body, lang)}
                                       </p>
                                     </div>
                                   </div>
@@ -1329,10 +1333,10 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       {result.profileCode}
                     </div>
                     <div style={{ marginTop: '10px', fontSize: '36px', fontWeight: 700 }}>
-                      {result.profile.name[lang]}
+                      {L(result.profile.name, lang)}
                     </div>
                     <div style={{ marginTop: '8px', fontSize: '20px', opacity: 0.78 }}>
-                      {RISK_TIER_INFO[result.profile.riskTier].label[lang]}
+                      {L(RISK_TIER_INFO[result.profile.riskTier].label, lang)}
                     </div>
                   </div>
 

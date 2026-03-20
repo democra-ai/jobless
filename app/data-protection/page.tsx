@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Shield, Zap, Skull, Flame, Cpu, Database, FileText, RefreshCw, Info, Lock, CheckCircle2, ChevronDown, Target } from 'lucide-react';
 import Link from 'next/link';
 import { platformAgreements, dataProtectionTranslations } from '@/lib/data-protection';
-import type { Language } from '@/lib/data-protection';
 import { LanguageButton, ThemeButton } from '@/components/NavigationControls';
+import type { Language } from '@/lib/translations';
 import type { Theme } from '@/lib/translations';
 
 function LastMileSection({ lang, t }: { lang: Language; t: typeof dataProtectionTranslations.en }) {
@@ -276,7 +276,7 @@ function ProtectionChecklistSection({ lang, t }: { lang: Language; t: typeof dat
 export default function DataProtectionPage() {
   const [lang, setLang] = useState<Language>('en');
   const [theme, setTheme] = useState<Theme>('dark');
-  const t = dataProtectionTranslations[lang];
+  const t = dataProtectionTranslations[lang] ?? dataProtectionTranslations['en'];
 
   useEffect(() => {
     const saved = (localStorage.getItem('air-theme') as Theme) || 'dark';

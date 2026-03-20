@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { Target } from 'lucide-react';
-import { Language, Theme, MobileSection, MOBILE_SECTION_TARGETS, translations } from '@/lib/translations';
+import { Language, Theme, MobileSection, MOBILE_SECTION_TARGETS, translations, detectBrowserLanguage, getHtmlLang } from '@/lib/translations';
 import HeroSection from '@/components/sections/HeroSection';
 import SurvivalIndexSection from '@/components/sections/SurvivalIndexSection';
 import DataThreatSection from '@/components/sections/DataThreatSection';
@@ -17,7 +17,14 @@ import { trackCtaClick } from '@/lib/analytics';
 const InteractiveTimeline = dynamic(() => import('@/components/InteractiveTimeline'), { ssr: false });
 
 export default function Home() {
-  const [lang, setLang] = useState<Language>('en');
+  const [lang, setLang] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('air-lang') as Language | null;
+      if (saved && ['en', 'zh', 'ja', 'ko', 'de'].includes(saved)) return saved;
+      return detectBrowserLanguage();
+    }
+    return 'en';
+  });
   const [theme, setTheme] = useState<Theme>('dark');
   const [activeMobileSection, setActiveMobileSection] = useState<MobileSection>('overview');
   const [shouldMountTimeline, setShouldMountTimeline] = useState(false);
@@ -53,8 +60,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    document.documentElement.lang = getHtmlLang(lang);
     document.documentElement.setAttribute('data-ui-lang', lang);
+    localStorage.setItem('air-lang', lang);
   }, [lang]);
 
   useEffect(() => {
@@ -220,10 +228,10 @@ export default function Home() {
           <div className="min-h-[420px] sm:min-h-[560px] flex items-center justify-center px-6 py-12">
             <div className="w-full max-w-2xl rounded-2xl border border-surface-elevated bg-surface/70 p-6 text-center">
               <div className="text-sm sm:text-base font-semibold text-foreground">
-                {lang === 'zh' ? '时间线内容即将加载' : 'Timeline is loading'}
+                {{ en: 'Timeline is loading', zh: '时间线内容即将加载', ja: 'タイムラインを読み込み中', ko: '타임라인 로딩 중', de: 'Zeitstrahl wird geladen' }[lang]}
               </div>
               <p className="mt-2 text-xs sm:text-sm text-foreground-muted">
-                {lang === 'zh' ? '滚动到此区域后再加载，减少首次打开卡顿与发热。' : 'It mounts only when this section is near viewport to reduce initial CPU/GPU load.'}
+                {{ en: 'It mounts only when this section is near viewport to reduce initial CPU/GPU load.', zh: '滚动到此区域后再加载，减少首次打开卡顿与发热。', ja: '初期CPU/GPU負荷を軽減するため、このセクションがビューポート付近になったときのみ読み込みます。', ko: '초기 CPU/GPU 부하를 줄이기 위해 이 섹션이 뷰포트 근처에 있을 때만 로드됩니다.', de: 'Wird erst geladen, wenn dieser Abschnitt im Viewport ist, um die anfängliche CPU/GPU-Last zu reduzieren.' }[lang]}
               </p>
             </div>
           </div>

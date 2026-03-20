@@ -8,7 +8,11 @@ import { trackTimelineInteraction } from '@/lib/analytics';
 // ============================================
 // TYPES & DATA
 // ============================================
-type Language = 'en' | 'zh';
+type Language = 'en' | 'zh' | 'ja' | 'ko' | 'de';
+
+/** Safely get localized value, falling back to en */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function L(obj: any, lang: Language) { return obj[lang] ?? obj['en']; }
 
 interface Milestone {
   id: string;
@@ -643,7 +647,7 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
               style={{ left: `${position}%` }}
               onClick={() => onSelectMilestone(milestone)}
               role="button" tabIndex={0}
-              aria-label={`${milestone.year} - ${milestone.name[lang]}`}
+              aria-label={`${milestone.year} - ${L(milestone.name, lang)}`}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectMilestone(milestone); } }}
             >
               {/* Year */}
@@ -694,7 +698,7 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                     maxWidth: isCompactDesktop ? '112px' : undefined,
                     textAlign: 'center',
                   }}>
-                  <div className="text-xs font-semibold" style={{ color: 'var(--timeline-text)' }}>{milestone.name[lang]}</div>
+                  <div className="text-xs font-semibold" style={{ color: 'var(--timeline-text)' }}>{L(milestone.name, lang)}</div>
                 </motion.div>
               </div>
 
@@ -738,7 +742,7 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                 className="relative cursor-pointer"
                 onClick={() => onSelectMilestone(milestone)}
                 role="button" tabIndex={0}
-                aria-label={`${milestone.year} - ${milestone.name[lang]}`}
+                aria-label={`${milestone.year} - ${L(milestone.name, lang)}`}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectMilestone(milestone); } }}
               >
                 {/* Node */}
@@ -772,13 +776,13 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
                         <span className="text-xl font-bold tabular-nums" style={{ color: milestone.color }}>{milestone.year}</span>
-                        <span className="text-sm font-semibold" style={{ color: 'var(--timeline-text)' }}>{milestone.name[lang]}</span>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--timeline-text)' }}>{L(milestone.name, lang)}</span>
                         {milestone.isProjected && (
                           <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded"
                             style={{ color: milestone.color, border: `1px dashed ${milestone.color}60` }}>{t.projected}</span>
                         )}
                       </div>
-                      <p className="text-xs text-[--timeline-text-muted] leading-relaxed">{milestone.impact[lang]}</p>
+                      <p className="text-xs text-[--timeline-text-muted] leading-relaxed">{L(milestone.impact, lang)}</p>
                     </div>
 
                     <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
@@ -991,7 +995,7 @@ function MobileDetailSheet({ milestone, onClose, lang, t }: {
         data-detail-panel
         role="dialog"
         aria-modal="true"
-        aria-label={`${milestone.name[lang]} — ${milestone.year}`}
+        aria-label={`${L(milestone.name, lang)} — ${milestone.year}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div
@@ -1016,8 +1020,8 @@ function MobileDetailSheet({ milestone, onClose, lang, t }: {
                     style={{ color: milestone.color, border: `1px dashed ${milestone.color}60` }}>{t.projected}</span>
                 )}
               </div>
-              <h3 className="text-base font-semibold" style={{ color: 'var(--timeline-text)' }}>{milestone.name[lang]}</h3>
-              <p className="text-xs leading-relaxed" style={{ color: 'var(--timeline-text-muted)' }}>{milestone.impact[lang]}</p>
+              <h3 className="text-base font-semibold" style={{ color: 'var(--timeline-text)' }}>{L(milestone.name, lang)}</h3>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--timeline-text-muted)' }}>{L(milestone.impact, lang)}</p>
             </div>
             <button onClick={onClose} aria-label={t.close}
               className="min-h-[44px] min-w-[44px] rounded-full border flex items-center justify-center"
@@ -1039,12 +1043,12 @@ function MobileDetailSheet({ milestone, onClose, lang, t }: {
               <h4 className="text-sm font-semibold mb-2" style={{ color: milestone.color }}>
                 {lang === 'en' ? 'What happened' : '发生了什么'}
               </h4>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--timeline-panel-text)' }}>{milestone.details.description[lang]}</p>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--timeline-panel-text)' }}>{L(milestone.details.description, lang)}</p>
             </div>
             <div className="rounded-2xl border p-4 mt-3"
               style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }}>
               <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--timeline-text)' }}>{t.significance}</h4>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--timeline-panel-text)' }}>{milestone.details.significance[lang]}</p>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--timeline-panel-text)' }}>{L(milestone.details.significance, lang)}</p>
             </div>
           </section>
 
@@ -1058,8 +1062,8 @@ function MobileDetailSheet({ milestone, onClose, lang, t }: {
                   <div key={idx} className="rounded-xl border p-3"
                     style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }}>
                     <div className="text-[11px] font-mono mb-1" style={{ color: 'var(--timeline-text-dim)' }}>{inv.year}</div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--timeline-text)' }}>{inv.name[lang]}</div>
-                    <div className="text-xs mt-1" style={{ color: 'var(--timeline-text-muted)' }}>{inv.impact[lang]}</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--timeline-text)' }}>{L(inv.name, lang)}</div>
+                    <div className="text-xs mt-1" style={{ color: 'var(--timeline-text-muted)' }}>{L(inv.impact, lang)}</div>
                   </div>
                 ))}
               </div>
@@ -1074,7 +1078,7 @@ function MobileDetailSheet({ milestone, onClose, lang, t }: {
                   <div key={idx} className="rounded-xl border p-3"
                     style={{ borderColor: 'var(--timeline-panel-detail-border)', background: 'var(--timeline-panel-detail-bg)' }}>
                     <div className="flex items-center justify-between gap-3 mb-2">
-                      <span className="text-sm font-medium" style={{ color: 'var(--timeline-text)' }}>{job.category[lang]}</span>
+                      <span className="text-sm font-medium" style={{ color: 'var(--timeline-text)' }}>{L(job.category, lang)}</span>
                       <span className="text-xs font-bold px-2 py-0.5 rounded-full"
                         style={{ color: job.rate >= 70 ? '#f87171' : '#34d399', background: job.rate >= 70 ? 'rgba(239,68,68,0.18)' : 'rgba(16,185,129,0.18)' }}>
                         {job.rate}%
@@ -1083,7 +1087,7 @@ function MobileDetailSheet({ milestone, onClose, lang, t }: {
                     <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: 'var(--timeline-track-bg)' }}>
                       <div className="h-full rounded-full" style={{ width: `${job.rate}%`, background: milestone.color }} />
                     </div>
-                    <div className="text-xs" style={{ color: 'var(--timeline-text-dim)' }}>→ {job.newJobs[lang]}</div>
+                    <div className="text-xs" style={{ color: 'var(--timeline-text-dim)' }}>→ {L(job.newJobs, lang)}</div>
                   </div>
                 ))}
               </div>
@@ -1215,7 +1219,7 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
       animate={panelMotion.animate}
       exit={panelMotion.exit}
       transition={panelMotion.transition}
-      className={`relative ${className ?? 'mt-6 md:mt-10'}`} role="dialog" aria-label={`${milestone.name[lang]} — ${milestone.year}`}>
+      className={`relative ${className ?? 'mt-6 md:mt-10'}`} role="dialog" aria-label={`${L(milestone.name, lang)} — ${milestone.year}`}>
       {!compactMode && <div className="absolute inset-0 rounded-2xl blur-2xl opacity-15" style={{ background: milestone.color }} />}
       <MotionConfig reducedMotion={disableNestedMotion ? 'always' : 'never'}>
         <div className={`relative overflow-hidden border ${compactMode ? 'rounded-2xl' : 'rounded-2xl'}`}
@@ -1253,18 +1257,18 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
                     style={{ color: milestone.color, border: `1px dashed ${milestone.color}50` }}>{t.projected}</span>
                 )}
               </div>
-              <h3 className="text-base font-bold leading-snug" style={{ color: 'var(--timeline-text)' }}>{milestone.name[lang]}</h3>
-              <p className="text-xs text-[--timeline-text-muted] mt-0.5">{milestone.impact[lang]}</p>
+              <h3 className="text-base font-bold leading-snug" style={{ color: 'var(--timeline-text)' }}>{L(milestone.name, lang)}</h3>
+              <p className="text-xs text-[--timeline-text-muted] mt-0.5">{L(milestone.impact, lang)}</p>
             </div>
           </div>
 
           {/* Description */}
-          <p className="text-sm text-[--timeline-panel-text] leading-relaxed mb-4">{milestone.details.description[lang]}</p>
+          <p className="text-sm text-[--timeline-panel-text] leading-relaxed mb-4">{L(milestone.details.description, lang)}</p>
 
           {/* Significance callout */}
           <div className="px-3 py-2.5 rounded-lg mb-4" style={{ background: `${milestone.color}08`, border: `1px solid ${milestone.color}20` }}>
             <div className="text-[10px] font-semibold text-[--timeline-text-muted] mb-1 uppercase tracking-wider">{t.significance}</div>
-            <p className="text-sm font-medium" style={{ color: 'var(--timeline-text)' }}>{milestone.details.significance[lang]}</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--timeline-text)' }}>{L(milestone.details.significance, lang)}</p>
           </div>
 
           {/* Two-column grid for inventions + jobs on desktop */}
@@ -1283,9 +1287,9 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
                         style={{ background: 'var(--timeline-panel-detail-bg)', borderColor: 'var(--timeline-panel-detail-border)' }}>
                         <div className="flex items-baseline gap-2">
                           <span className="text-[10px] text-[--timeline-text-dim] font-mono shrink-0">{inv.year}</span>
-                          <span className="text-xs font-medium text-[--timeline-text]">{inv.name[lang]}</span>
+                          <span className="text-xs font-medium text-[--timeline-text]">{L(inv.name, lang)}</span>
                         </div>
-                        <div className="text-[11px] text-[--timeline-text-dim] mt-0.5">{inv.impact[lang]}</div>
+                        <div className="text-[11px] text-[--timeline-text-dim] mt-0.5">{L(inv.impact, lang)}</div>
                       </motion.div>
                     ))}
                   </div>
@@ -1301,7 +1305,7 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
                         className="p-2.5 rounded-lg"
                         style={{ background: 'var(--timeline-panel-detail-bg)', border: `1px solid var(--timeline-panel-detail-border)` }}>
                         <div className="flex justify-between items-center mb-1.5">
-                          <span className="text-xs font-medium text-[--timeline-text]">{job.category[lang]}</span>
+                          <span className="text-xs font-medium text-[--timeline-text]">{L(job.category, lang)}</span>
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
                             style={{ background: job.rate >= 70 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)', color: job.rate >= 70 ? '#f87171' : '#34d399' }}>
                             {job.rate}%
@@ -1312,7 +1316,7 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
                             transition={{ duration: 0.8, delay: 0.4 }} className="h-full rounded-full"
                             style={{ background: milestone.color }} />
                         </div>
-                        <div className="text-[11px] text-[--timeline-text-dim]">→ {job.newJobs[lang]}</div>
+                        <div className="text-[11px] text-[--timeline-text-dim]">→ {L(job.newJobs, lang)}</div>
                       </motion.div>
                     ))}
                   </div>
@@ -1333,8 +1337,8 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
                         className="p-2.5 rounded-lg border"
                         style={{ background: 'var(--timeline-panel-detail-bg)', borderColor: 'var(--timeline-panel-detail-border)' }}>
                         <div className="text-[10px] text-[--timeline-text-dim] mb-0.5 font-mono">{inv.year}</div>
-                        <div className="text-xs font-medium text-[--timeline-text]">{inv.name[lang]}</div>
-                        <div className="text-[11px] text-[--timeline-text-dim] mt-0.5">{inv.impact[lang]}</div>
+                        <div className="text-xs font-medium text-[--timeline-text]">{L(inv.name, lang)}</div>
+                        <div className="text-[11px] text-[--timeline-text-dim] mt-0.5">{L(inv.impact, lang)}</div>
                       </motion.div>
                     ))}
                   </div>
@@ -1351,7 +1355,7 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
                         className="p-2.5 rounded-lg"
                         style={{ background: 'var(--timeline-panel-detail-bg)', border: `1px solid var(--timeline-panel-detail-border)` }}>
                         <div className="flex justify-between items-center mb-1.5">
-                          <span className="text-xs font-medium text-[--timeline-text]">{job.category[lang]}</span>
+                          <span className="text-xs font-medium text-[--timeline-text]">{L(job.category, lang)}</span>
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
                             style={{ background: job.rate >= 70 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)', color: job.rate >= 70 ? '#f87171' : '#34d399' }}>
                             {job.rate}%
@@ -1362,7 +1366,7 @@ function DetailPanel({ milestone, onClose, lang, t, className, variant = 'defaul
                             transition={{ duration: 0.8, delay: 0.4 }} className="h-full rounded-full"
                             style={{ background: milestone.color }} />
                         </div>
-                        <div className="text-[11px] text-[--timeline-text-dim]">→ {job.newJobs[lang]}</div>
+                        <div className="text-[11px] text-[--timeline-text-dim]">→ {L(job.newJobs, lang)}</div>
                       </motion.div>
                     ))}
                   </div>
