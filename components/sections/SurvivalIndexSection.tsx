@@ -129,7 +129,7 @@ function useDimensionColors(): string[] {
   return colors;
 }
 
-/** Horizontal axis slider with 5 discrete stops and inline hover description */
+/** Option selector — vertical cards on mobile, horizontal slider on desktop */
 function AxisSlider({
   options,
   value,
@@ -146,95 +146,150 @@ function AxisSlider({
   rightLabel?: string;
 }) {
   const [hoveredStop, setHoveredStop] = useState<number | null>(null);
-  const [touchedStop, setTouchedStop] = useState<number | null>(null);
+  const [expandedStop, setExpandedStop] = useState<number | null>(null);
 
-  const activeStop = touchedStop ?? hoveredStop;
+  const activeStop = hoveredStop;
 
   return (
-    <div className="pt-2 pb-1">
-      {/* Axis track */}
-      <div className="relative mx-2 sm:mx-4">
-        {/* Track background */}
-        <div className="h-2 rounded-full relative" style={{ background: 'var(--overlay-15)', boxShadow: 'inset 0 1px 3px var(--overlay-10)' }}>
-          {/* Filled track */}
-          {value && (
-            <motion.div
-              className="absolute top-0 left-0 h-full rounded-full"
-              style={{ backgroundColor: accentColor + '60' }}
-              initial={{ width: 0 }}
-              animate={{ width: `${((value - 1) / 4) * 100}%` }}
-              transition={{ duration: 0.2 }}
-            />
-          )}
-        </div>
-
-        {/* Stop circles */}
-        <div className="absolute inset-0 flex items-center justify-between" style={{ top: '-10px', height: '24px' }}>
-          {[1, 2, 3, 4, 5].map((stop) => {
-            const isSelected = value === stop;
-            const isHovered = activeStop === stop;
-            return (
-              <button
-                key={stop}
-                type="button"
-                className="relative flex items-center justify-center"
-                style={{ width: '44px', height: '44px', marginLeft: stop === 1 ? '-22px' : undefined, marginRight: stop === 5 ? '-22px' : undefined }}
-                onMouseEnter={() => setHoveredStop(stop)}
-                onMouseLeave={() => setHoveredStop(null)}
-                onTouchStart={() => setTouchedStop(stop)}
-                onTouchEnd={() => { setTimeout(() => setTouchedStop(null), 1500); }}
-                onClick={() => onChange(stop as QuizAnswer)}
-              >
-                <motion.div
-                  className="rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors"
+    <div className="pt-1 pb-1">
+      {/* ══ Mobile: vertical option cards ══ */}
+      <div className="sm:hidden flex flex-col gap-2">
+        {[1, 2, 3, 4, 5].map((stop) => {
+          const isSelected = value === stop;
+          const isExpanded = expandedStop === stop;
+          return (
+            <motion.button
+              key={stop}
+              type="button"
+              className="relative w-full text-left rounded-xl px-4 py-3 transition-all border"
+              style={{
+                borderColor: isSelected ? accentColor : isExpanded ? accentColor + '50' : 'var(--overlay-10)',
+                backgroundColor: isSelected ? accentColor + '15' : 'var(--surface)',
+                boxShadow: isSelected ? `0 0 0 1px ${accentColor}40, 0 2px 8px ${accentColor}15` : undefined,
+              }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                if (isExpanded || isSelected) {
+                  // Second tap or re-tap selected → confirm
+                  onChange(stop as QuizAnswer);
+                  setExpandedStop(null);
+                } else {
+                  // First tap → expand to preview
+                  setExpandedStop(stop);
+                }
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 border"
                   style={{
-                    width: isSelected ? '28px' : isHovered ? '26px' : '22px',
-                    height: isSelected ? '28px' : isHovered ? '26px' : '22px',
-                    borderColor: isSelected ? accentColor : isHovered ? accentColor + '80' : 'var(--overlay-20)',
-                    backgroundColor: isSelected ? accentColor : isHovered ? 'var(--surface-card)' : 'var(--surface)',
-                    color: isSelected ? '#fff' : isHovered ? accentColor : 'var(--foreground-dim)',
-                    boxShadow: isHovered && !isSelected ? `0 0 0 3px ${accentColor}25` : undefined,
+                    borderColor: isSelected ? accentColor : 'var(--overlay-15)',
+                    backgroundColor: isSelected ? accentColor : 'transparent',
+                    color: isSelected ? '#fff' : 'var(--foreground-dim)',
                   }}
-                  animate={{
-                    scale: isSelected ? 1.1 : 1,
-                  }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
                   {stop}
-                </motion.div>
-              </button>
-            );
-          })}
-        </div>
+                </div>
+                <span
+                  className="text-sm leading-snug"
+                  style={{ color: isSelected ? accentColor : 'var(--foreground-muted)' }}
+                >
+                  {options[stop - 1]}
+                </span>
+                {isSelected && (
+                  <div className="ml-auto flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: accentColor }}>
+                    <svg className="w-3 h-3 text-white" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </motion.button>
+          );
+        })}
       </div>
 
-      {/* Pole labels */}
-      {(leftLabel || rightLabel) && (
-        <div className="flex justify-between text-[11px] text-foreground-muted mt-5 mx-1">
-          <span>{leftLabel}</span>
-          <span>{rightLabel}</span>
-        </div>
-      )}
+      {/* ══ Desktop: horizontal axis slider ══ */}
+      <div className="hidden sm:block">
+        <div className="relative mx-4">
+          {/* Track background */}
+          <div className="h-2 rounded-full relative" style={{ background: 'var(--overlay-15)', boxShadow: 'inset 0 1px 3px var(--overlay-10)' }}>
+            {/* Filled track */}
+            {value && (
+              <motion.div
+                className="absolute top-0 left-0 h-full rounded-full"
+                style={{ backgroundColor: accentColor + '60' }}
+                initial={{ width: 0 }}
+                animate={{ width: `${((value - 1) / 4) * 100}%` }}
+                transition={{ duration: 0.2 }}
+              />
+            )}
+          </div>
 
-      {/* Inline description below slider — shows on hover/touch */}
-      <div className="min-h-[36px] mt-2">
-        <AnimatePresence mode="wait">
-          {activeStop !== null && (
-            <motion.div
-              key={activeStop}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
-              className="text-center px-2"
-            >
-              <span className="inline-flex items-center gap-1.5 text-xs leading-relaxed rounded-lg px-3 py-1.5 bg-surface-elevated border border-overlay-10">
-                <span className="font-bold min-w-[16px] text-center" style={{ color: accentColor }}>{activeStop}</span>
-                <span className="text-foreground-muted">{options[activeStop - 1]}</span>
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          {/* Stop circles */}
+          <div className="absolute inset-0 flex items-center justify-between" style={{ top: '-10px', height: '24px' }}>
+            {[1, 2, 3, 4, 5].map((stop) => {
+              const isSelected = value === stop;
+              const isHovered = activeStop === stop;
+              return (
+                <button
+                  key={stop}
+                  type="button"
+                  className="relative flex items-center justify-center"
+                  style={{ width: '44px', height: '44px', marginLeft: stop === 1 ? '-22px' : undefined, marginRight: stop === 5 ? '-22px' : undefined }}
+                  onMouseEnter={() => setHoveredStop(stop)}
+                  onMouseLeave={() => setHoveredStop(null)}
+                  onClick={() => onChange(stop as QuizAnswer)}
+                >
+                  <motion.div
+                    className="rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors"
+                    style={{
+                      width: isSelected ? '28px' : isHovered ? '26px' : '22px',
+                      height: isSelected ? '28px' : isHovered ? '26px' : '22px',
+                      borderColor: isSelected ? accentColor : isHovered ? accentColor + '80' : 'var(--overlay-20)',
+                      backgroundColor: isSelected ? accentColor : isHovered ? 'var(--surface-card)' : 'var(--surface)',
+                      color: isSelected ? '#fff' : isHovered ? accentColor : 'var(--foreground-dim)',
+                      boxShadow: isHovered && !isSelected ? `0 0 0 3px ${accentColor}25` : undefined,
+                    }}
+                    animate={{ scale: isSelected ? 1.1 : 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                  >
+                    {stop}
+                  </motion.div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Pole labels */}
+        {(leftLabel || rightLabel) && (
+          <div className="flex justify-between text-[11px] text-foreground-muted mt-5 mx-1">
+            <span>{leftLabel}</span>
+            <span>{rightLabel}</span>
+          </div>
+        )}
+
+        {/* Inline description below slider — shows on hover */}
+        <div className="min-h-[36px] mt-2">
+          <AnimatePresence mode="wait">
+            {activeStop !== null && (
+              <motion.div
+                key={activeStop}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.12 }}
+                className="text-center px-2"
+              >
+                <span className="inline-flex items-center gap-1.5 text-xs leading-relaxed rounded-lg px-3 py-1.5 bg-surface-elevated border border-overlay-10">
+                  <span className="font-bold min-w-[16px] text-center" style={{ color: accentColor }}>{activeStop}</span>
+                  <span className="text-foreground-muted">{options[activeStop - 1]}</span>
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
