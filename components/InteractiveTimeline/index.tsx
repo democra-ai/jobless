@@ -345,22 +345,37 @@ export default function ModernTimeline({ lang, theme = 'dark' }: { lang: Languag
       }}
 >
       <TimelineBackground />
-      <div className="relative z-10 max-w-7xl mx-auto px-4 py-16 md:py-24">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-          className="text-center mb-16 md:mb-24">
+
+      {/* Ambient glows */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] pointer-events-none" style={{
+        background: 'radial-gradient(circle, rgba(251,191,36,0.04) 0%, transparent 60%)',
+        filter: 'blur(100px)',
+      }} />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] pointer-events-none" style={{
+        background: 'radial-gradient(circle, rgba(239,68,68,0.04) 0%, transparent 60%)',
+        filter: 'blur(100px)',
+      }} />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-20 md:py-28">
+        {/* Header — cinematic */}
+        <motion.div initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 1 }}
+          className="text-center mb-16 md:mb-28">
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }} className="inline-block mb-6">
-            <div className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 via-emerald-500/20 to-red-500/20 border border-overlay-10">
+            transition={{ delay: 0.2, duration: 0.6 }} className="inline-block mb-8">
+            <div className="px-5 py-2.5 rounded-full backdrop-blur-sm" style={{
+              background: 'linear-gradient(135deg, rgba(251,191,36,0.06), rgba(16,185,129,0.06), rgba(239,68,68,0.06))',
+              border: '1px solid rgba(255,255,255,0.06)',
+            }}>
               <span className="text-sm font-medium bg-gradient-to-r from-amber-400 via-emerald-400 to-red-400 bg-clip-text text-transparent">
                 {lang === 'en' ? '6 Milestones That Changed Everything' : '改变一切的6个里程碑'}
               </span>
             </div>
           </motion.div>
-          <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl mb-6 section-title">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl mb-6 section-title leading-[0.95]">
               {t.title}
           </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto section-subtitle">{t.subtitle}</p>
+          <p className="text-lg md:text-xl max-w-2xl mx-auto section-subtitle leading-relaxed">{t.subtitle}</p>
         </motion.div>
 
         {/* Timeline */}
@@ -550,17 +565,29 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
     <>
       {/* ====== Desktop: Horizontal (md+) ====== */}
       <div ref={desktopTrackRef} className={`relative hidden md:block ${isStaggerDesktop ? 'py-24' : 'py-20'}`}>
-        {/* Track */}
-        <div className="absolute top-1/2 left-0 right-0 h-1 -translate-y-1/2">
-          <div className="absolute inset-0 timeline-track rounded-full" />
+        {/* Track — premium 3D */}
+        <div className="absolute top-1/2 left-0 right-0 h-[6px] -translate-y-1/2 rounded-full" style={{
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.1))',
+          border: '1px solid rgba(255,255,255,0.04)',
+          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
+        }}>
           <motion.div initial={{ width: 0 }} animate={{ width: `${currentPos}%` }}
-            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-0 top-0 h-full rounded-full"
-            style={{ background: timelineGradient, boxShadow: '0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.3)' }} />
+            transition={{ duration: 2.5, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute left-[2px] top-[2px] bottom-[2px] rounded-full"
+            style={{
+              background: timelineGradient,
+              boxShadow: '0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.15)',
+            }}
+          >
+            {/* Glossy highlight */}
+            <div className="absolute inset-x-0 top-0 h-[45%] rounded-full" style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.3), transparent)',
+            }} />
+          </motion.div>
           <motion.div initial={{ left: '-10%' }} animate={{ left: '110%' }}
-            transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
+            transition={{ duration: 2.5, ease: 'easeInOut', delay: 1.5 }}
             className="absolute top-1/2 -translate-y-1/2 w-32 h-2"
-            style={{ background: `linear-gradient(90deg, transparent, var(--overlay-30), transparent)` }} />
+            style={{ background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)` }} />
         </div>
 
         {/* AI Era divider — vertical line down from Deep Learning node */}
@@ -726,10 +753,12 @@ function TimelineTrack({ milestones, selectedMilestone, onSelectMilestone, mount
       <div className="md:hidden relative pl-12" style={{ overflowAnchor: 'none' }}>
         <p className="text-[11px] mb-4 text-[--timeline-text-dim]">{t.mobileHint}</p>
 
-        {/* Vertical track line */}
+        {/* Vertical track line — premium */}
         <div className="absolute left-[13.5px] w-[3px] rounded-full"
           style={{ top: '18px', bottom: '18px',
-            background: `linear-gradient(to bottom, ${milestones.map((m) => m.color).join(', ')})`, opacity: 0.3 }} />
+            background: `linear-gradient(to bottom, ${milestones.map((m) => m.color).join(', ')})`, opacity: 0.25,
+            boxShadow: `0 0 8px rgba(16,185,129,0.1)`,
+          }} />
 
         {milestones.map((milestone, idx) => {
           const isSelected = selectedMilestone?.id === milestone.id;
