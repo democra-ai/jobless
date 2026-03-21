@@ -12,14 +12,10 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
   const [activeStat, setActiveStat] = useState<number | null>(null);
 
   return (
-    <section className="no-contain relative z-40 min-h-[100dvh] flex items-center justify-center py-12 sm:py-20">
-      {/* Background */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-1/4 left-1/4 w-[250px] h-[250px] md:w-[500px] md:h-[500px] bg-risk-high/40 rounded-full blur-[80px] md:blur-[120px] hero-bg-pulse-once"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-[200px] h-[200px] md:w-[400px] md:h-[400px] bg-brand-primary/30 rounded-full blur-[60px] md:blur-[100px] hero-bg-pulse-once" style={{ animationDelay: '1.5s' }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-brand-accent/20 rounded-full blur-[80px] md:blur-[150px] hero-bg-pulse-once" style={{ animationDelay: '2s' }}></div>
-        </div>
+    <section className="no-contain relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14">
+      {/* Background — single subtle radial glow, not decorative blobs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-primary/[0.04] rounded-full blur-[100px]"></div>
       </div>
 
       <div className="relative z-30 text-center px-4 sm:px-6 max-w-6xl mx-auto hero-glow">
@@ -35,11 +31,11 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           </div>
 
           {/* Hero title — big and eye-catching */}
-          <h1 className="calc-title text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-6 sm:mb-8 section-title" style={{ fontFamily: 'var(--font-display)' }}>
+          <h1 className="calc-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-6 sm:mb-8 section-title" style={{ fontFamily: 'var(--font-display)' }}>
             {t.heroTitle}
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed section-subtitle">
+          <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed text-foreground-muted">
             {t.heroSubtitlePre}{t.heroSubtitlePost}{t.heroSubtitleEnd}
           </p>
         </motion.div>
@@ -166,22 +162,17 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
 
         {/* CTA — scroll to calculator, outside the card */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
           className="mt-10 flex justify-center"
         >
           <button
             onClick={() => { trackCtaClick('scroll_to_calculator', 'hero'); document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-            className="group flex items-center gap-1.5 cursor-pointer"
+            className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/15 transition-colors cursor-pointer"
           >
-            <motion.div
-              animate={{ y: [0, 3, 0] }}
-              transition={{ duration: 1.2, repeat: 2, repeatType: 'loop', ease: 'easeInOut' }}
-            >
-              <ChevronDown className="w-4 h-4 text-foreground-muted" />
-            </motion.div>
-            <span className="text-sm font-medium text-foreground-muted">
+            <ChevronDown className="w-4 h-4" />
+            <span className="text-sm font-semibold">
               {t.transitionCta}
             </span>
           </button>
