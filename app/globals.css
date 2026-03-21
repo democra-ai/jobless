@@ -2118,3 +2118,1028 @@ html[data-style="brutalist"][data-style] .bar-track {
 html[data-style="brutalist"][data-style] .kill-zone-badge {
   border-radius: 0;
 }
+
+/* ============================================================
+   NEWSPAPER — Broadsheet ink on newsprint
+   ============================================================ */
+html[data-style="newspaper"] {
+  --background: #F4F1E8;
+  --surface: #EBE7DC;
+  --surface-elevated: #F0EDE4;
+  --surface-card: #F4F1E8;
+  --foreground: #1A1A1A;
+  --foreground-muted: #555555;
+  --foreground-dim: #888888;
+  --brand-primary: #CC0000;
+  --brand-secondary: #8B0000;
+  --brand-accent: #CC0000;
+  --data-blue: #2A4A7F;
+  --data-cyan: #4A7A8C;
+  --accent-purple: #6B4C8C;
+  --accent-coral: #CC0000;
+  --accent-teal: #4A7A6C;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-heavy: 0 2px 4px rgba(0,0,0,0.08);
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  --pill-gradient: linear-gradient(135deg, #CC0000, #8B0000);
+  --pill-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  --bar-divider: #D0CCBF;
+  --timeline-bg-from: #F4F1E8;
+  --timeline-bg-via: #EBE7DC;
+  --timeline-bg-to: #F4F1E8;
+  --timeline-text: #1A1A1A;
+  --timeline-text-muted: #555555;
+  --timeline-text-dim: #888888;
+  --timeline-card-bg: #F0EDE4;
+  --timeline-card-border: #D0CCBF;
+  --timeline-track-bg: #D0CCBF;
+  --timeline-grid-color: rgba(0,0,0,0.04);
+}
+
+/* ============================================================
+   APPLE HIG — iOS System UI, clean & precise
+   ============================================================ */
+html[data-style="apple-hig"] {
+  --background: #FFFFFF;
+  --surface: #F2F2F7;
+  --surface-elevated: #FFFFFF;
+  --surface-card: #FFFFFF;
+  --foreground: #1C1C1E;
+  --foreground-muted: #8E8E93;
+  --foreground-dim: #AEAEB2;
+  --brand-primary: #007AFF;
+  --brand-secondary: #5856D6;
+  --brand-accent: #FF9500;
+  --data-blue: #007AFF;
+  --data-cyan: #32ADE6;
+  --accent-purple: #AF52DE;
+  --accent-coral: #FF3B30;
+  --accent-teal: #30B0C7;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-soft: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-heavy: 0 4px 12px rgba(0,0,0,0.08);
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --pill-gradient: linear-gradient(135deg, #007AFF, #5856D6);
+  --pill-shadow: 0 2px 6px rgba(0,122,255,0.2);
+  --bar-divider: #E5E5EA;
+  --timeline-bg-from: #FFFFFF;
+  --timeline-bg-via: #F2F2F7;
+  --timeline-bg-to: #FFFFFF;
+  --timeline-text: #1C1C1E;
+  --timeline-text-muted: #8E8E93;
+  --timeline-text-dim: #AEAEB2;
+  --timeline-card-bg: #FFFFFF;
+  --timeline-card-border: #E5E5EA;
+  --timeline-track-bg: #E5E5EA;
+  --timeline-grid-color: rgba(0,0,0,0.03);
+}
+
+/* ============================================================
+   MATERIAL 3 — Google Material You tonal palette
+   ============================================================ */
+html[data-style="material-3"] {
+  --background: #FFFBFE;
+  --surface: #F3EDF7;
+  --surface-elevated: #ECE6F0;
+  --surface-card: #FFFBFE;
+  --foreground: #1C1B1F;
+  --foreground-muted: #49454F;
+  --foreground-dim: #79747E;
+  --brand-primary: #6750A4;
+  --brand-secondary: #625B71;
+  --brand-accent: #7D5260;
+  --data-blue: #6750A4;
+  --data-cyan: #625B71;
+  --accent-purple: #6750A4;
+  --accent-coral: #B3261E;
+  --accent-teal: #006B5F;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --shadow-soft: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-heavy: 0 4px 16px rgba(0,0,0,0.1);
+  --card-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  --pill-gradient: linear-gradient(135deg, #6750A4, #7D5260);
+  --pill-shadow: 0 2px 8px rgba(103,80,164,0.2);
+  --bar-divider: #E7E0EC;
+  --timeline-bg-from: #FFFBFE;
+  --timeline-bg-via: #F3EDF7;
+  --timeline-bg-to: #FFFBFE;
+  --timeline-text: #1C1B1F;
+  --timeline-text-muted: #49454F;
+  --timeline-text-dim: #79747E;
+  --timeline-card-bg: #F3EDF7;
+  --timeline-card-border: #E7E0EC;
+  --timeline-track-bg: #E7E0EC;
+  --timeline-grid-color: rgba(0,0,0,0.04);
+}
+
+/* ============================================================
+   BAUHAUS — Primary colors, geometric forms
+   ============================================================ */
+html[data-style="bauhaus"] {
+  --background: #FAFAF0;
+  --surface: #F0F0E0;
+  --surface-elevated: #F5F5E8;
+  --surface-card: #FAFAF0;
+  --foreground: #1A1A1A;
+  --foreground-muted: #4A4A4A;
+  --foreground-dim: #7A7A7A;
+  --brand-primary: #E63312;
+  --brand-secondary: #1B3FA0;
+  --brand-accent: #F5C71A;
+  --data-blue: #1B3FA0;
+  --data-cyan: #2980B9;
+  --accent-purple: #6C3483;
+  --accent-coral: #E63312;
+  --accent-teal: #1B7A5A;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --shadow-soft: none;
+  --shadow-heavy: none;
+  --card-shadow: none;
+  --pill-gradient: linear-gradient(135deg, #E63312, #1B3FA0);
+  --pill-shadow: none;
+  --bar-divider: #1A1A1A;
+  --timeline-bg-from: #FAFAF0;
+  --timeline-bg-via: #F0F0E0;
+  --timeline-bg-to: #FAFAF0;
+  --timeline-text: #1A1A1A;
+  --timeline-text-muted: #4A4A4A;
+  --timeline-text-dim: #7A7A7A;
+  --timeline-card-bg: #F5F5E8;
+  --timeline-card-border: #1A1A1A;
+  --timeline-track-bg: #1A1A1A;
+  --timeline-grid-color: rgba(0,0,0,0.06);
+}
+
+/* ============================================================
+   CANDY POP — Sweet, bubbly pink pastels
+   ============================================================ */
+html[data-style="candy"] {
+  --background: #FFF5F7;
+  --surface: #FFE4EC;
+  --surface-elevated: #FFF0F5;
+  --surface-card: #FFF5F7;
+  --foreground: #4A1942;
+  --foreground-muted: #8B5C84;
+  --foreground-dim: #B88CB2;
+  --brand-primary: #FF1493;
+  --brand-secondary: #FF69B4;
+  --brand-accent: #DA70D6;
+  --data-blue: #9B59B6;
+  --data-cyan: #E066FF;
+  --accent-purple: #BA55D3;
+  --accent-coral: #FF1493;
+  --accent-teal: #FF69B4;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --shadow-soft: 0 2px 8px rgba(255,20,147,0.08);
+  --shadow-heavy: 0 8px 24px rgba(255,20,147,0.12);
+  --card-shadow: 0 4px 16px rgba(255,20,147,0.08);
+  --pill-gradient: linear-gradient(135deg, #FF1493, #DA70D6);
+  --pill-shadow: 0 2px 8px rgba(255,20,147,0.25);
+  --bar-divider: #FFB6D1;
+  --timeline-bg-from: #FFF5F7;
+  --timeline-bg-via: #FFE4EC;
+  --timeline-bg-to: #FFF5F7;
+  --timeline-text: #4A1942;
+  --timeline-text-muted: #8B5C84;
+  --timeline-text-dim: #B88CB2;
+  --timeline-card-bg: #FFF0F5;
+  --timeline-card-border: #FFB6D1;
+  --timeline-track-bg: #FFB6D1;
+  --timeline-grid-color: rgba(255,20,147,0.04);
+}
+
+/* ============================================================
+   SOLARIZED LIGHT — Classic warm Ethan Schoonover palette
+   ============================================================ */
+html[data-style="solarized-light"] {
+  --background: #FDF6E3;
+  --surface: #EEE8D5;
+  --surface-elevated: #F5EFDC;
+  --surface-card: #FDF6E3;
+  --foreground: #657B83;
+  --foreground-muted: #839496;
+  --foreground-dim: #93A1A1;
+  --brand-primary: #268BD2;
+  --brand-secondary: #2AA198;
+  --brand-accent: #CB4B16;
+  --data-blue: #268BD2;
+  --data-cyan: #2AA198;
+  --accent-purple: #6C71C4;
+  --accent-coral: #DC322F;
+  --accent-teal: #2AA198;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-heavy: 0 2px 6px rgba(0,0,0,0.06);
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  --pill-gradient: linear-gradient(135deg, #268BD2, #2AA198);
+  --pill-shadow: 0 1px 4px rgba(38,139,210,0.2);
+  --bar-divider: #D6CEBA;
+  --timeline-bg-from: #FDF6E3;
+  --timeline-bg-via: #EEE8D5;
+  --timeline-bg-to: #FDF6E3;
+  --timeline-text: #657B83;
+  --timeline-text-muted: #839496;
+  --timeline-text-dim: #93A1A1;
+  --timeline-card-bg: #F5EFDC;
+  --timeline-card-border: #D6CEBA;
+  --timeline-track-bg: #D6CEBA;
+  --timeline-grid-color: rgba(0,0,0,0.03);
+}
+
+/* ============================================================
+   INK WASH 水墨 — East Asian zen, rice paper & black ink
+   ============================================================ */
+html[data-style="ink-wash"] {
+  --background: #FAF8F2;
+  --surface: #F0EDE4;
+  --surface-elevated: #F5F2EA;
+  --surface-card: #FAF8F2;
+  --foreground: #2C2C2C;
+  --foreground-muted: #6B6B6B;
+  --foreground-dim: #9A9A9A;
+  --brand-primary: #2C2C2C;
+  --brand-secondary: #555555;
+  --brand-accent: #8B4513;
+  --data-blue: #4A6B8A;
+  --data-cyan: #6B8A7A;
+  --accent-purple: #6B5B7A;
+  --accent-coral: #8B4513;
+  --accent-teal: #5A7A6B;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 3px;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-heavy: 0 2px 4px rgba(0,0,0,0.05);
+  --card-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  --pill-gradient: linear-gradient(135deg, #2C2C2C, #555555);
+  --pill-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  --bar-divider: #D8D4CA;
+  --timeline-bg-from: #FAF8F2;
+  --timeline-bg-via: #F0EDE4;
+  --timeline-bg-to: #FAF8F2;
+  --timeline-text: #2C2C2C;
+  --timeline-text-muted: #6B6B6B;
+  --timeline-text-dim: #9A9A9A;
+  --timeline-card-bg: #F5F2EA;
+  --timeline-card-border: #D8D4CA;
+  --timeline-track-bg: #D8D4CA;
+  --timeline-grid-color: rgba(0,0,0,0.03);
+}
+
+/* ============================================================
+   ART DECO — 1920s gold elegance
+   ============================================================ */
+html[data-style="art-deco"] {
+  --background: #FBF8F0;
+  --surface: #F0EBD8;
+  --surface-elevated: #F5F0E0;
+  --surface-card: #FBF8F0;
+  --foreground: #2C2418;
+  --foreground-muted: #6B5C4A;
+  --foreground-dim: #9A8B78;
+  --brand-primary: #B8860B;
+  --brand-secondary: #DAA520;
+  --brand-accent: #CD853F;
+  --data-blue: #5B6A8A;
+  --data-cyan: #6A8A7A;
+  --accent-purple: #7A5B8A;
+  --accent-coral: #B8860B;
+  --accent-teal: #5A7A6B;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --shadow-soft: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-heavy: 0 3px 8px rgba(0,0,0,0.08);
+  --card-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  --pill-gradient: linear-gradient(135deg, #B8860B, #DAA520);
+  --pill-shadow: 0 2px 6px rgba(184,134,11,0.2);
+  --bar-divider: #D4C9A8;
+  --timeline-bg-from: #FBF8F0;
+  --timeline-bg-via: #F0EBD8;
+  --timeline-bg-to: #FBF8F0;
+  --timeline-text: #2C2418;
+  --timeline-text-muted: #6B5C4A;
+  --timeline-text-dim: #9A8B78;
+  --timeline-card-bg: #F5F0E0;
+  --timeline-card-border: #D4C9A8;
+  --timeline-track-bg: #D4C9A8;
+  --timeline-grid-color: rgba(0,0,0,0.04);
+}
+
+/* ============================================================
+   SCIENTIFIC — LaTeX academic, navy & precision
+   ============================================================ */
+html[data-style="scientific"] {
+  --background: #FFFFFF;
+  --surface: #F5F6FA;
+  --surface-elevated: #FAFBFD;
+  --surface-card: #FFFFFF;
+  --foreground: #333333;
+  --foreground-muted: #666666;
+  --foreground-dim: #999999;
+  --brand-primary: #1B2A4A;
+  --brand-secondary: #2C4A7C;
+  --brand-accent: #8B2500;
+  --data-blue: #1B2A4A;
+  --data-cyan: #2C6A7C;
+  --accent-purple: #4A2C7C;
+  --accent-coral: #8B2500;
+  --accent-teal: #2C6A5A;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 3px;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-heavy: 0 2px 6px rgba(0,0,0,0.06);
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  --pill-gradient: linear-gradient(135deg, #1B2A4A, #2C4A7C);
+  --pill-shadow: 0 1px 4px rgba(27,42,74,0.2);
+  --bar-divider: #E0E2EA;
+  --timeline-bg-from: #FFFFFF;
+  --timeline-bg-via: #F5F6FA;
+  --timeline-bg-to: #FFFFFF;
+  --timeline-text: #333333;
+  --timeline-text-muted: #666666;
+  --timeline-text-dim: #999999;
+  --timeline-card-bg: #FAFBFD;
+  --timeline-card-border: #E0E2EA;
+  --timeline-track-bg: #E0E2EA;
+  --timeline-grid-color: rgba(0,0,0,0.03);
+}
+
+/* ============================================================
+   CATPPUCCIN LATTE — Soothing pastels by catppuccin
+   ============================================================ */
+html[data-style="catppuccin-latte"] {
+  --background: #EFF1F5;
+  --surface: #E6E9EF;
+  --surface-elevated: #DCE0E8;
+  --surface-card: #EFF1F5;
+  --foreground: #4C4F69;
+  --foreground-muted: #6C6F85;
+  --foreground-dim: #8C8FA1;
+  --brand-primary: #8839EF;
+  --brand-secondary: #7287FD;
+  --brand-accent: #EA76CB;
+  --data-blue: #1E66F5;
+  --data-cyan: #04A5E5;
+  --accent-purple: #8839EF;
+  --accent-coral: #E64553;
+  --accent-teal: #179299;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --shadow-soft: 0 1px 3px rgba(76,79,105,0.06);
+  --shadow-heavy: 0 4px 12px rgba(76,79,105,0.08);
+  --card-shadow: 0 2px 6px rgba(76,79,105,0.05);
+  --pill-gradient: linear-gradient(135deg, #8839EF, #EA76CB);
+  --pill-shadow: 0 2px 6px rgba(136,57,239,0.2);
+  --bar-divider: #CCD0DA;
+  --timeline-bg-from: #EFF1F5;
+  --timeline-bg-via: #E6E9EF;
+  --timeline-bg-to: #EFF1F5;
+  --timeline-text: #4C4F69;
+  --timeline-text-muted: #6C6F85;
+  --timeline-text-dim: #8C8FA1;
+  --timeline-card-bg: #DCE0E8;
+  --timeline-card-border: #CCD0DA;
+  --timeline-track-bg: #CCD0DA;
+  --timeline-grid-color: rgba(76,79,105,0.04);
+}
+
+/* ============================================================
+   OLED PURE — True black, white-only accent, maximum contrast
+   ============================================================ */
+html[data-style="oled"] {
+  --background: #000000;
+  --surface: #0A0A0A;
+  --surface-elevated: #111111;
+  --surface-card: #0A0A0A;
+  --foreground: #FFFFFF;
+  --foreground-muted: #AAAAAA;
+  --foreground-dim: #666666;
+  --brand-primary: #FFFFFF;
+  --brand-secondary: #CCCCCC;
+  --brand-accent: #FFFFFF;
+  --data-blue: #FFFFFF;
+  --data-cyan: #CCCCCC;
+  --accent-purple: #FFFFFF;
+  --accent-coral: #CCCCCC;
+  --accent-teal: #FFFFFF;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --shadow-soft: none;
+  --shadow-heavy: none;
+  --card-shadow: none;
+  --pill-gradient: linear-gradient(135deg, #FFFFFF, #CCCCCC);
+  --pill-shadow: 0 0 8px rgba(255,255,255,0.1);
+  --bar-divider: #222222;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #050505;
+  --timeline-bg-to: #000000;
+  --timeline-text: #FFFFFF;
+  --timeline-text-muted: #AAAAAA;
+  --timeline-text-dim: #666666;
+  --timeline-card-bg: #0A0A0A;
+  --timeline-card-border: #222222;
+  --timeline-track-bg: #222222;
+  --timeline-grid-color: rgba(255,255,255,0.04);
+}
+
+/* ============================================================
+   TERMINAL — Green phosphor CRT
+   ============================================================ */
+html[data-style="terminal"] {
+  --background: #000000;
+  --surface: #0A0F0A;
+  --surface-elevated: #0F150F;
+  --surface-card: #0A0F0A;
+  --foreground: #00FF41;
+  --foreground-muted: #00CC33;
+  --foreground-dim: #008822;
+  --brand-primary: #00FF41;
+  --brand-secondary: #33FF66;
+  --brand-accent: #00FF41;
+  --data-blue: #00FF41;
+  --data-cyan: #33FF66;
+  --accent-purple: #00CC33;
+  --accent-coral: #00FF41;
+  --accent-teal: #33FF66;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --shadow-soft: 0 0 4px rgba(0,255,65,0.1);
+  --shadow-heavy: 0 0 12px rgba(0,255,65,0.15);
+  --card-shadow: 0 0 6px rgba(0,255,65,0.08);
+  --pill-gradient: linear-gradient(135deg, #00FF41, #00CC33);
+  --pill-shadow: 0 0 8px rgba(0,255,65,0.3);
+  --bar-divider: #003300;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #050A05;
+  --timeline-bg-to: #000000;
+  --timeline-text: #00FF41;
+  --timeline-text-muted: #00CC33;
+  --timeline-text-dim: #008822;
+  --timeline-card-bg: #0A0F0A;
+  --timeline-card-border: #003300;
+  --timeline-track-bg: #003300;
+  --timeline-grid-color: rgba(0,255,65,0.04);
+}
+
+/* ============================================================
+   AMBER CRT — Amber phosphor display
+   ============================================================ */
+html[data-style="amber"] {
+  --background: #000000;
+  --surface: #0F0A00;
+  --surface-elevated: #151000;
+  --surface-card: #0F0A00;
+  --foreground: #FFB000;
+  --foreground-muted: #CC8C00;
+  --foreground-dim: #886000;
+  --brand-primary: #FFB000;
+  --brand-secondary: #FFD580;
+  --brand-accent: #FFB000;
+  --data-blue: #FFB000;
+  --data-cyan: #FFD580;
+  --accent-purple: #CC8C00;
+  --accent-coral: #FFB000;
+  --accent-teal: #FFD580;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --shadow-soft: 0 0 4px rgba(255,176,0,0.1);
+  --shadow-heavy: 0 0 12px rgba(255,176,0,0.15);
+  --card-shadow: 0 0 6px rgba(255,176,0,0.08);
+  --pill-gradient: linear-gradient(135deg, #FFB000, #CC8C00);
+  --pill-shadow: 0 0 8px rgba(255,176,0,0.3);
+  --bar-divider: #332200;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #0A0700;
+  --timeline-bg-to: #000000;
+  --timeline-text: #FFB000;
+  --timeline-text-muted: #CC8C00;
+  --timeline-text-dim: #886000;
+  --timeline-card-bg: #0F0A00;
+  --timeline-card-border: #332200;
+  --timeline-track-bg: #332200;
+  --timeline-grid-color: rgba(255,176,0,0.04);
+}
+
+/* ============================================================
+   NORD — Arctic frost palette
+   ============================================================ */
+html[data-style="nord"] {
+  --background: #000000;
+  --surface: #0A0E14;
+  --surface-elevated: #101620;
+  --surface-card: #0A0E14;
+  --foreground: #ECEFF4;
+  --foreground-muted: #D8DEE9;
+  --foreground-dim: #81A1C1;
+  --brand-primary: #88C0D0;
+  --brand-secondary: #81A1C1;
+  --brand-accent: #5E81AC;
+  --data-blue: #81A1C1;
+  --data-cyan: #88C0D0;
+  --accent-purple: #B48EAD;
+  --accent-coral: #BF616A;
+  --accent-teal: #A3BE8C;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --shadow-soft: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-heavy: 0 4px 12px rgba(0,0,0,0.4);
+  --card-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  --pill-gradient: linear-gradient(135deg, #88C0D0, #5E81AC);
+  --pill-shadow: 0 2px 6px rgba(136,192,208,0.2);
+  --bar-divider: #1A2030;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #050810;
+  --timeline-bg-to: #000000;
+  --timeline-text: #ECEFF4;
+  --timeline-text-muted: #D8DEE9;
+  --timeline-text-dim: #81A1C1;
+  --timeline-card-bg: #0A0E14;
+  --timeline-card-border: #1A2030;
+  --timeline-track-bg: #1A2030;
+  --timeline-grid-color: rgba(136,192,208,0.04);
+}
+
+/* ============================================================
+   MONOKAI — Classic editor color scheme
+   ============================================================ */
+html[data-style="monokai"] {
+  --background: #000000;
+  --surface: #0A0A08;
+  --surface-elevated: #141410;
+  --surface-card: #0A0A08;
+  --foreground: #F8F8F2;
+  --foreground-muted: #C0C0B8;
+  --foreground-dim: #75715E;
+  --brand-primary: #F92672;
+  --brand-secondary: #A6E22E;
+  --brand-accent: #FD971F;
+  --data-blue: #66D9EF;
+  --data-cyan: #A6E22E;
+  --accent-purple: #AE81FF;
+  --accent-coral: #F92672;
+  --accent-teal: #66D9EF;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --shadow-soft: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-heavy: 0 4px 12px rgba(0,0,0,0.4);
+  --card-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  --pill-gradient: linear-gradient(135deg, #F92672, #FD971F);
+  --pill-shadow: 0 2px 6px rgba(249,38,114,0.2);
+  --bar-divider: #1A1A18;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #050505;
+  --timeline-bg-to: #000000;
+  --timeline-text: #F8F8F2;
+  --timeline-text-muted: #C0C0B8;
+  --timeline-text-dim: #75715E;
+  --timeline-card-bg: #0A0A08;
+  --timeline-card-border: #1A1A18;
+  --timeline-track-bg: #1A1A18;
+  --timeline-grid-color: rgba(248,248,242,0.04);
+}
+
+/* ============================================================
+   MILITARY — Tactical operations, OD green
+   ============================================================ */
+html[data-style="military"] {
+  --background: #000000;
+  --surface: #0A0C06;
+  --surface-elevated: #121408;
+  --surface-card: #0A0C06;
+  --foreground: #C8B560;
+  --foreground-muted: #8B8040;
+  --foreground-dim: #5A5530;
+  --brand-primary: #4B5320;
+  --brand-secondary: #6B7530;
+  --brand-accent: #FF8C00;
+  --data-blue: #4B5320;
+  --data-cyan: #6B7530;
+  --accent-purple: #5A5530;
+  --accent-coral: #FF8C00;
+  --accent-teal: #4B5320;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --shadow-soft: none;
+  --shadow-heavy: none;
+  --card-shadow: none;
+  --pill-gradient: linear-gradient(135deg, #4B5320, #6B7530);
+  --pill-shadow: none;
+  --bar-divider: #1A1C10;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #050603;
+  --timeline-bg-to: #000000;
+  --timeline-text: #C8B560;
+  --timeline-text-muted: #8B8040;
+  --timeline-text-dim: #5A5530;
+  --timeline-card-bg: #0A0C06;
+  --timeline-card-border: #1A1C10;
+  --timeline-track-bg: #1A1C10;
+  --timeline-grid-color: rgba(75,83,32,0.06);
+}
+
+/* ============================================================
+   BLOOD — Deep crimson on pure black
+   ============================================================ */
+html[data-style="blood"] {
+  --background: #000000;
+  --surface: #0A0000;
+  --surface-elevated: #140000;
+  --surface-card: #0A0000;
+  --foreground: #E0C0C0;
+  --foreground-muted: #B08080;
+  --foreground-dim: #704040;
+  --brand-primary: #CC0000;
+  --brand-secondary: #990000;
+  --brand-accent: #FF2222;
+  --data-blue: #CC0000;
+  --data-cyan: #FF4444;
+  --accent-purple: #8B0000;
+  --accent-coral: #CC0000;
+  --accent-teal: #990000;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --shadow-soft: 0 0 4px rgba(204,0,0,0.1);
+  --shadow-heavy: 0 0 12px rgba(204,0,0,0.15);
+  --card-shadow: 0 0 6px rgba(204,0,0,0.08);
+  --pill-gradient: linear-gradient(135deg, #CC0000, #990000);
+  --pill-shadow: 0 0 8px rgba(204,0,0,0.3);
+  --bar-divider: #220000;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #050000;
+  --timeline-bg-to: #000000;
+  --timeline-text: #E0C0C0;
+  --timeline-text-muted: #B08080;
+  --timeline-text-dim: #704040;
+  --timeline-card-bg: #0A0000;
+  --timeline-card-border: #220000;
+  --timeline-track-bg: #220000;
+  --timeline-grid-color: rgba(204,0,0,0.04);
+}
+
+/* ============================================================
+   COPPER — Warm metallic tones
+   ============================================================ */
+html[data-style="copper"] {
+  --background: #000000;
+  --surface: #0F0A06;
+  --surface-elevated: #15100A;
+  --surface-card: #0F0A06;
+  --foreground: #DEB887;
+  --foreground-muted: #B08860;
+  --foreground-dim: #7A5A3A;
+  --brand-primary: #B87333;
+  --brand-secondary: #CD853F;
+  --brand-accent: #DAA520;
+  --data-blue: #B87333;
+  --data-cyan: #CD853F;
+  --accent-purple: #8B6944;
+  --accent-coral: #B87333;
+  --accent-teal: #CD853F;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --shadow-soft: 0 1px 3px rgba(184,115,51,0.08);
+  --shadow-heavy: 0 4px 12px rgba(184,115,51,0.12);
+  --card-shadow: 0 2px 6px rgba(184,115,51,0.08);
+  --pill-gradient: linear-gradient(135deg, #B87333, #DAA520);
+  --pill-shadow: 0 2px 6px rgba(184,115,51,0.2);
+  --bar-divider: #2A1A0A;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #080503;
+  --timeline-bg-to: #000000;
+  --timeline-text: #DEB887;
+  --timeline-text-muted: #B08860;
+  --timeline-text-dim: #7A5A3A;
+  --timeline-card-bg: #0F0A06;
+  --timeline-card-border: #2A1A0A;
+  --timeline-track-bg: #2A1A0A;
+  --timeline-grid-color: rgba(184,115,51,0.04);
+}
+
+/* ============================================================
+   OCEAN DEPTH — Deep sea turquoise
+   ============================================================ */
+html[data-style="ocean"] {
+  --background: #000000;
+  --surface: #000A0C;
+  --surface-elevated: #001015;
+  --surface-card: #000A0C;
+  --foreground: #B0E0E6;
+  --foreground-muted: #80B8C0;
+  --foreground-dim: #507880;
+  --brand-primary: #00CED1;
+  --brand-secondary: #20B2AA;
+  --brand-accent: #48D1CC;
+  --data-blue: #00CED1;
+  --data-cyan: #48D1CC;
+  --accent-purple: #7B68EE;
+  --accent-coral: #00CED1;
+  --accent-teal: #20B2AA;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --shadow-soft: 0 1px 3px rgba(0,206,209,0.06);
+  --shadow-heavy: 0 4px 12px rgba(0,206,209,0.1);
+  --card-shadow: 0 2px 6px rgba(0,206,209,0.06);
+  --pill-gradient: linear-gradient(135deg, #00CED1, #20B2AA);
+  --pill-shadow: 0 2px 6px rgba(0,206,209,0.2);
+  --bar-divider: #002A30;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #000508;
+  --timeline-bg-to: #000000;
+  --timeline-text: #B0E0E6;
+  --timeline-text-muted: #80B8C0;
+  --timeline-text-dim: #507880;
+  --timeline-card-bg: #000A0C;
+  --timeline-card-border: #002A30;
+  --timeline-track-bg: #002A30;
+  --timeline-grid-color: rgba(0,206,209,0.04);
+}
+
+/* ============================================================
+   GRUVBOX — Retro warm editor palette
+   ============================================================ */
+html[data-style="gruvbox"] {
+  --background: #000000;
+  --surface: #0A0806;
+  --surface-elevated: #14100C;
+  --surface-card: #0A0806;
+  --foreground: #EBDBB2;
+  --foreground-muted: #BDAE93;
+  --foreground-dim: #7C6F64;
+  --brand-primary: #FE8019;
+  --brand-secondary: #FABD2F;
+  --brand-accent: #B8BB26;
+  --data-blue: #83A598;
+  --data-cyan: #8EC07C;
+  --accent-purple: #D3869B;
+  --accent-coral: #FB4934;
+  --accent-teal: #83A598;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --shadow-soft: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-heavy: 0 4px 12px rgba(0,0,0,0.4);
+  --card-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  --pill-gradient: linear-gradient(135deg, #FE8019, #FABD2F);
+  --pill-shadow: 0 2px 6px rgba(254,128,25,0.2);
+  --bar-divider: #1A1510;
+  --timeline-bg-from: #000000;
+  --timeline-bg-via: #050403;
+  --timeline-bg-to: #000000;
+  --timeline-text: #EBDBB2;
+  --timeline-text-muted: #BDAE93;
+  --timeline-text-dim: #7C6F64;
+  --timeline-card-bg: #0A0806;
+  --timeline-card-border: #1A1510;
+  --timeline-track-bg: #1A1510;
+  --timeline-grid-color: rgba(235,219,178,0.04);
+}
+
+/* ============================================================
+   SPECIAL OVERRIDES — Theme-specific CSS rules
+   ============================================================ */
+
+/* Terminal + Amber + Military: monospace font */
+html[data-style="terminal"] body,
+html[data-style="amber"] body,
+html[data-style="military"] body {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+}
+
+/* Terminal: all gradient-text green */
+html[data-style="terminal"][data-style] .gradient-text,
+html[data-style="terminal"][data-style] .gradient-text-warm,
+html[data-style="terminal"][data-style] .gradient-text-cyber,
+html[data-style="terminal"][data-style] .section-title {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #00FF41;
+  color: #00FF41;
+}
+
+/* Amber: all gradient-text amber */
+html[data-style="amber"][data-style] .gradient-text,
+html[data-style="amber"][data-style] .gradient-text-warm,
+html[data-style="amber"][data-style] .gradient-text-cyber,
+html[data-style="amber"][data-style] .section-title {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #FFB000;
+  color: #FFB000;
+}
+
+/* OLED: gradient-text white */
+html[data-style="oled"][data-style] .gradient-text,
+html[data-style="oled"][data-style] .gradient-text-warm,
+html[data-style="oled"][data-style] .gradient-text-cyber,
+html[data-style="oled"][data-style] .section-title {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #FFFFFF;
+  color: #FFFFFF;
+}
+
+/* Military: uppercase headings */
+html[data-style="military"][data-style] .calc-title,
+html[data-style="military"][data-style] .section-title {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background-image: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #C8B560;
+  color: #C8B560;
+}
+
+/* Blood: gradient-text red */
+html[data-style="blood"][data-style] .gradient-text,
+html[data-style="blood"][data-style] .gradient-text-warm,
+html[data-style="blood"][data-style] .gradient-text-cyber,
+html[data-style="blood"][data-style] .section-title {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #CC0000;
+  color: #CC0000;
+}
+
+/* Bauhaus: thick borders with colored left accent */
+html[data-style="bauhaus"][data-style] .glass,
+html[data-style="bauhaus"][data-style] .glass-card,
+html[data-style="bauhaus"][data-style] .card-elevated,
+html[data-style="bauhaus"][data-style] .calc-container,
+html[data-style="bauhaus"][data-style] .result-card {
+  border: 3px solid #1A1A1A;
+  border-left: 6px solid #E63312;
+  box-shadow: none;
+}
+html[data-style="bauhaus"][data-style] .profession-btn {
+  border: 2px solid #1A1A1A;
+}
+html[data-style="bauhaus"][data-style] .profession-btn.selected {
+  background: #E63312;
+  border-color: #E63312;
+  box-shadow: none;
+}
+html[data-style="bauhaus"][data-style] .gradient-text,
+html[data-style="bauhaus"][data-style] .section-title {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #E63312;
+  color: #E63312;
+}
+
+/* Art Deco: gold borders */
+html[data-style="art-deco"][data-style] .glass,
+html[data-style="art-deco"][data-style] .glass-card,
+html[data-style="art-deco"][data-style] .card-elevated,
+html[data-style="art-deco"][data-style] .calc-container,
+html[data-style="art-deco"][data-style] .result-card {
+  border: 2px solid #B8860B;
+  box-shadow: none;
+}
+html[data-style="art-deco"][data-style] .gradient-text,
+html[data-style="art-deco"][data-style] .section-title {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #B8860B;
+  color: #B8860B;
+}
+
+/* Candy: pink-tinted shadows on cards */
+html[data-style="candy"][data-style] .glass,
+html[data-style="candy"][data-style] .glass-card,
+html[data-style="candy"][data-style] .card-elevated,
+html[data-style="candy"][data-style] .calc-container,
+html[data-style="candy"][data-style] .result-card {
+  box-shadow: 0 4px 20px rgba(255, 20, 147, 0.1);
+}
+
+/* Ink Wash: minimal text styling */
+html[data-style="ink-wash"][data-style] .gradient-text,
+html[data-style="ink-wash"][data-style] .section-title {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #2C2C2C;
+  color: #2C2C2C;
+}
+
+/* Newspaper: red headlines */
+html[data-style="newspaper"][data-style] .gradient-text,
+html[data-style="newspaper"][data-style] .section-title {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #CC0000;
+  color: #CC0000;
+}
