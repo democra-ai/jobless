@@ -28,7 +28,7 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
             <Lock className="w-4 h-4 text-risk-critical" />
             <span className="text-sm font-medium text-risk-critical">DATA THREAT</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 section-title">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 section-title">
             {t.dataThreatTitle}
           </h2>
           <p className="section-subtitle max-w-3xl mx-auto text-lg">

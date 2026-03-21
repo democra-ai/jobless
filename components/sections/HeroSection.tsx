@@ -31,7 +31,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           </div>
 
           {/* Hero title — big and eye-catching */}
-          <h1 className="calc-title text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-6 sm:mb-8 section-title" style={{ fontFamily: 'var(--font-display)' }}>
+          <h1 className="calc-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-6 sm:mb-8 section-title" style={{ fontFamily: 'var(--font-display)' }}>
             {t.heroTitle}
           </h1>
 

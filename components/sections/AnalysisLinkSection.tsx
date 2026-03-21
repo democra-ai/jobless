@@ -44,7 +44,7 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, an
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-2xl md:text-4xl font-bold mb-4 section-title"
+          className="text-2xl md:text-3xl font-bold mb-4 section-title"
         >
           {text.title}
         </motion.h2>
