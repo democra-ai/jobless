@@ -40,7 +40,39 @@ export type DesignStyle =
   | 'glassmorphism'
   | 'neon'
   | 'wireframe'
-  | 'notebook';
+  | 'notebook'
+  // New brand styles — light
+  | 'comic'
+  | 'zen-garden'
+  | 'retro-70s'
+  | 'passport'
+  | 'clay'
+  | 'japanese-wood'
+  | 'magazine'
+  | 'lego'
+  | 'post-it'
+  | 'watercolor'
+  | 'metro'
+  | 'terminal-light'
+  | 'origami'
+  | 'chalkboard-light'
+  | 'receipt'
+  // New brand styles — dark
+  | 'matrix'
+  | 'cyberpunk'
+  | 'noir-film'
+  | 'space'
+  | 'hacker'
+  | 'synthwave'
+  | 'campfire'
+  | 'underwater'
+  | 'arcade'
+  | 'dark-paper'
+  | 'galaxy'
+  | 'steampunk'
+  | 'volcanic'
+  | 'frost'
+  | 'radioactive';
 
 interface StylePreset {
   id: DesignStyle;
@@ -59,6 +91,38 @@ const BRAND_PRESETS: StylePreset[] = [
   { id: 'neon', name: '⚡ Neon', desc: 'Glowing neon signs', theme: 'dark', swatches: ['#000000', '#0A0A0A', '#FF1493', '#00BFFF'] },
   { id: 'wireframe', name: '⊡ Wireframe', desc: 'UX prototype sketch', theme: 'light', swatches: ['#FFFFFF', '#F0F0F0', '#999999', '#333333'] },
   { id: 'notebook', name: '✎ Notebook', desc: 'Lined paper, hand-placed', theme: 'light', swatches: ['#FFF8E7', '#F5EFD8', '#4169E1', '#333333'] },
+  // New light brand themes
+  { id: 'comic', name: '💥 Comic Book', desc: 'Halftone dots, bold outlines', theme: 'light', swatches: ['#FFFFFF', '#FFF3B0', '#FF0000', '#000000'] },
+  { id: 'zen-garden', name: '🪨 Zen Garden', desc: 'Sand texture, stone gray', theme: 'light', swatches: ['#F5F2EB', '#E8E4DA', '#8B8680', '#3D3B37'] },
+  { id: 'retro-70s', name: '🌻 Retro 70s', desc: 'Orange/brown groovy waves', theme: 'light', swatches: ['#FDF5E6', '#F4A460', '#D2691E', '#3E2723'] },
+  { id: 'passport', name: '🛂 Passport', desc: 'Official document, stamps', theme: 'light', swatches: ['#F8F6F0', '#1B3A5C', '#C5A030', '#1A1A2E'] },
+  { id: 'clay', name: '🫧 Clay', desc: 'Soft 3D clay morphism', theme: 'light', swatches: ['#F0E6FF', '#FFD6E8', '#A855F7', '#4A2270'] },
+  { id: 'japanese-wood', name: '🏯 和風 Wafuu', desc: 'Wood grain, tatami aesthetic', theme: 'light', swatches: ['#F5EFE0', '#D4C5A0', '#8B6914', '#2C1D0A'] },
+  { id: 'magazine', name: '👗 Vogue', desc: 'High fashion editorial', theme: 'light', swatches: ['#FFFFFF', '#F0F0F0', '#FF0000', '#000000'] },
+  { id: 'lego', name: '🧱 LEGO', desc: 'Bright primary blocks', theme: 'light', swatches: ['#FFEC00', '#E3000B', '#0057A8', '#000000'] },
+  { id: 'post-it', name: '📌 Post-it', desc: 'Sticky notes on corkboard', theme: 'light', swatches: ['#D2A679', '#FFF740', '#FF6B6B', '#333333'] },
+  { id: 'watercolor', name: '🎨 Watercolor', desc: 'Soft pastel washes', theme: 'light', swatches: ['#FFF8F0', '#E8D5F5', '#7B68EE', '#4A4A6A'] },
+  { id: 'metro', name: '⊞ Metro UI', desc: 'Windows flat bold tiles', theme: 'light', swatches: ['#FFFFFF', '#0078D7', '#E81123', '#1A1A1A'] },
+  { id: 'terminal-light', name: '⌨ Light IDE', desc: 'VS Code light, monospace', theme: 'light', swatches: ['#FFFFFF', '#F3F3F3', '#0066B8', '#1E1E1E'] },
+  { id: 'origami', name: '🦢 Origami', desc: 'Paper folds, crease shadows', theme: 'light', swatches: ['#FAFAFA', '#F0F0F0', '#E74C3C', '#2C3E50'] },
+  { id: 'chalkboard-light', name: '📝 Whiteboard', desc: 'Marker-drawn, rough borders', theme: 'light', swatches: ['#FFFFFF', '#F5F5F5', '#2196F3', '#333333'] },
+  { id: 'receipt', name: '🧾 Receipt', desc: 'Thermal paper, monospace', theme: 'light', swatches: ['#FAF8F0', '#E8E4D8', '#333333', '#666666'] },
+  // New dark brand themes
+  { id: 'matrix', name: '🟢 Matrix', desc: 'Green rain, hacker code', theme: 'dark', swatches: ['#000000', '#003300', '#00FF41', '#00CC33'] },
+  { id: 'cyberpunk', name: '⚡ Cyberpunk', desc: 'Yellow + black, glitch', theme: 'dark', swatches: ['#000000', '#1A1A00', '#FCE300', '#FFFFFF'] },
+  { id: 'noir-film', name: '🎬 Film Noir', desc: 'B&W, film grain, dramatic', theme: 'dark', swatches: ['#000000', '#1A1A1A', '#FFFFFF', '#999999'] },
+  { id: 'space', name: '🚀 Deep Space', desc: 'Star field, nebula colors', theme: 'dark', swatches: ['#000000', '#0A0A2E', '#6366F1', '#E0E7FF'] },
+  { id: 'hacker', name: '💀 Hacker', desc: 'Red accents, monospace', theme: 'dark', swatches: ['#000000', '#0A0000', '#FF0033', '#CC0029'] },
+  { id: 'synthwave', name: '🌆 Synthwave', desc: 'Pink/cyan, perspective grid', theme: 'dark', swatches: ['#000000', '#1A0028', '#FF006E', '#00D4FF'] },
+  { id: 'campfire', name: '🔥 Campfire', desc: 'Warm ember orange on black', theme: 'dark', swatches: ['#000000', '#1A0A00', '#FF6B00', '#FFB74D'] },
+  { id: 'underwater', name: '🫧 Underwater', desc: 'Deep blue-green, bubbles', theme: 'dark', swatches: ['#000000', '#001A1A', '#00BCD4', '#80DEEA'] },
+  { id: 'arcade', name: '🕹 Arcade', desc: 'CRT scanlines, bright neon', theme: 'dark', swatches: ['#000000', '#0A0A1E', '#FF4081', '#FFEB3B'] },
+  { id: 'dark-paper', name: '📦 Dark Craft', desc: 'Cardboard texture, earthy', theme: 'dark', swatches: ['#000000', '#1A1208', '#A0845C', '#D4C4A0'] },
+  { id: 'galaxy', name: '🌌 Galaxy', desc: 'Purple nebula, cosmic dust', theme: 'dark', swatches: ['#000000', '#1A0030', '#C084FC', '#F0ABFC'] },
+  { id: 'steampunk', name: '⚙️ Steampunk', desc: 'Brass/copper, industrial', theme: 'dark', swatches: ['#000000', '#1A1006', '#B87333', '#D4A86C'] },
+  { id: 'volcanic', name: '🌋 Volcanic', desc: 'Molten cracks, lava glow', theme: 'dark', swatches: ['#000000', '#1A0500', '#FF4500', '#FF6B35'] },
+  { id: 'frost', name: '❄️ Frost', desc: 'Ice crystal, frozen edges', theme: 'dark', swatches: ['#000000', '#000A14', '#88D8F5', '#B0E8FF'] },
+  { id: 'radioactive', name: '☢️ Radioactive', desc: 'Hazard yellow-green, warning', theme: 'dark', swatches: ['#000000', '#0A0A00', '#ADFF2F', '#7FFF00'] },
 ];
 
 const LIGHT_PRESETS: StylePreset[] = [
