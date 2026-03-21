@@ -94,7 +94,7 @@ function QuizProgressBar({
       </div>
       <div className="w-full h-1.5 bg-surface-elevated rounded-full overflow-hidden">
         <motion.div
-          className="h-full rounded-full bg-brand-primary"
+          className="h-full rounded-full bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400"
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -689,14 +689,15 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5 border border-brand-primary/20 bg-brand-primary/5">
-            <Target className="w-3.5 h-3.5 text-brand-primary" />
-            <span className="text-xs font-semibold text-brand-primary tracking-wide uppercase">{t.survivalBadge}</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border border-overlay-10">
+            <Target className="w-4 h-4" style={{ stroke: 'url(#badge-gradient)' }} />
+            <svg width="0" height="0"><defs><linearGradient id="badge-gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#38bdf8" /><stop offset="50%" stopColor="#a78bfa" /><stop offset="100%" stopColor="#fb7185" /></linearGradient></defs></svg>
+            <span className="text-sm font-medium bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400 bg-clip-text text-transparent">{t.survivalBadge}</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl mb-4 section-title">
+          <h2 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl mb-4 section-title">
             {t.survivalTitle}
           </h2>
-          <p className="text-foreground-muted md:text-lg max-w-2xl mx-auto">
+          <p className="section-subtitle text-lg md:text-xl max-w-2xl mx-auto">
             {t.survivalSubtitle}
           </p>
         </motion.div>
@@ -711,8 +712,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           {/* ══════════════ INTRO PHASE ══════════════ */}
           {phase === 'intro' && (
             <div className="text-center space-y-6 py-8">
-              <div className="mx-auto w-20 h-20 rounded-2xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20">
-                <Brain className="w-10 h-10 text-brand-primary" />
+              <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500/20 via-violet-500/20 to-rose-500/20 flex items-center justify-center border border-overlay-10">
+                <Brain className="w-10 h-10 text-violet-400" />
               </div>
               <div>
                 <p className="text-foreground-muted text-sm mb-6">{t.quizStartDesc}</p>
