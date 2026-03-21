@@ -13,7 +13,6 @@ import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
 import { StyleSwitcherButton, type DesignStyle } from '@/components/StyleSwitcher';
 import { trackCtaClick } from '@/lib/analytics';
-import { ParallaxDivider } from '@/components/ParallaxEffects';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
 
 // Lazy-load heavy below-fold components (bundle-dynamic-imports rule)
@@ -227,9 +226,8 @@ export default function Home() {
         <HeroSection lang={lang} t={t} />
       </div>
 
-      <div className="relative z-20 bg-surface/90 backdrop-blur-2xl">
+      <div className="relative z-20 bg-surface/90">
         <SurvivalIndexSection lang={lang} t={t} />
-        <ParallaxDivider />
         <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
           <DataThreatSection lang={lang} t={t} />
         </div>
@@ -258,8 +256,7 @@ export default function Home() {
         )}
       </div>
 
-      <div className="relative z-20 bg-background/80 backdrop-blur-xl">
-        <ParallaxDivider />
+      <div className="relative z-20">
         <AnalysisLinkSection lang={lang} t={t} />
         <Footer lang={lang} t={t} />
       </div>
