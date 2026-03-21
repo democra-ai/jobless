@@ -1628,3 +1628,493 @@ section.no-contain {
 .border-overlay-12 { border-color: var(--overlay-12); }
 .divide-overlay-6 > :not(:first-child) { border-color: var(--overlay-6); }
 .ring-overlay-10 { --tw-ring-color: var(--overlay-10); }
+
+/* ============================================
+   DESIGN STYLE PRESETS
+   Select via data-style attribute on <html>
+   ============================================ */
+
+/* --- Shared: Disable effects for non-Tech-Noir --- */
+
+html[data-style]:not([data-style="tech-noir"]) body::before,
+html[data-style]:not([data-style="tech-noir"]) body::after {
+  display: none;
+}
+
+/* Strip glow effects */
+html[data-style]:not([data-style="tech-noir"]) .glow-text {
+  text-shadow: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .glow-box,
+html[data-style]:not([data-style="tech-noir"]) .subtle-glow {
+  box-shadow: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .neon-border {
+  background: var(--surface);
+  border: 1px solid var(--overlay-10);
+}
+html[data-style]:not([data-style="tech-noir"]) .neon-border::before {
+  display: none;
+}
+
+/* Strip glow/pulse animations */
+html[data-style]:not([data-style="tech-noir"]) .hero-number-glow {
+  animation: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .hero-number-glow::after {
+  display: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .animate-border-pulse,
+html[data-style]:not([data-style="tech-noir"]) .animate-glow-pulse,
+html[data-style]:not([data-style="tech-noir"]) .animate-pulse-glow,
+html[data-style]:not([data-style="tech-noir"]) .hero-bg-pulse-once {
+  animation: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .gradient-text {
+  animation: none;
+  background-size: 100% 100%;
+}
+
+/* Clean card surfaces — replace glass/elevated with flat */
+html[data-style]:not([data-style="tech-noir"]) .glass,
+html[data-style]:not([data-style="tech-noir"]) .glass-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--surface);
+  border: 1px solid var(--overlay-8);
+  box-shadow: var(--card-shadow);
+}
+html[data-style]:not([data-style="tech-noir"]) .card-elevated,
+html[data-style]:not([data-style="tech-noir"]) .calc-container {
+  background: var(--surface);
+  border: 1px solid var(--overlay-8);
+  box-shadow: var(--card-shadow);
+}
+html[data-style]:not([data-style="tech-noir"]) .result-card {
+  background: var(--surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid var(--overlay-8);
+  box-shadow: var(--card-shadow);
+}
+html[data-style]:not([data-style="tech-noir"]) .card-risk {
+  background: var(--surface);
+  box-shadow: none;
+}
+
+/* Clean card hover */
+@media (hover: hover) and (pointer: fine) {
+  html[data-style]:not([data-style="tech-noir"]) .card-hover:hover {
+    transform: translateY(-2px) scale(1);
+    box-shadow: 0 8px 24px var(--shadow-soft);
+    border-color: var(--overlay-14);
+  }
+}
+
+/* Clean profession buttons */
+html[data-style]:not([data-style="tech-noir"]) .profession-btn {
+  background: var(--surface);
+  border: 1px solid var(--overlay-10);
+}
+html[data-style]:not([data-style="tech-noir"]) .profession-btn::before {
+  display: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .profession-btn:hover {
+  border-color: var(--brand-primary);
+  box-shadow: 0 2px 8px var(--shadow-soft);
+}
+html[data-style]:not([data-style="tech-noir"]) .profession-btn.selected {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: white;
+  box-shadow: 0 2px 12px var(--shadow-soft);
+}
+
+/* Clean primary button */
+html[data-style]:not([data-style="tech-noir"]) .calc-btn-primary {
+  background: var(--brand-primary);
+  background-size: auto;
+  box-shadow: 0 2px 8px var(--shadow-soft);
+}
+html[data-style]:not([data-style="tech-noir"]) .calc-btn-primary::before {
+  display: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .calc-btn-primary:hover {
+  box-shadow: 0 4px 16px var(--shadow-heavy);
+  filter: brightness(1.08);
+}
+
+/* Clean status badges */
+html[data-style]:not([data-style="tech-noir"]) .status-badge::before {
+  display: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .status-badge.critical,
+html[data-style]:not([data-style="tech-noir"]) .status-badge.high,
+html[data-style]:not([data-style="tech-noir"]) .status-badge.low {
+  box-shadow: none;
+}
+
+/* Clean bar effects */
+html[data-style]:not([data-style="tech-noir"]) .bar-track {
+  background: var(--surface-elevated);
+  box-shadow: inset 0 1px 2px var(--shadow-soft);
+}
+html[data-style]:not([data-style="tech-noir"]) .bar-edge-glow {
+  display: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .bar-march-stripes {
+  animation: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .kill-zone-badge {
+  box-shadow: none;
+  animation: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .kill-zone-stripes {
+  animation: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .kill-zone-glitch-text {
+  animation: none;
+}
+html[data-style]:not([data-style="tech-noir"]) .kill-zone-glitch-text::before,
+html[data-style]:not([data-style="tech-noir"]) .kill-zone-glitch-text::after {
+  display: none;
+}
+
+/* Clean section divider */
+html[data-style]:not([data-style="tech-noir"]) .section-divider {
+  background: linear-gradient(90deg, transparent, var(--overlay-10), transparent);
+}
+
+/* Clean secondary button */
+html[data-style]:not([data-style="tech-noir"]) .btn-secondary {
+  background: var(--overlay-4);
+  border: 1px solid var(--overlay-8);
+}
+html[data-style]:not([data-style="tech-noir"]) .btn-secondary:hover {
+  background: var(--overlay-8);
+  border-color: var(--overlay-14);
+}
+
+
+/* ═══════════════════════════════════════════
+   STYLE: Editorial
+   Inspired by: NYT, Stripe, Medium
+   Sharp corners, hairline borders, warm white
+   ═══════════════════════════════════════════ */
+html[data-style="editorial"] {
+  --background: #FAFAF7;
+  --surface: #FFFFFF;
+  --surface-elevated: #F3F2EF;
+  --surface-card: #FFFFFF;
+  --foreground: #1A1A1A;
+  --foreground-muted: #6B6B6B;
+  --foreground-dim: #A0A0A0;
+  --brand-primary: #DC2626;
+  --brand-secondary: #B91C1C;
+  --brand-accent: #1A1A1A;
+  --data-blue: #2563EB;
+  --data-cyan: #0891B2;
+  --accent-purple: #7C3AED;
+  --accent-coral: #EA580C;
+  --accent-teal: #0D9488;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --shadow-soft: rgba(0, 0, 0, 0.04);
+  --shadow-heavy: rgba(0, 0, 0, 0.08);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --pill-gradient: linear-gradient(135deg, #DC2626, #B91C1C);
+  --pill-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+  --bar-divider: rgba(0, 0, 0, 0.08);
+  --timeline-bg-from: #FAFAF7;
+  --timeline-bg-via: #F3F2EF;
+  --timeline-bg-to: #FAFAF7;
+  --timeline-text: #1A1A1A;
+  --timeline-text-muted: #6B6B6B;
+  --timeline-text-dim: #A0A0A0;
+  --timeline-card-bg: rgba(255, 255, 255, 0.95);
+  --timeline-card-border: rgba(0, 0, 0, 0.08);
+  --timeline-track-bg: rgba(0, 0, 0, 0.06);
+  --timeline-grid-color: #A0A0A0;
+}
+
+
+/* ═══════════════════════════════════════════
+   STYLE: Corporate
+   Inspired by: Linear, Notion, Vercel
+   Soft shadows, medium rounded, blue palette
+   ═══════════════════════════════════════════ */
+html[data-style="corporate"] {
+  --background: #F8F9FB;
+  --surface: #FFFFFF;
+  --surface-elevated: #EFF1F5;
+  --surface-card: #FFFFFF;
+  --foreground: #111827;
+  --foreground-muted: #6B7280;
+  --foreground-dim: #9CA3AF;
+  --brand-primary: #2563EB;
+  --brand-secondary: #1D4ED8;
+  --brand-accent: #0EA5E9;
+  --data-blue: #2563EB;
+  --data-cyan: #0EA5E9;
+  --accent-purple: #7C3AED;
+  --accent-coral: #F97316;
+  --accent-teal: #14B8A6;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-soft: rgba(0, 0, 0, 0.05);
+  --shadow-heavy: rgba(0, 0, 0, 0.1);
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --pill-gradient: linear-gradient(135deg, #2563EB, #1D4ED8);
+  --pill-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  --bar-divider: rgba(0, 0, 0, 0.06);
+  --timeline-bg-from: #F8F9FB;
+  --timeline-bg-via: #EFF1F5;
+  --timeline-bg-to: #F8F9FB;
+  --timeline-text: #111827;
+  --timeline-text-muted: #6B7280;
+  --timeline-text-dim: #9CA3AF;
+  --timeline-card-bg: rgba(255, 255, 255, 0.95);
+  --timeline-card-border: rgba(0, 0, 0, 0.06);
+  --timeline-track-bg: rgba(0, 0, 0, 0.06);
+  --timeline-grid-color: #9CA3AF;
+}
+
+
+/* ═══════════════════════════════════════════
+   STYLE: Warm Minimal
+   Inspired by: Muji, Japanese design, Apple
+   Earth tones, generous curves, breathing room
+   ═══════════════════════════════════════════ */
+html[data-style="warm-minimal"] {
+  --background: #F5F0EB;
+  --surface: #FFFDFB;
+  --surface-elevated: #EDE7E0;
+  --surface-card: #FFFDFB;
+  --foreground: #2C2420;
+  --foreground-muted: #7D726A;
+  --foreground-dim: #B0A89F;
+  --brand-primary: #C2652A;
+  --brand-secondary: #A85520;
+  --brand-accent: #6B8F71;
+  --data-blue: #5B7FA5;
+  --data-cyan: #5A9E8F;
+  --accent-purple: #8B6DB0;
+  --accent-coral: #C2652A;
+  --accent-teal: #6B8F71;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow-soft: rgba(0, 0, 0, 0.03);
+  --shadow-heavy: rgba(0, 0, 0, 0.06);
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  --pill-gradient: linear-gradient(135deg, #C2652A, #A85520);
+  --pill-shadow: 0 4px 12px rgba(194, 101, 42, 0.15);
+  --bar-divider: rgba(44, 36, 32, 0.08);
+  --timeline-bg-from: #F5F0EB;
+  --timeline-bg-via: #EDE7E0;
+  --timeline-bg-to: #F5F0EB;
+  --timeline-text: #2C2420;
+  --timeline-text-muted: #7D726A;
+  --timeline-text-dim: #B0A89F;
+  --timeline-card-bg: rgba(255, 253, 251, 0.95);
+  --timeline-card-border: rgba(44, 36, 32, 0.1);
+  --timeline-track-bg: rgba(44, 36, 32, 0.1);
+  --timeline-grid-color: #B0A89F;
+}
+
+
+/* ═══════════════════════════════════════════
+   STYLE: Dark Pro
+   Inspired by: GitHub Dark, Linear, Raycast
+   Clean dark, no glow, border-based, muted
+   ═══════════════════════════════════════════ */
+html[data-style="dark-pro"] {
+  --background: #0D1117;
+  --surface: #161B22;
+  --surface-elevated: #21262D;
+  --surface-card: #161B22;
+  --foreground: #E6EDF3;
+  --foreground-muted: #8B949E;
+  --foreground-dim: #484F58;
+  --brand-primary: #58A6FF;
+  --brand-secondary: #79C0FF;
+  --brand-accent: #58A6FF;
+  --data-blue: #58A6FF;
+  --data-cyan: #56D4DD;
+  --accent-purple: #BC8CFF;
+  --accent-coral: #FFA657;
+  --accent-teal: #56D4DD;
+  --risk-critical: #F85149;
+  --risk-severe: #DA3633;
+  --risk-high: #E3B341;
+  --risk-medium: #D29922;
+  --risk-low: #3FB950;
+  --risk-safe: #56D364;
+  --dim-1: #BC8CFF;
+  --dim-2: #FFA657;
+  --dim-3: #56D4DD;
+  --dim-4: #F778BA;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --shadow-soft: rgba(0, 0, 0, 0.3);
+  --shadow-heavy: rgba(0, 0, 0, 0.4);
+  --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --pill-gradient: linear-gradient(135deg, #58A6FF, #1F6FEB);
+  --pill-shadow: 0 4px 12px rgba(31, 111, 235, 0.2);
+  --bar-divider: rgba(255, 255, 255, 0.08);
+  --timeline-bg-from: #0D1117;
+  --timeline-bg-via: #0D1117;
+  --timeline-bg-to: #0D1117;
+  --timeline-text: #E6EDF3;
+  --timeline-text-muted: #8B949E;
+  --timeline-text-dim: #484F58;
+  --timeline-card-bg: rgba(22, 27, 34, 0.9);
+  --timeline-card-border: rgba(255, 255, 255, 0.06);
+  --timeline-track-bg: rgba(33, 38, 45, 0.5);
+  --timeline-grid-color: #484F58;
+}
+
+
+/* ═══════════════════════════════════════════
+   STYLE: Brutalist
+   Inspired by: Swiss design, Brutalist web
+   Zero radius, thick borders, hard shadows
+   ═══════════════════════════════════════════ */
+html[data-style="brutalist"] {
+  --background: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-elevated: #F5F5F5;
+  --surface-card: #FFFFFF;
+  --foreground: #000000;
+  --foreground-muted: #333333;
+  --foreground-dim: #666666;
+  --brand-primary: #FF0000;
+  --brand-secondary: #CC0000;
+  --brand-accent: #000000;
+  --data-blue: #0000FF;
+  --data-cyan: #0000FF;
+  --accent-purple: #FF00FF;
+  --accent-coral: #FF0000;
+  --accent-teal: #008000;
+  --risk-critical: #FF0000;
+  --risk-severe: #FF0000;
+  --risk-high: #FF6600;
+  --risk-medium: #FFCC00;
+  --risk-low: #00CC00;
+  --risk-safe: #00CC00;
+  --dim-1: #0000FF;
+  --dim-2: #FF6600;
+  --dim-3: #00CC00;
+  --dim-4: #FF00FF;
+  --glow-primary: transparent;
+  --glow-secondary: transparent;
+  --glow-accent: transparent;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-full: 0;
+  --shadow-soft: transparent;
+  --shadow-heavy: transparent;
+  --card-shadow: none;
+  --pill-gradient: #FF0000;
+  --pill-shadow: none;
+  --bar-divider: #000000;
+  --timeline-bg-from: #FFFFFF;
+  --timeline-bg-via: #FFFFFF;
+  --timeline-bg-to: #FFFFFF;
+  --timeline-text: #000000;
+  --timeline-text-muted: #333333;
+  --timeline-text-dim: #666666;
+  --timeline-card-bg: #FFFFFF;
+  --timeline-card-border: #000000;
+  --timeline-track-bg: #000000;
+  --timeline-grid-color: #000000;
+}
+
+/* Brutalist: thick borders & hard offset shadows
+   Double [data-style] for specificity over shared :not() rules */
+html[data-style="brutalist"][data-style] .glass,
+html[data-style="brutalist"][data-style] .glass-card,
+html[data-style="brutalist"][data-style] .card-elevated,
+html[data-style="brutalist"][data-style] .calc-container,
+html[data-style="brutalist"][data-style] .result-card {
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0 #000;
+}
+
+html[data-style="brutalist"][data-style] .profession-btn {
+  border: 2px solid #000;
+}
+html[data-style="brutalist"][data-style] .profession-btn:hover {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+  box-shadow: none;
+}
+html[data-style="brutalist"][data-style] .profession-btn.selected {
+  background: #FF0000;
+  border-color: #FF0000;
+  box-shadow: 4px 4px 0 #000;
+}
+
+html[data-style="brutalist"][data-style] .calc-btn-primary {
+  box-shadow: 4px 4px 0 #000;
+}
+html[data-style="brutalist"][data-style] .calc-btn-primary:hover {
+  box-shadow: 2px 2px 0 #000;
+  transform: translate(2px, 2px);
+  filter: none;
+}
+
+html[data-style="brutalist"][data-style] .gradient-text,
+html[data-style="brutalist"][data-style] .gradient-text-warm,
+html[data-style="brutalist"][data-style] .gradient-text-cyber {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #FF0000;
+}
+
+html[data-style="brutalist"][data-style] .section-title {
+  background-image: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: #000000;
+  color: #000000;
+}
+
+html[data-style="brutalist"][data-style] .status-badge {
+  border-radius: 0;
+}
+
+html[data-style="brutalist"][data-style] .card-risk {
+  border: 2px solid #FF0000;
+}
+
+html[data-style="brutalist"][data-style] .bar-track {
+  border: 2px solid #000;
+}
+
+html[data-style="brutalist"][data-style] .kill-zone-badge {
+  border-radius: 0;
+}
