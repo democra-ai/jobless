@@ -257,16 +257,7 @@ export default function Home() {
         aria-label="Check my risk"
         title="Check my risk"
       >
-        <Target className="w-5 h-5" style={{ stroke: 'url(#mobile-risk-fab-gradient)' }} />
-        <svg width="0" height="0" aria-hidden="true" focusable="false">
-          <defs>
-            <linearGradient id="mobile-risk-fab-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#38bdf8" />
-              <stop offset="50%" stopColor="#a78bfa" />
-              <stop offset="100%" stopColor="#fb7185" />
-            </linearGradient>
-          </defs>
-        </svg>
+        <Target className="w-5 h-5 text-brand-primary" />
       </motion.button>
 
       <MobileBottomNav
