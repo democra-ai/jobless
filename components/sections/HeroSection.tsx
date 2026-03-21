@@ -12,7 +12,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
   const [activeStat, setActiveStat] = useState<number | null>(null);
 
   return (
-    <section className="no-contain relative z-40 min-h-[100dvh] flex items-center justify-center py-12 sm:py-20">
+    <section className="no-contain relative z-40 py-20 sm:py-28 md:py-36">
       {/* Background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 opacity-30">
