@@ -12,7 +12,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
   const [activeStat, setActiveStat] = useState<number | null>(null);
 
   return (
-    <section className="no-contain relative z-40 py-20 sm:py-28 md:py-36">
+    <section className="no-contain relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14">
       {/* Background — single subtle radial glow, not decorative blobs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-primary/[0.04] rounded-full blur-[100px]"></div>
@@ -35,7 +35,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
             {t.heroTitle}
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed section-subtitle">
+          <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed text-foreground-muted">
             {t.heroSubtitlePre}{t.heroSubtitlePost}{t.heroSubtitleEnd}
           </p>
         </motion.div>
