@@ -38,7 +38,7 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, an
   const text = linkText[lang] ?? linkText['en'];
 
   return (
-    <section className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50">
+    <section className="py-10 sm:py-16 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
