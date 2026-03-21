@@ -5,55 +5,55 @@
   /* === AIR 2026 Design System === */
   /* Concept: "Tech Noir" - Dramatic data-driven darkness */
 
-  /* Core Palette - Deep Noir Foundation */
-  --background: #050507;
-  --surface: #0d0b10;
-  --surface-elevated: #15121a;
-  --surface-card: #0a0810;
+  /* Core Palette - Warm Noir Foundation (tinted toward brand) */
+  --background: #0a0908;
+  --surface: #110f0d;
+  --surface-elevated: #1a1714;
+  --surface-card: #0e0c0a;
 
-  /* Text Hierarchy - High Contrast */
-  --foreground: #fafafa;
-  --foreground-muted: #8a8595;
-  --foreground-dim: #4a4555;
+  /* Text Hierarchy - Warm-tinted, High Contrast */
+  --foreground: #f5f3f0;
+  --foreground-muted: #8e8780;
+  --foreground-dim: #504a44;
 
   /* Risk & Impact Colors - Dramatic Intensity */
   --risk-critical: #ff1744; /* Electric Red */
   --risk-severe: #f44336;   /* Red-Orange */
   --risk-high: #ff5722;     /* Deep Orange */
   --risk-medium: #ffc107;   /* Amber Warning */
-  --risk-low: #00e676;      /* Neon Green */
-  --risk-safe: #69f0ae;     /* Bright Mint */
+  --risk-low: #34d399;      /* Refined Emerald */
+  --risk-safe: #6ee7b7;     /* Soft Mint */
 
   /* Brand Colors - Warm Singular Accent */
   --brand-primary: #ff6b35;   /* Warm Orange - Primary Accent */
   --brand-secondary: #ff8f5e; /* Soft Coral - Secondary */
-  --brand-accent: #00b8d4;    /* Teal - Data/Insight */
+  --brand-accent: #d4a574;    /* Warm Gold - Data/Insight */
 
   /* Semantic Colors */
-  --data-blue: #4a90d9;
-  --data-cyan: #00b8d4;
-  --accent-purple: #bf5af2;
+  --data-blue: #6b8fc2;
+  --data-cyan: #d4a574;
+  --accent-purple: #a78bdb;
   --accent-coral: #ff6e40;
-  --accent-teal: #1de9b6;
+  --accent-teal: #5db8a3;
 
   /* Dimension Colors (Quiz) */
   --dim-1: #7c4dff;   /* Learnability — purple */
   --dim-2: #ff6e40;   /* Evaluation — orange */
-  --dim-3: #64ffda;   /* Risk Tolerance — cyan */
+  --dim-3: #5ec6b0;   /* Risk Tolerance — refined teal */
   --dim-4: #ff80ab;   /* Human Presence — pink */
 
   /* Bar Dividers */
   --bar-divider: rgba(255, 255, 255, 0.10);
 
-  /* Glow & Effects */
-  --glow-primary: rgba(255, 107, 53, 0.3);
-  --glow-secondary: rgba(255, 143, 94, 0.2);
-  --glow-accent: rgba(0, 184, 212, 0.2);
+  /* Glow & Effects - Subtle, not neon */
+  --glow-primary: rgba(255, 107, 53, 0.15);
+  --glow-secondary: rgba(255, 143, 94, 0.10);
+  --glow-accent: rgba(212, 165, 116, 0.12);
 
   /* Timeline section colors */
-  --timeline-bg-from: #050507;
-  --timeline-bg-via: #050507;
-  --timeline-bg-to: #050507;
+  --timeline-bg-from: #0a0908;
+  --timeline-bg-via: #0a0908;
+  --timeline-bg-to: #0a0908;
   --timeline-text: #e2e8f0;
   --timeline-text-muted: #94a3b8;
   --timeline-text-dim: #475569;
@@ -89,9 +89,9 @@
   --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* Transitions - Smooth */
-  --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Transitions - Exponential deceleration, no bounce */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Safe Area Insets */
@@ -295,9 +295,9 @@ body::before {
   right: 0;
   bottom: 0;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(255, 107, 53, 0.04) 0%, transparent 60%);
+    linear-gradient(rgba(255, 245, 235, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 245, 235, 0.02) 1px, transparent 1px),
+    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(255, 107, 53, 0.03) 0%, transparent 60%);
   background-size: 50px 50px, 50px 50px, auto;
   pointer-events: none;
   z-index: 0;
@@ -430,12 +430,12 @@ body::after {
 
 @keyframes borderPulse {
   0%, 100% {
-    border-color: rgba(213, 0, 249, 0.3);
-    box-shadow: 0 0 20px rgba(213, 0, 249, 0.2);
+    border-color: rgba(255, 107, 53, 0.2);
+    box-shadow: 0 0 12px rgba(255, 107, 53, 0.08);
   }
   50% {
-    border-color: rgba(255, 64, 129, 0.5);
-    box-shadow: 0 0 30px rgba(255, 64, 129, 0.3);
+    border-color: rgba(255, 107, 53, 0.35);
+    box-shadow: 0 0 16px rgba(255, 107, 53, 0.12);
   }
 }
 
@@ -450,10 +450,10 @@ body::after {
 
 @keyframes glowPulse {
   0%, 100% {
-    filter: drop-shadow(0 0 5px currentColor);
+    filter: drop-shadow(0 0 3px currentColor);
   }
   50% {
-    filter: drop-shadow(0 0 20px currentColor);
+    filter: drop-shadow(0 0 8px currentColor);
   }
 }
 
@@ -495,7 +495,7 @@ body::after {
     linear-gradient(90deg,
       rgba(255, 107, 53, 0.08) 0%,
       rgba(255, 143, 94, 0.05) 20%,
-      rgba(0, 184, 212, 0.04) 50%,
+      rgba(212, 165, 116, 0.04) 50%,
       rgba(255, 23, 68, 0.06) 80%,
       rgba(255, 23, 68, 0.10) 100%
     ),
@@ -512,7 +512,7 @@ body::after {
     linear-gradient(90deg,
       rgba(255, 107, 53, 0.10) 0%,
       rgba(255, 143, 94, 0.07) 20%,
-      rgba(0, 184, 212, 0.05) 50%,
+      rgba(212, 165, 116, 0.04) 50%,
       rgba(211, 47, 47, 0.08) 80%,
       rgba(211, 47, 47, 0.12) 100%
     ),
@@ -1315,10 +1315,10 @@ body::after {
 }
 
 .status-badge.low {
-  background: rgba(0, 230, 118, 0.15);
-  color: #00e676;
-  border: 1px solid rgba(0, 230, 118, 0.3);
-  box-shadow: 0 0 15px rgba(0, 230, 118, 0.1);
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.06);
 }
 
 /* Input Fields - Enhanced */
