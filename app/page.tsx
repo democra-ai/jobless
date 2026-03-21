@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import { motion } from 'framer-motion';
 import { Target } from 'lucide-react';
 import { Language, Theme, MobileSection, MOBILE_SECTION_TARGETS, translations, detectBrowserLanguage, getHtmlLang } from '@/lib/translations';
 import HeroSection from '@/components/sections/HeroSection';
@@ -13,7 +13,8 @@ import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
 import { StyleSwitcherButton, type DesignStyle } from '@/components/StyleSwitcher';
 import { trackCtaClick } from '@/lib/analytics';
-import { ScrollProgressBar, ParallaxDivider, StickyScrollLayer, ParallaxReveal } from '@/components/ParallaxEffects';
+import { ParallaxDivider } from '@/components/ParallaxEffects';
+import { ScrollProgress } from '@/components/ui/scroll-progress';
 
 // Lazy-load heavy below-fold components (bundle-dynamic-imports rule)
 const InteractiveTimeline = dynamic(() => import('@/components/InteractiveTimeline'), { ssr: false });
@@ -211,11 +212,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-x-hidden mobile-shell relative" data-ui-lang={lang}>
-      <ScrollProgressBar />
-      {/* Dynamic Background Mesh Effect */}
-      <div className="fixed inset-0 pointer-events-none z-[-1]">
-        <div className="parallax-bg-mesh opacity-60 mix-blend-screen" />
-      </div>
+      <ScrollProgress className="h-[2px] bg-gradient-to-r from-[#ff6b35] via-[#ff1744] to-[#a78bdb]" />
 
       <div
         className="mobile-top-controls fixed z-[96] flex flex-col gap-2"
@@ -226,22 +223,18 @@ export default function Home() {
         {designStyle === 'tech-noir' && <ThemeButton theme={theme} setTheme={setTheme} />}
       </div>
 
-      <div className="parallax-section-wrapper">
-        <StickyScrollLayer>
-          <div id="overview-anchor" data-mobile-section="overview" className="scroll-mt-28 sm:scroll-mt-0">
-            <ParallaxReveal depth="slow" direction="up">
-              <HeroSection lang={lang} t={t} />
-            </ParallaxReveal>
-          </div>
-        </StickyScrollLayer>
+      <div id="overview-anchor" data-mobile-section="overview" className="scroll-mt-28 sm:scroll-mt-0">
+        <HeroSection lang={lang} t={t} />
       </div>
-      <div className="parallax-section-wrapper relative z-20 bg-surface/90 backdrop-blur-2xl">
+
+      <div className="relative z-20 bg-surface/90 backdrop-blur-2xl">
         <SurvivalIndexSection lang={lang} t={t} />
         <ParallaxDivider />
         <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
           <DataThreatSection lang={lang} t={t} />
         </div>
       </div>
+
       <div
         id="timeline-anchor"
         ref={timelineAnchorRef}
@@ -265,11 +258,9 @@ export default function Home() {
         )}
       </div>
 
-      <div className="parallax-section-wrapper relative z-20 bg-background/80 backdrop-blur-xl">
+      <div className="relative z-20 bg-background/80 backdrop-blur-xl">
         <ParallaxDivider />
-        <ParallaxReveal depth="medium" direction="up">
-          <AnalysisLinkSection lang={lang} t={t} />
-        </ParallaxReveal>
+        <AnalysisLinkSection lang={lang} t={t} />
         <Footer lang={lang} t={t} />
       </div>
 

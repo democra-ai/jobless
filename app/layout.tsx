@@ -80,7 +80,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(syne.variable, spaceGrotesk.variable, jetbrainsMono.variable, "font-sans", geist.variable)} suppressHydrationWarning>
+    <html lang="en" className={cn(syne.variable, spaceGrotesk.variable, jetbrainsMono.variable, "font-sans", geist.variable, "dark")} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
