@@ -13,7 +13,7 @@ import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
 import { StyleSwitcherButton, type DesignStyle } from '@/components/StyleSwitcher';
 import { trackCtaClick } from '@/lib/analytics';
-import { ScrollProgressBar, ParallaxDivider } from '@/components/ParallaxEffects';
+import { ScrollProgressBar, ParallaxDivider, StickyScrollLayer, ParallaxReveal } from '@/components/ParallaxEffects';
 
 // Lazy-load heavy below-fold components (bundle-dynamic-imports rule)
 const InteractiveTimeline = dynamic(() => import('@/components/InteractiveTimeline'), { ssr: false });
@@ -210,8 +210,13 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen overflow-x-hidden mobile-shell" data-ui-lang={lang}>
+    <main className="min-h-screen overflow-x-hidden mobile-shell relative" data-ui-lang={lang}>
       <ScrollProgressBar />
+      {/* Dynamic Background Mesh Effect */}
+      <div className="fixed inset-0 pointer-events-none z-[-1]">
+        <div className="parallax-bg-mesh opacity-60 mix-blend-screen" />
+      </div>
+
       <div
         className="mobile-top-controls fixed z-[96] flex flex-col gap-2"
         style={{ top: 'calc(var(--safe-top) + 1rem)', right: 'calc(var(--safe-right) + 1rem)' }}
@@ -221,13 +226,21 @@ export default function Home() {
         {designStyle === 'tech-noir' && <ThemeButton theme={theme} setTheme={setTheme} />}
       </div>
 
-      <div id="overview-anchor" data-mobile-section="overview" className="scroll-mt-28 sm:scroll-mt-0">
-        <HeroSection lang={lang} t={t} />
+      <div className="parallax-section-wrapper">
+        <StickyScrollLayer>
+          <div id="overview-anchor" data-mobile-section="overview" className="scroll-mt-28 sm:scroll-mt-0">
+            <ParallaxReveal depth="slow" direction="up">
+              <HeroSection lang={lang} t={t} />
+            </ParallaxReveal>
+          </div>
+        </StickyScrollLayer>
       </div>
-      <SurvivalIndexSection lang={lang} t={t} />
-      <ParallaxDivider />
-      <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
-        <DataThreatSection lang={lang} t={t} />
+      <div className="parallax-section-wrapper relative z-20 bg-surface/90 backdrop-blur-2xl">
+        <SurvivalIndexSection lang={lang} t={t} />
+        <ParallaxDivider />
+        <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
+          <DataThreatSection lang={lang} t={t} />
+        </div>
       </div>
       <div
         id="timeline-anchor"
@@ -251,9 +264,14 @@ export default function Home() {
           </div>
         )}
       </div>
-      <ParallaxDivider />
-      <AnalysisLinkSection lang={lang} t={t} />
-      <Footer lang={lang} t={t} />
+
+      <div className="parallax-section-wrapper relative z-20 bg-background/80 backdrop-blur-xl">
+        <ParallaxDivider />
+        <ParallaxReveal depth="medium" direction="up">
+          <AnalysisLinkSection lang={lang} t={t} />
+        </ParallaxReveal>
+        <Footer lang={lang} t={t} />
+      </div>
 
       <motion.button
         initial={{ opacity: 0, y: 10 }}

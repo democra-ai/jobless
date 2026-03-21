@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import "./parallax.css";
 :root,
 [data-theme="dark"] {
   /* === AIR 2026 Design System === */

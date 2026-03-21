@@ -707,7 +707,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="calc-container rounded-3xl p-6 md:p-10 relative"
+          className="glass-card rounded-3xl p-6 md:p-10 relative"
         >
           {/* ══════════════ INTRO PHASE ══════════════ */}
           {phase === 'intro' && (

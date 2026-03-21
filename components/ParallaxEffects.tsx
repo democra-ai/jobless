@@ -182,3 +182,20 @@ export function ScrollProgressBar() {
     />
   );
 }
+
+/** Sticky wrapper for choreographed layout transitions */
+export function StickyScrollLayer({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`relative h-[200vh] ${className}`}>
+      <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
+        {children}
+      </div>
+    </div>
+  );
+}
