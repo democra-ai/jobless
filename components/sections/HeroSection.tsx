@@ -13,13 +13,9 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
 
   return (
     <section className="no-contain relative z-40 py-20 sm:py-28 md:py-36">
-      {/* Background */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-1/4 left-1/4 w-[250px] h-[250px] md:w-[500px] md:h-[500px] bg-risk-high/40 rounded-full blur-[80px] md:blur-[120px] hero-bg-pulse-once"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-[200px] h-[200px] md:w-[400px] md:h-[400px] bg-brand-primary/30 rounded-full blur-[60px] md:blur-[100px] hero-bg-pulse-once" style={{ animationDelay: '1.5s' }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-brand-accent/20 rounded-full blur-[80px] md:blur-[150px] hero-bg-pulse-once" style={{ animationDelay: '2s' }}></div>
-        </div>
+      {/* Background — single subtle radial glow, not decorative blobs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-primary/[0.04] rounded-full blur-[100px]"></div>
       </div>
 
       <div className="relative z-30 text-center px-4 sm:px-6 max-w-6xl mx-auto hero-glow">
