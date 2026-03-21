@@ -1,12 +1,23 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import Link from 'next/link';
 import { Language } from '@/lib/translations';
 import { trackInternalNavigation } from '@/lib/analytics';
 
 // 深度分析链接板块
 function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, any> }) {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+
+  const titleY = useSpring(useTransform(scrollYProgress, [0, 1], [50, -20]), { stiffness: 100, damping: 30 });
+  const subtitleY = useSpring(useTransform(scrollYProgress, [0, 1], [70, -10]), { stiffness: 100, damping: 30 });
+  const buttonY = useSpring(useTransform(scrollYProgress, [0, 1], [90, 0]), { stiffness: 100, damping: 30 });
   const linkText: Record<string, { title: string; subtitle: string; buttonText: string }> = {
     en: {
       title: 'Want Deeper Analysis?',
@@ -38,13 +49,14 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, an
   const text = linkText[lang] ?? linkText['en'];
 
   return (
-    <section className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50">
+    <section ref={sectionRef} className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50 overflow-hidden">
       <div className="max-w-4xl mx-auto text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-2xl md:text-3xl font-bold mb-4 section-title"
+          style={{ y: titleY }}
         >
           {text.title}
         </motion.h2>
@@ -54,6 +66,7 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, an
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
           className="section-subtitle mb-8 max-w-2xl mx-auto"
+          style={{ y: subtitleY }}
         >
           {text.subtitle}
         </motion.p>
@@ -62,6 +75,7 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, an
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
+          style={{ y: buttonY }}
         >
           <Link
             href="/analysis"

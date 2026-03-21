@@ -13,6 +13,7 @@ import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
 import { StyleSwitcherButton, type DesignStyle } from '@/components/StyleSwitcher';
 import { trackCtaClick } from '@/lib/analytics';
+import { ScrollProgressBar, ParallaxDivider } from '@/components/ParallaxEffects';
 
 // Lazy-load heavy below-fold components (bundle-dynamic-imports rule)
 const InteractiveTimeline = dynamic(() => import('@/components/InteractiveTimeline'), { ssr: false });
@@ -210,6 +211,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-x-hidden mobile-shell" data-ui-lang={lang}>
+      <ScrollProgressBar />
       <div
         className="mobile-top-controls fixed z-[96] flex flex-col gap-2"
         style={{ top: 'calc(var(--safe-top) + 1rem)', right: 'calc(var(--safe-right) + 1rem)' }}
@@ -223,6 +225,7 @@ export default function Home() {
         <HeroSection lang={lang} t={t} />
       </div>
       <SurvivalIndexSection lang={lang} t={t} />
+      <ParallaxDivider />
       <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
         <DataThreatSection lang={lang} t={t} />
       </div>
@@ -248,6 +251,7 @@ export default function Home() {
           </div>
         )}
       </div>
+      <ParallaxDivider />
       <AnalysisLinkSection lang={lang} t={t} />
       <Footer lang={lang} t={t} />
 

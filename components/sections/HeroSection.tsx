@@ -1,28 +1,52 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
 import { AlertCircle, Eye, Zap, TrendingDown, ExternalLink, ChevronDown } from 'lucide-react';
 import { Language, translations } from '@/lib/translations';
 import Counter from '@/components/Counter';
 import AIKillLineBar from '@/components/AIKillLineBar';
 import { trackCtaClick, trackStatCardExpand } from '@/lib/analytics';
+import { ParallaxOrb } from '@/components/ParallaxEffects';
 
 function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   const [activeStat, setActiveStat] = useState<number | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  });
+
+  // Parallax layers — title moves slower than background
+  const bgY = useSpring(useTransform(scrollYProgress, [0, 1], [0, 120]), { stiffness: 100, damping: 30 });
+  const titleY = useSpring(useTransform(scrollYProgress, [0, 1], [0, 40]), { stiffness: 100, damping: 30 });
+  const cardY = useSpring(useTransform(scrollYProgress, [0, 1], [0, 20]), { stiffness: 100, damping: 30 });
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+
+  // Floating orb parallax
+  const orbSlow = useSpring(useTransform(scrollYProgress, [0, 1], [0, 60]), { stiffness: 80, damping: 25 });
+  const orbMed = useSpring(useTransform(scrollYProgress, [0, 1], [0, 100]), { stiffness: 80, damping: 25 });
+  const orbFast = useSpring(useTransform(scrollYProgress, [0, 1], [0, 150]), { stiffness: 80, damping: 25 });
 
   return (
-    <section className="no-contain relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14">
-      {/* Background — single subtle radial glow, not decorative blobs */}
-      <div className="absolute inset-0 pointer-events-none">
+    <section ref={sectionRef} className="no-contain relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 overflow-hidden">
+      {/* Parallax background — multi-layer depth */}
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY, scale: bgScale, opacity: bgOpacity }}>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-primary/[0.04] rounded-full blur-[100px]"></div>
-      </div>
+        {/* Extra atmospheric orbs with parallax depth */}
+        <ParallaxOrb color="var(--risk-critical)" size={300} x="10%" y="20%" parallaxY={orbFast} blur={120} opacity={0.03} />
+        <ParallaxOrb color="var(--brand-accent)" size={200} x="80%" y="10%" parallaxY={orbMed} blur={100} opacity={0.04} />
+        <ParallaxOrb color="var(--brand-primary)" size={150} x="60%" y="60%" parallaxY={orbSlow} blur={80} opacity={0.03} />
+      </motion.div>
 
       <div className="relative z-30 text-center px-4 sm:px-6 max-w-6xl mx-auto hero-glow">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
+          style={{ y: titleY }}
         >
           {/* Alert badge */}
           <div className="inline-flex items-center gap-2 bg-risk-critical/10 text-risk-critical px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8 border border-risk-critical/20">
@@ -40,12 +64,13 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           </p>
         </motion.div>
 
-        {/* Progress bar section */}
+        {/* Progress bar section — slightly different parallax speed for depth */}
         <motion.div
           className="pt-8 sm:pt-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          style={{ y: cardY }}
         >
           <div className="relative z-20 calc-container rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10" style={{ overflow: 'visible' }}>
             <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-foreground text-left">{t.progressTitle}</h2>

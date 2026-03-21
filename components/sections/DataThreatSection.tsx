@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
 import { Lock, Zap, ChevronDown, ChevronRight, Database, Shield, AlertTriangle, ExternalLink, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { Language, translations } from '@/lib/translations';
@@ -12,17 +12,47 @@ import { trackExpandToggle, trackInternalNavigation } from '@/lib/analytics';
 // 数据威胁板块（精简版，完整版在 /data-protection）
 function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   const [expanded, setExpanded] = useState(true);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+
+  // Parallax layers for this section
+  const headerY = useSpring(useTransform(scrollYProgress, [0, 1], [60, -30]), { stiffness: 100, damping: 30 });
+  const cardY = useSpring(useTransform(scrollYProgress, [0, 1], [80, -20]), { stiffness: 100, damping: 30 });
+  const ctaY = useSpring(useTransform(scrollYProgress, [0, 1], [100, -10]), { stiffness: 100, damping: 30 });
+
+  // Background glow parallax
+  const glowY = useSpring(useTransform(scrollYProgress, [0, 1], [-50, 80]), { stiffness: 80, damping: 25 });
 
   return (
-    <section className="py-12 sm:py-20 px-4 sm:px-6 relative z-30 overflow-hidden border-t border-surface-elevated/50">
+    <section ref={sectionRef} className="py-12 sm:py-20 px-4 sm:px-6 relative z-30 overflow-hidden border-t border-surface-elevated/50">
+      {/* Parallax background glow */}
+      <motion.div
+        className="absolute pointer-events-none"
+        style={{
+          width: 400,
+          height: 400,
+          left: '50%',
+          top: '20%',
+          transform: 'translateX(-50%)',
+          background: 'radial-gradient(circle, var(--risk-critical) 0%, transparent 70%)',
+          filter: 'blur(120px)',
+          opacity: 0.04,
+          y: glowY,
+        }}
+      />
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Section Header */}
+        {/* Section Header — parallax offset */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-center mb-8 sm:mb-16"
+          style={{ y: headerY }}
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-4">
             <Lock className="w-3.5 h-3.5 text-risk-critical" />
@@ -36,12 +66,13 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
           </p>
         </motion.div>
 
-        {/* Collapsible Last Mile Concept */}
+        {/* Collapsible Last Mile Concept — deeper parallax layer */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="mb-8"
+          style={{ y: cardY }}
         >
           <div className="result-card rounded-2xl p-8 border border-surface-elevated">
             <button
@@ -73,35 +104,65 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
                 >
                   <p className="text-foreground-muted mb-8 mt-6">{t.lastMileDesc}</p>
 
-                  {/* Visual Flow — Desktop: horizontal 5-col */}
+                  {/* Visual Flow — Desktop: horizontal 5-col with staggered parallax reveal */}
                   <div className="hidden md:grid grid-cols-5 gap-4 items-center">
-                    <div className="bg-brand-accent/10 border border-brand-accent/20 rounded-xl p-5 text-center">
+                    <motion.div
+                      initial={{ opacity: 0, x: -30 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0 }}
+                      className="bg-brand-accent/10 border border-brand-accent/20 rounded-xl p-5 text-center"
+                    >
                       <Cpu className="w-8 h-8 text-brand-accent mx-auto mb-3" />
                       <div className="font-semibold text-sm">{t.lastMileStep1}</div>
                       <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep1Desc}</div>
-                    </div>
+                    </motion.div>
 
-                    <div className="flex flex-col items-center">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.15 }}
+                      className="flex flex-col items-center"
+                    >
                       <div className="text-xs text-foreground-muted mb-1">{t.lastMileArrow1}</div>
                       <div className="text-2xl text-risk-high">&rarr;</div>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-risk-high/10 border-2 border-risk-high/40 rounded-xl p-5 text-center relative">
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="bg-risk-high/10 border-2 border-risk-high/40 rounded-xl p-5 text-center relative"
+                    >
                       <Database className="w-8 h-8 text-risk-high mx-auto mb-3" />
                       <div className="font-semibold text-sm text-risk-high">{t.lastMileStep2}</div>
                       <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep2Desc}</div>
-                    </div>
+                    </motion.div>
 
-                    <div className="flex flex-col items-center">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.45 }}
+                      className="flex flex-col items-center"
+                    >
                       <div className="text-xs text-foreground-muted mb-1">{t.lastMileArrow2}</div>
                       <div className="text-2xl text-risk-critical">&rarr;</div>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-risk-critical/10 border border-risk-critical/30 rounded-xl p-5 text-center">
+                    <motion.div
+                      initial={{ opacity: 0, x: 30 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0.6 }}
+                      className="bg-risk-critical/10 border border-risk-critical/30 rounded-xl p-5 text-center"
+                    >
                       <Skull className="w-8 h-8 text-risk-critical mx-auto mb-3" />
                       <div className="font-semibold text-sm text-risk-critical">{t.lastMileStep3}</div>
                       <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep3Desc}</div>
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* Visual Flow — Mobile: vertical with arrows between each card */}
@@ -163,12 +224,13 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
           </div>
         </motion.div>
 
-        {/* CTA to full data protection page */}
+        {/* CTA to full data protection page — deepest parallax layer */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-center"
+          style={{ y: ctaY }}
         >
           <p className="text-foreground-muted mb-4">{t.viewFullDetailsCta}</p>
           <Link
