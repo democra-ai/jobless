@@ -187,29 +187,22 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
 
   return (
     <div className="mb-8" style={{ overflow: 'visible' }}>
-      {/* Centered hero stat — cinematic number */}
-      <div className="text-center mb-8 relative">
+      {/* Centered hero stat */}
+      <div className="text-center mb-6 relative">
         <div className="relative inline-block">
-          {/* Glow behind the number */}
-          <div className="absolute inset-0 blur-[60px] opacity-20 rounded-full" style={{ background: 'var(--risk-critical)' }} />
           <div
-            className="relative text-6xl sm:text-7xl md:text-8xl font-bold mono"
+            className="text-5xl sm:text-6xl md:text-7xl font-bold mono"
             style={{
               fontVariantNumeric: 'tabular-nums',
-              background: 'linear-gradient(180deg, var(--risk-critical) 0%, #ff6b35 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              textShadow: 'none',
-              filter: 'drop-shadow(0 0 30px rgba(255,23,68,0.15))',
+              color: 'var(--risk-critical)',
             }}
           >
             <Counter end={CURRENT_REPLACEMENT_RATE} suffix="%" />
           </div>
         </div>
-        <div className="flex items-center justify-center gap-3 mt-3">
-          <span className="text-sm sm:text-base text-foreground-muted/70">{t.killLineLabel}</span>
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(255,23,68,0.08)', border: '1px solid rgba(255,23,68,0.12)' }}>
+        <div className="flex items-center justify-center gap-3 mt-2">
+          <span className="text-sm sm:text-base text-foreground-muted">{t.killLineLabel}</span>
+          <div className="flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5 text-risk-critical" />
             <span className="text-xs sm:text-sm mono font-bold text-risk-critical">{t.killLineSpeed}</span>
           </div>
@@ -349,8 +342,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
         </div>
       </div>
 
-      {/* Segmented Bar — premium 3D track */}
-      <div className="relative h-12 sm:h-14 mt-8">
+      {/* Segmented Bar — outer allows overflow for labels, inner clips bar content */}
+      <div className="relative h-10 sm:h-12 mt-6">
         {/* Invisible hover zones on the bar for each stage (above the clipped layer) */}
         {KILL_LINE_STAGES.map((stage) => {
           const left = (stage.start / maxPct) * 100;
@@ -366,11 +359,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
             />
           );
         })}
-        <div className="absolute inset-0 rounded-2xl overflow-hidden" style={{
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.15) 100%)',
-          border: '1px solid rgba(255,255,255,0.04)',
-          boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.03)',
-        }}>
+        <div className="absolute inset-0 rounded-xl overflow-hidden bar-track">
         {/* Stage 1–4 divider lines */}
         {KILL_LINE_STAGES.filter(s => s.id < 5).map((stage) => {
           const left = (stage.start / maxPct) * 100;
@@ -465,8 +454,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           })()}
         </AnimatePresence>
 
-        {/* Filled area — premium 3D fill */}
-        <div className="absolute left-[3px] right-auto top-[3px] bottom-[3px] rounded-xl overflow-hidden" style={{ width: `calc(${w}% - 6px)` }}>
+        {/* Filled area */}
+        <div className="absolute inset-y-0 left-0 rounded-l-xl overflow-hidden" style={{ width: `${w}%` }}>
           {/* Per-stage color fill */}
           {KILL_LINE_STAGES.map((stage) => {
             if (stage.start >= displayPct) return null;
@@ -482,43 +471,36 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                   left: `${segLeft}%`,
                   width: `${segWidth}%`,
                   background: stage.color,
-                  opacity: hasSomeActive ? 0.3 : 0.8,
+                  opacity: hasSomeActive ? 0.25 : 0.75,
                 }}
               />
             );
           })}
-          {/* 3D top highlight — glossy reflection */}
-          <div className="absolute inset-x-0 top-0 h-[45%]" style={{
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 60%, transparent 100%)',
-            borderRadius: '8px 8px 0 0',
+          {/* Top highlight */}
+          <div className="absolute inset-x-0 top-0 h-[38%]" style={{
+            background: 'linear-gradient(180deg, var(--overlay-18), transparent)',
           }} />
-          {/* Bottom shadow for depth */}
-          <div className="absolute inset-x-0 bottom-0 h-[25%]" style={{
-            background: 'linear-gradient(0deg, rgba(0,0,0,0.2), transparent)',
-          }} />
-          {/* Shimmer sweep */}
+          {/* Shimmer LTR */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0" style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%)',
+              background: 'linear-gradient(90deg, transparent 0%, var(--overlay-12) 50%, transparent 100%)',
               animation: 'shimmerLTR 2.5s ease-in-out infinite',
             }} />
           </div>
-          {/* Outer glow from the bar */}
-          <div className="absolute inset-0 pointer-events-none" style={{
-            boxShadow: '0 0 20px rgba(255,107,53,0.2), 0 0 40px rgba(255,23,68,0.1)',
-          }} />
         </div>
         </div>{/* close inner overflow-hidden */}
 
-        {/* Leading edge — glowing marker dot */}
+        {/* Leading edge line */}
         {w > 1 && (
           <div
-            className="absolute top-1/2 z-20 -translate-y-1/2"
-            style={{ left: `${w}%`, transform: 'translate(-50%, -50%)' }}
-          >
-            {/* Pulsing glow ring */}
-            <div className="bar-marker" style={{ background: activeStage.color }} />
-          </div>
+            className="absolute top-0 bottom-0 z-10"
+            style={{
+              left: `${w}%`,
+              width: '2px',
+              transform: 'translateX(-1px)',
+              background: activeStage.color,
+            }}
+          />
         )}
 
         {/* Rightward breathing glow — extends from the leading edge to the right */}
@@ -536,23 +518,16 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
         {w > 1 && (
           <motion.div
             className="absolute z-20 pointer-events-none"
-            style={{ left: `${w}%`, bottom: '100%', paddingBottom: '10px' }}
+            style={{ left: `${w}%`, bottom: '100%', paddingBottom: '4px' }}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: ready ? 1 : 0, y: ready ? 0 : 6 }}
             transition={{ duration: 0.4, delay: 0.3 }}
           >
             <div className="flex flex-col items-center" style={{ transform: 'translateX(-50%)' }}>
-              <span
-                className="text-[10px] sm:text-xs font-bold whitespace-nowrap uppercase tracking-widest px-2.5 py-1 rounded-full"
-                style={{
-                  color: activeStage.color,
-                  background: `color-mix(in srgb, ${activeStage.color} 12%, var(--surface))`,
-                  border: `1px solid color-mix(in srgb, ${activeStage.color} 20%, transparent)`,
-                }}
-              >
+              <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap" style={{ color: activeStage.color }}>
                 WE ARE HERE
               </span>
-              <div className="mt-1" style={{ width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: `5px solid color-mix(in srgb, ${activeStage.color} 20%, transparent)` }} />
+              <div style={{ width: 0, height: 0, borderLeft: '4px solid transparent', borderRight: '4px solid transparent', borderTop: `4px solid ${activeStage.color}` }} />
             </div>
           </motion.div>
         )}

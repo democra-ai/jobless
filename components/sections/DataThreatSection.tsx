@@ -2,12 +2,14 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Lock, Zap, ChevronDown, Database, Shield, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Lock, Zap, ChevronDown, ChevronRight, Database, Shield, AlertTriangle, ExternalLink, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { Language, translations } from '@/lib/translations';
+import { dataProtectionTranslations } from '@/lib/data-protection';
 import { Cpu, Skull, Sparkles } from 'lucide-react';
 import { trackExpandToggle, trackInternalNavigation } from '@/lib/analytics';
 
+// 数据威胁板块（精简版，完整版在 /data-protection）
 function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   const [expanded, setExpanded] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
@@ -17,106 +19,75 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
     offset: ['start end', 'end start'],
   });
 
-  // Deep parallax layers
-  const headerY = useSpring(useTransform(scrollYProgress, [0, 1], [80, -40]), { stiffness: 80, damping: 25 });
-  const cardY = useSpring(useTransform(scrollYProgress, [0, 1], [100, -25]), { stiffness: 80, damping: 25 });
-  const ctaY = useSpring(useTransform(scrollYProgress, [0, 1], [120, -15]), { stiffness: 80, damping: 25 });
-  const glowY = useSpring(useTransform(scrollYProgress, [0, 1], [-60, 100]), { stiffness: 60, damping: 20 });
-  const glowScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.2, 0.9]);
+  // Parallax layers for this section
+  const headerY = useSpring(useTransform(scrollYProgress, [0, 1], [60, -30]), { stiffness: 100, damping: 30 });
+  const cardY = useSpring(useTransform(scrollYProgress, [0, 1], [80, -20]), { stiffness: 100, damping: 30 });
+  const ctaY = useSpring(useTransform(scrollYProgress, [0, 1], [100, -10]), { stiffness: 100, damping: 30 });
+
+  // Background glow parallax
+  const glowY = useSpring(useTransform(scrollYProgress, [0, 1], [-50, 80]), { stiffness: 80, damping: 25 });
 
   return (
-    <section ref={sectionRef} className="py-16 sm:py-24 px-4 sm:px-6 relative z-30 overflow-hidden">
-      {/* Ambient glow — moves with scroll */}
+    <section ref={sectionRef} className="py-12 sm:py-20 px-4 sm:px-6 relative z-30 overflow-hidden border-t border-surface-elevated/50">
+      {/* Parallax background glow */}
       <motion.div
         className="absolute pointer-events-none"
         style={{
-          width: 600,
-          height: 600,
+          width: 400,
+          height: 400,
           left: '50%',
-          top: '15%',
-          x: '-50%',
+          top: '20%',
+          transform: 'translateX(-50%)',
+          background: 'radial-gradient(circle, var(--risk-critical) 0%, transparent 70%)',
+          filter: 'blur(120px)',
+          opacity: 0.04,
           y: glowY,
-          scale: glowScale,
-          background: 'radial-gradient(circle, rgba(255,23,68,0.06) 0%, rgba(255,87,34,0.03) 40%, transparent 70%)',
-          filter: 'blur(80px)',
-        }}
-      />
-
-      {/* Secondary ambient glow */}
-      <div className="absolute top-1/2 right-0 w-[300px] h-[300px] pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, rgba(212,165,116,0.04) 0%, transparent 60%)',
-          filter: 'blur(100px)',
         }}
       />
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Section Header — deep parallax */}
+        {/* Section Header — parallax offset */}
         <motion.div
-          initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
-          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-10 sm:mb-16"
+          className="text-center mb-8 sm:mb-16"
           style={{ y: headerY }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{
-            background: 'linear-gradient(135deg, rgba(255,23,68,0.08), rgba(255,87,34,0.06))',
-            border: '1px solid rgba(255,23,68,0.12)',
-            backdropFilter: 'blur(8px)',
-          }}>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-4">
             <Lock className="w-3.5 h-3.5 text-risk-critical" />
-            <span className="text-xs font-semibold text-risk-critical tracking-wider uppercase">DATA THREAT</span>
+            <span className="text-xs font-semibold text-risk-critical tracking-wide uppercase">DATA THREAT</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-5 section-title leading-[0.95]">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 section-title">
             {t.dataThreatTitle}
           </h2>
-          <p className="section-subtitle max-w-2xl mx-auto text-lg leading-relaxed">
+          <p className="section-subtitle max-w-2xl mx-auto">
             {t.dataThreatSubtitle}
           </p>
         </motion.div>
 
-        {/* Collapsible Last Mile Concept — glassmorphism card */}
+        {/* Collapsible Last Mile Concept — deeper parallax layer */}
         <motion.div
-          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
-          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="mb-10"
+          className="mb-8"
           style={{ y: cardY }}
         >
-          <div className="rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden" style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
-            backdropFilter: 'blur(30px) saturate(150%)',
-            WebkitBackdropFilter: 'blur(30px) saturate(150%)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05)',
-          }}>
-            {/* Subtle top accent line */}
-            <div className="absolute top-0 left-8 right-8 h-px" style={{
-              background: 'linear-gradient(90deg, transparent, rgba(255,107,53,0.3), rgba(255,23,68,0.3), transparent)',
-            }} />
-
+          <div className="result-card rounded-2xl p-8 border border-surface-elevated">
             <button
               onClick={() => { const next = !expanded; setExpanded(next); trackExpandToggle('last_mile_concept', next); }}
-              className="w-full flex items-center justify-between gap-3 cursor-pointer group"
+              className="w-full flex items-center justify-between gap-3 cursor-pointer"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{
-                  background: 'linear-gradient(135deg, rgba(212,165,116,0.15), rgba(255,107,53,0.1))',
-                  border: '1px solid rgba(212,165,116,0.15)',
-                }}>
-                  <Zap className="w-6 h-6 text-brand-accent" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-brand-accent/15 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-brand-accent" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold">{t.lastMileTitle}</h3>
+                <h3 className="text-xl font-bold">{t.lastMileTitle}</h3>
               </div>
               <motion.div
                 animate={{ rotate: expanded ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-                className="w-8 h-8 rounded-full flex items-center justify-center" style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                }}
+                transition={{ duration: 0.2 }}
               >
                 <ChevronDown className="w-5 h-5 text-foreground-muted" />
               </motion.div>
@@ -128,213 +99,123 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.3 }}
                   className="overflow-hidden"
                 >
-                  <p className="text-foreground-muted/80 mb-10 mt-8 text-base leading-relaxed">{t.lastMileDesc}</p>
+                  <p className="text-foreground-muted mb-8 mt-6">{t.lastMileDesc}</p>
 
-                  {/* ═══ Visual Flow — Desktop: 3 dramatic cards with animated connections ═══ */}
-                  <div className="hidden md:grid grid-cols-5 gap-3 items-center">
-                    {/* Step 1: AI Training */}
+                  {/* Visual Flow — Desktop: horizontal 5-col with staggered parallax reveal */}
+                  <div className="hidden md:grid grid-cols-5 gap-4 items-center">
                     <motion.div
-                      initial={{ opacity: 0, x: -40 }}
+                      initial={{ opacity: 0, x: -30 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.6 }}
-                      className="rounded-2xl p-6 text-center relative group transition-all duration-300"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(212,165,116,0.08), rgba(212,165,116,0.02))',
-                        border: '1px solid rgba(212,165,116,0.12)',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(212,165,116,0.3)';
-                        e.currentTarget.style.boxShadow = '0 8px 30px rgba(212,165,116,0.1)';
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(212,165,116,0.12)';
-                        e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }}
+                      transition={{ duration: 0.5, delay: 0 }}
+                      className="bg-brand-accent/10 border border-brand-accent/20 rounded-xl p-5 text-center"
                     >
-                      <div className="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center" style={{
-                        background: 'linear-gradient(135deg, rgba(212,165,116,0.15), rgba(212,165,116,0.05))',
-                      }}>
-                        <Cpu className="w-7 h-7 text-brand-accent" />
-                      </div>
-                      <div className="font-semibold text-sm mb-1">{t.lastMileStep1}</div>
-                      <div className="text-xs text-foreground-muted/60 leading-relaxed">{t.lastMileStep1Desc}</div>
+                      <Cpu className="w-8 h-8 text-brand-accent mx-auto mb-3" />
+                      <div className="font-semibold text-sm">{t.lastMileStep1}</div>
+                      <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep1Desc}</div>
                     </motion.div>
 
-                    {/* Arrow 1 */}
                     <motion.div
                       initial={{ opacity: 0, scale: 0.5 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: 0.2 }}
-                      className="flex flex-col items-center gap-1"
+                      transition={{ duration: 0.4, delay: 0.15 }}
+                      className="flex flex-col items-center"
                     >
-                      <div className="text-[10px] text-foreground-muted/50 uppercase tracking-wider">{t.lastMileArrow1}</div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-8 h-px bg-risk-high/30" />
-                        <div className="text-risk-high text-lg">→</div>
-                      </div>
+                      <div className="text-xs text-foreground-muted mb-1">{t.lastMileArrow1}</div>
+                      <div className="text-2xl text-risk-high">&rarr;</div>
                     </motion.div>
 
-                    {/* Step 2: Your Data (emphasized) */}
                     <motion.div
                       initial={{ opacity: 0, y: 30 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: 0.3 }}
-                      className="rounded-2xl p-6 text-center relative group transition-all duration-300"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(255,87,34,0.08), rgba(255,87,34,0.02))',
-                        border: '2px solid rgba(255,87,34,0.2)',
-                        boxShadow: '0 0 30px rgba(255,87,34,0.05)',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(255,87,34,0.4)';
-                        e.currentTarget.style.boxShadow = '0 8px 40px rgba(255,87,34,0.15)';
-                        e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(255,87,34,0.2)';
-                        e.currentTarget.style.boxShadow = '0 0 30px rgba(255,87,34,0.05)';
-                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                      }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="bg-risk-high/10 border-2 border-risk-high/40 rounded-xl p-5 text-center relative"
                     >
-                      <div className="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center" style={{
-                        background: 'linear-gradient(135deg, rgba(255,87,34,0.2), rgba(255,87,34,0.05))',
-                      }}>
-                        <Database className="w-7 h-7 text-risk-high" />
-                      </div>
-                      <div className="font-semibold text-sm text-risk-high mb-1">{t.lastMileStep2}</div>
-                      <div className="text-xs text-foreground-muted/60 leading-relaxed">{t.lastMileStep2Desc}</div>
+                      <Database className="w-8 h-8 text-risk-high mx-auto mb-3" />
+                      <div className="font-semibold text-sm text-risk-high">{t.lastMileStep2}</div>
+                      <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep2Desc}</div>
                     </motion.div>
 
-                    {/* Arrow 2 */}
                     <motion.div
                       initial={{ opacity: 0, scale: 0.5 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: 0.5 }}
-                      className="flex flex-col items-center gap-1"
+                      transition={{ duration: 0.4, delay: 0.45 }}
+                      className="flex flex-col items-center"
                     >
-                      <div className="text-[10px] text-foreground-muted/50 uppercase tracking-wider">{t.lastMileArrow2}</div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-8 h-px bg-risk-critical/30" />
-                        <div className="text-risk-critical text-lg">→</div>
-                      </div>
+                      <div className="text-xs text-foreground-muted mb-1">{t.lastMileArrow2}</div>
+                      <div className="text-2xl text-risk-critical">&rarr;</div>
                     </motion.div>
 
-                    {/* Step 3: Replacement */}
                     <motion.div
-                      initial={{ opacity: 0, x: 40 }}
+                      initial={{ opacity: 0, x: 30 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: 0.6 }}
-                      className="rounded-2xl p-6 text-center relative group transition-all duration-300"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(255,23,68,0.08), rgba(255,23,68,0.02))',
-                        border: '1px solid rgba(255,23,68,0.15)',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(255,23,68,0.35)';
-                        e.currentTarget.style.boxShadow = '0 8px 30px rgba(255,23,68,0.1)';
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(255,23,68,0.15)';
-                        e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }}
+                      transition={{ duration: 0.5, delay: 0.6 }}
+                      className="bg-risk-critical/10 border border-risk-critical/30 rounded-xl p-5 text-center"
                     >
-                      <div className="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center" style={{
-                        background: 'linear-gradient(135deg, rgba(255,23,68,0.15), rgba(255,23,68,0.05))',
-                      }}>
-                        <Skull className="w-7 h-7 text-risk-critical" />
-                      </div>
-                      <div className="font-semibold text-sm text-risk-critical mb-1">{t.lastMileStep3}</div>
-                      <div className="text-xs text-foreground-muted/60 leading-relaxed">{t.lastMileStep3Desc}</div>
+                      <Skull className="w-8 h-8 text-risk-critical mx-auto mb-3" />
+                      <div className="font-semibold text-sm text-risk-critical">{t.lastMileStep3}</div>
+                      <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep3Desc}</div>
                     </motion.div>
                   </div>
 
-                  {/* ═══ Mobile: vertical flow ═══ */}
+                  {/* Visual Flow — Mobile: vertical with arrows between each card */}
                   <div className="flex md:hidden flex-col items-center gap-0">
-                    <div className="w-full rounded-xl p-5 text-center" style={{
-                      background: 'linear-gradient(135deg, rgba(212,165,116,0.08), transparent)',
-                      border: '1px solid rgba(212,165,116,0.12)',
-                    }}>
+                    <div className="w-full bg-brand-accent/10 border border-brand-accent/20 rounded-xl p-5 text-center">
                       <Cpu className="w-8 h-8 text-brand-accent mx-auto mb-3" />
                       <div className="font-semibold text-sm">{t.lastMileStep1}</div>
-                      <div className="text-xs text-foreground-muted/60 mt-1">{t.lastMileStep1Desc}</div>
+                      <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep1Desc}</div>
                     </div>
 
                     <div className="flex flex-col items-center py-2">
-                      <div className="text-[10px] text-foreground-muted/50 uppercase tracking-wider">{t.lastMileArrow1}</div>
-                      <div className="text-risk-high text-lg">↓</div>
+                      <div className="text-xs text-foreground-muted">{t.lastMileArrow1}</div>
+                      <div className="text-xl text-risk-high">&darr;</div>
                     </div>
 
-                    <div className="w-full rounded-xl p-5 text-center" style={{
-                      background: 'linear-gradient(135deg, rgba(255,87,34,0.08), transparent)',
-                      border: '2px solid rgba(255,87,34,0.2)',
-                      boxShadow: '0 0 20px rgba(255,87,34,0.05)',
-                    }}>
+                    <div className="w-full bg-risk-high/10 border-2 border-risk-high/40 rounded-xl p-5 text-center relative">
                       <Database className="w-8 h-8 text-risk-high mx-auto mb-3" />
                       <div className="font-semibold text-sm text-risk-high">{t.lastMileStep2}</div>
-                      <div className="text-xs text-foreground-muted/60 mt-1">{t.lastMileStep2Desc}</div>
+                      <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep2Desc}</div>
                     </div>
 
                     <div className="flex flex-col items-center py-2">
-                      <div className="text-[10px] text-foreground-muted/50 uppercase tracking-wider">{t.lastMileArrow2}</div>
-                      <div className="text-risk-critical text-lg">↓</div>
+                      <div className="text-xs text-foreground-muted">{t.lastMileArrow2}</div>
+                      <div className="text-xl text-risk-critical">&darr;</div>
                     </div>
 
-                    <div className="w-full rounded-xl p-5 text-center" style={{
-                      background: 'linear-gradient(135deg, rgba(255,23,68,0.08), transparent)',
-                      border: '1px solid rgba(255,23,68,0.15)',
-                    }}>
+                    <div className="w-full bg-risk-critical/10 border border-risk-critical/30 rounded-xl p-5 text-center">
                       <Skull className="w-8 h-8 text-risk-critical mx-auto mb-3" />
                       <div className="font-semibold text-sm text-risk-critical">{t.lastMileStep3}</div>
-                      <div className="text-xs text-foreground-muted/60 mt-1">{t.lastMileStep3Desc}</div>
+                      <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep3Desc}</div>
                     </div>
                   </div>
 
                   {/* Skill = New Training Data */}
-                  <div className="mt-8 p-5 rounded-xl relative overflow-hidden" style={{
-                    background: 'linear-gradient(135deg, rgba(212,165,116,0.06), transparent)',
-                    border: '1px solid rgba(212,165,116,0.1)',
-                  }}>
-                    <div className="flex items-start gap-3.5">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{
-                        background: 'rgba(212,165,116,0.12)',
-                      }}>
-                        <Sparkles className="w-4 h-4 text-brand-accent" />
-                      </div>
+                  <div className="mt-6 p-4 rounded-xl bg-brand-accent/5 border border-brand-accent/15">
+                    <div className="flex items-start gap-3">
+                      <Sparkles className="w-4 h-4 text-brand-accent flex-shrink-0 mt-0.5" />
                       <div>
-                        <div className="text-sm font-bold text-foreground mb-1.5">
+                        <div className="text-sm font-bold text-foreground mb-1">
                           {lang === 'zh' ? 'Skill：一种新型训练数据' : 'Skills: A New Form of Training Data'}
                         </div>
-                        <p className="text-xs text-foreground-muted/70 leading-relaxed">
+                        <p className="text-xs text-foreground-muted leading-relaxed">
                           {t.lastMileArrow1Note}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Warning — dramatic gradient */}
-                  <div className="mt-4 p-5 rounded-xl relative overflow-hidden" style={{
-                    background: 'linear-gradient(135deg, rgba(255,23,68,0.06), rgba(255,87,34,0.04))',
-                    border: '1px solid rgba(255,23,68,0.1)',
-                  }}>
-                    {/* Subtle animated line */}
-                    <div className="absolute top-0 left-0 right-0 h-px" style={{
-                      background: 'linear-gradient(90deg, transparent, rgba(255,23,68,0.3), transparent)',
-                    }} />
-                    <p className="text-sm font-semibold text-center flex items-center justify-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-risk-critical flex-shrink-0" />
-                      <span>{t.lastMileWarning}</span>
+                  {/* Warning */}
+                  <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-risk-critical/10 to-risk-high/10 border border-risk-critical/20">
+                    <p className="text-sm font-semibold text-center">
+                      <AlertTriangle className="w-4 h-4 inline text-risk-critical mr-2 align-middle" />
+                      {t.lastMileWarning}
                     </p>
                   </div>
                 </motion.div>
@@ -343,36 +224,22 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
           </div>
         </motion.div>
 
-        {/* CTA — deepest parallax layer */}
+        {/* CTA to full data protection page — deepest parallax layer */}
         <motion.div
-          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
-          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.2 }}
           className="text-center"
           style={{ y: ctaY }}
         >
-          <p className="text-foreground-muted/70 mb-6 text-base">{t.viewFullDetailsCta}</p>
+          <p className="text-foreground-muted mb-4">{t.viewFullDetailsCta}</p>
           <Link
             href="/data-protection"
             onClick={() => trackInternalNavigation('/data-protection', 'data_threat_section')}
-            className="group inline-flex items-center gap-3 px-10 py-5 rounded-2xl font-semibold text-lg transition-all duration-300 relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255,23,68,0.9), rgba(255,87,34,0.85))',
-              boxShadow: '0 4px 20px rgba(255,23,68,0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
-              color: 'white',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 8px 40px rgba(255,23,68,0.35), inset 0 1px 0 rgba(255,255,255,0.15)';
-              e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(255,23,68,0.25), inset 0 1px 0 rgba(255,255,255,0.1)';
-              e.currentTarget.style.transform = 'translateY(0) scale(1)';
-            }}
+            className="inline-flex items-center gap-2 bg-risk-critical hover:bg-risk-critical/80 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all card-hover"
           >
-            <Shield className="w-5 h-5 transition-transform group-hover:scale-110" />
-            <span>{t.viewFullDetails}</span>
+            <Shield className="w-5 h-5" />
+            {t.viewFullDetails}
           </Link>
         </motion.div>
       </div>

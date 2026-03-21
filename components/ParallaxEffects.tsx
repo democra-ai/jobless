@@ -174,11 +174,10 @@ export function ScrollProgressBar() {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 h-[3px] z-[100] origin-left"
+      className="fixed top-0 left-0 right-0 h-0.5 z-[100] origin-left"
       style={{
         scaleX,
-        background: 'linear-gradient(90deg, #34d399, #ffc107, #ff6b35, #ff1744, #7c4dff)',
-        boxShadow: '0 0 10px rgba(255,107,53,0.3), 0 0 20px rgba(255,23,68,0.15)',
+        background: 'linear-gradient(90deg, var(--brand-primary), var(--risk-critical))',
       }}
     />
   );

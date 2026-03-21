@@ -678,98 +678,56 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       id="risk-calculator"
       data-mobile-section="risk"
       data-lang={lang}
-      className="py-16 sm:py-28 px-4 md:px-6 relative z-30 overflow-hidden scroll-mt-8 responsive-copy-scope"
+      className="py-12 sm:py-24 px-4 md:px-6 relative z-30 overflow-hidden scroll-mt-8 responsive-copy-scope"
     >
-      {/* Section ambient glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none" style={{
-        background: 'radial-gradient(ellipse, rgba(124,77,255,0.04), transparent 60%)',
-        filter: 'blur(80px)',
-      }} />
-
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Title */}
         <motion.div
-          initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
-          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-14"
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-8 backdrop-blur-sm" style={{
-            border: '1px solid rgba(255,255,255,0.06)',
-            background: 'linear-gradient(135deg, rgba(56,189,248,0.06), rgba(167,139,250,0.06), rgba(251,113,133,0.06))',
-          }}>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border border-overlay-10">
             <Target className="w-4 h-4" style={{ stroke: 'url(#badge-gradient)' }} />
             <svg width="0" height="0"><defs><linearGradient id="badge-gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#38bdf8" /><stop offset="50%" stopColor="#a78bfa" /><stop offset="100%" stopColor="#fb7185" /></linearGradient></defs></svg>
             <span className="text-sm font-medium bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400 bg-clip-text text-transparent">{t.survivalBadge}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl mb-5 section-title leading-[0.95]">
+          <h2 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl mb-4 section-title">
             {t.survivalTitle}
           </h2>
-          <p className="section-subtitle text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+          <p className="section-subtitle text-lg md:text-xl max-w-2xl mx-auto">
             {t.survivalSubtitle}
           </p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
-          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="rounded-3xl p-6 md:p-10 relative"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
-            backdropFilter: 'blur(30px) saturate(150%)',
-            WebkitBackdropFilter: 'blur(30px) saturate(150%)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05)',
-          }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="glass-card rounded-3xl p-6 md:p-10 relative"
         >
           {/* ══════════════ INTRO PHASE ══════════════ */}
           {phase === 'intro' && (
-            <div className="text-center space-y-8 py-10">
-              <div className="relative mx-auto w-24 h-24 rounded-2xl flex items-center justify-center" style={{
-                background: 'linear-gradient(135deg, rgba(56,189,248,0.12), rgba(167,139,250,0.15), rgba(251,113,133,0.12))',
-                border: '1px solid rgba(167,139,250,0.15)',
-                boxShadow: '0 0 60px rgba(167,139,250,0.1), inset 0 1px 0 rgba(255,255,255,0.05)',
-              }}>
-                <Brain className="w-11 h-11 text-violet-400" />
-                {/* Ambient ring */}
-                <div className="absolute -inset-3 rounded-3xl border border-violet-400/5 pointer-events-none" />
+            <div className="text-center space-y-6 py-8">
+              <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500/20 via-violet-500/20 to-rose-500/20 flex items-center justify-center border border-overlay-10">
+                <Brain className="w-10 h-10 text-violet-400" />
               </div>
               <div>
                 <p className="text-foreground-muted text-sm mb-6">{t.quizStartDesc}</p>
-                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-8 text-left">
+                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-6 text-left">
                   {QUIZ_DIMENSIONS.map((dim, i) => (
-                    <motion.div
-                      key={dim.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.1 + i * 0.08 }}
-                      className="flex items-center gap-2.5 p-3.5 rounded-xl transition-all duration-300 group cursor-default"
-                      style={{
-                        background: `linear-gradient(135deg, ${DIMENSION_COLORS[i]}08, transparent)`,
-                        border: `1px solid ${DIMENSION_COLORS[i]}15`,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = `${DIMENSION_COLORS[i]}35`;
-                        e.currentTarget.style.boxShadow = `0 4px 20px ${DIMENSION_COLORS[i]}10`;
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = `${DIMENSION_COLORS[i]}15`;
-                        e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }}
-                    >
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: DIMENSION_COLORS[i] + '18' }}>
+                    <div key={dim.id} className="flex items-center gap-2 p-3 rounded-xl bg-surface border border-surface-elevated">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: DIMENSION_COLORS[i] + '20' }}>
                         {React.createElement(DIMENSION_ICONS[i], { className: 'w-4 h-4', style: { color: DIMENSION_COLORS[i] } })}
                       </div>
                       <div>
                         <div className="text-xs font-semibold">{L(dim.name, lang)}</div>
-                        <div className="text-[10px] text-foreground-muted/60">{L(dim.favorableLabel, lang)} / {L(dim.resistantLabel, lang)}</div>
+                        <div className="text-[10px] text-foreground-muted">{L(dim.favorableLabel, lang)} / {L(dim.resistantLabel, lang)}</div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -858,23 +816,17 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
               })()}
 
               <motion.button
-                whileHover={{ scale: 1.03, boxShadow: '0 8px 30px -5px rgba(167, 139, 250, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.15) inset' }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => { setPhase('core'); setCoreIndex(0); trackQuizStart(lang); }}
-                className="px-14 py-5 rounded-2xl font-semibold text-white text-lg inline-flex items-center gap-3 relative overflow-hidden group"
+                className="px-12 py-4 rounded-xl font-semibold text-white text-lg inline-flex items-center gap-3 relative overflow-hidden"
                 style={{
                   background: 'linear-gradient(135deg, #38bdf8, #a78bfa, #fb7185)',
-                  backgroundSize: '200% 200%',
                   boxShadow: '0 4px 20px -5px rgba(167, 139, 250, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
                 }}
               >
-                {/* Shimmer sweep on hover */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{
-                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
-                  animation: 'shimmerLTR 1.5s ease-in-out',
-                }} />
-                <span className="relative z-10">{t.quizStart}</span>
-                <ArrowRight className="w-5 h-5 relative z-10 transition-transform group-hover:translate-x-1" />
+                {t.quizStart}
+                <ArrowRight className="w-5 h-5" />
               </motion.button>
             </div>
           )}

@@ -212,11 +212,9 @@ export default function Home() {
   return (
     <main className="min-h-screen overflow-x-hidden mobile-shell relative" data-ui-lang={lang}>
       <ScrollProgressBar />
-      {/* Film Grain Texture — premium feel */}
-      <div className="grain-overlay" />
-      {/* Dynamic Background Mesh Effect — animated */}
+      {/* Dynamic Background Mesh Effect */}
       <div className="fixed inset-0 pointer-events-none z-[-1]">
-        <div className="parallax-bg-mesh opacity-70" />
+        <div className="parallax-bg-mesh opacity-60 mix-blend-screen" />
       </div>
 
       <div

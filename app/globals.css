@@ -914,15 +914,13 @@ body::after {
 /* Calculator Container - Depth & Layers */
 .calc-container {
   background:
-    linear-gradient(145deg, rgba(18, 16, 20, 0.85), rgba(26, 23, 29, 0.92)),
-    linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 50%);
-  backdrop-filter: blur(30px) saturate(150%);
-  -webkit-backdrop-filter: blur(30px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+    linear-gradient(145deg, rgba(18, 16, 20, 0.9), rgba(26, 23, 29, 0.95)),
+    linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 50%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.25),
-    0 25px 80px -15px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 0 0 1px rgba(0, 0, 0, 0.3),
+    0 20px 60px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="light"] .calc-container {
@@ -1128,15 +1126,13 @@ body::after {
 /* Result Cards - Glass & Depth */
 .result-card {
   background:
-    linear-gradient(145deg, rgba(15, 13, 17, 0.75), rgba(18, 16, 20, 0.88)),
-    linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
-  backdrop-filter: blur(30px) saturate(150%);
-  -webkit-backdrop-filter: blur(30px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+    linear-gradient(145deg, rgba(15, 13, 17, 0.8), rgba(18, 16, 20, 0.9)),
+    linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.18),
-    0 12px 50px -12px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 0 0 1px rgba(0, 0, 0, 0.2),
+    0 10px 40px -10px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme="light"] .result-card {
@@ -1450,13 +1446,13 @@ body::after {
   display: none;
 }
 
-/* Unified Section Title — cinematic gradient text */
+/* Unified Section Title — matches "From Steam to AGI" style (Space Grotesk) */
 .section-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  background-image: linear-gradient(160deg, var(--timeline-text) 0%, var(--timeline-text-muted) 70%);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  background-image: linear-gradient(to right, var(--timeline-text), var(--timeline-text-muted));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1464,7 +1460,6 @@ body::after {
 
 .section-subtitle {
   color: var(--timeline-text-muted);
-  letter-spacing: -0.01em;
 }
 
 /* Scanline Effect — disabled */
