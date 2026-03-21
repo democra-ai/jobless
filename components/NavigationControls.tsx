@@ -25,7 +25,7 @@ export function LanguageButton({ lang, setLang }: { lang: Language; setLang: (la
     <div ref={ref} className="relative">
       <motion.button
         onClick={() => setOpen((prev) => !prev)}
-        className="z-50 flex items-center justify-center bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white w-10 h-10 rounded-lg border border-surface-elevated transition-all card-hover lang-toggle-btn"
+        className="z-50 flex items-center justify-center bg-surface-elevated hover:bg-risk-high/80 text-foreground hover:text-white w-11 h-11 rounded-lg border border-surface-elevated transition-all card-hover lang-toggle-btn"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         aria-label="Switch language"
@@ -75,7 +75,7 @@ export function ThemeButton({ theme, setTheme }: { theme: Theme; setTheme: (them
         localStorage.setItem('air-theme', next);
         trackThemeToggle(next);
       }}
-      className="z-50 flex items-center justify-center w-10 h-10 bg-surface-elevated hover:bg-brand-accent/80 text-foreground hover:text-white rounded-lg border border-surface-elevated transition-all theme-toggle-btn"
+      className="z-50 flex items-center justify-center w-11 h-11 bg-surface-elevated hover:bg-brand-accent/80 text-foreground hover:text-white rounded-lg border border-surface-elevated transition-all theme-toggle-btn"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
