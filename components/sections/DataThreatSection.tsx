@@ -24,14 +24,14 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
           viewport={{ once: true }}
           className="text-center mb-8 sm:mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-6">
-            <Lock className="w-4 h-4 text-risk-critical" />
-            <span className="text-sm font-medium text-risk-critical">DATA THREAT</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-4">
+            <Lock className="w-3.5 h-3.5 text-risk-critical" />
+            <span className="text-xs font-semibold text-risk-critical tracking-wide uppercase">DATA THREAT</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 section-title">
             {t.dataThreatTitle}
           </h2>
-          <p className="section-subtitle max-w-3xl mx-auto text-lg">
+          <p className="section-subtitle max-w-2xl mx-auto">
             {t.dataThreatSubtitle}
           </p>
         </motion.div>
@@ -87,7 +87,6 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
                     </div>
 
                     <div className="bg-risk-high/10 border-2 border-risk-high/40 rounded-xl p-5 text-center relative">
-                      <div className="absolute -top-2 -right-2 w-5 h-5 bg-risk-critical rounded-full animate-pulse" />
                       <Database className="w-8 h-8 text-risk-high mx-auto mb-3" />
                       <div className="font-semibold text-sm text-risk-high">{t.lastMileStep2}</div>
                       <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep2Desc}</div>
@@ -119,7 +118,6 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
                     </div>
 
                     <div className="w-full bg-risk-high/10 border-2 border-risk-high/40 rounded-xl p-5 text-center relative">
-                      <div className="absolute -top-2 -right-2 w-5 h-5 bg-risk-critical rounded-full animate-pulse" />
                       <Database className="w-8 h-8 text-risk-high mx-auto mb-3" />
                       <div className="font-semibold text-sm text-risk-high">{t.lastMileStep2}</div>
                       <div className="text-xs text-foreground-muted mt-1">{t.lastMileStep2Desc}</div>
