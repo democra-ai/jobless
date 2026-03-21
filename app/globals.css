@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import "./parallax.css";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 :root,
 [data-theme="dark"] {
   /* === AIR 2026 Design System === */
@@ -249,6 +253,44 @@
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 @theme inline {
@@ -277,8 +319,6 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -1795,7 +1835,6 @@ html[data-style]:not([data-style="tech-noir"]) .btn-secondary:hover {
   border-color: var(--overlay-14);
 }
 
-
 /* ═══════════════════════════════════════════
    STYLE: Editorial
    Inspired by: NYT, Stripe, Medium
@@ -1841,7 +1880,6 @@ html[data-style="editorial"] {
   --timeline-track-bg: rgba(0, 0, 0, 0.06);
   --timeline-grid-color: #A0A0A0;
 }
-
 
 /* ═══════════════════════════════════════════
    STYLE: Corporate
@@ -1889,7 +1927,6 @@ html[data-style="corporate"] {
   --timeline-grid-color: #9CA3AF;
 }
 
-
 /* ═══════════════════════════════════════════
    STYLE: Warm Minimal
    Inspired by: Muji, Japanese design, Apple
@@ -1935,7 +1972,6 @@ html[data-style="warm-minimal"] {
   --timeline-track-bg: rgba(44, 36, 32, 0.1);
   --timeline-grid-color: #B0A89F;
 }
-
 
 /* ═══════════════════════════════════════════
    STYLE: Dark Pro
@@ -1992,7 +2028,6 @@ html[data-style="dark-pro"] {
   --timeline-track-bg: rgba(33, 38, 45, 0.5);
   --timeline-grid-color: #484F58;
 }
-
 
 /* ═══════════════════════════════════════════
    STYLE: Brutalist
@@ -3144,12 +3179,10 @@ html[data-style="newspaper"][data-style] .section-title {
   color: #CC0000;
 }
 
-
 /* ╔══════════════════════════════════════════════════════════════╗
    ║  BRAND STYLES — Radical visual identity transformations     ║
    ║  These go beyond color: patterns, textures, borders, fonts  ║
    ╚══════════════════════════════════════════════════════════════╝ */
-
 
 /* ──────────────────────────────────────────
    PIXEL — 8-bit retro game UI
@@ -3254,7 +3287,6 @@ html[data-style="pixel"][data-style] .section-title {
 html[data-style="pixel"][data-style] .status-badge { border-radius: 0; }
 html[data-style="pixel"][data-style] .bar-track { border: 2px solid #00FF00; }
 
-
 /* ──────────────────────────────────────────
    NOTION — Clean wiki with line dividers
    ────────────────────────────────────────── */
@@ -3329,7 +3361,6 @@ html[data-style="notion"][data-style] .section-divider {
   height: 1px;
 }
 html[data-style="notion"][data-style] .status-badge { border-radius: 3px; }
-
 
 /* ──────────────────────────────────────────
    BLUEPRINT — Technical drawing on blue
@@ -3426,7 +3457,6 @@ html[data-style="blueprint"][data-style] .bar-track {
   border: 1px dashed rgba(255,255,255,0.3);
 }
 
-
 /* ──────────────────────────────────────────
    NEUMORPHISM — Soft embossed surfaces
    ────────────────────────────────────────── */
@@ -3507,7 +3537,6 @@ html[data-style="neumorphism"][data-style] .card-risk {
   box-shadow: 6px 6px 12px #b8bec7, -6px -6px 12px #ffffff;
 }
 
-
 /* ──────────────────────────────────────────
    GLASSMORPHISM — Frosted glass over gradient
    ────────────────────────────────────────── */
@@ -3585,7 +3614,6 @@ html[data-style="glassmorphism"][data-style] .profession-btn.selected {
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 4px 20px rgba(255,0,110,0.2);
 }
-
 
 /* ──────────────────────────────────────────
    NEON — Glowing neon signs on void
@@ -3688,7 +3716,6 @@ html[data-style="neon"][data-style] .bar-track {
   box-shadow: inset 0 0 8px rgba(255,20,147,0.1);
 }
 
-
 /* ──────────────────────────────────────────
    WIREFRAME — UX prototype sketch
    ────────────────────────────────────────── */
@@ -3780,7 +3807,6 @@ html[data-style="wireframe"][data-style] body::before {
 }
 html[data-style="wireframe"][data-style] body::after { display: none; }
 
-
 /* ──────────────────────────────────────────
    NOTEBOOK — Lined paper with hand-placed feel
    ────────────────────────────────────────── */
@@ -3871,11 +3897,9 @@ html[data-style="notebook"][data-style] .section-title {
   -webkit-text-fill-color: #4169E1; color: #4169E1;
 }
 
-
 /* ╔══════════════════════════════════════════════════════════════╗
    ║  NEW BRAND STYLES — 30 radical visual identities            ║
    ╚══════════════════════════════════════════════════════════════╝ */
-
 
 /* ──────────────────────────────────────────
    COMIC — Halftone dots, bold outlines, POW-style
@@ -3964,7 +3988,6 @@ html[data-style="comic"][data-style] .section-title {
   letter-spacing: 2px;
 }
 
-
 /* ──────────────────────────────────────────
    ZEN GARDEN — Sand texture, stone gray
    ────────────────────────────────────────── */
@@ -4036,7 +4059,6 @@ html[data-style="zen-garden"][data-style] .section-title {
   font-weight: 300;
 }
 
-
 /* ──────────────────────────────────────────
    RETRO 70s — Orange/brown groovy waves
    ────────────────────────────────────────── */
@@ -4106,7 +4128,6 @@ html[data-style="retro-70s"][data-style] .section-title {
   background: none; -webkit-background-clip: unset; background-clip: unset;
   -webkit-text-fill-color: #D2691E; color: #D2691E;
 }
-
 
 /* ──────────────────────────────────────────
    PASSPORT — Official document, stamps, serif
@@ -4185,7 +4206,6 @@ html[data-style="passport"][data-style] .section-title {
   letter-spacing: 3px;
 }
 
-
 /* ──────────────────────────────────────────
    CLAY — Soft 3D clay morphism
    ────────────────────────────────────────── */
@@ -4250,7 +4270,6 @@ html[data-style="clay"][data-style] .section-title {
   background: none; -webkit-background-clip: unset; background-clip: unset;
   -webkit-text-fill-color: #7C3AED; color: #7C3AED;
 }
-
 
 /* ──────────────────────────────────────────
    JAPANESE WOOD — 和風 Wafuu, tatami aesthetic
@@ -4324,7 +4343,6 @@ html[data-style="japanese-wood"][data-style] .section-title {
   letter-spacing: 6px;
   font-weight: 300;
 }
-
 
 /* ──────────────────────────────────────────
    MAGAZINE — Vogue, high fashion editorial
@@ -4402,7 +4420,6 @@ html[data-style="magazine"][data-style] .section-title {
   letter-spacing: 8px;
   font-weight: 100;
 }
-
 
 /* ──────────────────────────────────────────
    LEGO — Bright primary blocks, stud pattern
@@ -4484,7 +4501,6 @@ html[data-style="lego"][data-style] .section-title {
   text-transform: uppercase;
 }
 
-
 /* ──────────────────────────────────────────
    POST-IT — Sticky notes on corkboard
    ────────────────────────────────────────── */
@@ -4557,7 +4573,6 @@ html[data-style="post-it"][data-style] .section-title {
   -webkit-text-fill-color: #333; color: #333;
 }
 
-
 /* ──────────────────────────────────────────
    WATERCOLOR — Soft pastel washes
    ────────────────────────────────────────── */
@@ -4619,7 +4634,6 @@ html[data-style="watercolor"][data-style] .section-title {
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 
 /* ──────────────────────────────────────────
    METRO UI — Windows flat bold tiles
@@ -4696,7 +4710,6 @@ html[data-style="metro"][data-style] .section-title {
   text-transform: lowercase;
 }
 
-
 /* ──────────────────────────────────────────
    TERMINAL LIGHT — VS Code light IDE
    ────────────────────────────────────────── */
@@ -4771,7 +4784,6 @@ html[data-style="terminal-light"][data-style] .section-title {
   -webkit-text-fill-color: #0066B8; color: #0066B8;
 }
 
-
 /* ──────────────────────────────────────────
    ORIGAMI — Paper folds, crease shadows
    ────────────────────────────────────────── */
@@ -4835,7 +4847,6 @@ html[data-style="origami"][data-style] .section-title {
   -webkit-text-fill-color: #2C3E50; color: #2C3E50;
   font-weight: 300;
 }
-
 
 /* ──────────────────────────────────────────
    CHALKBOARD LIGHT — Whiteboard, marker-drawn
@@ -4905,7 +4916,6 @@ html[data-style="chalkboard-light"][data-style] .section-title {
   background: none; -webkit-background-clip: unset; background-clip: unset;
   -webkit-text-fill-color: #2196F3; color: #2196F3;
 }
-
 
 /* ──────────────────────────────────────────
    RECEIPT — Thermal paper, monospace, narrow
@@ -4979,11 +4989,9 @@ html[data-style="receipt"][data-style] .section-title {
   letter-spacing: 3px;
 }
 
-
 /* ══════════════════════════════════════════
    DARK BRAND THEMES (all #000000 background)
    ══════════════════════════════════════════ */
-
 
 /* ──────────────────────────────────────────
    MATRIX — Green rain, hacker code
@@ -5064,7 +5072,6 @@ html[data-style="matrix"][data-style] .section-title {
   -webkit-text-fill-color: #00FF41; color: #00FF41;
   text-shadow: 0 0 10px rgba(0,255,65,0.4);
 }
-
 
 /* ──────────────────────────────────────────
    CYBERPUNK — Yellow + black, glitch borders
@@ -5154,7 +5161,6 @@ html[data-style="cyberpunk"][data-style] .section-title {
   letter-spacing: 4px;
 }
 
-
 /* ──────────────────────────────────────────
    NOIR FILM — B&W, film grain, dramatic
    ────────────────────────────────────────── */
@@ -5238,7 +5244,6 @@ html[data-style="noir-film"][data-style] .section-title {
   letter-spacing: 3px;
 }
 
-
 /* ──────────────────────────────────────────
    DEEP SPACE — Star field, nebula colors
    ────────────────────────────────────────── */
@@ -5321,7 +5326,6 @@ html[data-style="space"][data-style] .section-title {
   -webkit-text-fill-color: transparent;
 }
 
-
 /* ──────────────────────────────────────────
    HACKER — Red accents, monospace, sharp
    ────────────────────────────────────────── */
@@ -5401,7 +5405,6 @@ html[data-style="hacker"][data-style] .section-title {
   text-shadow: 0 0 8px rgba(255,0,51,0.4);
 }
 
-
 /* ──────────────────────────────────────────
    SYNTHWAVE — Pink/cyan, perspective grid, 80s
    ────────────────────────────────────────── */
@@ -5480,7 +5483,6 @@ html[data-style="synthwave"][data-style] .section-title {
   -webkit-text-fill-color: transparent;
 }
 
-
 /* ──────────────────────────────────────────
    CAMPFIRE — Warm ember orange on black
    ────────────────────────────────────────── */
@@ -5557,7 +5559,6 @@ html[data-style="campfire"][data-style] .section-title {
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 
 /* ──────────────────────────────────────────
    UNDERWATER — Deep blue-green, bubbles
@@ -5636,7 +5637,6 @@ html[data-style="underwater"][data-style] .section-title {
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 
 /* ──────────────────────────────────────────
    ARCADE — CRT scanlines, bright neon
@@ -5722,7 +5722,6 @@ html[data-style="arcade"][data-style] .section-title {
   text-transform: uppercase;
 }
 
-
 /* ──────────────────────────────────────────
    DARK CRAFT — Cardboard texture, earthy
    ────────────────────────────────────────── */
@@ -5793,7 +5792,6 @@ html[data-style="dark-paper"][data-style] .section-title {
   background: none; -webkit-background-clip: unset; background-clip: unset;
   -webkit-text-fill-color: #C4A870; color: #C4A870;
 }
-
 
 /* ──────────────────────────────────────────
    GALAXY — Purple nebula, cosmic dust
@@ -5874,7 +5872,6 @@ html[data-style="galaxy"][data-style] .section-title {
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 
 /* ──────────────────────────────────────────
    STEAMPUNK — Brass/copper, industrial gears
@@ -5958,7 +5955,6 @@ html[data-style="steampunk"][data-style] .section-title {
   -webkit-text-fill-color: transparent;
 }
 
-
 /* ──────────────────────────────────────────
    VOLCANIC — Molten cracks, lava glow
    ────────────────────────────────────────── */
@@ -6037,7 +6033,6 @@ html[data-style="volcanic"][data-style] .section-title {
   text-shadow: none;
 }
 
-
 /* ──────────────────────────────────────────
    FROST — Ice crystal, frozen edges
    ────────────────────────────────────────── */
@@ -6115,7 +6110,6 @@ html[data-style="frost"][data-style] .section-title {
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 
 /* ──────────────────────────────────────────
    RADIOACTIVE — Hazard yellow-green, warning stripes
@@ -6200,4 +6194,85 @@ html[data-style="radioactive"][data-style] .section-title {
   text-shadow: 0 0 10px rgba(173,255,47,0.4);
   text-transform: uppercase;
   letter-spacing: 3px;
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
