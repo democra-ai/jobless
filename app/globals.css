@@ -1402,44 +1402,23 @@ body {
 }
 
 .hero-glow::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  height: 80%;
-  background: radial-gradient(ellipse at center, rgba(255, 107, 53, 0.04) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
-/* Unified Section Title — matches "From Steam to AGI" style (Space Grotesk) */
+/* Unified Section Title */
 .section-title {
   font-family: var(--font-body);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.15;
-  background-image: linear-gradient(to right, var(--timeline-text), var(--timeline-text-muted));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--foreground);
 }
 
 .section-subtitle {
   color: var(--timeline-text-muted);
 }
 
-/* Animated Background Grid */
-.grid-bg {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 50px 50px;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
-}
-
-/* Scanline Effect — disabled per taste-skill */
+/* Scanline Effect — disabled */
 .scanline {
   position: relative;
 }
