@@ -225,14 +225,15 @@ export default function Home() {
         {shouldMountTimeline ? (
           <InteractiveTimeline lang={lang} theme={theme} />
         ) : (
-          <div className="min-h-[420px] sm:min-h-[560px] flex items-center justify-center px-6 py-12">
-            <div className="w-full max-w-2xl rounded-2xl border border-surface-elevated bg-surface/70 p-6 text-center">
-              <div className="text-sm sm:text-base font-semibold text-foreground">
-                {{ en: 'Timeline is loading', zh: '时间线内容即将加载', ja: 'タイムラインを読み込み中', ko: '타임라인 로딩 중', de: 'Zeitstrahl wird geladen' }[lang]}
+          <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center px-6 py-12">
+            <div className="w-full max-w-3xl space-y-3">
+              <div className="h-4 bg-surface-elevated/50 rounded w-1/3 animate-pulse"></div>
+              <div className="h-3 bg-surface-elevated/30 rounded w-2/3 animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+              <div className="mt-6 flex gap-4">
+                <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.4s' }}></div>
               </div>
-              <p className="mt-2 text-xs sm:text-sm text-foreground-muted">
-                {{ en: 'It mounts only when this section is near viewport to reduce initial CPU/GPU load.', zh: '滚动到此区域后再加载，减少首次打开卡顿与发热。', ja: '初期CPU/GPU負荷を軽減するため、このセクションがビューポート付近になったときのみ読み込みます。', ko: '초기 CPU/GPU 부하를 줄이기 위해 이 섹션이 뷰포트 근처에 있을 때만 로드됩니다.', de: 'Wird erst geladen, wenn dieser Abschnitt im Viewport ist, um die anfängliche CPU/GPU-Last zu reduzieren.' }[lang]}
-              </p>
             </div>
           </div>
         )}
@@ -256,16 +257,7 @@ export default function Home() {
         aria-label="Check my risk"
         title="Check my risk"
       >
-        <Target className="w-5 h-5" style={{ stroke: 'url(#mobile-risk-fab-gradient)' }} />
-        <svg width="0" height="0" aria-hidden="true" focusable="false">
-          <defs>
-            <linearGradient id="mobile-risk-fab-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#38bdf8" />
-              <stop offset="50%" stopColor="#a78bfa" />
-              <stop offset="100%" stopColor="#fb7185" />
-            </linearGradient>
-          </defs>
-        </svg>
+        <Target className="w-5 h-5 text-brand-primary" />
       </motion.button>
 
       <MobileBottomNav
