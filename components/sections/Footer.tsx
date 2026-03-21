@@ -3,7 +3,7 @@ import { Language, translations } from '@/lib/translations';
 // Footer
 function Footer({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <footer className="py-12 px-6">
+    <footer className="py-12 px-6 border-t border-surface-elevated/50">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
