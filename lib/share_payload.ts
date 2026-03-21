@@ -14,6 +14,7 @@ export type SharePayloadV1 = SharePayloadBase & { v: 1 };
 
 export type SharePayloadV2 = SharePayloadBase & {
   v: 2;
+  profileCode?: string;  // 4-letter code e.g. "EOFH"
   insights?: {
     primaryDriver: string;
     secondaryFactors: string[];
@@ -108,6 +109,9 @@ export function encodeSharePayload(payload: Omit<SharePayloadV2, 'v'>): string {
     earliestYear: clampInt(payload.earliestYear, 2024, 2100),
     latestYear: clampInt(payload.latestYear, 2024, 2100),
     lang: payload.lang,
+    profileCode: payload.profileCode && /^[ETOSFRHP]{4}$/i.test(payload.profileCode)
+      ? payload.profileCode.toUpperCase()
+      : undefined,
     insights: payload.insights
       ? {
           primaryDriver: sanitizeText(payload.insights.primaryDriver),
@@ -144,6 +148,10 @@ export function decodeSharePayload(payload: string): SharePayload | null {
 
   if (normalizedBase.v === 1) return normalizedBase;
 
+  const profileCode = typeof normalizedBase.profileCode === 'string' && /^[ETOSFRHP]{4}$/i.test(normalizedBase.profileCode)
+    ? normalizedBase.profileCode.toUpperCase()
+    : undefined;
+
   const insights = normalizedBase.insights
     ? {
         primaryDriver: sanitizeText(normalizedBase.insights.primaryDriver),
@@ -155,6 +163,7 @@ export function decodeSharePayload(payload: string): SharePayload | null {
 
   return {
     ...normalizedBase,
+    profileCode,
     insights,
     recommendations,
   };

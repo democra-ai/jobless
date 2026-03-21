@@ -42,16 +42,19 @@ export function LanguageButton({ lang, setLang }: { lang: Language; setLang: (la
             transition={{ duration: 0.15 }}
             className="absolute right-0 mt-1.5 w-36 rounded-lg border border-surface-elevated bg-surface-elevated backdrop-blur-xl shadow-lg overflow-hidden z-[100]"
           >
-            {SUPPORTED_LANGUAGES.map((l) => (
+            {SUPPORTED_LANGUAGES.map((l, i) => (
               <button
                 key={l.code}
                 onClick={() => { setLang(l.code); trackLangToggle(l.code); setOpen(false); }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-risk-high/20 ${
-                  lang === l.code ? 'text-risk-high font-semibold' : 'text-foreground'
-                }`}
+                  lang === l.code
+                    ? 'bg-risk-high/15 text-risk-high font-semibold'
+                    : 'text-foreground'
+                } ${i > 0 ? 'border-t border-surface-elevated/60' : ''}`}
               >
                 <span className="text-base leading-none">{l.flag}</span>
                 <span>{l.label}</span>
+                {lang === l.code && <span className="ml-auto text-xs opacity-60">&#10003;</span>}
               </button>
             ))}
           </motion.div>

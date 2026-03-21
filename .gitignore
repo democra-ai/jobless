@@ -84,3 +84,4 @@ venv/
 /analysis/iceberg_exposure/paper_source/**/*.pdf
 .env*.local
 tmp/
+.gstack/

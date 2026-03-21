@@ -435,7 +435,8 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       currentReplacementDegree: result.currentReplacementDegree,
       earliestYear: result.confidenceInterval.earliest,
       latestYear: isFinite(result.confidenceInterval.latest) ? result.confidenceInterval.latest : 9999,
-      lang: lang === 'zh' ? 'zh' : 'en',
+      lang,
+      profileCode: result.profileCode,
     });
     const runtimeOrigin = window.location.origin;
     const localhostPattern = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i;

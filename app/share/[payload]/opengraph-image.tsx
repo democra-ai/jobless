@@ -19,7 +19,7 @@ function pal(lv: SharePayload['riskLevel']) {
   return p[lv] || p.critical;
 }
 
-function label(lv: SharePayload['riskLevel'], zh: boolean) {
+function riskLabel(lv: SharePayload['riskLevel'], zh: boolean) {
   const m: Record<string, [string, string]> = {
     'very-low': ['VERY LOW', '极低'], 'low': ['LOW', '低'], 'medium': ['MEDIUM', '中等'],
     'high': ['HIGH', '高'], 'critical': ['CRITICAL', '极高'],
@@ -30,12 +30,12 @@ function label(lv: SharePayload['riskLevel'], zh: boolean) {
 /* grid helper */
 function HLines({ n, gap }: { n: number; gap: number }) {
   return <>{Array.from({ length: n }).map((_, i) => (
-    <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: i * gap, height: 1, display: 'flex', background: 'rgba(255,255,255,0.025)' }} />
+    <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: i * gap, height: 1, display: 'flex', background: 'rgba(255,255,255,0.09)' }} />
   ))}</>;
 }
 function VLines({ n, gap }: { n: number; gap: number }) {
   return <>{Array.from({ length: n }).map((_, i) => (
-    <div key={i} style={{ position: 'absolute', top: 0, bottom: 0, left: i * gap, width: 1, display: 'flex', background: 'rgba(255,255,255,0.025)' }} />
+    <div key={i} style={{ position: 'absolute', top: 0, bottom: 0, left: i * gap, width: 1, display: 'flex', background: 'rgba(255,255,255,0.09)' }} />
   ))}</>;
 }
 
@@ -54,21 +54,74 @@ export default async function Image({ params }: Props) {
 
   const zh = data.lang === 'zh';
   const c = pal(data.riskLevel);
-  const lb = label(data.riskLevel, zh);
+  const lb = riskLabel(data.riskLevel, zh);
   const prob = data.replacementProbability;
   const yr = data.predictedReplacementYear >= 2100 ? '∞' : String(data.predictedReplacementYear);
   const stages = ['SAFE', 'ASSIST', 'AGENT', 'LEAD', 'KILL'];
-  const dims = [
-    { l: 'LEARN', v: 'E' }, { l: 'EVAL', v: 'O' },
-    { l: 'RISK', v: 'F' }, { l: 'HUMAN', v: 'H' },
-  ];
+
+  // ── Marketing data ──
+  const currentYear = new Date().getFullYear();
+  const yearsLeft = data.predictedReplacementYear >= 2100 ? null : data.predictedReplacementYear - currentYear;
+  const percentileSafe = 100 - prob;
+
+  // Profile code from payload or fallback
+  const profileCode = (data.v === 2 && 'profileCode' in data && data.profileCode) || null;
+  const favorableLetters = ['E', 'O', 'F', 'P'];
+  // Dimension labels: letter → full name
+  const dimMeta: Record<string, { en: string; zh: string }> = {
+    E: { en: 'Explicit', zh: '显性型' }, T: { en: 'Tacit', zh: '隐性型' },
+    O: { en: 'Objective', zh: '客观型' }, S: { en: 'Subjective', zh: '主观型' },
+    F: { en: 'Flexible', zh: '弹性型' }, R: { en: 'Rigid', zh: '刚性型' },
+    P: { en: 'Product', zh: '对事型' }, H: { en: 'Human', zh: '对人型' },
+  };
+  const dims = profileCode
+    ? profileCode.split('').map((letter, i) => ({
+        v: letter,
+        name: dimMeta[letter]?.[zh ? 'zh' : 'en'] ?? letter,
+        risky: letter === favorableLetters[i],
+      }))
+    : [
+        { v: 'E', name: zh ? '显性型' : 'Explicit', risky: true },
+        { v: 'O', name: zh ? '客观型' : 'Objective', risky: true },
+        { v: 'F', name: zh ? '弹性型' : 'Flexible', risky: true },
+        { v: 'H', name: zh ? '对人型' : 'Human', risky: false },
+      ];
+
+  // Profile type name lookup
+  const profileNames: Record<string, { en: string; zh: string }> = {
+    EOFP: { en: 'Full Chain Open', zh: '全链路畅通型' },
+    EOFH: { en: 'Relationship Anchored', zh: '关系锚定型' },
+    EORP: { en: 'Compliance Gatekeeper', zh: '合规守门型' },
+    ESFP: { en: 'Creative Trial-and-Error', zh: '创意试错型' },
+    TOFP: { en: 'Skill Executor', zh: '技能执行型' },
+    EORH: { en: 'Licensed Trust', zh: '执证信任型' },
+    ESFH: { en: 'Taste Curator', zh: '审美策展型' },
+    ESRP: { en: 'Craft Guardian', zh: '工艺守护型' },
+    TSFP: { en: 'Experience Catalyst', zh: '体验催化型' },
+    TORP: { en: 'Field Commander', zh: '现场指挥型' },
+    TORH: { en: 'Crisis Navigator', zh: '危机领航型' },
+    ESRH: { en: 'Meaning Architect', zh: '意义建构型' },
+    TSRP: { en: 'Physical Sovereign', zh: '身体主权型' },
+    TSFH: { en: 'Bond Weaver', zh: '纽带编织型' },
+    TOFH: { en: 'Embodied Guide', zh: '身心引导型' },
+    TSRH: { en: 'Deep Human Core', zh: '深度人性型' },
+  };
+  const profileName = profileCode ? (profileNames[profileCode]?.[zh ? 'zh' : 'en'] ?? null) : null;
+
+  // Hook: countdown + percentile
+  const countdownText = yearsLeft !== null
+    ? (zh ? `距离你被替代还有 ${yearsLeft} 年` : `${yearsLeft} ${yearsLeft === 1 ? 'year' : 'years'} until you're replaced`)
+    : (zh ? `AI 已经能做你 ${data.currentReplacementDegree}% 的工作` : `AI can already do ${data.currentReplacementDegree}% of your job`);
+  const pctText = zh
+    ? `你比 ${percentileSafe}% 的测试者更安全`
+    : `Safer than ${percentileSafe}% of test takers`;
 
   return new ImageResponse(
     <div style={{ width: '100%', height: '100%', display: 'flex', background: '#06080e', fontFamily: 'sans-serif', position: 'relative', overflow: 'hidden', color: '#ccd0e4' }}>
 
-      {/* BG grid */}
-      <HLines n={20} gap={32} />
-      <VLines n={38} gap={32} />
+      {/* BG grid — 50px square cells matching site .grid-bg */}
+      <HLines n={13} gap={50} />
+      <VLines n={25} gap={50} />
 
       {/* BG glows */}
       <div style={{ position: 'absolute', top: -80, left: 100, width: 460, height: 460, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${c.g}12 0%, transparent 65%)` }} />
@@ -79,112 +132,140 @@ export default async function Image({ params }: Props) {
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, display: 'flex', background: `linear-gradient(90deg, transparent 5%, ${c.m} 35%, ${c.a} 65%, transparent 95%)` }} />
 
       {/* ═══ CONTENT ═══ */}
-      <div style={{ display: 'flex', width: '100%', height: '100%', padding: '32px 44px 28px', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', width: '100%', height: '100%', padding: '30px 44px 24px', flexDirection: 'column' }}>
 
         {/* ── ROW 1: Header ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 15, fontWeight: 900, letterSpacing: 5, opacity: 0.5 }}>AIR</span>
-            <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.15)', display: 'flex' }} />
-            <span style={{ fontSize: 10, letterSpacing: 2, opacity: 0.2 }}>{zh ? 'AI替代风险指数' : 'AI REPLACEMENT INDEX'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <span style={{ fontSize: 42, fontWeight: 900, letterSpacing: 10, opacity: 0.72 }}>AIR</span>
+            <div style={{ width: 1.5, height: 32, background: 'rgba(255,255,255,0.25)', display: 'flex' }} />
+            <span style={{ fontSize: 18, letterSpacing: 3, opacity: 0.4 }}>{zh ? 'AI替代风险指数' : 'AI REPLACEMENT INDEX'}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '5px 16px', borderRadius: 100, border: `1px solid ${c.m}45`, background: `${c.m}0d` }}>
-            <div style={{ width: 6, height: 6, borderRadius: 3, background: c.m, display: 'flex' }} />
-            <span style={{ fontSize: 11, fontWeight: 800, color: c.m, letterSpacing: 2 }}>{lb} RISK</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 26px', borderRadius: 100, border: `1.5px solid ${c.m}55`, background: `${c.m}14` }}>
+            <div style={{ width: 10, height: 10, borderRadius: 5, background: c.m, display: 'flex' }} />
+            <span style={{ fontSize: 17, fontWeight: 800, color: c.m, letterSpacing: 2.5 }}>{zh ? `${lb}风险` : `${lb} RISK`}</span>
           </div>
         </div>
 
         {/* ── ROW 2: Main content (2 columns) ── */}
         <div style={{ display: 'flex', flex: 1 }}>
 
-          {/* LEFT: hero number */}
-          <div style={{ display: 'flex', flexDirection: 'column', width: '44%', justifyContent: 'center' }}>
-            <span style={{ fontSize: 10, letterSpacing: 3, opacity: 0.3, marginBottom: 2 }}>
-              {zh ? '替代概率' : 'REPLACEMENT PROBABILITY'}
-            </span>
-            <div style={{ display: 'flex', alignItems: 'baseline', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: '20%', left: 50, width: 240, height: 160, borderRadius: '50%', display: 'flex', background: `radial-gradient(ellipse, ${c.m}18 0%, transparent 70%)` }} />
-              <span style={{ fontSize: 180, fontWeight: 900, lineHeight: 0.8, letterSpacing: -6, color: c.m, position: 'relative' }}>{prob}</span>
-              <span style={{ fontSize: 56, fontWeight: 800, color: c.m, opacity: 0.3, marginLeft: 4, lineHeight: 0.8, position: 'relative' }}>%</span>
+          {/* LEFT: hero number + dimension squares */}
+          <div style={{ display: 'flex', width: '44%', alignItems: 'center', paddingLeft: 36 }}>
+            {/* Number block */}
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <span style={{ fontSize: 16, letterSpacing: 3.5, opacity: 0.45, marginBottom: 4, fontWeight: 600 }}>
+                {zh ? '替代概率' : 'REPLACEMENT PROBABILITY'}
+              </span>
+              <div style={{ display: 'flex', alignItems: 'baseline', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '20%', left: 50, width: 240, height: 160, borderRadius: '50%', display: 'flex', background: `radial-gradient(ellipse, ${c.m}18 0%, transparent 70%)` }} />
+                <span style={{ fontSize: 170, fontWeight: 900, lineHeight: 0.8, letterSpacing: -6, color: c.m, position: 'relative' }}>{prob}</span>
+                <span style={{ fontSize: 52, fontWeight: 800, color: c.m, opacity: 0.3, marginLeft: 4, lineHeight: 0.8, position: 'relative' }}>%</span>
+              </div>
+              {/* Profile type name */}
+              {profileName && (
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 14 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, opacity: 0.4, letterSpacing: 2 }}>{zh ? '类型' : 'TYPE'}</span>
+                  <span style={{ fontSize: 20, fontWeight: 800, color: c.m }}>{profileName}</span>
+                </div>
+              )}
             </div>
 
-            {/* Dimension letters */}
-            <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-              {dims.map((d, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '5px 12px', borderRadius: 7, border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
-                  <span style={{ fontSize: 8, opacity: 0.2, letterSpacing: 1 }}>{d.l}</span>
-                  <span style={{ fontSize: 24, fontWeight: 800, color: i < 3 ? c.m : '#b0b4c8' }}>{d.v}</span>
-                </div>
-              ))}
+            {/* Dimension squares — vertical */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginLeft: 20, justifyContent: 'center' }}>
+              {dims.map((d, i) => {
+                const dimColor = d.risky ? '#f43f5e' : '#34d399';
+                const dimBorder = d.risky ? 'rgba(244,63,94,0.35)' : 'rgba(52,211,153,0.35)';
+                const dimBg = d.risky ? 'rgba(244,63,94,0.1)' : 'rgba(52,211,153,0.1)';
+                return (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ display: 'flex', width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 10, border: `1.5px solid ${dimBorder}`, background: dimBg }}>
+                      <span style={{ fontSize: 26, fontWeight: 900, color: dimColor }}>{d.v}</span>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: dimColor, letterSpacing: 0.5 }}>{d.name}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           {/* RIGHT: data panels */}
-          <div style={{ display: 'flex', flexDirection: 'column', width: '56%', paddingLeft: 28, gap: 12, justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', width: '56%', paddingLeft: 24, gap: 10, justifyContent: 'center' }}>
 
-            {/* Kill Line */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.025)' }}>
+            {/* 1. Predicted Year */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.025)' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: 10, letterSpacing: 2, opacity: 0.3 }}>{zh ? 'AI斩杀线' : 'AI KILL LINE'}</span>
-                <span style={{ fontSize: 56, fontWeight: 900, lineHeight: 1, marginTop: 2, color: '#fff' }}>{yr}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: 3, opacity: 0.45 }}>
+                  {zh ? '预测替代年份' : 'PREDICTED REPLACEMENT YEAR'}
+                </span>
+                <span style={{ fontSize: 52, fontWeight: 900, lineHeight: 1, marginTop: 2, color: '#fff' }}>{yr}</span>
                 {data.predictedReplacementYear < 2100 && (
-                  <span style={{ fontSize: 11, opacity: 0.2, marginTop: 2 }}>{data.earliestYear} — {data.latestYear}</span>
+                  <span style={{ fontSize: 13, opacity: 0.3, marginTop: 2 }}>{data.earliestYear} — {data.latestYear}</span>
                 )}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-                <span style={{ fontSize: 9, opacity: 0.14 }}>CONF 87%</span>
-                <span style={{ fontSize: 9, opacity: 0.14 }}>MODEL v3.2</span>
-                <span style={{ fontSize: 9, opacity: 0.14 }}>N=19,265</span>
-              </div>
-            </div>
-
-            {/* Current progress */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.04)', background: 'rgba(255,255,255,0.015)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 10, letterSpacing: 2, opacity: 0.25 }}>{zh ? '当前AI替代程度' : 'CURRENT AI PROGRESS'}</span>
-                <span style={{ fontSize: 22, fontWeight: 800, color: '#67e8f9' }}>{data.currentReplacementDegree}%</span>
-              </div>
-              <div style={{ display: 'flex', height: 5, borderRadius: 3, overflow: 'hidden' }}>
-                <div style={{ width: `${data.currentReplacementDegree}%`, height: '100%', display: 'flex', borderRadius: 3, background: `linear-gradient(90deg, #67e8f9, ${c.m})` }} />
-                <div style={{ flex: 1, height: '100%', display: 'flex', background: 'rgba(255,255,255,0.04)' }} />
-              </div>
-            </div>
-
-            {/* Stats row */}
-            <div style={{ display: 'flex', gap: 10 }}>
-              {[
-                { l: 'EXPOSURE', v: '34.8%', cl: c.m },
-                { l: 'WIN RATE', v: '71.3%', cl: c.m },
-                { l: 'JOBS', v: '130M', cl: '#67e8f9' },
-              ].map((s, i) => (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.04)', background: 'rgba(255,255,255,0.015)' }}>
-                  <span style={{ fontSize: 8, opacity: 0.2, letterSpacing: 1 }}>{s.l}</span>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: s.cl }}>{s.v}</span>
+              {/* Current AI capability — compact inline */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.35, letterSpacing: 1.5 }}>{zh ? 'AI当前能力' : 'AI CAPABILITY'}</span>
+                <span style={{ fontSize: 28, fontWeight: 800, color: '#67e8f9' }}>{data.currentReplacementDegree}%</span>
+                <div style={{ display: 'flex', width: 100, height: 5, borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ width: `${data.currentReplacementDegree}%`, height: '100%', display: 'flex', borderRadius: 3, background: `linear-gradient(90deg, #67e8f9, ${c.m})` }} />
+                  <div style={{ flex: 1, height: '100%', display: 'flex', background: 'rgba(255,255,255,0.04)' }} />
                 </div>
-              ))}
+              </div>
+            </div>
+
+            {/* 2. Hook: countdown + urgency */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 24px', borderRadius: 14, border: `1px solid ${c.m}25`, background: `${c.m}0a` }}>
+              <span style={{ fontSize: 22, fontWeight: 800, color: c.m, letterSpacing: 0.5 }}>
+                {countdownText}
+              </span>
+            </div>
+
+            {/* 3. Percentile ranking */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
+              <div style={{ display: 'flex', flex: 1, height: 6, borderRadius: 3, overflow: 'hidden' }}>
+                <div style={{ width: `${percentileSafe}%`, height: '100%', display: 'flex', borderRadius: 3, background: `linear-gradient(90deg, ${c.m}, #34d399)` }} />
+                <div style={{ flex: 1, height: '100%', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
+              </div>
+              <span style={{ fontSize: 16, fontWeight: 700, opacity: 0.55 }}>
+                {pctText}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* ── ROW 3: Gauge bar ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 10 }}>
-          <div style={{ display: 'flex', gap: 3, height: 6 }}>
+        {/* ── ROW 3: Gauge bar with "You are here" ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginTop: 8, position: 'relative' }}>
+          {/* "You are here" pointer above the bar */}
+          <div style={{ display: 'flex', position: 'relative', height: 24, marginBottom: 2 }}>
+            <div style={{ position: 'absolute', left: `${prob}%`, transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: `7px solid ${c.m}`, display: 'flex' }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: c.m, letterSpacing: 1, whiteSpace: 'nowrap' }}>
+                {zh ? '你在这里' : 'YOU ARE HERE'}
+              </span>
+            </div>
+          </div>
+          {/* Bar segments */}
+          <div style={{ display: 'flex', gap: 4, height: 10 }}>
             {[0, 1, 2, 3, 4].map(i => {
               const s = i * 20, e = s + 20;
               const f = prob >= e ? 1 : prob <= s ? 0 : (prob - s) / 20;
+              const barColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
               return (
-                <div key={i} style={{ flex: 1, borderRadius: 3, display: 'flex', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
-                  <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 3, display: 'flex', background: i >= 4 ? c.m : `${c.m}${['70', '90', 'aa', 'cc'][i]}` }} />
+                <div key={i} style={{ flex: 1, borderRadius: 5, display: 'flex', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                  <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 5, display: 'flex', background: barColors[i] }} />
                 </div>
               );
             })}
           </div>
-          <div style={{ display: 'flex' }}>
+          {/* Stage labels */}
+          <div style={{ display: 'flex', marginTop: 5 }}>
             {stages.map((s, i) => {
               const active = i * 20 <= prob && prob < i * 20 + 20;
+              const stageColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
               return (
-                <div key={i} style={{ flex: 1, display: 'flex' }}>
-                  <span style={{ fontSize: 8, letterSpacing: 1, opacity: active ? 0.6 : 0.1, color: active ? c.m : '#ccd0e4', fontWeight: active ? 800 : 400 }}>{s}</span>
+                <div key={i} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                  <span style={{ fontSize: 15, letterSpacing: 2, opacity: active ? 1 : 0.4, color: stageColors[i], fontWeight: 800 }}>{s}</span>
                 </div>
               );
             })}
@@ -192,13 +273,51 @@ export default async function Image({ params }: Props) {
         </div>
 
         {/* ── ROW 4: CTA ── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', padding: '10px 28px', borderRadius: 10, background: `linear-gradient(135deg, ${c.m}, ${c.a})` }}>
-            <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: 0.5 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '12px 32px', borderRadius: 12, background: `linear-gradient(135deg, ${c.m}, ${c.a})` }}>
+            <span style={{ fontSize: 17, fontWeight: 800, color: '#fff', letterSpacing: 0.5 }}>
               {zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? Take the test →"}
             </span>
           </div>
-          <span style={{ fontSize: 10, opacity: 0.15, letterSpacing: 1 }}>air.democra.ai</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 13, opacity: 0.2, letterSpacing: 1.5 }}>air.democra.ai</span>
+            {/* QR code for air.democra.ai */}
+            <div style={{ display: 'flex', flexDirection: 'column', padding: 3, background: '#fff', borderRadius: 4 }}>
+              {([
+                [1,1,1,1,1,1,1,0,1,1,1,1,0,1,0,0,0,0,1,1,1,1,1,1,1],
+                [1,0,0,0,0,0,1,0,0,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0,1],
+                [1,0,1,1,1,0,1,0,0,1,0,1,0,1,0,0,1,0,1,0,1,1,1,0,1],
+                [1,0,1,1,1,0,1,0,0,0,1,1,0,1,0,0,1,0,1,0,1,1,1,0,1],
+                [1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,1,0,1,0,1,1,1,0,1],
+                [1,0,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1],
+                [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
+                [0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0],
+                [1,1,0,1,1,0,1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1],
+                [0,1,1,0,0,0,0,0,1,0,1,0,0,1,1,1,0,0,0,1,1,1,1,1,0],
+                [0,0,0,1,1,0,1,1,0,1,0,0,1,1,0,1,1,1,0,1,1,1,0,0,1],
+                [0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1],
+                [0,0,0,1,1,0,1,1,1,1,1,0,0,0,0,0,1,0,1,1,0,0,0,0,1],
+                [1,0,0,1,0,1,0,1,1,1,1,0,1,1,1,1,1,1,0,0,1,0,0,1,0],
+                [1,1,1,1,0,1,1,0,1,0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1],
+                [1,0,1,1,0,1,0,1,1,0,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1],
+                [1,0,1,0,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1,1,0,1,1,0],
+                [0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0,0,1,0,1,1,0],
+                [1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,0,1],
+                [1,0,0,0,0,0,1,0,0,1,0,1,0,1,0,1,1,0,0,0,1,0,0,0,0],
+                [1,0,1,1,1,0,1,0,1,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,1],
+                [1,0,1,1,1,0,1,0,1,0,0,0,1,1,1,0,1,0,1,0,0,0,0,1,1],
+                [1,0,1,1,1,0,1,0,0,1,0,1,0,1,0,0,0,1,0,0,1,1,1,1,1],
+                [1,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,1,1,0,1,1,1],
+                [1,1,1,1,1,1,1,0,1,0,1,1,1,1,0,0,1,1,0,0,0,1,0,0,1],
+              ] as number[][]).map((row, y) => (
+                <div key={y} style={{ display: 'flex' }}>
+                  {row.map((cell, x) => (
+                    <div key={x} style={{ width: 2, height: 2, display: 'flex', background: cell ? '#000' : '#fff' }} />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
