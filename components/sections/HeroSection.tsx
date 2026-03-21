@@ -162,22 +162,17 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
 
         {/* CTA — scroll to calculator, outside the card */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
           className="mt-10 flex justify-center"
         >
           <button
             onClick={() => { trackCtaClick('scroll_to_calculator', 'hero'); document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-            className="group flex items-center gap-1.5 cursor-pointer"
+            className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/15 transition-colors cursor-pointer"
           >
-            <motion.div
-              animate={{ y: [0, 3, 0] }}
-              transition={{ duration: 1.2, repeat: 2, repeatType: 'loop', ease: 'easeInOut' }}
-            >
-              <ChevronDown className="w-4 h-4 text-foreground-muted" />
-            </motion.div>
-            <span className="text-sm font-medium text-foreground-muted">
+            <ChevronDown className="w-4 h-4" />
+            <span className="text-sm font-semibold">
               {t.transitionCta}
             </span>
           </button>
