@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { Target } from 'lucide-react';
 import { Language, Theme, MobileSection, MOBILE_SECTION_TARGETS, translations, detectBrowserLanguage, getHtmlLang } from '@/lib/translations';
 import HeroSection from '@/components/sections/HeroSection';
@@ -11,9 +11,7 @@ import DataThreatSection from '@/components/sections/DataThreatSection';
 import AnalysisLinkSection from '@/components/sections/AnalysisLinkSection';
 import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
-import { StyleSwitcherButton, type DesignStyle } from '@/components/StyleSwitcher';
 import { trackCtaClick } from '@/lib/analytics';
-import { ScrollProgress } from '@/components/ui/scroll-progress';
 
 // Lazy-load heavy below-fold components (bundle-dynamic-imports rule)
 const InteractiveTimeline = dynamic(() => import('@/components/InteractiveTimeline'), { ssr: false });
@@ -28,7 +26,6 @@ export default function Home() {
     return 'en';
   });
   const [theme, setTheme] = useState<Theme>('dark');
-  const [designStyle, setDesignStyle] = useState<DesignStyle>('tech-noir');
   const [activeMobileSection, setActiveMobileSection] = useState<MobileSection>('overview');
   const [shouldMountTimeline, setShouldMountTimeline] = useState(false);
   const navLockRef = useRef(false);
@@ -51,11 +48,6 @@ export default function Home() {
     document.getElementById(MOBILE_SECTION_TARGETS[section])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleStyleChange = (newStyle: DesignStyle, newTheme: Theme) => {
-    setDesignStyle(newStyle);
-    setTheme(newTheme);
-  };
-
   useEffect(() => {
     const saved = localStorage.getItem('air-theme') as Theme | null;
     if (saved) {
@@ -65,8 +57,6 @@ export default function Home() {
       setTheme('dark');
       document.documentElement.setAttribute('data-theme', 'dark');
     }
-    const savedStyle = localStorage.getItem('air-style') as DesignStyle | null;
-    if (savedStyle) setDesignStyle(savedStyle);
   }, []);
 
   useEffect(() => {
@@ -210,29 +200,22 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen overflow-x-hidden mobile-shell relative" data-ui-lang={lang}>
-      <ScrollProgress className="h-[2px] bg-gradient-to-r from-[#ff6b35] via-[#ff1744] to-[#a78bdb]" />
-
+    <main className="min-h-screen overflow-x-hidden mobile-shell" data-ui-lang={lang}>
       <div
         className="mobile-top-controls fixed z-[96] flex flex-col gap-2"
         style={{ top: 'calc(var(--safe-top) + 1rem)', right: 'calc(var(--safe-right) + 1rem)' }}
       >
         <LanguageButton lang={lang} setLang={setLang} />
-        <StyleSwitcherButton style={designStyle} onStyleChange={handleStyleChange} />
-        {designStyle === 'tech-noir' && <ThemeButton theme={theme} setTheme={setTheme} />}
+        <ThemeButton theme={theme} setTheme={setTheme} />
       </div>
 
       <div id="overview-anchor" data-mobile-section="overview" className="scroll-mt-28 sm:scroll-mt-0">
         <HeroSection lang={lang} t={t} />
       </div>
-
-      <div className="relative z-20 bg-surface/90">
-        <SurvivalIndexSection lang={lang} t={t} />
-        <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
-          <DataThreatSection lang={lang} t={t} />
-        </div>
+      <SurvivalIndexSection lang={lang} t={t} />
+      <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
+        <DataThreatSection lang={lang} t={t} />
       </div>
-
       <div
         id="timeline-anchor"
         ref={timelineAnchorRef}
@@ -255,11 +238,8 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      <div className="relative z-20">
-        <AnalysisLinkSection lang={lang} t={t} />
-        <Footer lang={lang} t={t} />
-      </div>
+      <AnalysisLinkSection lang={lang} t={t} />
+      <Footer lang={lang} t={t} />
 
       <motion.button
         initial={{ opacity: 0, y: 10 }}

@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
-import { Syne, Space_Grotesk, JetBrains_Mono, Geist } from "next/font/google";
+import { Syne, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const syne = Syne({
   subsets: ["latin"],
@@ -80,11 +77,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(syne.variable, spaceGrotesk.variable, jetbrainsMono.variable, "font-sans", geist.variable, "dark")} suppressHydrationWarning>
+    <html lang="en" className={`${syne.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('air-style');if(s)document.documentElement.setAttribute('data-style',s);var t=localStorage.getItem('air-theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){}})()`,
+            __html: `(function(){try{var t=localStorage.getItem('air-theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','dark')}}catch(e){}})()`,
           }}
         />
       </head>

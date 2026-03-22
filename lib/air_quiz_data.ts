@@ -861,7 +861,7 @@ export const RISK_TIER_INFO: Record<ProfileType['riskTier'], {
   },
   'extreme-low': {
     label: { en: 'Very Low Risk', zh: '极低风险' },
-    color: '#34d399',
+    color: '#00e676',
     probability: { min: 5, max: 15 },
   },
 };

@@ -44,7 +44,7 @@ function riskColorFromScore(score: number): string {
   if (score >= 60) return '#ff1744';   // 60-80%:  critical (same as --risk-critical)
   if (score >= 40) return '#ff5722';   // 40-60%:  high (same as --risk-high)
   if (score >= 20) return '#ffc107';   // 20-40%:  medium (same as --risk-medium)
-  return '#34d399';                    // 0-20%:   low (same as --risk-low)
+  return '#00e676';                    // 0-20%:   low (same as --risk-low)
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -115,7 +115,7 @@ function DimensionBadge({ icon: Icon, label, color }: { icon: React.ElementType;
 }
 
 const DIMENSION_ICONS = [Brain, Target, Shield, Users];
-const DIMENSION_COLORS_DARK = ['#7c4dff', '#ff6e40', '#5ec6b0', '#ff80ab'];
+const DIMENSION_COLORS_DARK = ['#7c4dff', '#ff6e40', '#64ffda', '#ff80ab'];
 
 function useDimensionColors(): string[] {
   const [colors, setColors] = useState(DIMENSION_COLORS_DARK);
@@ -707,7 +707,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass-card rounded-3xl p-6 md:p-10 relative"
+          className="calc-container rounded-3xl p-6 md:p-10 relative"
         >
           {/* ══════════════ INTRO PHASE ══════════════ */}
           {phase === 'intro' && (
@@ -1062,7 +1062,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                       const isInfinity = !isFinite(result.predictedReplacementYear);
                       // Year urgency: sooner = more red, ∞ = green
                       const yearsAway = isInfinity ? 99 : result.predictedReplacementYear - new Date().getFullYear();
-                      const yearColor = isInfinity ? '#34d399' : riskColorFromScore(Math.max(0, Math.min(100, 100 - yearsAway * 4)));
+                      const yearColor = isInfinity ? '#00e676' : riskColorFromScore(Math.max(0, Math.min(100, 100 - yearsAway * 4)));
                       return (
                         <div className="flex items-center justify-center gap-5 sm:gap-8 py-4 border-t border-b border-overlay-6">
                           <div className="text-center">
@@ -1144,11 +1144,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                             transition={{ delay: 0.65 }}
                           >
                             <div className="flex items-start gap-2.5">
-                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#34d39920' }}>
+                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#00e67620' }}>
                                 <span className="text-[10px]">🛡️</span>
                               </div>
                               <div className="min-w-0">
-                                <div className="text-[11px] font-bold" style={{ color: '#34d399' }}>
+                                <div className="text-[11px] font-bold" style={{ color: '#00e676' }}>
                                   {lang === 'zh' ? '你的防御优势' : 'Your Defense'}
                                 </div>
                                 <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-0.5">
@@ -1230,11 +1230,11 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
                     {/* ── Personalized Advice ── */}
                     {(() => {
                       const adviceList = generateAdvice(result.dimensions);
-                      const accentColors = ['#ff1744', '#ffc107', '#34d399', '#448aff', '#e040fb'];
+                      const accentColors = ['#ff1744', '#ffc107', '#00e676', '#448aff', '#e040fb'];
                       return (
                         <div className="pt-5 mt-3 border-t border-overlay-6">
                           <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70 mb-4 flex items-center gap-2">
-                            <span className="inline-block w-4 h-px" style={{ background: 'linear-gradient(90deg, #ff1744, #ffc107, #34d399)' }} />
+                            <span className="inline-block w-4 h-px" style={{ background: 'linear-gradient(90deg, #ff1744, #ffc107, #00e676)' }} />
                             {lang === 'zh' ? '行动建议' : 'Action Plan'}
                             <span className="inline-block flex-1 h-px bg-overlay-6" />
                           </h4>
