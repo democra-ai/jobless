@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import { Language } from '@/lib/translations';
 import { trackInternalNavigation } from '@/lib/analytics';
 import { BlurFade } from '@/components/ui/blur-fade';
+import { NeonGradientCard } from '@/components/ui/neon-gradient-card';
+import { ShimmerButton } from '@/components/ui/shimmer-button';
+import { TextAnimate } from '@/components/ui/text-animate';
 
-function AnalysisLinkSection({ lang }: { lang: Language; t: Record<string, any> }) {
+function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, any> }) {
   const linkText: Record<string, { title: string; subtitle: string; buttonText: string }> = {
     en: {
       title: 'Want Deeper Analysis?',
@@ -38,41 +40,43 @@ function AnalysisLinkSection({ lang }: { lang: Language; t: Record<string, any> 
   const text = linkText[lang] ?? linkText['en'];
 
   return (
-    <section className="py-20 sm:py-32 px-6 overflow-hidden">
-      <div className="max-w-3xl mx-auto text-center">
-        <BlurFade delay={0.1} inView>
-          <div className="rounded-3xl p-10 sm:p-16 relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, color-mix(in srgb, var(--brand-primary) 8%, var(--surface)), color-mix(in srgb, var(--risk-critical) 5%, var(--surface)))',
-              border: '1px solid var(--surface-elevated)',
-            }}>
-            {/* Decorative blur */}
-            <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-[0.08]"
-              style={{ background: 'radial-gradient(circle, var(--brand-primary), transparent 70%)', filter: 'blur(60px)' }} />
+    <section className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50 overflow-hidden">
+      <div className="max-w-xl mx-auto">
+        <BlurFade delay={0.15} inView>
+          <NeonGradientCard
+            neonColors={{ firstColor: '#ff6b35', secondColor: '#ff1744' }}
+            className="text-center"
+          >
+            <div className="p-2 sm:p-4">
+              <TextAnimate
+                as="h2"
+                animation="blurInUp"
+                by="word"
+                className="text-2xl md:text-3xl font-bold mb-4 section-title"
+              >
+                {text.title}
+              </TextAnimate>
 
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 relative z-10"
-              style={{ fontFamily: 'var(--font-display)', color: 'var(--foreground)' }}>
-              {text.title}
-            </h2>
-            <p className="text-base sm:text-lg mb-10 relative z-10" style={{ color: 'var(--foreground-muted)' }}>
-              {text.subtitle}
-            </p>
-            <div className="relative z-10">
+              <p className="section-subtitle mb-8 max-w-md mx-auto">
+                {text.subtitle}
+              </p>
+
               <Link
                 href="/analysis"
                 onClick={() => trackInternalNavigation('/analysis', 'analysis_link_section')}
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-semibold transition-all duration-300 hover:scale-[1.02] hover:gap-3"
-                style={{
-                  background: 'var(--brand-primary)',
-                  color: '#fff',
-                  boxShadow: '0 8px 30px -4px rgba(255,107,53,0.35)',
-                }}
               >
-                {text.buttonText}
-                <ArrowRight className="w-4 h-4" />
+                <ShimmerButton
+                  shimmerColor="#ff5722"
+                  shimmerSize="0.06em"
+                  background="rgba(255, 87, 34, 0.2)"
+                  borderRadius="12px"
+                  className="px-8 py-4 font-semibold text-lg text-white"
+                >
+                  {text.buttonText} &rarr;
+                </ShimmerButton>
               </Link>
             </div>
-          </div>
+          </NeonGradientCard>
         </BlurFade>
       </div>
     </section>
