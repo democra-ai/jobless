@@ -7,9 +7,7 @@ import React, {
   type ComponentPropsWithoutRef,
 } from "react"
 
-function cn(...classes: (string | undefined)[]) {
-  return classes.filter(Boolean).join(" ")
-}
+import { cn } from "@/lib/utils"
 
 interface MousePosition {
   x: number
