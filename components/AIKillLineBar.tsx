@@ -576,23 +576,10 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                     className="absolute top-full mt-2 z-[120] w-[320px] rounded-xl text-left"
                     style={{
                       ...(stage.id <= 2 ? { left: 0 } : stage.id >= 4 ? { right: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
-                      maxHeight: 'calc(100vh - var(--tooltip-top, 0px) - 1rem)',
-                      overflow: 'auto',
                       background: 'var(--surface-card)',
                       border: '1px solid var(--tooltip-border)',
                       boxShadow: 'var(--tooltip-shadow)',
                       backdropFilter: 'blur(20px)',
-                    }}
-                    ref={(el) => {
-                      if (el) {
-                        const rect = el.getBoundingClientRect();
-                        const overflow = rect.bottom - window.innerHeight + 16;
-                        if (overflow > 0) {
-                          el.style.top = 'auto';
-                          el.style.bottom = `calc(100% + 0.5rem)`;
-                          el.style.marginTop = '0';
-                        }
-                      }
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -651,17 +638,6 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 className="absolute top-full mt-2 z-[120] w-[320px] rounded-xl text-left"
                 style={{ right: 0, background: 'var(--surface-card)', border: '1px solid var(--tooltip-border)', boxShadow: 'var(--tooltip-shadow)', backdropFilter: 'blur(20px)' }}
-                ref={(el) => {
-                  if (el) {
-                    const rect = el.getBoundingClientRect();
-                    const overflow = rect.bottom - window.innerHeight + 16;
-                    if (overflow > 0) {
-                      el.style.top = 'auto';
-                      el.style.bottom = `calc(100% + 0.5rem)`;
-                      el.style.marginTop = '0';
-                    }
-                  }
-                }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="px-4 py-3 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, rgba(255,23,68,0.12), transparent)', borderBottom: '1px solid rgba(255,23,68,0.12)' }}>

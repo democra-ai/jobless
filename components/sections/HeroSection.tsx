@@ -17,7 +17,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
   const [activeStat, setActiveStat] = useState<number | null>(null);
 
   return (
-    <section className="relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+    <section className="relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 overflow-visible min-h-[90vh] flex flex-col justify-center">
       <div className="relative z-30 text-center px-4 sm:px-6 max-w-6xl mx-auto">
         {/* Alert badge with blur-fade entrance */}
         <BlurFade delay={0.1} inView>
@@ -47,7 +47,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
 
         {/* Progress bar with border beam card */}
         <BlurFade delay={0.55} inView>
-          <div className="relative z-20 calc-container rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 overflow-hidden">
+          <div className="relative z-20 calc-container rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 overflow-visible">
             <BorderBeam
               size={200}
               duration={8}
