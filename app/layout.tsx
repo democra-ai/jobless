@@ -88,7 +88,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased font-body bg-background text-foreground transition-colors duration-300">
+      <body className="antialiased font-body transition-colors duration-300" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
         <AnalyticsProvider />
         {children}
       </body>

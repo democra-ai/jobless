@@ -1,31 +1,24 @@
 import { Language, translations } from '@/lib/translations';
-import { RetroGrid } from '@/components/ui/retro-grid';
 
 function Footer({ lang, t }: { lang: Language; t: typeof translations.en }) {
   return (
-    <footer className="py-12 px-6 border-t border-surface-elevated/50 relative overflow-hidden">
-      <RetroGrid
-        angle={65}
-        cellSize={50}
-        opacity={0.15}
-        lightLineColor="#ff6b35"
-        darkLineColor="#ff6b35"
-      />
-
-      <div className="max-w-6xl mx-auto relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+    <footer className="py-16 px-6" style={{ borderTop: '1px solid var(--surface-elevated)' }}>
+      <div className="max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
           <div>
-            <h3 className="text-xl font-bold text-brand-primary mb-2">{t.title}</h3>
-            <p className="text-foreground-muted text-sm">{t.tagline}</p>
+            <h3 className="text-2xl font-extrabold mb-2" style={{ fontFamily: 'var(--font-display)', color: 'var(--brand-primary)' }}>
+              {t.title}
+            </h3>
+            <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>{t.tagline}</p>
           </div>
-          <div className="text-sm text-foreground-muted">
-            <p className="font-semibold mb-2">{t.dataSources}</p>
+          <div className="text-sm" style={{ color: 'var(--foreground-muted)' }}>
+            <p className="font-semibold mb-2" style={{ color: 'var(--foreground)' }}>{t.dataSources}</p>
             <p>{t.sources}</p>
             <p>{t.sources2}</p>
           </div>
         </div>
-        <div className="text-center text-xs text-foreground-muted pt-6">
-          <p>&#9888;&#65039; {t.disclaimer}</p>
+        <div className="text-center text-xs pt-8" style={{ color: 'var(--foreground-dim)', borderTop: '1px solid var(--surface-elevated)' }}>
+          <p>{t.disclaimer}</p>
           <p className="mt-1">{t.disclaimer2}</p>
         </div>
       </div>
