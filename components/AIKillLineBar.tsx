@@ -569,11 +569,11 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               <AnimatePresence>
                 {activeTooltip === stage.id && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="absolute top-full mt-2 z-[120] w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
+                    className="absolute bottom-full mb-2 z-[120] w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
                     style={{
                       ...(stage.id <= 2 ? { left: 0 } : stage.id >= 4 ? { right: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
                       background: 'var(--surface-card)',
@@ -632,11 +632,11 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           <AnimatePresence>
             {activeTooltip === 5 && (
               <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                initial={{ opacity: 0, y: -8, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                exit={{ opacity: 0, y: -8, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                className="absolute top-full mt-2 z-[120] w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
+                className="absolute bottom-full mb-2 z-[120] w-[320px] rounded-xl text-left max-h-[70vh] overflow-y-auto"
                 style={{ right: 0, background: 'var(--surface-card)', border: '1px solid var(--tooltip-border)', boxShadow: 'var(--tooltip-shadow)', backdropFilter: 'blur(20px)' }}
                 onClick={(e) => e.stopPropagation()}
               >
