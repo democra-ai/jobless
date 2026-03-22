@@ -189,26 +189,17 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
         </BlurFade>
 
         {/* CTA to full data protection page */}
-        <BlurFade delay={0.4} inView>
-          <div className="text-center">
-            <p className="text-foreground-muted mb-4">{t.viewFullDetailsCta}</p>
-            <Link
-              href="/data-protection"
-              onClick={() => trackInternalNavigation('/data-protection', 'data_threat_section')}
-            >
-              <ShimmerButton
-                shimmerColor="#ff1744"
-                shimmerSize="0.06em"
-                background="rgba(255, 23, 68, 0.15)"
-                borderRadius="12px"
-                className="px-8 py-4 font-semibold text-lg text-white"
-              >
-                <Shield className="w-5 h-5 mr-2 inline-block" />
-                {t.viewFullDetails}
-              </ShimmerButton>
-            </Link>
-          </div>
-        </BlurFade>
+        <div className="flex flex-col items-center justify-center text-center">
+          <p className="text-foreground-muted mb-4">{t.viewFullDetailsCta}</p>
+          <Link
+            href="/data-protection"
+            onClick={() => trackInternalNavigation('/data-protection', 'data_threat_section')}
+            className="inline-flex items-center px-8 py-4 font-semibold text-lg text-foreground-muted hover:text-foreground transition-colors"
+          >
+            <Shield className="w-5 h-5 mr-2" />
+            {t.viewFullDetails}
+          </Link>
+        </div>
       </div>
     </section>
   );

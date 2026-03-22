@@ -171,22 +171,15 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           </div>
         </BlurFade>
 
-        {/* CTA with ShimmerButton */}
-        <BlurFade delay={1.0} inView>
-          <div className="mt-10 flex justify-center">
-            <ShimmerButton
-              shimmerColor="#ff6b35"
-              shimmerSize="0.08em"
-              background="rgba(255, 107, 53, 0.12)"
-              borderRadius="12px"
-              className="px-6 py-3 text-sm font-medium text-foreground-muted hover:text-foreground transition-colors"
-              onClick={() => { trackCtaClick('scroll_to_calculator', 'hero'); document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-            >
-              <ChevronDown className="w-4 h-4 mr-1.5 inline-block animate-bounce" />
-              {t.transitionCta}
-            </ShimmerButton>
-          </div>
-        </BlurFade>
+        <div className="mt-10 flex justify-center">
+          <button
+            className="px-6 py-3 text-sm font-medium text-foreground-muted hover:text-foreground transition-colors cursor-pointer"
+            onClick={() => { trackCtaClick('scroll_to_calculator', 'hero'); document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+          >
+            <ChevronDown className="w-4 h-4 mr-1.5 inline-block" />
+            {t.transitionCta}
+          </button>
+        </div>
       </div>
     </section>
   );

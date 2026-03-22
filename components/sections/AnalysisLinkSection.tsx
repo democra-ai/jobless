@@ -61,20 +61,15 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, an
                 {text.subtitle}
               </p>
 
-              <Link
-                href="/analysis"
-                onClick={() => trackInternalNavigation('/analysis', 'analysis_link_section')}
-              >
-                <ShimmerButton
-                  shimmerColor="#ff5722"
-                  shimmerSize="0.06em"
-                  background="rgba(255, 87, 34, 0.2)"
-                  borderRadius="12px"
-                  className="px-8 py-4 font-semibold text-lg text-white"
+              <div className="flex justify-center">
+                <Link
+                  href="/analysis"
+                  onClick={() => trackInternalNavigation('/analysis', 'analysis_link_section')}
+                  className="inline-flex items-center px-8 py-4 font-semibold text-lg text-foreground-muted hover:text-foreground transition-colors"
                 >
                   {text.buttonText} &rarr;
-                </ShimmerButton>
-              </Link>
+                </Link>
+              </div>
             </div>
           </NeonGradientCard>
         </BlurFade>
