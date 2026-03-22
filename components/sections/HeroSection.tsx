@@ -18,24 +18,6 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
 
   return (
     <section className="relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 overflow-hidden min-h-[90vh] flex flex-col justify-center">
-      {/* Magic UI Particles background */}
-      <Particles
-        className="absolute inset-0 z-0"
-        quantity={80}
-        staticity={40}
-        ease={60}
-        color="#ff6b35"
-        size={0.4}
-      />
-      <Particles
-        className="absolute inset-0 z-0"
-        quantity={40}
-        staticity={60}
-        ease={80}
-        color="#ff1744"
-        size={0.3}
-      />
-
       <div className="relative z-30 text-center px-4 sm:px-6 max-w-6xl mx-auto">
         {/* Alert badge with blur-fade entrance */}
         <BlurFade delay={0.1} inView>

@@ -14,6 +14,7 @@ import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/Navig
 import { StyleSwitcherButton, type DesignStyle } from '@/components/StyleSwitcher';
 import { trackCtaClick } from '@/lib/analytics';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
+import { Particles } from '@/components/ui/particles';
 
 // Lazy-load heavy below-fold components (bundle-dynamic-imports rule)
 const InteractiveTimeline = dynamic(() => import('@/components/InteractiveTimeline'), { ssr: false });
@@ -211,6 +212,26 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-x-hidden mobile-shell relative" data-ui-lang={lang}>
+      {/* Global particles background — covers entire page */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-primary/[0.04] rounded-full blur-[100px]" />
+        <Particles
+          className="absolute inset-0"
+          quantity={120}
+          staticity={40}
+          ease={60}
+          color="#ff6b35"
+          size={0.4}
+        />
+        <Particles
+          className="absolute inset-0"
+          quantity={60}
+          staticity={60}
+          ease={80}
+          color="#ff1744"
+          size={0.3}
+        />
+      </div>
       <ScrollProgress className="h-[2px] bg-gradient-to-r from-[#ff6b35] via-[#ff1744] to-[#a78bdb]" />
 
       <div
@@ -226,7 +247,7 @@ export default function Home() {
         <HeroSection lang={lang} t={t} />
       </div>
 
-      <div className="relative z-20 bg-surface/90">
+      <div className="relative z-20">
         <SurvivalIndexSection lang={lang} t={t} />
         <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
           <DataThreatSection lang={lang} t={t} />
