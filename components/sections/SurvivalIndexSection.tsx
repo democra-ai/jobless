@@ -74,12 +74,14 @@ function QuizProgressBar({
   phase,
   lang,
   t,
+  theme = 'dark',
 }: {
   current: number;
   total: number;
   phase: string;
   lang: Language;
   t: typeof translations.en;
+  theme?: 'dark' | 'light';
 }) {
   const pct = ((current) / total) * 100;
   return (
@@ -95,7 +97,8 @@ function QuizProgressBar({
       </div>
       <div className="w-full h-1.5 bg-surface-elevated rounded-full overflow-hidden">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400"
+          className="h-full rounded-full"
+          style={{ background: theme === 'dark' ? 'linear-gradient(to right, #ffffff, #c4b5fd)' : 'linear-gradient(to right, #ff6b35, #ff1744)' }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -692,8 +695,8 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border border-overlay-10">
             <Target className="w-4 h-4" style={{ stroke: 'url(#badge-gradient)' }} />
-            <svg width="0" height="0"><defs><linearGradient id="badge-gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#38bdf8" /><stop offset="50%" stopColor="#a78bfa" /><stop offset="100%" stopColor="#fb7185" /></linearGradient></defs></svg>
-            <span className="text-sm font-medium bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400 bg-clip-text text-transparent">{t.survivalBadge}</span>
+            <svg width="0" height="0"><defs><linearGradient id="badge-gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor={theme === 'dark' ? '#ffffff' : '#ff6b35'} /><stop offset="100%" stopColor={theme === 'dark' ? '#c4b5fd' : '#ff1744'} /></linearGradient></defs></svg>
+            <span className="text-sm font-medium" style={{ background: theme === 'dark' ? 'linear-gradient(to right, #ffffff, #c4b5fd)' : 'linear-gradient(to right, #ff6b35, #ff1744)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{t.survivalBadge}</span>
           </div>
           <h2 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl mb-4 section-title">
             {t.survivalTitle}
@@ -708,7 +711,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass-card rounded-lg p-3 md:p-5 relative overflow-hidden"
+          className="glass-card rounded-2xl p-3 md:p-5 relative overflow-hidden"
         >
           <BorderBeam
             size={150}
@@ -720,8 +723,8 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           {/* ══════════════ INTRO PHASE ══════════════ */}
           {phase === 'intro' && (
             <div className="text-center space-y-6 py-8">
-              <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500/20 via-violet-500/20 to-rose-500/20 flex items-center justify-center border border-overlay-10">
-                <Brain className="w-10 h-10 text-violet-400" />
+              <div className="mx-auto w-20 h-20 rounded-2xl flex items-center justify-center border border-overlay-10" style={{ background: theme === 'dark' ? 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(196,181,253,0.1))' : 'linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,23,68,0.08))' }}>
+                <Brain className="w-10 h-10" style={{ color: theme === 'dark' ? '#c4b5fd' : '#ff6b35' }} />
               </div>
               <div>
                 <p className="text-foreground-muted text-sm mb-6">{t.quizStartDesc}</p>
@@ -829,8 +832,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                 onClick={() => { setPhase('core'); setCoreIndex(0); trackQuizStart(lang); }}
                 className="px-12 py-4 rounded-xl font-semibold text-white text-lg inline-flex items-center gap-3 relative overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, #38bdf8, #a78bfa, #fb7185)',
-                  boxShadow: '0 4px 20px -5px rgba(167, 139, 250, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                  background: theme === 'dark' ? 'linear-gradient(135deg, #ffffff, #c4b5fd)' : 'linear-gradient(135deg, #ff6b35, #ff1744)',
+                  boxShadow: theme === 'dark' ? '0 4px 20px -5px rgba(196, 181, 253, 0.4)' : '0 4px 20px -5px rgba(255, 107, 53, 0.4)',
+                  color: theme === 'dark' ? '#000000' : '#ffffff',
                 }}
               >
                 {t.quizStart}
@@ -848,6 +852,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                 phase={t.quizPhaseCore}
                 lang={lang}
                 t={t}
+                theme={theme}
               />
 
               {/* Dimension badge - changes every 4 questions */}
