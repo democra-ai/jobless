@@ -239,7 +239,7 @@ export default function Home() {
         <ThemeButton theme={theme} setTheme={setTheme} />
       </div>
 
-      <div id="overview-anchor" data-mobile-section="overview" className="scroll-mt-28 sm:scroll-mt-0">
+      <div id="overview-anchor" data-mobile-section="overview" className="relative z-[2] scroll-mt-28 sm:scroll-mt-0">
         <HeroSection lang={lang} t={t} />
       </div>
 
