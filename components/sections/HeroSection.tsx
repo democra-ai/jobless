@@ -87,7 +87,7 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
               return (
                 <>
                   {/* Mobile: single unified card with divide-y */}
-                  <div className="sm:hidden mt-4 rounded-lg bg-background border border-surface-elevated divide-y divide-surface-elevated">
+                  <div className="sm:hidden mt-4 rounded-lg bg-background border border-overlay-10 divide-y divide-overlay-6">
                     {stats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (
@@ -143,7 +143,7 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
                     {stats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (
-                        <div key={i} className="group relative z-20 hover:z-[220] rounded-lg p-3 md:p-4 bg-background border border-surface-elevated overflow-visible" style={{ minHeight: '56px' }}>
+                        <div key={i} className="group relative z-20 hover:z-[220] rounded-lg p-3 md:p-4 bg-background border border-overlay-10 overflow-visible" style={{ minHeight: '56px' }}>
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0 flex-1">
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
