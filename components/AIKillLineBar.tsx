@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Skull, Info, ChevronDown, Cpu, Bot, Sparkles } from 'lucide-react';
 import { Language, translations } from '@/lib/translations';
@@ -154,8 +155,10 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
   const [ready, setReady] = useState(false);
   const [showCalc, setShowCalc] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number; align: 'left' | 'center' | 'right' } | null>(null);
   const chipScrollRef = useRef<HTMLDivElement>(null);
   const chipRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+  const stageRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   useEffect(() => {
     const duration = 2000;
@@ -543,10 +546,22 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           return (
             <div
               key={stage.id}
+              ref={(el) => { stageRefs.current[stage.id] = el; }}
               className="flex flex-col items-center text-center px-0.5 relative"
               style={{ width: `${width}%` }}
-              onMouseEnter={() => setActiveTooltip(stage.id)}
-              onMouseLeave={() => setActiveTooltip(null)}
+              onMouseEnter={() => {
+                setActiveTooltip(stage.id);
+                const el = stageRefs.current[stage.id];
+                if (el) {
+                  const rect = el.getBoundingClientRect();
+                  setTooltipPos({
+                    top: rect.bottom + 8,
+                    left: stage.id <= 2 ? rect.left : stage.id >= 4 ? rect.right : rect.left + rect.width / 2,
+                    align: stage.id <= 2 ? 'left' : stage.id >= 4 ? 'right' : 'center',
+                  });
+                }
+              }}
+              onMouseLeave={() => { setActiveTooltip(null); setTooltipPos(null); }}
               onClick={() => handleSelectStage(stage.id)}
             >
               <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: stage.color, opacity: 0.9 }} />
@@ -565,56 +580,25 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               <span className="text-xs sm:text-sm mono mt-0.5 font-semibold" style={{ fontVariantNumeric: 'tabular-nums', color: stage.color, opacity: 0.85 }}>
                 {stage.start}–{stage.end}%
               </span>
-              {/* Desktop tooltip popup */}
-              <AnimatePresence>
-                {activeTooltip === stage.id && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="absolute top-full mt-2 z-[140] w-[320px] rounded-xl text-left"
-                    style={{
-                      ...(stage.id <= 2 ? { left: 0 } : stage.id >= 4 ? { right: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
-                      background: 'var(--surface-card)',
-                      border: '1px solid var(--tooltip-border)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="px-4 py-3 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${stage.color}20, transparent)`, borderBottom: `1px solid ${stage.color}20` }}>
-                      <div className="w-2 h-2 rounded-full" style={{ background: stage.color }} />
-                      <span className="text-sm font-bold" style={{ color: stage.color }}>{L(stage.label, lang)}</span>
-                      <span className="text-xs mono font-semibold text-foreground-dim ml-auto">{stage.start}–{stage.end}%</span>
-                    </div>
-                    <div className="p-4 space-y-3">
-                      <div className="text-xs text-foreground-muted leading-relaxed">{L(stage.tooltip, lang).definition}</div>
-                      <div className="flex gap-2">
-                        <div className="w-0.5 rounded-full flex-shrink-0 self-stretch" style={{ background: stage.color, opacity: 0.5 }} />
-                        <div className="text-xs text-foreground-muted leading-relaxed">{L(stage.tooltip, lang).control}</div>
-                      </div>
-                      <div className="text-xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
-                        <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
-                        <span className="text-foreground-muted">{L(stage.tooltip, lang).relationship}</span>
-                      </div>
-                      <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid var(--overlay-5)' }}>
-                        <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
-                        <span className="text-xs font-bold px-2.5 py-1 rounded-md" style={{ background: `${stage.color}15`, color: stage.color }}>{L(stage.tooltip, lang).coreNature}</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Desktop tooltip rendered via portal — see below */}
             </div>
           );
         })}
 
         {/* Stage 5: KILL LINE (desktop) */}
         <div
+          ref={(el) => { stageRefs.current[5] = el; }}
           className="flex flex-col items-center text-center px-0.5 relative"
           style={{ width: '20%' }}
-          onMouseEnter={() => setActiveTooltip(5)}
-          onMouseLeave={() => setActiveTooltip(null)}
+          onMouseEnter={() => {
+            setActiveTooltip(5);
+            const el = stageRefs.current[5];
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              setTooltipPos({ top: rect.bottom + 8, left: rect.right, align: 'right' });
+            }
+          }}
+          onMouseLeave={() => { setActiveTooltip(null); setTooltipPos(null); }}
           onClick={() => handleSelectStage(5)}
         >
           <div style={{ width: '1px', height: '8px', marginBottom: '4px', background: 'var(--risk-critical)', opacity: 0.9 }} />
@@ -628,40 +612,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               <span className="text-xs sm:text-sm mono font-semibold opacity-80" style={{ fontVariantNumeric: 'tabular-nums' }}>80–100%</span>
             </div>
           </div>
-          <AnimatePresence>
-            {activeTooltip === 5 && (
-              <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                className="absolute top-full mt-2 z-[140] w-[320px] rounded-xl text-left"
-                style={{ right: 0, background: 'var(--surface-card)', border: '1px solid var(--tooltip-border)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="px-4 py-3 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, rgba(255,23,68,0.12), transparent)', borderBottom: '1px solid rgba(255,23,68,0.12)' }}>
-                  <Skull className="w-4 h-4 text-risk-critical" />
-                  <span className="text-sm font-bold text-risk-critical">{lang === 'zh' ? 'AI 斩杀线' : 'AI Kill Line'}</span>
-                  <span className="text-xs mono font-semibold text-foreground-dim ml-auto">80–100%</span>
-                </div>
-                <div className="p-4 space-y-3">
-                  <div className="text-xs text-foreground-muted leading-relaxed">{L(KILL_LINE_STAGES[4].tooltip, lang).definition}</div>
-                  <div className="flex gap-2">
-                    <div className="w-0.5 rounded-full flex-shrink-0 self-stretch bg-risk-critical" style={{ opacity: 0.5 }} />
-                    <div className="text-xs text-foreground-muted leading-relaxed">{L(KILL_LINE_STAGES[4].tooltip, lang).control}</div>
-                  </div>
-                  <div className="text-xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
-                    <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
-                    <span className="text-foreground-muted">{L(KILL_LINE_STAGES[4].tooltip, lang).relationship}</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid var(--overlay-5)' }}>
-                    <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-risk-critical/12 text-risk-critical">{L(KILL_LINE_STAGES[4].tooltip, lang).coreNature}</span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Desktop tooltip rendered via portal — see below */}
         </div>
       </div>
 
@@ -761,6 +712,62 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           })()}
         </AnimatePresence>
       </div>
+
+      {/* Desktop tooltip — rendered via portal to escape all stacking contexts */}
+      {typeof document !== 'undefined' && activeTooltip !== null && tooltipPos && (() => {
+        const stage = KILL_LINE_STAGES.find(s => s.id === activeTooltip);
+        if (!stage) return null;
+        const posStyle: React.CSSProperties = {
+          position: 'fixed',
+          top: tooltipPos.top,
+          zIndex: 9999,
+          width: 320,
+          ...(tooltipPos.align === 'left' ? { left: tooltipPos.left } :
+              tooltipPos.align === 'right' ? { right: window.innerWidth - tooltipPos.left } :
+              { left: tooltipPos.left, transform: 'translateX(-50%)' }),
+        };
+        return createPortal(
+          <AnimatePresence>
+            <motion.div
+              key={`portal-tooltip-${activeTooltip}`}
+              initial={{ opacity: 0, y: 8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="rounded-xl text-left hidden sm:block"
+              style={{
+                ...posStyle,
+                background: 'var(--surface-card)',
+                border: '1px solid var(--tooltip-border)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-4 py-3 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${stage.color}20, transparent)`, borderBottom: `1px solid ${stage.color}20` }}>
+                {stage.id === 5 ? <Skull className="w-4 h-4 text-risk-critical" /> : <div className="w-2 h-2 rounded-full" style={{ background: stage.color }} />}
+                <span className="text-sm font-bold" style={{ color: stage.color }}>{L(stage.label, lang)}</span>
+                <span className="text-xs mono font-semibold text-foreground-dim ml-auto">{stage.start}–{stage.end}%</span>
+              </div>
+              <div className="p-4 space-y-3">
+                <div className="text-xs text-foreground-muted leading-relaxed">{L(stage.tooltip, lang).definition}</div>
+                <div className="flex gap-2">
+                  <div className="w-0.5 rounded-full flex-shrink-0 self-stretch" style={{ background: stage.color, opacity: 0.5 }} />
+                  <div className="text-xs text-foreground-muted leading-relaxed">{L(stage.tooltip, lang).control}</div>
+                </div>
+                <div className="text-xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--surface-elevated)' }}>
+                  <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human ↔ AI'}: </span>
+                  <span className="text-foreground-muted">{L(stage.tooltip, lang).relationship}</span>
+                </div>
+                <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid var(--overlay-5)' }}>
+                  <span className="text-[10px] uppercase tracking-wider text-foreground-dim">{lang === 'zh' ? '本质' : 'Nature'}</span>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-md" style={{ background: `${stage.color}15`, color: stage.color }}>{L(stage.tooltip, lang).coreNature}</span>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>,
+          document.body,
+        );
+      })()}
     </div>
   );
 }

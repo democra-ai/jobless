@@ -46,7 +46,6 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
         </BlurFade>
 
         {/* Progress bar with border beam card */}
-        <BlurFade delay={0.55} inView>
           <div className="relative z-20 calc-container rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 overflow-visible">
             <BorderBeam
               size={200}
@@ -169,7 +168,6 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
               );
             })()}
           </div>
-        </BlurFade>
 
         <div className="mt-10 flex justify-center">
           <button
