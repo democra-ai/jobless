@@ -398,6 +398,24 @@ body::before {
   background-size: 50px 50px, 50px 50px, auto;
 }
 
+/* OLED dark — brighter grid lines on pure black */
+html[data-style="oled"] body::before {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
+  background-size: 50px 50px, 50px 50px, auto;
+}
+
+/* Editorial light — sharper grid */
+html[data-style="editorial"] body::before {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
+    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(220, 38, 38, 0.02) 0%, transparent 60%);
+  background-size: 50px 50px, 50px 50px, auto;
+}
+
 /* Noise Texture Overlay */
 body::after {
   content: '';
