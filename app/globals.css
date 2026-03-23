@@ -22,7 +22,7 @@
   /* Risk & Impact Colors - Dramatic Intensity */
   --risk-critical: #ff1744; /* Electric Red */
   --risk-severe: #f44336;   /* Red-Orange */
-  --risk-high: #ff5722;     /* Deep Orange */
+  --risk-high: #ff8c00;     /* True Orange */
   --risk-medium: #ffc107;   /* Amber Warning */
   --risk-low: #34d399;      /* Refined Emerald */
   --risk-safe: #6ee7b7;     /* Soft Mint */
@@ -148,7 +148,7 @@
   /* Risk & Impact Colors - Toned for light bg */
   --risk-critical: #d32f2f;
   --risk-severe: #c62828;
-  --risk-high: #e64a19;
+  --risk-high: #e67e00;
   --risk-medium: #f9a825;
   --risk-low: #2e7d32;
   --risk-safe: #388e3c;
