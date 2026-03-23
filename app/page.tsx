@@ -217,16 +217,16 @@ export default function Home() {
           quantity={120}
           staticity={40}
           ease={60}
-          color="#ff6b35"
-          size={0.4}
+          color={theme === 'dark' ? '#ffffff' : '#ff6b35'}
+          size={theme === 'dark' ? 0.5 : 0.4}
         />
         <Particles
           className="absolute inset-0"
           quantity={60}
           staticity={60}
           ease={80}
-          color="#ff1744"
-          size={0.3}
+          color={theme === 'dark' ? '#c4b5fd' : '#ff1744'}
+          size={theme === 'dark' ? 0.3 : 0.3}
         />
       </div>
       <ScrollProgress className="h-[2px] bg-gradient-to-r from-[#ff6b35] via-[#ff1744] to-[#a78bdb]" />
