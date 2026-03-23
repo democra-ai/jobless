@@ -274,7 +274,7 @@ export default function Home() {
 
       <div className="relative z-20">
         <AnalysisLinkSection lang={lang} t={t} theme={theme} />
-        <Footer lang={lang} t={t} />
+        <Footer lang={lang} t={t} theme={theme} />
       </div>
 
       <motion.button

@@ -1,15 +1,16 @@
 import { Language, translations } from '@/lib/translations';
 import { RetroGrid } from '@/components/ui/retro-grid';
 
-function Footer({ lang, t }: { lang: Language; t: typeof translations.en }) {
+function Footer({ lang, t, theme = 'dark' }: { lang: Language; t: typeof translations.en; theme?: 'dark' | 'light' }) {
+  const gridColor = theme === 'dark' ? '#c4b5fd' : '#ff6b35';
   return (
     <footer className="py-12 px-6 border-t border-surface-elevated/50 relative overflow-hidden">
       <RetroGrid
         angle={65}
         cellSize={50}
         opacity={0.15}
-        lightLineColor="#ff6b35"
-        darkLineColor="#ff6b35"
+        lightLineColor={gridColor}
+        darkLineColor={gridColor}
       />
 
       <div className="max-w-6xl mx-auto relative z-10">
