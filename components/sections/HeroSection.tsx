@@ -35,6 +35,15 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           </p>
         </motion.div>
 
+        {/* Upper glow orb — between hero text and card */}
+        <motion.div
+          className="hero-glow-orb absolute left-1/2 -translate-x-1/2 w-[60%] max-w-xl h-[200px] rounded-full blur-[90px] pointer-events-none z-0"
+          style={{ top: '45%' }}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.8, delay: 0.4, ease: 'easeOut' }}
+        />
+
         {/* Progress bar section */}
         <motion.div
           className="pt-8 sm:pt-10"
