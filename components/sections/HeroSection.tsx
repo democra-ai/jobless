@@ -60,9 +60,9 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
             {/* Stat cards with NumberTicker */}
             {(() => {
               const stats = [
-                { value: 34.8, suffix: '%', decimals: 1, color: 'var(--risk-high)', icon: Eye, label: t.exposureLabel, desc: t.exposureDesc, source: t.exposureSource, url: t.exposureUrl },
-                { value: 71.3, suffix: '%', decimals: 1, color: 'var(--brand-accent)', icon: Zap, label: t.proficiencyLabel, desc: t.proficiencyDesc, source: t.proficiencySource, url: t.proficiencyUrl },
-                { value: 92, suffix: 'M', decimals: 0, color: 'var(--risk-critical)', icon: TrendingDown, label: t.jobsBy2030, desc: t.jobsBy2030Desc, source: t.jobsBy2030Source, url: t.jobsBy2030Url },
+                { value: 34.8, suffix: '%', decimals: 1, color: '#ff5722', icon: Eye, label: t.exposureLabel, desc: t.exposureDesc, source: t.exposureSource, url: t.exposureUrl },
+                { value: 71.3, suffix: '%', decimals: 1, color: '#2563eb', icon: Zap, label: t.proficiencyLabel, desc: t.proficiencyDesc, source: t.proficiencySource, url: t.proficiencyUrl },
+                { value: 92, suffix: 'M', decimals: 0, color: '#ff1744', icon: TrendingDown, label: t.jobsBy2030, desc: t.jobsBy2030Desc, source: t.jobsBy2030Source, url: t.jobsBy2030Url },
               ] as const;
 
               return (
