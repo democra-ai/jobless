@@ -35,13 +35,13 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           </p>
         </motion.div>
 
-        {/* Upper glow orb — between hero text and card */}
+        {/* Upper glow orb — at hero title level */}
         <motion.div
-          className="hero-glow-orb absolute left-1/2 -translate-x-1/2 w-[60%] max-w-xl h-[200px] rounded-full blur-[90px] pointer-events-none z-0"
-          style={{ top: '45%' }}
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.8, delay: 0.4, ease: 'easeOut' }}
+          className="hero-glow-orb absolute left-1/2 -translate-x-1/2 w-[70%] max-w-2xl h-[300px] rounded-full blur-[80px] pointer-events-none z-0"
+          style={{ top: '10%' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
         />
 
         {/* Progress bar section */}
