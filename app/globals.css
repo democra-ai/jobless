@@ -409,6 +409,31 @@ html[data-style="editorial"] .hero-glow-orb {
   background: radial-gradient(ellipse at center, rgba(220, 38, 38, 0.08) 0%, rgba(255, 107, 53, 0.03) 50%, transparent 80%);
 }
 
+/* OLED — warm-tinted card fills to match DataThreat MagicCard style */
+html[data-style="oled"] .calc-container {
+  background: linear-gradient(145deg, rgba(20, 16, 12, 0.95), rgba(15, 12, 10, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 20px 60px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+html[data-style="oled"] .glass-card {
+  background: linear-gradient(145deg, rgba(20, 16, 12, 0.95), rgba(15, 12, 10, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+html[data-style="oled"] .bg-surface {
+  background: rgba(20, 16, 12, 0.95);
+}
+
+/* Editorial — warm-tinted card fills */
+html[data-style="editorial"] .calc-container {
+  background: linear-gradient(145deg, rgba(255, 252, 248, 0.98), rgba(255, 248, 240, 0.95));
+  border: 1px solid rgba(255, 107, 53, 0.08);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 20px 60px -10px rgba(0, 0, 0, 0.06);
+}
+html[data-style="editorial"] .glass-card {
+  background: linear-gradient(145deg, rgba(255, 252, 248, 0.98), rgba(255, 248, 240, 0.95));
+  border: 1px solid rgba(255, 107, 53, 0.08);
+}
+
 /* OLED dark — brighter grid lines on pure black */
 html[data-style="oled"] body::before {
   background:
