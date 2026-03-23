@@ -413,13 +413,13 @@ html[data-style="editorial"] .hero-glow-orb {
 html[data-style="oled"] .calc-container,
 html[data-style="oled"] .glass-card {
   background: var(--background);
-  border: 1px solid var(--overlay-10);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: none;
 }
 html[data-style="editorial"] .calc-container,
 html[data-style="editorial"] .glass-card {
   background: var(--background);
-  border: 1px solid var(--overlay-10);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   box-shadow: none;
 }
 

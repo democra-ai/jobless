@@ -681,7 +681,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
       data-lang={lang}
       className="py-12 sm:py-24 px-4 md:px-6 relative overflow-hidden scroll-mt-8 responsive-copy-scope"
     >
-      <div className="max-w-3xl mx-auto relative z-10">
+      <div className="max-w-2xl mx-auto relative z-10">
         {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -708,7 +708,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass-card rounded-xl p-4 md:p-6 relative overflow-hidden"
+          className="glass-card rounded-lg p-3 md:p-5 relative overflow-hidden"
         >
           <BorderBeam
             size={150}
