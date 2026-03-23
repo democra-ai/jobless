@@ -11,7 +11,7 @@ import DataThreatSection from '@/components/sections/DataThreatSection';
 import AnalysisLinkSection from '@/components/sections/AnalysisLinkSection';
 import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
-import { StyleSwitcherButton, type DesignStyle } from '@/components/StyleSwitcher';
+
 import { trackCtaClick } from '@/lib/analytics';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
 import { Particles } from '@/components/ui/particles';
@@ -29,7 +29,7 @@ export default function Home() {
     return 'en';
   });
   const [theme, setTheme] = useState<Theme>('dark');
-  const [designStyle, setDesignStyle] = useState<DesignStyle>('tech-noir');
+
   const [activeMobileSection, setActiveMobileSection] = useState<MobileSection>('overview');
   const [shouldMountTimeline, setShouldMountTimeline] = useState(false);
   const navLockRef = useRef(false);
@@ -52,10 +52,6 @@ export default function Home() {
     document.getElementById(MOBILE_SECTION_TARGETS[section])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleStyleChange = (newStyle: DesignStyle, newTheme: Theme) => {
-    setDesignStyle(newStyle);
-    setTheme(newTheme);
-  };
 
   useEffect(() => {
     const saved = localStorage.getItem('air-theme') as Theme | null;
@@ -66,8 +62,9 @@ export default function Home() {
       setTheme('dark');
       document.documentElement.setAttribute('data-theme', 'dark');
     }
-    const savedStyle = localStorage.getItem('air-style') as DesignStyle | null;
-    if (savedStyle) setDesignStyle(savedStyle);
+    const style = (saved ?? 'dark') === 'light' ? 'editorial' : 'oled';
+    document.documentElement.setAttribute('data-style', style);
+    localStorage.setItem('air-style', style);
   }, []);
 
   useEffect(() => {
@@ -239,8 +236,7 @@ export default function Home() {
         style={{ top: 'calc(var(--safe-top) + 1rem)', right: 'calc(var(--safe-right) + 1rem)' }}
       >
         <LanguageButton lang={lang} setLang={setLang} />
-        <StyleSwitcherButton style={designStyle} onStyleChange={handleStyleChange} />
-        {designStyle === 'tech-noir' && <ThemeButton theme={theme} setTheme={setTheme} />}
+        <ThemeButton theme={theme} setTheme={setTheme} />
       </div>
 
       <div id="overview-anchor" data-mobile-section="overview" className="scroll-mt-28 sm:scroll-mt-0">

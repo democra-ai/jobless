@@ -70,9 +70,12 @@ export function ThemeButton({ theme, setTheme }: { theme: Theme; setTheme: (them
     <motion.button
       onClick={() => {
         const next = theme === 'dark' ? 'light' : 'dark';
+        const nextStyle = next === 'light' ? 'editorial' : 'oled';
         setTheme(next);
         document.documentElement.setAttribute('data-theme', next);
+        document.documentElement.setAttribute('data-style', nextStyle);
         localStorage.setItem('air-theme', next);
+        localStorage.setItem('air-style', nextStyle);
         trackThemeToggle(next);
       }}
       className="z-50 flex items-center justify-center w-11 h-11 bg-surface-elevated hover:bg-brand-accent/80 text-foreground hover:text-white rounded-lg border border-surface-elevated transition-all theme-toggle-btn"
