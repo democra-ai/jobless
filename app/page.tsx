@@ -211,7 +211,6 @@ export default function Home() {
     <main className="min-h-screen overflow-x-hidden mobile-shell relative" data-ui-lang={lang}>
       {/* Global particles background — covers entire page */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="hero-glow-orb absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] rounded-full blur-[100px]" />
         <Particles
           className="absolute inset-0"
           quantity={120}

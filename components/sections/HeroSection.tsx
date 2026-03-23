@@ -13,11 +13,6 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
 
   return (
     <section className="no-contain relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 overflow-visible">
-      {/* Background — single subtle radial glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="hero-glow-orb absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] rounded-full blur-[100px]"></div>
-      </div>
-
       <div className="relative z-30 text-center px-4 sm:px-6 max-w-6xl mx-auto hero-glow">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -48,7 +43,15 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="relative z-20 calc-container rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10" style={{ overflow: 'visible' }}>
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-foreground text-left">{t.progressTitle}</h2>
+            {/* Glow orb — sunrise warmth by day, silver starlight by night, centered on progress bar */}
+            <motion.div
+              className="hero-glow-orb absolute left-1/2 -translate-x-1/2 w-[80%] max-w-2xl h-[250px] rounded-full blur-[80px] pointer-events-none z-0"
+              style={{ top: '20%' }}
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.5, delay: 0.8, ease: 'easeOut' }}
+            />
+            <h2 className="relative z-10 text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-foreground text-left">{t.progressTitle}</h2>
             <AIKillLineBar lang={lang} t={t} />
 
             {/* Stat cards */}
