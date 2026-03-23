@@ -708,7 +708,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass-card rounded-2xl p-5 md:p-8 relative overflow-hidden"
+          className="glass-card rounded-xl p-4 md:p-6 relative overflow-hidden"
         >
           <BorderBeam
             size={150}

@@ -178,9 +178,8 @@ function DataThreatSection({ lang, t, theme = 'dark' }: { lang: Language; t: (ty
                       </div>
                     </div>
 
-                    {/* Warning with border beam */}
-                    <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-risk-critical/10 to-risk-high/10 border border-risk-critical/20 relative overflow-hidden">
-                      <BorderBeam size={80} duration={6} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1} />
+                    {/* Warning */}
+                    <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-risk-critical/10 to-risk-high/10 border border-risk-critical/20">
                       <p className="text-sm font-semibold text-center">
                         <AlertTriangle className="w-4 h-4 inline text-risk-critical mr-2 align-middle" />
                         {t.lastMileWarning}
