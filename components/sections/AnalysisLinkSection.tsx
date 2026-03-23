@@ -42,7 +42,7 @@ function AnalysisLinkSection({ lang, t, theme = 'dark' }: { lang: Language; t: R
   return (
     <section className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50">
       <div className="max-w-xl mx-auto">
-        <div className="relative glass-card rounded-xl p-6 sm:p-8 text-center overflow-hidden">
+        <div className="relative glass-card card-glow-border rounded-xl p-6 sm:p-8 text-center overflow-hidden">
           <BorderBeam size={120} duration={8} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
           <h2 className="text-2xl md:text-3xl font-bold mb-4 section-title">
             {text.title}

@@ -56,7 +56,7 @@ function DataThreatSection({ lang, t, theme = 'dark' }: { lang: Language; t: (ty
         {/* Collapsible Last Mile Concept with MagicCard */}
         <BlurFade delay={0.25} inView>
           <MagicCard
-            className="relative rounded-xl p-0 border border-surface-elevated mb-8"
+            className="relative rounded-xl p-0 card-glow-border mb-8"
             gradientColor="rgba(255, 107, 53, 0.06)"
             gradientOpacity={80}
           >

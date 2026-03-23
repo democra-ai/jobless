@@ -54,7 +54,7 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="relative z-20 calc-container rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6" style={{ overflow: 'visible' }}>
+          <div className="relative z-20 calc-container card-glow-border rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6" style={{ overflow: 'visible' }}>
             {/* Border beam — light traveling along card edge */}
             <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden pointer-events-none z-0">
               <BorderBeam
