@@ -3,13 +3,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Eye, Zap, TrendingDown, ExternalLink, ChevronDown } from 'lucide-react';
-import { Language, translations } from '@/lib/translations';
+import { Language, Theme, translations } from '@/lib/translations';
 import Counter from '@/components/Counter';
 import AIKillLineBar from '@/components/AIKillLineBar';
 import { trackCtaClick, trackStatCardExpand } from '@/lib/analytics';
 import { BorderBeam } from '@/components/ui/border-beam';
 
-function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: typeof translations.en; theme?: 'dark' | 'light' }) {
+function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof translations)[Language]; theme?: Theme }) {
   const [activeStat, setActiveStat] = useState<number | null>(null);
   const beamFrom = theme === 'dark' ? '#ffffff' : '#ff6b35';
   const beamTo = theme === 'dark' ? '#c4b5fd' : '#ff1744';
@@ -54,7 +54,7 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: typeof tr
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="relative z-20 calc-container rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8" style={{ overflow: 'visible' }}>
+          <div className="relative z-20 calc-container rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6" style={{ overflow: 'visible' }}>
             {/* Border beam — light traveling along card edge */}
             <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden pointer-events-none z-0">
               <BorderBeam
@@ -144,9 +144,6 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: typeof tr
                       const Icon = stat.icon;
                       return (
                         <div key={i} className="group relative z-20 hover:z-[220] rounded-lg p-3 md:p-4 bg-surface border border-surface-elevated overflow-visible" style={{ minHeight: '56px' }}>
-                          <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none z-0">
-                            <BorderBeam size={80} duration={6} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1} />
-                          </div>
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0 flex-1">
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>

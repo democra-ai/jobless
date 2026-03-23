@@ -10,6 +10,7 @@ import {
 import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
+import { BorderBeam } from '@/components/ui/border-beam';
 
 /** Safely get a localized string from an object with en/zh keys, falling back to en */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -305,7 +306,7 @@ type QuizPhase = 'intro' | 'core' | 'result';
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
-function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
+function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: typeof translations.en; theme?: 'dark' | 'light' }) {
   const DIMENSION_COLORS = useDimensionColors();
   // Quiz state
   const [phase, setPhase] = useState<QuizPhase>('intro');
@@ -680,7 +681,7 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
       data-lang={lang}
       className="py-12 sm:py-24 px-4 md:px-6 relative overflow-hidden scroll-mt-8 responsive-copy-scope"
     >
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-3xl mx-auto relative z-10">
         {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -707,8 +708,15 @@ function SurvivalIndexSection({ lang, t }: { lang: Language; t: typeof translati
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass-card rounded-3xl p-6 md:p-10 relative"
+          className="glass-card rounded-2xl p-5 md:p-8 relative overflow-hidden"
         >
+          <BorderBeam
+            size={150}
+            duration={10}
+            colorFrom={theme === 'dark' ? '#ffffff' : '#ff6b35'}
+            colorTo={theme === 'dark' ? '#c4b5fd' : '#ff1744'}
+            borderWidth={1.5}
+          />
           {/* ══════════════ INTRO PHASE ══════════════ */}
           {phase === 'intro' && (
             <div className="text-center space-y-6 py-8">
@@ -1482,7 +1490,7 @@ class QuizErrorBoundary extends React.Component<
   }
 }
 
-export default function SurvivalIndexSectionWithBoundary(props: { lang: Language; t: typeof translations.en }) {
+export default function SurvivalIndexSectionWithBoundary(props: { lang: Language; t: typeof translations.en; theme?: 'dark' | 'light' }) {
   return (
     <QuizErrorBoundary>
       <SurvivalIndexSection {...props} />

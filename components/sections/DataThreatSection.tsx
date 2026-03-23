@@ -23,7 +23,7 @@ const CircleNode = forwardRef<HTMLDivElement, { children: React.ReactNode; class
 );
 CircleNode.displayName = 'CircleNode';
 
-function DataThreatSection({ lang, t, theme = 'dark' }: { lang: Language; t: typeof translations.en; theme?: 'dark' | 'light' }) {
+function DataThreatSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof translations)[Language]; theme?: 'dark' | 'light' }) {
   const [expanded, setExpanded] = useState(true);
   const beamFrom = theme === 'dark' ? '#ffffff' : '#ff6b35';
   const beamTo = theme === 'dark' ? '#c4b5fd' : '#ff1744';
