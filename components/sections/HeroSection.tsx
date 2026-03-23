@@ -122,7 +122,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
                   </div>
 
                   {/* Desktop: 3-column grid with staggered blur-fade */}
-                  <div className="hidden sm:grid grid-cols-3 gap-2 md:gap-3 mt-4 overflow-visible">
+                  <div className="relative hidden sm:grid grid-cols-3 gap-2 md:gap-3 mt-4 overflow-visible z-10">
                     {stats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (

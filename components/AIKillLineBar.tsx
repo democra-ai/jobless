@@ -536,7 +536,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
       </div>
 
       {/* Desktop: horizontal stage labels below bar */}
-      <div className="relative hidden sm:flex mt-2 pb-2" style={{ overflow: 'visible' }}>
+      <div className="relative hidden sm:flex mt-2 pb-2 z-[130]" style={{ overflow: 'visible' }}>
         {/* Stages 1–4 */}
         {KILL_LINE_STAGES.filter(s => s.id < 5).map((stage) => {
           const width = ((stage.end - stage.start) / maxPct) * 100;
@@ -569,11 +569,11 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               <AnimatePresence>
                 {activeTooltip === stage.id && (
                   <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="absolute bottom-full mb-2 z-[120] w-[320px] rounded-xl text-left"
+                    className="absolute top-full mt-2 z-[140] w-[320px] rounded-xl text-left"
                     style={{
                       ...(stage.id <= 2 ? { left: 0 } : stage.id >= 4 ? { right: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
                       background: 'var(--surface-card)',
@@ -632,11 +632,11 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           <AnimatePresence>
             {activeTooltip === 5 && (
               <motion.div
-                initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                initial={{ opacity: 0, y: 8, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                className="absolute bottom-full mb-2 z-[120] w-[320px] rounded-xl text-left"
+                className="absolute top-full mt-2 z-[140] w-[320px] rounded-xl text-left"
                 style={{ right: 0, background: 'var(--surface-card)', border: '1px solid var(--tooltip-border)', boxShadow: 'var(--tooltip-shadow)', backdropFilter: 'blur(20px)' }}
                 onClick={(e) => e.stopPropagation()}
               >
