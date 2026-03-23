@@ -97,8 +97,7 @@ function QuizProgressBar({
       </div>
       <div className="w-full h-1.5 bg-surface-elevated rounded-full overflow-hidden">
         <motion.div
-          className="h-full rounded-full"
-          style={{ background: theme === 'dark' ? 'linear-gradient(to right, #ffffff, #c4b5fd)' : 'linear-gradient(to right, #ff6b35, #ff1744)' }}
+          className="h-full rounded-full bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400"
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -723,8 +722,8 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           {/* ══════════════ INTRO PHASE ══════════════ */}
           {phase === 'intro' && (
             <div className="text-center space-y-6 py-8">
-              <div className="mx-auto w-20 h-20 rounded-2xl flex items-center justify-center border border-overlay-10" style={{ background: theme === 'dark' ? 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(196,181,253,0.1))' : 'linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,23,68,0.08))' }}>
-                <Brain className="w-10 h-10" style={{ color: theme === 'dark' ? '#c4b5fd' : '#ff6b35' }} />
+              <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500/15 via-violet-500/15 to-rose-500/10 flex items-center justify-center border border-overlay-10">
+                <Brain className="w-10 h-10 text-violet-400" />
               </div>
               <div>
                 <p className="text-foreground-muted text-sm mb-6">{t.quizStartDesc}</p>
@@ -828,17 +827,16 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => { setPhase('core'); setCoreIndex(0); trackQuizStart(lang); }}
-                className="px-12 py-4 rounded-xl font-semibold text-white text-lg inline-flex items-center gap-3 relative overflow-hidden"
+                className="group px-10 py-3.5 rounded-full font-semibold text-white text-base inline-flex items-center gap-2.5 relative overflow-hidden"
                 style={{
-                  background: theme === 'dark' ? 'linear-gradient(135deg, #ffffff, #c4b5fd)' : 'linear-gradient(135deg, #ff6b35, #ff1744)',
-                  boxShadow: theme === 'dark' ? '0 4px 20px -5px rgba(196, 181, 253, 0.4)' : '0 4px 20px -5px rgba(255, 107, 53, 0.4)',
-                  color: theme === 'dark' ? '#000000' : '#ffffff',
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)',
+                  boxShadow: '0 0 20px -4px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset',
                 }}
               >
                 {t.quizStart}
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </motion.button>
             </div>
           )}
