@@ -695,8 +695,8 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border border-overlay-10">
             <Target className="w-4 h-4" style={{ stroke: 'url(#badge-gradient)' }} />
-            <svg width="0" height="0"><defs><linearGradient id="badge-gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor={theme === 'dark' ? '#ffffff' : '#ff6b35'} /><stop offset="100%" stopColor={theme === 'dark' ? '#c4b5fd' : '#ff1744'} /></linearGradient></defs></svg>
-            <span className="text-sm font-medium" style={{ background: theme === 'dark' ? 'linear-gradient(to right, #ffffff, #c4b5fd)' : 'linear-gradient(to right, #ff6b35, #ff1744)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{t.survivalBadge}</span>
+            <svg width="0" height="0"><defs><linearGradient id="badge-gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#38bdf8" /><stop offset="50%" stopColor="#a78bfa" /><stop offset="100%" stopColor="#fb7185" /></linearGradient></defs></svg>
+            <span className="text-sm font-medium bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400 bg-clip-text text-transparent">{t.survivalBadge}</span>
           </div>
           <h2 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl mb-4 section-title">
             {t.survivalTitle}
