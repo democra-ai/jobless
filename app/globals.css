@@ -1818,7 +1818,7 @@ html[data-style]:not([data-style="tech-noir"]) .gradient-text {
 
 /* Clean card surfaces — replace glass/elevated with flat */
 html[data-style]:not([data-style="tech-noir"]) .glass,
-html[data-style]:not([data-style="tech-noir"]) .glass-card {
+html[data-style]:not([data-style="tech-noir"]):not([data-style="oled"]):not([data-style="editorial"]) .glass-card {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   background: var(--surface);
@@ -1826,7 +1826,7 @@ html[data-style]:not([data-style="tech-noir"]) .glass-card {
   box-shadow: var(--card-shadow);
 }
 html[data-style]:not([data-style="tech-noir"]) .card-elevated,
-html[data-style]:not([data-style="tech-noir"]) .calc-container {
+html[data-style]:not([data-style="tech-noir"]):not([data-style="oled"]):not([data-style="editorial"]) .calc-container {
   background: var(--surface);
   border: 1px solid var(--overlay-8);
   box-shadow: var(--card-shadow);
