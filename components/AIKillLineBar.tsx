@@ -578,8 +578,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                       ...(stage.id <= 2 ? { left: 0 } : stage.id >= 4 ? { right: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
                       background: 'var(--surface-card)',
                       border: '1px solid var(--tooltip-border)',
-                      boxShadow: 'var(--tooltip-shadow)',
-                      backdropFilter: 'blur(20px)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -637,7 +636,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 className="absolute top-full mt-2 z-[140] w-[320px] rounded-xl text-left"
-                style={{ right: 0, background: 'var(--surface-card)', border: '1px solid var(--tooltip-border)', boxShadow: 'var(--tooltip-shadow)', backdropFilter: 'blur(20px)' }}
+                style={{ right: 0, background: 'var(--surface-card)', border: '1px solid var(--tooltip-border)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="px-4 py-3 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, rgba(255,23,68,0.12), transparent)', borderBottom: '1px solid rgba(255,23,68,0.12)' }}>

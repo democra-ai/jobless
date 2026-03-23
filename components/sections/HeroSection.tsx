@@ -151,7 +151,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
                             {/* Desktop: hover tooltip */}
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-[240] w-max max-w-[260px]">
                               <div className="px-3 py-3 rounded-xl"
-                                style={{ background: 'var(--tooltip-bg)', border: '1px solid var(--tooltip-border)', boxShadow: 'var(--tooltip-shadow)', backdropFilter: 'blur(12px)' }}
+                                style={{ background: 'var(--surface-card)', border: '1px solid var(--tooltip-border)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}
                               >
                                 <div className="text-[11px] text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
                                 <a href={stat.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-medium transition-colors" style={{ color: stat.color }}>

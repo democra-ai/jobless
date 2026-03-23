@@ -243,7 +243,7 @@ export default function Home() {
         <HeroSection lang={lang} t={t} />
       </div>
 
-      <div className="relative z-20">
+      <div className="relative z-[1]">
         <SurvivalIndexSection lang={lang} t={t} />
         <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
           <DataThreatSection lang={lang} t={t} />
