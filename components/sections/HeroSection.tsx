@@ -87,7 +87,7 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
               return (
                 <>
                   {/* Mobile: single unified card with divide-y */}
-                  <div className="sm:hidden mt-4 rounded-lg bg-background border border-white/[0.08] divide-y divide-white/[0.06] shadow-[0_0_0_1px_rgba(255,255,255,0.05),inset_0_1px_0_rgba(255,255,255,0.06)]">
+                  <div className="sm:hidden mt-4 rounded-lg bg-background card-glow-border divide-y divide-white/[0.06]">
                     {stats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (
@@ -143,7 +143,7 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
                     {stats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (
-                        <div key={i} className="group relative z-20 hover:z-[220] rounded-lg p-3 md:p-4 bg-background border border-white/[0.08] overflow-visible shadow-[0_0_0_1px_rgba(255,255,255,0.05),inset_0_1px_0_rgba(255,255,255,0.06)]" style={{ minHeight: '56px' }}>
+                        <div key={i} className="group relative z-20 hover:z-[220] rounded-lg p-3 md:p-4 bg-background card-glow-border overflow-visible" style={{ minHeight: '56px' }}>
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0 flex-1">
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>

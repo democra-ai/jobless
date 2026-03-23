@@ -409,24 +409,38 @@ html[data-style="editorial"] .hero-glow-orb {
   background: radial-gradient(ellipse at center, rgba(220, 38, 38, 0.08) 0%, rgba(255, 107, 53, 0.03) 50%, transparent 80%);
 }
 
+/* Card glow border — colored light matching particle theme */
+html[data-style="oled"] .card-glow-border {
+  border: 1px solid rgba(196, 181, 253, 0.15);
+  box-shadow:
+    0 0 8px rgba(196, 181, 253, 0.08),
+    0 0 30px rgba(196, 181, 253, 0.04);
+}
+html[data-style="editorial"] .card-glow-border {
+  border: 1px solid rgba(255, 107, 53, 0.15);
+  box-shadow:
+    0 0 8px rgba(255, 107, 53, 0.06),
+    0 0 30px rgba(255, 107, 53, 0.03);
+}
+
 /* OLED + Editorial — card fills match MagicCard (uses --background) */
 html[data-style="oled"] .calc-container,
 html[data-style="oled"] .glass-card {
   background: var(--background);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(196, 181, 253, 0.15);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    0 0 20px -5px rgba(255, 255, 255, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 0 8px rgba(196, 181, 253, 0.08),
+    0 0 30px rgba(196, 181, 253, 0.04),
+    0 0 60px rgba(255, 255, 255, 0.02);
 }
 html[data-style="editorial"] .calc-container,
 html[data-style="editorial"] .glass-card {
   background: var(--background);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 107, 53, 0.15);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.03),
-    0 4px 24px -4px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 0 8px rgba(255, 107, 53, 0.06),
+    0 0 30px rgba(255, 107, 53, 0.03),
+    0 0 60px rgba(255, 23, 68, 0.02);
 }
 
 /* OLED dark — brighter grid lines on pure black */
