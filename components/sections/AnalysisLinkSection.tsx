@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import { Language } from '@/lib/translations';
 import { trackInternalNavigation } from '@/lib/analytics';
-import { BlurFade } from '@/components/ui/blur-fade';
-import { NeonGradientCard } from '@/components/ui/neon-gradient-card';
-import { ShimmerButton } from '@/components/ui/shimmer-button';
-import { TextAnimate } from '@/components/ui/text-animate';
+import { BorderBeam } from '@/components/ui/border-beam';
 
-function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, any> }) {
+function AnalysisLinkSection({ lang, t, theme = 'dark' }: { lang: Language; t: Record<string, any>; theme?: 'dark' | 'light' }) {
+  const beamFrom = theme === 'dark' ? '#ffffff' : '#ff6b35';
+  const beamTo = theme === 'dark' ? '#c4b5fd' : '#ff1744';
+
   const linkText: Record<string, { title: string; subtitle: string; buttonText: string }> = {
     en: {
       title: 'Want Deeper Analysis?',
@@ -40,39 +40,26 @@ function AnalysisLinkSection({ lang, t }: { lang: Language; t: Record<string, an
   const text = linkText[lang] ?? linkText['en'];
 
   return (
-    <section className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50 overflow-hidden">
+    <section className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50">
       <div className="max-w-xl mx-auto">
-        <BlurFade delay={0.15} inView>
-          <NeonGradientCard
-            neonColors={{ firstColor: '#ff6b35', secondColor: '#ff1744' }}
-            className="text-center"
-          >
-            <div className="p-2 sm:p-4">
-              <TextAnimate
-                as="h2"
-                animation="blurInUp"
-                by="word"
-                className="text-2xl md:text-3xl font-bold mb-4 section-title"
-              >
-                {text.title}
-              </TextAnimate>
-
-              <p className="section-subtitle mb-8 max-w-md mx-auto">
-                {text.subtitle}
-              </p>
-
-              <div className="flex justify-center">
-                <Link
-                  href="/analysis"
-                  onClick={() => trackInternalNavigation('/analysis', 'analysis_link_section')}
-                  className="inline-flex items-center px-8 py-4 font-semibold text-lg text-foreground-muted hover:text-foreground transition-colors"
-                >
-                  {text.buttonText} &rarr;
-                </Link>
-              </div>
-            </div>
-          </NeonGradientCard>
-        </BlurFade>
+        <div className="relative rounded-xl bg-surface border border-surface-elevated p-6 sm:p-8 text-center overflow-hidden">
+          <BorderBeam size={120} duration={8} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 section-title">
+            {text.title}
+          </h2>
+          <p className="section-subtitle mb-8 max-w-md mx-auto">
+            {text.subtitle}
+          </p>
+          <div className="flex justify-center">
+            <Link
+              href="/analysis"
+              onClick={() => trackInternalNavigation('/analysis', 'analysis_link_section')}
+              className="inline-flex items-center px-8 py-4 font-semibold text-lg text-foreground-muted hover:text-foreground transition-colors"
+            >
+              {text.buttonText} &rarr;
+            </Link>
+          </div>
+        </div>
       </div>
     </section>
   );

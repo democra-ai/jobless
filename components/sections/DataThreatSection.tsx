@@ -23,8 +23,10 @@ const CircleNode = forwardRef<HTMLDivElement, { children: React.ReactNode; class
 );
 CircleNode.displayName = 'CircleNode';
 
-function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
+function DataThreatSection({ lang, t, theme = 'dark' }: { lang: Language; t: typeof translations.en; theme?: 'dark' | 'light' }) {
   const [expanded, setExpanded] = useState(true);
+  const beamFrom = theme === 'dark' ? '#ffffff' : '#ff6b35';
+  const beamTo = theme === 'dark' ? '#c4b5fd' : '#ff1744';
 
   // Refs for animated beams
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,11 +56,14 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
         {/* Collapsible Last Mile Concept with MagicCard */}
         <BlurFade delay={0.25} inView>
           <MagicCard
-            className="rounded-2xl p-0 border border-surface-elevated mb-8"
+            className="relative rounded-xl p-0 border border-surface-elevated mb-8"
             gradientColor="rgba(255, 107, 53, 0.06)"
             gradientOpacity={80}
           >
-            <div className="p-8">
+            <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none z-0">
+              <BorderBeam size={150} duration={10} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
+            </div>
+            <div className="relative p-6 sm:p-8">
               <button
                 onClick={() => { const next = !expanded; setExpanded(next); trackExpandToggle('last_mile_concept', next); }}
                 className="w-full flex items-center justify-between gap-3 cursor-pointer"
@@ -174,8 +179,8 @@ function DataThreatSection({ lang, t }: { lang: Language; t: typeof translations
                     </div>
 
                     {/* Warning with border beam */}
-                    <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-risk-critical/10 to-risk-high/10 border border-risk-critical/20 relative overflow-hidden">
-                      <BorderBeam size={100} duration={6} colorFrom="#ff1744" colorTo="#ff5722" borderWidth={1} />
+                    <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-risk-critical/10 to-risk-high/10 border border-risk-critical/20 relative overflow-hidden">
+                      <BorderBeam size={80} duration={6} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1} />
                       <p className="text-sm font-semibold text-center">
                         <AlertTriangle className="w-4 h-4 inline text-risk-critical mr-2 align-middle" />
                         {t.lastMileWarning}

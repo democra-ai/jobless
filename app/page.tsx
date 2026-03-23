@@ -239,13 +239,13 @@ export default function Home() {
       </div>
 
       <div id="overview-anchor" data-mobile-section="overview" className="relative z-[2] scroll-mt-28 sm:scroll-mt-0">
-        <HeroSection lang={lang} t={t} />
+        <HeroSection lang={lang} t={t} theme={theme} />
       </div>
 
       <div className="relative z-[1]">
         <SurvivalIndexSection lang={lang} t={t} />
         <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
-          <DataThreatSection lang={lang} t={t} />
+          <DataThreatSection lang={lang} t={t} theme={theme} />
         </div>
       </div>
 
@@ -273,7 +273,7 @@ export default function Home() {
       </div>
 
       <div className="relative z-20">
-        <AnalysisLinkSection lang={lang} t={t} />
+        <AnalysisLinkSection lang={lang} t={t} theme={theme} />
         <Footer lang={lang} t={t} />
       </div>
 

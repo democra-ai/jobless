@@ -9,8 +9,10 @@ import AIKillLineBar from '@/components/AIKillLineBar';
 import { trackCtaClick, trackStatCardExpand } from '@/lib/analytics';
 import { BorderBeam } from '@/components/ui/border-beam';
 
-function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
+function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: typeof translations.en; theme?: 'dark' | 'light' }) {
   const [activeStat, setActiveStat] = useState<number | null>(null);
+  const beamFrom = theme === 'dark' ? '#ffffff' : '#ff6b35';
+  const beamTo = theme === 'dark' ? '#c4b5fd' : '#ff1744';
 
   return (
     <section className="no-contain relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 overflow-visible">
@@ -52,15 +54,15 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="relative z-20 calc-container rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10" style={{ overflow: 'visible' }}>
+          <div className="relative z-20 calc-container rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8" style={{ overflow: 'visible' }}>
             {/* Border beam — light traveling along card edge */}
-            <div className="absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden pointer-events-none z-0">
+            <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden pointer-events-none z-0">
               <BorderBeam
-                size={200}
+                size={150}
                 duration={8}
-                colorFrom="#ff6b35"
-                colorTo="#ff1744"
-                borderWidth={2}
+                colorFrom={beamFrom}
+                colorTo={beamTo}
+                borderWidth={1.5}
               />
             </div>
             {/* Glow orb — sunrise warmth by day, silver starlight by night, centered on progress bar */}
@@ -85,7 +87,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
               return (
                 <>
                   {/* Mobile: single unified card with divide-y */}
-                  <div className="sm:hidden mt-4 rounded-xl bg-surface border border-surface-elevated divide-y divide-surface-elevated">
+                  <div className="sm:hidden mt-4 rounded-lg bg-surface border border-surface-elevated divide-y divide-surface-elevated">
                     {stats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (
@@ -141,7 +143,10 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
                     {stats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (
-                        <div key={i} className="group relative z-20 hover:z-[220] rounded-xl p-3 md:p-4 bg-surface border border-surface-elevated overflow-visible" style={{ minHeight: '60px' }}>
+                        <div key={i} className="group relative z-20 hover:z-[220] rounded-lg p-3 md:p-4 bg-surface border border-surface-elevated overflow-visible" style={{ minHeight: '56px' }}>
+                          <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none z-0">
+                            <BorderBeam size={80} duration={6} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1} />
+                          </div>
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0 flex-1">
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
