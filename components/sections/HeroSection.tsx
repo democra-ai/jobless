@@ -7,6 +7,7 @@ import { Language, translations } from '@/lib/translations';
 import Counter from '@/components/Counter';
 import AIKillLineBar from '@/components/AIKillLineBar';
 import { trackCtaClick, trackStatCardExpand } from '@/lib/analytics';
+import { BorderBeam } from '@/components/ui/border-beam';
 
 function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en }) {
   const [activeStat, setActiveStat] = useState<number | null>(null);
@@ -52,6 +53,16 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="relative z-20 calc-container rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10" style={{ overflow: 'visible' }}>
+            {/* Border beam — light traveling along card edge */}
+            <div className="absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden pointer-events-none z-0">
+              <BorderBeam
+                size={200}
+                duration={8}
+                colorFrom="#ff6b35"
+                colorTo="#ff1744"
+                borderWidth={2}
+              />
+            </div>
             {/* Glow orb — sunrise warmth by day, silver starlight by night, centered on progress bar */}
             <motion.div
               className="hero-glow-orb absolute left-1/2 -translate-x-1/2 w-[80%] max-w-2xl h-[250px] rounded-full blur-[80px] pointer-events-none z-0"
