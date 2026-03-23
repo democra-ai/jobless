@@ -398,6 +398,17 @@ body::before {
   background-size: 50px 50px, 50px 50px, auto;
 }
 
+/* Hero glow orb — warm in light, silver starlight in dark */
+.hero-glow-orb {
+  background: rgba(255, 107, 53, 0.06);
+}
+html[data-style="oled"] .hero-glow-orb {
+  background: rgba(255, 255, 255, 0.08);
+}
+html[data-style="editorial"] .hero-glow-orb {
+  background: rgba(220, 38, 38, 0.04);
+}
+
 /* OLED dark — brighter grid lines on pure black */
 html[data-style="oled"] body::before {
   background:

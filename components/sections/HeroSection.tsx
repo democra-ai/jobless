@@ -15,7 +15,7 @@ function HeroSection({ lang, t }: { lang: Language; t: typeof translations.en })
     <section className="no-contain relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 overflow-visible">
       {/* Background — single subtle radial glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-primary/[0.04] rounded-full blur-[100px]"></div>
+        <div className="hero-glow-orb absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] rounded-full blur-[100px]"></div>
       </div>
 
       <div className="relative z-30 text-center px-4 sm:px-6 max-w-6xl mx-auto hero-glow">
