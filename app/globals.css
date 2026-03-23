@@ -1741,8 +1741,8 @@ section.no-contain {
 
 /* --- Shared: Disable effects for non-Tech-Noir --- */
 
-html[data-style]:not([data-style="tech-noir"]) body::before,
-html[data-style]:not([data-style="tech-noir"]) body::after {
+html[data-style]:not([data-style="tech-noir"]):not([data-style="oled"]):not([data-style="editorial"]) body::before,
+html[data-style]:not([data-style="tech-noir"]):not([data-style="oled"]):not([data-style="editorial"]) body::after {
   display: none;
 }
 
