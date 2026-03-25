@@ -340,8 +340,9 @@ function normalizeAnswer(answer: QuizAnswer, direction: 'forward' | 'reverse'): 
 }
 
 /** Calculate a single dimension result */
-function scoreDimension(dimension: QuizDimension, answers: Record<string, QuizAnswer>): DimensionResult {
-  const scores = dimension.questions.map(q => {
+function scoreDimension(dimension: QuizDimension, answers: Record<string, QuizAnswer>, customQuestions?: { id: string; direction: 'forward' | 'reverse' }[]): DimensionResult {
+  const questions = customQuestions ?? dimension.questions;
+  const scores = questions.map(q => {
     const answer = answers[q.id];
     if (!answer) return 3; // default middle
     return normalizeAnswer(answer, q.direction);
@@ -650,6 +651,42 @@ export function calculateQuizResult(answers: QuizAnswers, selectedSOC?: number |
     confidenceInterval,
     riskLevel: toRiskLevel(profile.riskTier),
     currentReplacementDegree: snapshotScore,
+    occupationSOC: resolveOccupation(selectedSOC ?? null, profileCode),
+  };
+}
+
+/** Calculate result using custom question sets per dimension (for 60-question mode) */
+export function calculateQuizResultFull(
+  answers: Record<string, QuizAnswer>,
+  dimensionQuestions: { id: string; direction: 'forward' | 'reverse' }[][],
+  selectedSOC?: number | null,
+): QuizResult {
+  const dimensionResults = QUIZ_DIMENSIONS.map((d, i) =>
+    scoreDimension(d, answers, dimensionQuestions[i])
+  );
+
+  const profileCode = dimensionResults.map(d => d.letter).join('');
+  const favorableCount = dimensionResults.filter(d => d.isFavorable).length;
+
+  const profile = PROFILE_TYPES[profileCode];
+  if (!profile) {
+    throw new Error(`Unknown profile type: ${profileCode}`);
+  }
+
+  const probability = calculateProbability(profileCode, dimensionResults);
+  const { year, confidenceInterval } = predictYear(profileCode, dimensionResults, probability);
+
+  return {
+    profileCode,
+    profile,
+    dimensions: dimensionResults,
+    favorableCount,
+    replacementProbability: probability,
+    predictedReplacementYear: year,
+    currentAICapability: 50,
+    confidenceInterval,
+    riskLevel: toRiskLevel(profile.riskTier),
+    currentReplacementDegree: 50,
     occupationSOC: resolveOccupation(selectedSOC ?? null, profileCode),
   };
 }

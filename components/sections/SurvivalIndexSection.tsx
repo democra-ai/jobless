@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Target, Share2, Download, Copy, ExternalLink,
-  ChevronLeft, ChevronRight, Send, Flame, RefreshCw, ArrowRight,
+  ChevronLeft, ChevronRight, Send, Flame, RefreshCw, ArrowRight, Zap,
   Brain, Shield, Users,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -24,7 +24,12 @@ import {
   RISK_TIER_INFO,
   SOC_MAJOR_GROUPS,
 } from '@/lib/air_quiz_data';
-import { calculateQuizResult, QuizAnswers, QuizResult, getProfileCalibration } from '@/lib/air_quiz_calculator';
+import {
+  ALL_FULL_QUESTIONS, FULL_QUESTION_COUNT,
+  DIMENSION_LEARNABILITY_FULL, DIMENSION_EVALUATION_FULL,
+  DIMENSION_RISK_FULL, DIMENSION_HUMAN_FULL,
+} from '@/lib/air_quiz_data_60';
+import { calculateQuizResult, calculateQuizResultFull, QuizAnswers, QuizResult, getProfileCalibration } from '@/lib/air_quiz_calculator';
 import { PROFILE_CAREERS } from '@/lib/air_career_data';
 import { generateAdvice } from '@/lib/air_advice_data';
 import {
@@ -305,6 +310,7 @@ function AxisSlider({
 // ─── Quiz phases ─────────────────────────────────────────────────────────────
 
 type QuizPhase = 'intro' | 'core' | 'result';
+type QuizMode = 'compact' | 'full';
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
@@ -312,7 +318,8 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
   const DIMENSION_COLORS = useDimensionColors();
   // Quiz state
   const [phase, setPhase] = useState<QuizPhase>('intro');
-  const [coreIndex, setCoreIndex] = useState(0); // 0-15
+  const [quizMode, setQuizMode] = useState<QuizMode>('compact');
+  const [coreIndex, setCoreIndex] = useState(0);
 
   const [coreAnswers, setCoreAnswers] = useState<Record<string, QuizAnswer>>({});
   const [selectedSOC, setSelectedSOC] = useState<number | null>(null);
@@ -328,11 +335,16 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
   const posterCaptureRef = useRef<HTMLDivElement>(null);
   const questionContainerRef = useRef<HTMLDivElement>(null);
 
+  // Dynamic question set based on quiz mode
+  const activeQuestions = quizMode === 'full' ? ALL_FULL_QUESTIONS : ALL_CORE_QUESTIONS;
+  const activeQuestionCount = quizMode === 'full' ? FULL_QUESTION_COUNT : CORE_QUESTION_COUNT;
+  const questionsPerDim = quizMode === 'full' ? 15 : 5;
+
   // Current core question info (clamped to valid range for safety)
-  const safeCoreIndex = Math.min(coreIndex, CORE_QUESTION_COUNT - 1);
-  const currentCoreQ = ALL_CORE_QUESTIONS[safeCoreIndex];
-  const currentDimIndex = Math.floor(safeCoreIndex / 5);
-  const currentDim = QUIZ_DIMENSIONS[currentDimIndex];
+  const safeCoreIndex = Math.min(coreIndex, activeQuestionCount - 1);
+  const currentCoreQ = activeQuestions[safeCoreIndex];
+  const currentDimIndex = Math.floor(safeCoreIndex / questionsPerDim);
+  const currentDim = QUIZ_DIMENSIONS[Math.min(currentDimIndex, 3)];
 
   // Pending advance: when set, a useEffect will auto-advance after delay
   const [pendingAdvance, setPendingAdvance] = useState<{
@@ -362,24 +374,34 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
   useEffect(() => {
     if (!pendingAdvance) return;
     const timer = setTimeout(() => {
-      if (pendingAdvance.nextIndex < CORE_QUESTION_COUNT) {
+      if (pendingAdvance.nextIndex < activeQuestionCount) {
         setCoreIndex(pendingAdvance.nextIndex);
       } else {
         // Finish quiz — all state is fresh from pendingAdvance
-        const answers: QuizAnswers = {
-          core: pendingAdvance.answers,
-          snapshot: {},
-          survey: {},
-        };
         try {
-          const quizResult = calculateQuizResult(answers, selectedSOC);
+          let quizResult: QuizResult;
+          if (quizMode === 'full') {
+            quizResult = calculateQuizResultFull(
+              pendingAdvance.answers,
+              [DIMENSION_LEARNABILITY_FULL, DIMENSION_EVALUATION_FULL, DIMENSION_RISK_FULL, DIMENSION_HUMAN_FULL],
+              selectedSOC,
+            );
+          } else {
+            const answers: QuizAnswers = {
+              core: pendingAdvance.answers,
+              snapshot: {},
+              survey: {},
+            };
+            quizResult = calculateQuizResult(answers, selectedSOC);
+          }
+          const trackAnswers: QuizAnswers = { core: pendingAdvance.answers, snapshot: {}, survey: {} };
           setResult(quizResult);
           setPhase('result');
           setSharePanelOpen(true);
           setTelegramShareState('idle');
           setCopied(false);
           setWechatCopied(false);
-          trackQuizComplete(quizResult, answers, lang);
+          trackQuizComplete(quizResult, trackAnswers, lang);
         } catch (err) {
           console.error('Quiz calculation error:', err);
         }
@@ -387,7 +409,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
       setPendingAdvance(null);
     }, 280);
     return () => clearTimeout(timer);
-  }, [pendingAdvance, selectedSOC, lang]);
+  }, [pendingAdvance, selectedSOC, lang, activeQuestionCount, quizMode]);
 
 
   // Go back
@@ -411,6 +433,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     setResult(null);
     setSharePanelOpen(false);
     setPendingAdvance(null);
+    setQuizMode('compact');
   }, [phase, coreIndex, lang]);
 
   // ─── Share functionality (preserved from V2) ─────────────────────────────
@@ -726,7 +749,12 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                 <Brain className="w-10 h-10 text-violet-400" />
               </div>
               <div>
-                <p className="text-foreground-muted text-sm mb-6">{t.quizStartDesc}</p>
+                <p className="text-foreground-muted text-sm mb-6">
+                  {quizMode === 'full'
+                    ? (lang === 'zh' ? '60 道诊断题 · 4 维度 · 每维度 15 题 · 精准定位你的类型' : lang === 'ja' ? '60問の診断 · 4次元 · 各15問 · 正確なタイプ分析' : lang === 'ko' ? '60문항 진단 · 4차원 · 각 15문항 · 정확한 유형 분석' : lang === 'de' ? '60 Diagnosefragen · 4 Dimensionen · je 15 Fragen · Präzise Typenanalyse' : '60 diagnostic questions · 4 dimensions · 15 each · precise type analysis')
+                    : t.quizStartDesc
+                  }
+                </p>
                 <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-6 text-left">
                   {QUIZ_DIMENSIONS.map((dim, i) => (
                     <div key={dim.id} className="flex items-center gap-2 p-3 rounded-xl bg-surface border border-surface-elevated">
@@ -739,6 +767,58 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Quiz Mode Selector — compact (16) or full (60) */}
+              <div className="max-w-md mx-auto mb-6">
+                <p className="text-[11px] text-foreground-muted/50 mb-2 px-1">
+                  {lang === 'zh' ? '选择测试版本' : lang === 'ja' ? 'テストバージョンを選択' : lang === 'ko' ? '테스트 버전 선택' : lang === 'de' ? 'Testversion wählen' : 'Choose test version'}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Compact version */}
+                  <button
+                    type="button"
+                    onClick={() => setQuizMode('compact')}
+                    className="relative text-left rounded-xl px-4 py-3 border transition-all"
+                    style={{
+                      borderColor: quizMode === 'compact' ? '#8b5cf6' : 'var(--overlay-10)',
+                      backgroundColor: quizMode === 'compact' ? 'rgba(139, 92, 246, 0.1)' : 'var(--surface)',
+                      boxShadow: quizMode === 'compact' ? '0 0 0 1px rgba(139, 92, 246, 0.3), 0 2px 8px rgba(139, 92, 246, 0.1)' : undefined,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Zap className="w-3.5 h-3.5" style={{ color: quizMode === 'compact' ? '#8b5cf6' : 'var(--foreground-muted)' }} />
+                      <span className="text-sm font-semibold" style={{ color: quizMode === 'compact' ? '#8b5cf6' : 'var(--foreground)' }}>
+                        {lang === 'zh' ? '精简版' : lang === 'ja' ? '簡易版' : lang === 'ko' ? '간편 버전' : lang === 'de' ? 'Kurzversion' : 'Quick'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-foreground-muted leading-tight">
+                      {lang === 'zh' ? '16 道题 · 约 3 分钟' : lang === 'ja' ? '16問 · 約3分' : lang === 'ko' ? '16문항 · 약 3분' : lang === 'de' ? '16 Fragen · ~3 Min.' : '16 questions · ~3 min'}
+                    </p>
+                  </button>
+
+                  {/* Full version */}
+                  <button
+                    type="button"
+                    onClick={() => setQuizMode('full')}
+                    className="relative text-left rounded-xl px-4 py-3 border transition-all"
+                    style={{
+                      borderColor: quizMode === 'full' ? '#f59e0b' : 'var(--overlay-10)',
+                      backgroundColor: quizMode === 'full' ? 'rgba(245, 158, 11, 0.1)' : 'var(--surface)',
+                      boxShadow: quizMode === 'full' ? '0 0 0 1px rgba(245, 158, 11, 0.3), 0 2px 8px rgba(245, 158, 11, 0.1)' : undefined,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Brain className="w-3.5 h-3.5" style={{ color: quizMode === 'full' ? '#f59e0b' : 'var(--foreground-muted)' }} />
+                      <span className="text-sm font-semibold" style={{ color: quizMode === 'full' ? '#f59e0b' : 'var(--foreground)' }}>
+                        {lang === 'zh' ? '全面版' : lang === 'ja' ? '完全版' : lang === 'ko' ? '전체 버전' : lang === 'de' ? 'Vollversion' : 'Comprehensive'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-foreground-muted leading-tight">
+                      {lang === 'zh' ? '60 道题 · 约 12 分钟' : lang === 'ja' ? '60問 · 約12分' : lang === 'ko' ? '60문항 · 약 12분' : lang === 'de' ? '60 Fragen · ~12 Min.' : '60 questions · ~12 min'}
+                    </p>
+                  </button>
                 </div>
               </div>
 
@@ -846,14 +926,14 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
             <div ref={questionContainerRef}>
               <QuizProgressBar
                 current={coreIndex + 1}
-                total={CORE_QUESTION_COUNT}
+                total={activeQuestionCount}
                 phase={t.quizPhaseCore}
                 lang={lang}
                 t={t}
                 theme={theme}
               />
 
-              {/* Dimension badge - changes every 4 questions */}
+              {/* Dimension badge - changes based on questions per dimension */}
               <DimensionBadge
                 icon={DIMENSION_ICONS[currentDimIndex]}
                 label={`${t.quizDimension} ${currentDimIndex + 1}: ${L(currentDim.name, lang)}`}
