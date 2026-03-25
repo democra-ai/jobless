@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, forwardRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { Lock, Zap, ChevronDown, Database, Shield, AlertTriangle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Language, translations } from '@/lib/translations';
@@ -12,6 +12,7 @@ import { BorderBeam } from '@/components/ui/border-beam';
 import { AnimatedBeam } from '@/components/ui/animated-beam';
 import { MagicCard } from '@/components/ui/magic-card';
 import { ShimmerButton } from '@/components/ui/shimmer-button';
+import { ParallaxLayer } from '@/components/ParallaxEffects';
 
 // Circle node for animated beam
 const CircleNode = forwardRef<HTMLDivElement, { children: React.ReactNode; className?: string; style?: React.CSSProperties }>(
@@ -37,21 +38,23 @@ function DataThreatSection({ lang, t, theme = 'dark' }: { lang: Language; t: (ty
   return (
     <section className="py-12 sm:py-20 px-4 sm:px-6 relative z-30 overflow-hidden border-t border-surface-elevated/50">
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Section Header */}
-        <BlurFade delay={0.1} inView>
-          <div className="text-center mb-8 sm:mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-4">
-              <Lock className="w-3.5 h-3.5 text-risk-critical" />
-              <span className="text-xs font-semibold text-risk-critical tracking-wide uppercase">DATA THREAT</span>
+        {/* Section Header — subtle parallax float */}
+        <ParallaxLayer speed={0.15}>
+          <BlurFade delay={0.1} inView>
+            <div className="text-center mb-8 sm:mb-16">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-4">
+                <Lock className="w-3.5 h-3.5 text-risk-critical" />
+                <span className="text-xs font-semibold text-risk-critical tracking-wide uppercase">DATA THREAT</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 section-title">
+                {t.dataThreatTitle}
+              </h2>
+              <p className="section-subtitle max-w-2xl mx-auto">
+                {t.dataThreatSubtitle}
+              </p>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 section-title">
-              {t.dataThreatTitle}
-            </h2>
-            <p className="section-subtitle max-w-2xl mx-auto">
-              {t.dataThreatSubtitle}
-            </p>
-          </div>
-        </BlurFade>
+          </BlurFade>
+        </ParallaxLayer>
 
         {/* Collapsible Last Mile Concept with MagicCard */}
         <BlurFade delay={0.25} inView>

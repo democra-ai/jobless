@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Target } from 'lucide-react';
 import { Language, Theme, MobileSection, MOBILE_SECTION_TARGETS, translations, detectBrowserLanguage, getHtmlLang } from '@/lib/translations';
 import HeroSection from '@/components/sections/HeroSection';
@@ -11,6 +11,8 @@ import DataThreatSection from '@/components/sections/DataThreatSection';
 import AnalysisLinkSection from '@/components/sections/AnalysisLinkSection';
 import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
+import SmoothScroll from '@/components/SmoothScroll';
+import { ScrollReveal } from '@/components/ParallaxEffects';
 
 import { trackCtaClick } from '@/lib/analytics';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
@@ -207,8 +209,38 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
+  /* ── Hero zoom-blur parallax (like healthytogether transition_camera) ── */
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  });
+  const heroScale = useTransform(heroScroll, [0, 0.5, 1], [1, 1, 0.88]);
+  const heroBlur = useTransform(heroScroll, [0, 0.5, 1], [0, 0, 12]);
+  const heroFilter = useTransform(heroBlur, (v) => `blur(${v}px)`);
+  const heroOpacity = useTransform(heroScroll, [0, 0.6, 1], [1, 1, 0.3]);
+
+  /* ── Data threat section: scale-up entrance ── */
+  const threatRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: threatScroll } = useScroll({
+    target: threatRef,
+    offset: ['start end', 'start 0.3'],
+  });
+  const threatScale = useTransform(threatScroll, [0, 1], [0.92, 1]);
+  const threatOpacity = useTransform(threatScroll, [0, 1], [0, 1]);
+
+  /* ── Timeline section: slide-up entrance ── */
+  const tlParallaxRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: tlScroll } = useScroll({
+    target: tlParallaxRef,
+    offset: ['start end', 'start 0.5'],
+  });
+  const tlY = useTransform(tlScroll, [0, 1], [60, 0]);
+  const tlOpacity = useTransform(tlScroll, [0, 1], [0, 1]);
+
   return (
     <main className="min-h-screen overflow-x-hidden mobile-shell relative" data-ui-lang={lang}>
+      <SmoothScroll />
       {/* Global particles background — covers entire page */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <Particles
@@ -238,44 +270,77 @@ export default function Home() {
         <ThemeButton theme={theme} setTheme={setTheme} />
       </div>
 
-      <div id="overview-anchor" data-mobile-section="overview" className="relative z-[2] scroll-mt-28 sm:scroll-mt-0">
-        <HeroSection lang={lang} t={t} theme={theme} />
+      {/* Hero — zoom-blur out on scroll (transition_camera effect) */}
+      <div ref={heroRef} id="overview-anchor" data-mobile-section="overview" className="relative z-[2] scroll-mt-28 sm:scroll-mt-0">
+        <motion.div
+          style={{
+            scale: heroScale,
+            filter: heroFilter,
+            opacity: heroOpacity,
+            transformOrigin: 'center top',
+            willChange: 'transform, filter, opacity',
+          }}
+        >
+          <HeroSection lang={lang} t={t} theme={theme} />
+        </motion.div>
       </div>
 
       <div className="relative z-[1]">
         <SurvivalIndexSection lang={lang} t={t} theme={theme} />
-        <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
-          <DataThreatSection lang={lang} t={t} theme={theme} />
+        {/* Data Threat — scale-up entrance */}
+        <div ref={threatRef} id="data-threat-anchor" data-mobile-section="threat" className="relative scroll-mt-28 sm:scroll-mt-0">
+          <motion.div
+            style={{
+              scale: threatScale,
+              opacity: threatOpacity,
+              transformOrigin: 'center bottom',
+              willChange: 'transform, opacity',
+            }}
+          >
+            <DataThreatSection lang={lang} t={t} theme={theme} />
+          </motion.div>
         </div>
       </div>
 
+      {/* Timeline — slide up entrance */}
       <div
+        ref={tlParallaxRef}
         id="timeline-anchor"
-        ref={timelineAnchorRef}
         data-mobile-section="timeline"
-        className="scroll-mt-28 sm:scroll-mt-0"
+        className="relative scroll-mt-28 sm:scroll-mt-0"
       >
-        {shouldMountTimeline ? (
-          <InteractiveTimeline lang={lang} theme={theme} />
-        ) : (
-          <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center px-6 py-12">
-            <div className="w-full max-w-3xl space-y-3">
-              <div className="h-4 bg-surface-elevated/50 rounded w-1/3 animate-pulse"></div>
-              <div className="h-3 bg-surface-elevated/30 rounded w-2/3 animate-pulse" style={{ animationDelay: '0.1s' }}></div>
-              <div className="mt-6 flex gap-4">
-                <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.3s' }}></div>
-                <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+        <motion.div
+          style={{
+            y: tlY,
+            opacity: tlOpacity,
+            willChange: 'transform, opacity',
+          }}
+        >
+          <div ref={timelineAnchorRef}>
+            {shouldMountTimeline ? (
+              <InteractiveTimeline lang={lang} theme={theme} />
+            ) : (
+              <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center px-6 py-12">
+                <div className="w-full max-w-3xl space-y-3">
+                  <div className="h-4 bg-surface-elevated/50 rounded w-1/3 animate-pulse"></div>
+                  <div className="h-3 bg-surface-elevated/30 rounded w-2/3 animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="mt-6 flex gap-4">
+                    <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                    <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        )}
+        </motion.div>
       </div>
 
-      <div className="relative z-20">
+      {/* Footer — scroll reveal */}
+      <ScrollReveal className="relative z-20">
         <AnalysisLinkSection lang={lang} t={t} theme={theme} />
         <Footer lang={lang} t={t} theme={theme} />
-      </div>
+      </ScrollReveal>
 
       <motion.button
         initial={{ opacity: 0, y: 10 }}
