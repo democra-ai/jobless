@@ -12,7 +12,6 @@ import AnalysisLinkSection from '@/components/sections/AnalysisLinkSection';
 import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
 import SmoothScroll from '@/components/SmoothScroll';
-import { ScrollReveal } from '@/components/ParallaxEffects';
 
 import { trackCtaClick } from '@/lib/analytics';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
@@ -209,34 +208,41 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  /* ── Hero zoom-blur parallax (like healthytogether transition_camera) ── */
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: heroScroll } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  });
-  const heroScale = useTransform(heroScroll, [0, 0.5, 1], [1, 1, 0.88]);
-  const heroBlur = useTransform(heroScroll, [0, 0.5, 1], [0, 0, 12]);
-  const heroFilter = useTransform(heroBlur, (v) => `blur(${v}px)`);
-  const heroOpacity = useTransform(heroScroll, [0, 0.6, 1], [1, 1, 0.3]);
+  /* ─────────────────────────────────────────────────────────────────────
+     NARRATIVE PARALLAX — each effect serves the content story
+     ───────────────────────────────────────────────────────────────────── */
 
-  /* ── Data threat section: scale-up entrance ── */
+  /* 1. HERO EXIT: The alarm recedes — you've been warned, now go deeper.
+        No zoom-blur (that's for the Data Threat → Timeline transition).
+        Just a clean fade + gentle sink, letting the quiz emerge above it. */
+  // (Hero internal parallax handles the split: alarm flies away, data lingers)
+
+  /* 2. QUIZ: Zero parallax. User is answering questions — any motion is noise. */
+
+  /* 3. DATA THREAT → TIMELINE: The "zoom out" moment.
+        After learning your data is the threat (personal), you pull back to see
+        the full historical picture (macro). This is where the cinematic
+        camera-zoom effect belongs — zooming OUT from personal to global. */
   const threatRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: threatScroll } = useScroll({
     target: threatRef,
-    offset: ['start end', 'start 0.3'],
+    offset: ['start start', 'end start'],
   });
-  const threatScale = useTransform(threatScroll, [0, 1], [0.92, 1]);
-  const threatOpacity = useTransform(threatScroll, [0, 1], [0, 1]);
+  // Data Threat scales down + blurs as you scroll past — "zooming out"
+  const threatScale = useTransform(threatScroll, [0, 0.5, 1], [1, 1, 0.9]);
+  const threatBlur = useTransform(threatScroll, [0, 0.5, 1], [0, 0, 8]);
+  const threatFilter = useTransform(threatBlur, (v) => `blur(${v}px)`);
+  const threatOpacity = useTransform(threatScroll, [0, 0.6, 1], [1, 1, 0.4]);
 
-  /* ── Timeline section: slide-up entrance ── */
+  /* 4. TIMELINE ENTRANCE: Emerges from the distance — the big picture arriving.
+        Starts small + slightly blurred, grows to full size as you reach it. */
   const tlParallaxRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: tlScroll } = useScroll({
     target: tlParallaxRef,
-    offset: ['start end', 'start 0.5'],
+    offset: ['start end', 'start 0.2'],
   });
-  const tlY = useTransform(tlScroll, [0, 1], [60, 0]);
-  const tlOpacity = useTransform(tlScroll, [0, 1], [0, 1]);
+  const tlScale = useTransform(tlScroll, [0, 1], [0.95, 1]);
+  const tlOpacity = useTransform(tlScroll, [0, 0.5, 1], [0, 0.5, 1]);
 
   return (
     <main className="min-h-screen overflow-x-hidden mobile-shell relative" data-ui-lang={lang}>
@@ -270,31 +276,23 @@ export default function Home() {
         <ThemeButton theme={theme} setTheme={setTheme} />
       </div>
 
-      {/* Hero — zoom-blur out on scroll (transition_camera effect) */}
-      <div ref={heroRef} id="overview-anchor" data-mobile-section="overview" className="relative z-[2] scroll-mt-28 sm:scroll-mt-0">
-        <motion.div
-          style={{
-            scale: heroScale,
-            filter: heroFilter,
-            opacity: heroOpacity,
-            transformOrigin: 'center top',
-            willChange: 'transform, filter, opacity',
-          }}
-        >
-          <HeroSection lang={lang} t={t} theme={theme} />
-        </motion.div>
+      {/* Hero — internal parallax: alarm flies, data lingers */}
+      <div id="overview-anchor" data-mobile-section="overview" className="relative z-[2] scroll-mt-28 sm:scroll-mt-0">
+        <HeroSection lang={lang} t={t} theme={theme} />
       </div>
 
       <div className="relative z-[1]">
+        {/* Quiz — zero parallax, clean interactive space */}
         <SurvivalIndexSection lang={lang} t={t} theme={theme} />
-        {/* Data Threat — scale-up entrance */}
+        {/* Data Threat — EXIT zooms out (personal → global transition) */}
         <div ref={threatRef} id="data-threat-anchor" data-mobile-section="threat" className="relative scroll-mt-28 sm:scroll-mt-0">
           <motion.div
             style={{
               scale: threatScale,
+              filter: threatFilter,
               opacity: threatOpacity,
-              transformOrigin: 'center bottom',
-              willChange: 'transform, opacity',
+              transformOrigin: 'center center',
+              willChange: 'transform, filter, opacity',
             }}
           >
             <DataThreatSection lang={lang} t={t} theme={theme} />
@@ -302,7 +300,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Timeline — slide up entrance */}
+      {/* Timeline — "the big picture arrives": scales up from distance */}
       <div
         ref={tlParallaxRef}
         id="timeline-anchor"
@@ -311,8 +309,9 @@ export default function Home() {
       >
         <motion.div
           style={{
-            y: tlY,
+            scale: tlScale,
             opacity: tlOpacity,
+            transformOrigin: 'center top',
             willChange: 'transform, opacity',
           }}
         >
@@ -336,11 +335,11 @@ export default function Home() {
         </motion.div>
       </div>
 
-      {/* Footer — scroll reveal */}
-      <ScrollReveal className="relative z-20">
+      {/* Analysis + Footer — simple, no parallax, just content */}
+      <div className="relative z-20">
         <AnalysisLinkSection lang={lang} t={t} theme={theme} />
         <Footer lang={lang} t={t} theme={theme} />
-      </ScrollReveal>
+      </div>
 
       <motion.button
         initial={{ opacity: 0, y: 10 }}
