@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Target } from 'lucide-react';
 import { Language, Theme, MobileSection, MOBILE_SECTION_TARGETS, translations, detectBrowserLanguage, getHtmlLang } from '@/lib/translations';
 import HeroSection from '@/components/sections/HeroSection';
@@ -11,8 +11,6 @@ import DataThreatSection from '@/components/sections/DataThreatSection';
 import AnalysisLinkSection from '@/components/sections/AnalysisLinkSection';
 import Footer from '@/components/sections/Footer';
 import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
-import SmoothScroll from '@/components/SmoothScroll';
-import { FloatingOrb } from '@/components/SectionDivider';
 
 import { trackCtaClick } from '@/lib/analytics';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
@@ -209,45 +207,8 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  /* ─────────────────────────────────────────────────────────────────────
-     NARRATIVE PARALLAX — each effect serves the content story
-     ───────────────────────────────────────────────────────────────────── */
-
-  /* 1. HERO EXIT: The alarm recedes — you've been warned, now go deeper.
-        No zoom-blur (that's for the Data Threat → Timeline transition).
-        Just a clean fade + gentle sink, letting the quiz emerge above it. */
-  // (Hero internal parallax handles the split: alarm flies away, data lingers)
-
-  /* 2. QUIZ: Zero parallax. User is answering questions — any motion is noise. */
-
-  /* 3. DATA THREAT → TIMELINE: The "zoom out" moment.
-        After learning your data is the threat (personal), you pull back to see
-        the full historical picture (macro). This is where the cinematic
-        camera-zoom effect belongs — zooming OUT from personal to global. */
-  const threatRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: threatScroll } = useScroll({
-    target: threatRef,
-    offset: ['start start', 'end start'],
-  });
-  // Data Threat scales down + blurs as you scroll past — "zooming out"
-  const threatScale = useTransform(threatScroll, [0, 0.5, 1], [1, 1, 0.9]);
-  const threatBlur = useTransform(threatScroll, [0, 0.5, 1], [0, 0, 8]);
-  const threatFilter = useTransform(threatBlur, (v) => `blur(${v}px)`);
-  const threatOpacity = useTransform(threatScroll, [0, 0.6, 1], [1, 1, 0.4]);
-
-  /* 4. TIMELINE ENTRANCE: Emerges from the distance — the big picture arriving.
-        Starts small + slightly blurred, grows to full size as you reach it. */
-  const tlParallaxRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: tlScroll } = useScroll({
-    target: tlParallaxRef,
-    offset: ['start end', 'start 0.2'],
-  });
-  const tlScale = useTransform(tlScroll, [0, 1], [0.95, 1]);
-  const tlOpacity = useTransform(tlScroll, [0, 0.5, 1], [0, 0.5, 1]);
-
   return (
     <main className="min-h-screen overflow-x-hidden mobile-shell relative" data-ui-lang={lang}>
-      <SmoothScroll />
       {/* Global particles background — covers entire page */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <Particles
@@ -277,204 +238,40 @@ export default function Home() {
         <ThemeButton theme={theme} setTheme={setTheme} />
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════════
-          ROOM 1: HERO — Dark void. The alarm.
-          ═══════════════════════════════════════════════════════════════ */}
       <div id="overview-anchor" data-mobile-section="overview" className="relative z-[2] scroll-mt-28 sm:scroll-mt-0">
         <HeroSection lang={lang} t={t} theme={theme} />
       </div>
 
-      {/* ── Transition: Hero → Quiz ──
-          Bold curved arc in deep purple — unmissable visual break.
-          Like healthytogether's circle-shape dividers. */}
-      <div className="relative z-[3]">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="w-full block" style={{ marginBottom: -2 }}>
-          <defs>
-            <linearGradient id="divider-hero-quiz" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={theme === 'dark' ? '#1a0a2e' : '#e8ddf5'} />
-              <stop offset="50%" stopColor={theme === 'dark' ? '#1e1035' : '#e0d4f0'} />
-              <stop offset="100%" stopColor={theme === 'dark' ? '#1a0a2e' : '#e8ddf5'} />
-            </linearGradient>
-          </defs>
-          <ellipse cx="720" cy="-30" rx="900" ry="150" fill="url(#divider-hero-quiz)" />
-        </svg>
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════════
-          ROOM 2: QUIZ — Deep purple-black. The test.
-          Visible color shift: user can FEEL they entered a new space.
-          Floating orbs add 3D depth layers behind the quiz.
-          ═══════════════════════════════════════════════════════════════ */}
-      <div
-        className="relative z-[1] overflow-hidden"
-        style={{ background: theme === 'dark'
-          ? 'linear-gradient(180deg, #1a0a2e 0%, #110a1e 15%, #0c0914 50%, #0a0908 100%)'
-          : 'linear-gradient(180deg, #e8ddf5 0%, #f0eef5 15%, #f5f3f8 50%, #f8f9fc 100%)'
-        }}
-      >
-        {/* Depth layer: large slow-moving purple orb (left) */}
-        <FloatingOrb
-          color={theme === 'dark' ? '#7c4dff' : '#7c4dff'}
-          size={500}
-          blur={120}
-          opacity={theme === 'dark' ? 0.12 : 0.08}
-          position={{ top: '5%', left: '-10%' }}
-          speed={0.5}
-        />
-        {/* Depth layer: warm accent orb (right, opposite direction) */}
-        <FloatingOrb
-          color={theme === 'dark' ? '#ff6b35' : '#e65100'}
-          size={400}
-          blur={100}
-          opacity={theme === 'dark' ? 0.08 : 0.05}
-          position={{ top: '50%', right: '-12%' }}
-          speed={-0.4}
-        />
-
+      <div className="relative z-[1]">
         <SurvivalIndexSection lang={lang} t={t} theme={theme} />
-      </div>
-
-      {/* ── Transition: Quiz → Data Threat ──
-          Warm danger arc — crimson/orange gradient signals danger ahead */}
-      <div className="relative z-[3]">
-        <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full block" style={{ marginBottom: -2 }}>
-          <defs>
-            <linearGradient id="divider-quiz-threat" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={theme === 'dark' ? '#1a0808' : '#f5e8e6'} />
-              <stop offset="50%" stopColor={theme === 'dark' ? '#220a0a' : '#f0dbd8'} />
-              <stop offset="100%" stopColor={theme === 'dark' ? '#1a0808' : '#f5e8e6'} />
-            </linearGradient>
-          </defs>
-          <ellipse cx="720" cy="-20" rx="900" ry="120" fill="url(#divider-quiz-threat)" />
-        </svg>
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════════
-          ROOM 3: DATA THREAT — Crimson-tinted dark. The revelation.
-          Visible warm danger tone. User can feel "this is serious."
-          EXIT: zooms out to reveal the historical panorama.
-          ═══════════════════════════════════════════════════════════════ */}
-      <div
-        ref={threatRef}
-        id="data-threat-anchor"
-        data-mobile-section="threat"
-        className="relative scroll-mt-28 sm:scroll-mt-0 overflow-hidden"
-        style={{ background: theme === 'dark'
-          ? 'linear-gradient(180deg, #1a0808 0%, #150a0e 30%, #0e0a12 70%, #080a14 100%)'
-          : 'linear-gradient(180deg, #f5e8e6 0%, #f2eaf0 30%, #eee8f2 70%, #eaecf5 100%)'
-        }}
-      >
-        {/* Danger glow — large, visible, ominous */}
-        <FloatingOrb
-          color={theme === 'dark' ? '#ff1744' : '#d32f2f'}
-          size={600}
-          blur={140}
-          opacity={theme === 'dark' ? 0.1 : 0.06}
-          position={{ top: '15%', left: '30%' }}
-          speed={0.2}
-        />
-        {/* Secondary: deep amber undertone */}
-        <FloatingOrb
-          color={theme === 'dark' ? '#ff6b35' : '#e65100'}
-          size={400}
-          blur={120}
-          opacity={theme === 'dark' ? 0.08 : 0.04}
-          position={{ bottom: '20%', right: '-5%' }}
-          speed={-0.3}
-        />
-
-        <motion.div
-          style={{
-            scale: threatScale,
-            filter: threatFilter,
-            opacity: threatOpacity,
-            transformOrigin: 'center center',
-            willChange: 'transform, filter, opacity',
-          }}
-        >
+        <div id="data-threat-anchor" data-mobile-section="threat" className="scroll-mt-28 sm:scroll-mt-0">
           <DataThreatSection lang={lang} t={t} theme={theme} />
-        </motion.div>
+        </div>
       </div>
 
-      {/* ── Transition: Data Threat → Timeline ──
-          Cool indigo arc — the zoom-out to historical perspective */}
-      <div className="relative z-[3]">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="w-full block" style={{ marginBottom: -2 }}>
-          <defs>
-            <linearGradient id="divider-threat-timeline" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={theme === 'dark' ? '#08091a' : '#e6e8f2'} />
-              <stop offset="50%" stopColor={theme === 'dark' ? '#0a0c22' : '#dde0ef'} />
-              <stop offset="100%" stopColor={theme === 'dark' ? '#08091a' : '#e6e8f2'} />
-            </linearGradient>
-          </defs>
-          <ellipse cx="720" cy="-30" rx="900" ry="150" fill="url(#divider-threat-timeline)" />
-        </svg>
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════════
-          ROOM 4: TIMELINE — Cool indigo-black. The big picture.
-          You've "zoomed out." Cool tone = distance, perspective, history.
-          ═══════════════════════════════════════════════════════════════ */}
       <div
-        ref={tlParallaxRef}
         id="timeline-anchor"
+        ref={timelineAnchorRef}
         data-mobile-section="timeline"
-        className="relative scroll-mt-28 sm:scroll-mt-0 overflow-hidden"
-        style={{ background: theme === 'dark'
-          ? 'linear-gradient(180deg, #08091a 0%, #0a0b18 20%, #0a0908 60%, #0a0908 100%)'
-          : 'linear-gradient(180deg, #e6e8f2 0%, #eceef5 20%, #f8f9fc 60%, #f8f9fc 100%)'
-        }}
+        className="scroll-mt-28 sm:scroll-mt-0"
       >
-        {/* Historical depth — large cool indigo orb */}
-        <FloatingOrb
-          color={theme === 'dark' ? '#4541fe' : '#3f51b5'}
-          size={700}
-          blur={160}
-          opacity={theme === 'dark' ? 0.1 : 0.06}
-          position={{ top: '0%', right: '-15%' }}
-          speed={0.3}
-        />
-        {/* Secondary: teal accent for the "future" end of timeline */}
-        <FloatingOrb
-          color={theme === 'dark' ? '#5ec6b0' : '#00897b'}
-          size={350}
-          blur={100}
-          opacity={theme === 'dark' ? 0.07 : 0.04}
-          position={{ bottom: '10%', left: '-8%' }}
-          speed={-0.25}
-        />
-
-        <motion.div
-          style={{
-            scale: tlScale,
-            opacity: tlOpacity,
-            transformOrigin: 'center top',
-            willChange: 'transform, opacity',
-          }}
-        >
-          <div ref={timelineAnchorRef}>
-            {shouldMountTimeline ? (
-              <InteractiveTimeline lang={lang} theme={theme} />
-            ) : (
-              <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center px-6 py-12">
-                <div className="w-full max-w-3xl space-y-3">
-                  <div className="h-4 bg-surface-elevated/50 rounded w-1/3 animate-pulse"></div>
-                  <div className="h-3 bg-surface-elevated/30 rounded w-2/3 animate-pulse" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="mt-6 flex gap-4">
-                    <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.3s' }}></div>
-                    <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                  </div>
-                </div>
+        {shouldMountTimeline ? (
+          <InteractiveTimeline lang={lang} theme={theme} />
+        ) : (
+          <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center px-6 py-12">
+            <div className="w-full max-w-3xl space-y-3">
+              <div className="h-4 bg-surface-elevated/50 rounded w-1/3 animate-pulse"></div>
+              <div className="h-3 bg-surface-elevated/30 rounded w-2/3 animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+              <div className="mt-6 flex gap-4">
+                <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                <div className="h-20 flex-1 bg-surface-elevated/20 rounded-lg animate-pulse" style={{ animationDelay: '0.4s' }}></div>
               </div>
-            )}
+            </div>
           </div>
-        </motion.div>
+        )}
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════════
-          ROOM 5: ANALYSIS + FOOTER — Back to base dark. Grounded.
-          ═══════════════════════════════════════════════════════════════ */}
       <div className="relative z-20">
         <AnalysisLinkSection lang={lang} t={t} theme={theme} />
         <Footer lang={lang} t={t} theme={theme} />

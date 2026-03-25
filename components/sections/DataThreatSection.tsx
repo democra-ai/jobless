@@ -37,7 +37,7 @@ function DataThreatSection({ lang, t, theme = 'dark' }: { lang: Language; t: (ty
   return (
     <section className="py-12 sm:py-20 px-4 sm:px-6 relative z-30 overflow-hidden border-t border-surface-elevated/50">
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Section Header — the reveal after seeing your risk score */}
+        {/* Section Header */}
         <BlurFade delay={0.1} inView>
           <div className="text-center mb-8 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-risk-critical/10 border border-risk-critical/20 mb-4">

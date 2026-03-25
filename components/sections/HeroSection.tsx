@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Eye, Zap, TrendingDown, ExternalLink, ChevronDown } from 'lucide-react';
 import { Language, Theme, translations } from '@/lib/translations';
 import Counter from '@/components/Counter';
@@ -14,45 +14,28 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
   const beamFrom = theme === 'dark' ? '#ffffff' : '#ff6b35';
   const beamTo = theme === 'dark' ? '#c4b5fd' : '#ff1744';
 
-  // Narrative parallax: alarm text flies away fast, but the DATA lingers.
-  // The 24.7% progress bar is the scariest thing on the page — it should
-  // be the last thing to leave the viewport, so it burns into memory.
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  });
-  // Badge + title leave fast — the "alarm" has done its job
-  const alarmY = useTransform(scrollYProgress, [0, 1], [0, -120]);
-  const alarmOpacity = useTransform(scrollYProgress, [0, 0.4, 0.7], [1, 1, 0]);
-  // Data card LINGERS — moves slower than natural scroll, "sticking" to the user
-  const dataCardY = useTransform(scrollYProgress, [0, 1], [0, 40]);
-
   return (
-    <section ref={heroRef} className="no-contain relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 overflow-visible">
+    <section className="no-contain relative z-40 pt-16 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 overflow-visible">
       <div className="relative z-30 text-center px-4 sm:px-6 max-w-6xl mx-auto hero-glow">
-        {/* Alert + Title: scroll away quickly — urgency delivered, now make room */}
         <motion.div
-          style={{ y: alarmY, opacity: alarmOpacity }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
         >
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="inline-flex items-center gap-2 bg-risk-critical/10 text-risk-critical px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8 border border-risk-critical/20">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span className="tracking-wide">{t.alertBadge}</span>
-            </div>
+          {/* Alert badge */}
+          <div className="inline-flex items-center gap-2 bg-risk-critical/10 text-risk-critical px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8 border border-risk-critical/20">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span className="tracking-wide">{t.alertBadge}</span>
+          </div>
 
-            <h1 className="calc-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-6 sm:mb-8 section-title" style={{ fontFamily: 'var(--font-display)' }}>
-              {t.heroTitle}
-            </h1>
+          {/* Hero title */}
+          <h1 className="calc-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-6 sm:mb-8 section-title" style={{ fontFamily: 'var(--font-display)' }}>
+            {t.heroTitle}
+          </h1>
 
-            <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed text-foreground-muted">
-              {t.heroSubtitlePre}{t.heroSubtitlePost}{t.heroSubtitleEnd}
-            </p>
-          </motion.div>
+          <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed text-foreground-muted">
+            {t.heroSubtitlePre}{t.heroSubtitlePost}{t.heroSubtitleEnd}
+          </p>
         </motion.div>
 
         {/* Upper glow orb — at hero title level */}
@@ -64,15 +47,12 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
           transition={{ duration: 1.5, delay: 0.3 }}
         />
 
-        {/* Data card: LINGERS as you scroll — the 24.7% should burn into memory.
-            Moves DOWN (slower than scroll), creating a "stuck" feeling
-            before giving way to the quiz. */}
+        {/* Progress bar section */}
         <motion.div
           className="pt-8 sm:pt-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          style={{ y: dataCardY }}
         >
           <div className="relative z-20 calc-container card-glow-border rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6" style={{ overflow: 'visible' }}>
             {/* Border beam — light traveling along card edge */}
