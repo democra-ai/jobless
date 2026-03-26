@@ -1091,16 +1091,128 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
   const handleDownloadResult = async () => {
     trackShareClick('download_result', lang);
     try {
-      const blob = await buildResultPosterBlob();
-      if (!blob) { console.error('Result poster returned null'); return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'air-result.png';
-      a.click();
-      URL.revokeObjectURL(url);
+      const { default: html2canvas } = await import('html2canvas');
+      const captureEl = document.querySelector('[data-testid="share-result-capture"]') as HTMLElement;
+      if (!captureEl) return;
+
+      // Capture the actual result section
+      const snapshot = await html2canvas(captureEl, {
+        backgroundColor: '#0a0908',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      // Build a designed poster wrapping the screenshot
+      const PAD = 80;
+      const HEADER_H = 100;
+      const FOOTER_H = 120;
+      const contentW = snapshot.width;
+      const contentH = snapshot.height;
+      const W = contentW + PAD * 2;
+      const H = HEADER_H + contentH + FOOTER_H + PAD;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const palMap: Record<string, { m: string; a: string }> = {
+        'very-low': { m: '#34d399', a: '#06b6d4' }, 'low': { m: '#4ade80', a: '#22d3ee' },
+        'medium': { m: '#fbbf24', a: '#f97316' }, 'high': { m: '#fb923c', a: '#f43f5e' },
+        'critical': { m: '#f43f5e', a: '#a855f7' },
+      };
+      const cm = (palMap[result!.riskLevel] || palMap.critical).m;
+      const ca = (palMap[result!.riskLevel] || palMap.critical).a;
+
+      // Background
+      ctx.fillStyle = '#06080e';
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= H / 50; i++) { ctx.beginPath(); ctx.moveTo(0, i*50); ctx.lineTo(W, i*50); ctx.stroke(); }
+      for (let i = 0; i <= W / 50; i++) { ctx.beginPath(); ctx.moveTo(i*50, 0); ctx.lineTo(i*50, H); ctx.stroke(); }
+
+      // Top accent line
+      const topG = ctx.createLinearGradient(0, 0, W, 0);
+      topG.addColorStop(0.05, 'rgba(0,0,0,0)'); topG.addColorStop(0.35, cm); topG.addColorStop(0.65, ca); topG.addColorStop(0.95, 'rgba(0,0,0,0)');
+      ctx.fillStyle = topG;
+      ctx.fillRect(0, 0, W, 4);
+
+      // Header: AIR logo + risk badge
+      const zh = lang === 'zh';
+      ctx.fillStyle = 'rgba(204,208,228,0.7)';
+      ctx.font = '900 48px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      const headerY = 4 + HEADER_H / 2;
+      ctx.fillText('AIR', PAD, headerY);
+      const airW = ctx.measureText('AIR').width;
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.fillRect(PAD + airW + 18, headerY - 18, 2, 36);
+      ctx.fillStyle = 'rgba(204,208,228,0.35)';
+      ctx.font = '400 22px sans-serif';
+      ctx.fillText(zh ? 'AI替代风险指数' : 'AI REPLACEMENT INDEX', PAD + airW + 36, headerY);
+
+      // Risk badge (right)
+      const riskLabels: Record<string, [string, string]> = {
+        'very-low': ['VERY LOW', '极低'], 'low': ['LOW', '低'], 'medium': ['MEDIUM', '中等'],
+        'high': ['HIGH', '高'], 'critical': ['CRITICAL', '极高'],
+      };
+      const lb = (riskLabels[result!.riskLevel] || riskLabels.critical)[zh ? 1 : 0];
+      const badgeT = zh ? `${lb}风险` : `${lb} RISK`;
+      ctx.font = '800 22px sans-serif';
+      const badgeW2 = ctx.measureText(badgeT).width + 60;
+      const badgeX2 = W - PAD - badgeW2;
+
+      const rr = (x: number, y: number, w: number, h: number, r: number) => {
+        ctx.beginPath();
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); }
+        else { ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r); ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r); ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r); ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath(); }
+      };
+
+      rr(badgeX2, headerY - 20, badgeW2, 40, 100);
+      const hexA = (hex: string, a: number) => { const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; };
+      ctx.fillStyle = hexA(cm, 0.1); ctx.fill();
+      ctx.strokeStyle = hexA(cm, 0.35); ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(badgeX2 + 22, headerY, 6, 0, Math.PI * 2); ctx.fillStyle = cm; ctx.fill();
+      ctx.fillStyle = cm; ctx.font = '800 22px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(badgeT, badgeX2 + 38, headerY + 1);
+
+      // Draw the captured result content
+      ctx.drawImage(snapshot, PAD, 4 + HEADER_H, contentW, contentH);
+
+      // Footer: CTA + URL
+      const footerY = 4 + HEADER_H + contentH + 30;
+      rr(PAD, footerY, 500, 56, 14);
+      const ctaG = ctx.createLinearGradient(PAD, 0, PAD + 500, 0);
+      ctaG.addColorStop(0, cm); ctaG.addColorStop(1, ca);
+      ctx.fillStyle = ctaG; ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.font = '800 24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? Take the test →", PAD + 250, footerY + 28);
+
+      ctx.fillStyle = 'rgba(204,208,228,0.2)'; ctx.font = '400 18px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText('air.democra.ai', W - PAD, footerY + 28);
+
+      // Bottom accent
+      const btmG = ctx.createLinearGradient(0, 0, W, 0);
+      btmG.addColorStop(0.1, 'rgba(0,0,0,0)'); btmG.addColorStop(0.5, hexA(cm, 0.15)); btmG.addColorStop(0.9, 'rgba(0,0,0,0)');
+      ctx.fillStyle = btmG; ctx.fillRect(0, H - 2, W, 2);
+
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'air-result.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
     } catch (err) {
-      console.error('Result poster failed:', err);
+      console.error('Result capture failed:', err);
     }
   };
 
