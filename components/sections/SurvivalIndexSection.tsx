@@ -1093,37 +1093,21 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     try {
       console.log('[SaveResult] Starting capture...');
       const captureEl = document.querySelector('[data-testid="share-result-capture"]') as HTMLElement;
-      if (!captureEl) { console.error('[SaveResult] Capture element not found'); alert('Result element not found'); return; }
-      console.log('[SaveResult] Element found, size:', captureEl.offsetWidth, captureEl.offsetHeight);
+      if (!captureEl) { console.error('[SaveResult] Capture element not found'); return; }
 
-      const html2canvasModule = await import('html2canvas');
-      const html2canvas = html2canvasModule.default ?? html2canvasModule;
-      console.log('[SaveResult] html2canvas loaded:', typeof html2canvas);
-
-      const snapshot = await html2canvas(captureEl, {
-        backgroundColor: '#0a0908',
+      const { domToPng } = await import('modern-screenshot');
+      const dataUrl = await domToPng(captureEl, {
         scale: 2,
-        useCORS: true,
-        logging: false,
-        onclone: (clonedDoc) => {
-          // Fix: html2canvas crashes on CSS lab() color function (Tailwind v4).
-          // lab() lives in compiled stylesheets, not inline styles.
-          // Must rewrite the stylesheet rules before html2canvas parses them.
-          Array.from(clonedDoc.styleSheets).forEach((sheet) => {
-            try {
-              const rules = Array.from(sheet.cssRules);
-              for (let i = rules.length - 1; i >= 0; i--) {
-                if (rules[i].cssText.includes('lab(')) {
-                  const fixed = rules[i].cssText.replace(/lab\([^)]*\)/g, 'transparent');
-                  sheet.deleteRule(i);
-                  sheet.insertRule(fixed, i);
-                }
-              }
-            } catch { /* cross-origin — skip */ }
-          });
-        },
+        backgroundColor: '#0a0908',
+        style: { transform: 'none' }, // disable any CSS transforms
       });
-      console.log('[SaveResult] Snapshot captured:', snapshot.width, snapshot.height);
+      console.log('[SaveResult] Capture done, dataUrl length:', dataUrl.length);
+
+      // Convert dataUrl to canvas for poster wrapping
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(); });
+      const snapshot = { width: img.naturalWidth, height: img.naturalHeight, img };
 
       // Build a designed poster wrapping the screenshot
       const PAD = 80;
@@ -1205,7 +1189,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
       ctx.fillText(badgeT, badgeX2 + 38, headerY + 1);
 
       // Draw the captured result content
-      ctx.drawImage(snapshot, PAD, 4 + HEADER_H, contentW, contentH);
+      ctx.drawImage(snapshot.img, PAD, 4 + HEADER_H, contentW, contentH);
 
       // Footer: CTA + URL
       const footerY = 4 + HEADER_H + contentH + 30;
