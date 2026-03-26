@@ -338,7 +338,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
   // Dynamic question set based on quiz mode
   const activeQuestions = quizMode === 'full' ? ALL_FULL_QUESTIONS : ALL_CORE_QUESTIONS;
   const activeQuestionCount = quizMode === 'full' ? FULL_QUESTION_COUNT : CORE_QUESTION_COUNT;
-  const questionsPerDim = quizMode === 'full' ? 15 : 5;
+  const questionsPerDim = quizMode === 'full' ? 15 : 4;
 
   // Current core question info (clamped to valid range for safety)
   const safeCoreIndex = Math.min(coreIndex, activeQuestionCount - 1);
@@ -973,10 +973,10 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                   {t.quizPrev}
                 </button>
                 <div className="flex gap-1">
-                  {Array.from({ length: CORE_QUESTION_COUNT }).map((_, i) => {
-                    const dimColor = DIMENSION_COLORS[Math.floor(i / 5)];
+                  {Array.from({ length: activeQuestionCount }).map((_, i) => {
+                    const dimColor = DIMENSION_COLORS[Math.min(Math.floor(i / questionsPerDim), 3)];
                     const isCurrent = i === coreIndex;
-                    const isAnswered = !!coreAnswers[ALL_CORE_QUESTIONS[i].id];
+                    const isAnswered = !!coreAnswers[activeQuestions[i]?.id];
                     return (
                       <div
                         key={i}
@@ -992,11 +992,11 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                 </div>
                 <button
                   onClick={() => {
-                    if (coreIndex < CORE_QUESTION_COUNT - 1) {
+                    if (coreIndex < activeQuestionCount - 1) {
                       setCoreIndex(coreIndex + 1);
                     }
                   }}
-                  disabled={!coreAnswers[ALL_CORE_QUESTIONS[coreIndex]?.id] || coreIndex >= CORE_QUESTION_COUNT - 1}
+                  disabled={!coreAnswers[activeQuestions[coreIndex]?.id] || coreIndex >= activeQuestionCount - 1}
                   className="flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 >
                   {t.quizNext}
