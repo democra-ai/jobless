@@ -7,7 +7,6 @@ import {
   ChevronLeft, ChevronRight, Send, Flame, RefreshCw, ArrowRight, Zap,
   Brain, Shield, Users,
 } from 'lucide-react';
-import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
 import { BorderBeam } from '@/components/ui/border-beam';
@@ -333,7 +332,6 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
   const [wechatCopied, setWechatCopied] = useState(false);
   const [sharePanelOpen, setSharePanelOpen] = useState(true);
   const [telegramShareState, setTelegramShareState] = useState<'idle' | 'sending' | 'sent' | 'fallback'>('idle');
-  const posterCaptureRef = useRef<HTMLDivElement>(null);
   const questionContainerRef = useRef<HTMLDivElement>(null);
 
   // Dynamic question set based on quiz mode
@@ -526,9 +524,10 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
   const buildShareImageBlob = async (): Promise<Blob | null> => {
     if (!result) return null;
     const shareUrl = getShareUrl();
+    const W = 1200, H = 630;
     const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1920;
+    canvas.width = W;
+    canvas.height = H;
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
     ctx.imageSmoothingEnabled = true;
@@ -547,95 +546,480 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
       ctx.roundRect(x, y, w, h, r);
     };
 
-    const truncateText = (text: string, maxWidth: number) => {
-      if (ctx.measureText(text).width <= maxWidth) return text;
-      let trimmed = text;
-      while (trimmed.length > 0 && ctx.measureText(`${trimmed}...`).width > maxWidth) {
-        trimmed = trimmed.slice(0, -1);
-      }
-      return `${trimmed}...`;
+    // ── Color palette (matching OG card) ──
+    const palMap: Record<string, { m: string; a: string; g: string }> = {
+      'very-low': { m: '#34d399', a: '#06b6d4', g: '#059669' },
+      'low':      { m: '#4ade80', a: '#22d3ee', g: '#16a34a' },
+      'medium':   { m: '#fbbf24', a: '#f97316', g: '#d97706' },
+      'high':     { m: '#fb923c', a: '#f43f5e', g: '#ea580c' },
+      'critical': { m: '#f43f5e', a: '#a855f7', g: '#dc2626' },
+    };
+    const c = palMap[result.riskLevel] || palMap.critical;
+    const zh = lang === 'zh';
+    const prob = result.replacementProbability;
+    const yr = result.predictedReplacementYear >= 2100 ? '\u221E' : String(result.predictedReplacementYear);
+    const percentileSafe = 100 - prob;
+    const currentYear = new Date().getFullYear();
+    const yearsLeft = result.predictedReplacementYear >= 2100 ? null : result.predictedReplacementYear - currentYear;
+
+    // Risk label
+    const riskLabelMap: Record<string, [string, string]> = {
+      'very-low': ['VERY LOW', '\u6781\u4F4E'], 'low': ['LOW', '\u4F4E'], 'medium': ['MEDIUM', '\u4E2D\u7B49'],
+      'high': ['HIGH', '\u9AD8'], 'critical': ['CRITICAL', '\u6781\u9AD8'],
+    };
+    const lb = (riskLabelMap[result.riskLevel] || riskLabelMap.critical)[zh ? 1 : 0];
+
+    // Profile names
+    const profileNames: Record<string, { en: string; zh: string }> = {
+      EOFP: { en: 'Full Chain Open', zh: '\u5168\u94FE\u8DEF\u7545\u901A\u578B' },
+      EOFH: { en: 'Relationship Anchored', zh: '\u5173\u7CFB\u951A\u5B9A\u578B' },
+      EORP: { en: 'Compliance Gatekeeper', zh: '\u5408\u89C4\u5B88\u95E8\u578B' },
+      ESFP: { en: 'Creative Trial-and-Error', zh: '\u521B\u610F\u8BD5\u9519\u578B' },
+      TOFP: { en: 'Skill Executor', zh: '\u6280\u80FD\u6267\u884C\u578B' },
+      EORH: { en: 'Licensed Trust', zh: '\u6267\u8BC1\u4FE1\u4EFB\u578B' },
+      ESFH: { en: 'Taste Curator', zh: '\u5BA1\u7F8E\u7B56\u5C55\u578B' },
+      ESRP: { en: 'Craft Guardian', zh: '\u5DE5\u827A\u5B88\u62A4\u578B' },
+      TSFP: { en: 'Experience Catalyst', zh: '\u4F53\u9A8C\u50AC\u5316\u578B' },
+      TORP: { en: 'Field Commander', zh: '\u73B0\u573A\u6307\u6325\u578B' },
+      TORH: { en: 'Crisis Navigator', zh: '\u5371\u673A\u9886\u822A\u578B' },
+      ESRH: { en: 'Meaning Architect', zh: '\u610F\u4E49\u5EFA\u6784\u578B' },
+      TSRP: { en: 'Physical Sovereign', zh: '\u8EAB\u4F53\u4E3B\u6743\u578B' },
+      TSFH: { en: 'Bond Weaver', zh: '\u7EBD\u5E26\u7F16\u7EC7\u578B' },
+      TOFH: { en: 'Embodied Guide', zh: '\u8EAB\u5FC3\u5F15\u5BFC\u578B' },
+      TSRH: { en: 'Deep Human Core', zh: '\u6DF1\u5EA6\u4EBA\u6027\u578B' },
+    };
+    const profileName = profileNames[result.profileCode]?.[zh ? 'zh' : 'en'] ?? null;
+
+    // Dimension data
+    const favorableLetters = ['E', 'O', 'F', 'P'];
+    const dimMeta: Record<string, { en: string; zh: string }> = {
+      E: { en: 'Explicit', zh: '\u663E\u6027\u578B' }, T: { en: 'Tacit', zh: '\u9690\u6027\u578B' },
+      O: { en: 'Objective', zh: '\u5BA2\u89C2\u578B' }, S: { en: 'Subjective', zh: '\u4E3B\u89C2\u578B' },
+      F: { en: 'Flexible', zh: '\u5F39\u6027\u578B' }, R: { en: 'Rigid', zh: '\u521A\u6027\u578B' },
+      P: { en: 'Product', zh: '\u5BF9\u4E8B\u578B' }, H: { en: 'Human', zh: '\u5BF9\u4EBA\u578B' },
+    };
+    const dims = result.profileCode.split('').map((letter, i) => ({
+      v: letter,
+      name: dimMeta[letter]?.[zh ? 'zh' : 'en'] ?? letter,
+      risky: letter === favorableLetters[i],
+    }));
+
+    // Countdown / hook text
+    const countdownText = yearsLeft !== null
+      ? (zh ? `\u8DDD\u79BB\u4F60\u88AB\u66FF\u4EE3\u8FD8\u6709 ${yearsLeft} \u5E74` : `${yearsLeft} ${yearsLeft === 1 ? 'year' : 'years'} until you're replaced`)
+      : (zh ? `AI \u5DF2\u7ECF\u80FD\u505A\u4F60 ${result.currentReplacementDegree}% \u7684\u5DE5\u4F5C` : `AI can already do ${result.currentReplacementDegree}% of your job`);
+    const pctText = zh
+      ? `\u4F60\u6BD4 ${percentileSafe}% \u7684\u6D4B\u8BD5\u8005\u66F4\u5B89\u5168`
+      : `Safer than ${percentileSafe}% of test takers`;
+
+    // ── Helper: hex to rgba ──
+    const hexToRgba = (hex: string, alpha: number) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${alpha})`;
     };
 
-    const bg = ctx.createLinearGradient(0, 0, 1080, 1920);
-    bg.addColorStop(0, '#060a12');
-    bg.addColorStop(0.6, '#0c1220');
-    bg.addColorStop(1, '#18121f');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, 1080, 1920);
+    // ═══════════════════════════════════════════════════════════════
+    // DRAW — matching OG card layout exactly (1200×630)
+    // ═══════════════════════════════════════════════════════════════
 
-    const captureNode = posterCaptureRef.current;
-    if (!captureNode) return null;
+    // 1. Background
+    ctx.fillStyle = '#06080e';
+    ctx.fillRect(0, 0, W, H);
 
-    let contentBottom = 1500;
-    try {
-      const snapshot = await html2canvas(captureNode, {
-        backgroundColor: null, scale: 2, useCORS: true, logging: false,
-      });
-      const drawX = 48, drawY = 42;
-      const drawW = 984;
-      const drawH = Math.min(1490, (snapshot.height / snapshot.width) * drawW);
-      ctx.save();
-      roundedRect(drawX, drawY, drawW, drawH, 30);
-      ctx.clip();
-      ctx.drawImage(snapshot, drawX, drawY, drawW, drawH);
-      ctx.restore();
-      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-      ctx.lineWidth = 1.5;
-      roundedRect(drawX, drawY, drawW, drawH, 30);
+    // 2. Grid lines (50px spacing)
+    ctx.strokeStyle = 'rgba(255,255,255,0.09)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 13; i++) {
+      ctx.beginPath();
+      ctx.moveTo(0, i * 50);
+      ctx.lineTo(W, i * 50);
       ctx.stroke();
-      contentBottom = drawY + drawH + 20;
-    } catch { contentBottom = 1500; }
+    }
+    for (let i = 0; i < 25; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * 50, 0);
+      ctx.lineTo(i * 50, H);
+      ctx.stroke();
+    }
 
-    const footerY = Math.max(1640, contentBottom);
-    const footerH = 230;
-    roundedRect(48, footerY, 984, footerH, 28);
-    const footerGrad = ctx.createLinearGradient(48, footerY, 1032, footerY + footerH);
-    footerGrad.addColorStop(0, 'rgba(255,255,255,0.08)');
-    footerGrad.addColorStop(1, 'rgba(255,255,255,0.03)');
-    ctx.fillStyle = footerGrad;
+    // 3. BG glow orbs
+    const drawGlow = (cx: number, cy: number, radius: number, color: string, alpha: number) => {
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+      grad.addColorStop(0, hexToRgba(color, alpha));
+      grad.addColorStop(0.65, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
+    };
+    drawGlow(330, -80 + 230, 230, c.g, 0.07);
+    drawGlow(W - 200 + 170, H + 100 - 170, 170, c.a, 0.03);
+    drawGlow(W * 0.42 + 140, H * 0.35 + 140, 140, c.m, 0.024);
+
+    // 4. Top accent line
+    const topGrad = ctx.createLinearGradient(0, 0, W, 0);
+    topGrad.addColorStop(0.05, 'rgba(0,0,0,0)');
+    topGrad.addColorStop(0.35, c.m);
+    topGrad.addColorStop(0.65, c.a);
+    topGrad.addColorStop(0.95, 'rgba(0,0,0,0)');
+    ctx.fillStyle = topGrad;
+    ctx.fillRect(0, 0, W, 3);
+
+    // ── CONTENT AREA padding: 30px 44px 24px ──
+    const PX = 44, PY = 30;
+
+    // 5. Header row
+    ctx.fillStyle = 'rgba(204,208,228,0.72)';
+    ctx.font = '900 42px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    const headerY = PY + 21;
+    ctx.letterSpacing = '10px';
+    ctx.fillText('AIR', PX, headerY);
+    ctx.letterSpacing = '0px';
+    const airWidth = ctx.measureText('AIR').width;
+    // Divider
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillRect(PX + airWidth + 16, headerY - 16, 1.5, 32);
+    // Subtitle
+    ctx.fillStyle = 'rgba(204,208,228,0.4)';
+    ctx.font = '400 18px sans-serif';
+    ctx.letterSpacing = '3px';
+    ctx.fillText(zh ? 'AI\u66FF\u4EE3\u98CE\u9669\u6307\u6570' : 'AI REPLACEMENT INDEX', PX + airWidth + 34, headerY);
+    ctx.letterSpacing = '0px';
+    // Risk badge pill (right side)
+    const badgeText = zh ? `${lb}\u98CE\u9669` : `${lb} RISK`;
+    ctx.font = '800 17px sans-serif';
+    ctx.letterSpacing = '2.5px';
+    const badgeW = ctx.measureText(badgeText).width + 52 + 10; // padding + dot
+    ctx.letterSpacing = '0px';
+    const badgeX = W - PX - badgeW;
+    const badgeY = headerY - 18;
+    const badgeH = 36;
+    roundedRect(badgeX, badgeY, badgeW, badgeH, 100);
+    ctx.fillStyle = hexToRgba(c.m, 0.08);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+    ctx.strokeStyle = hexToRgba(c.m, 0.33);
     ctx.lineWidth = 1.5;
-    roundedRect(48, footerY, 984, footerH, 28);
     ctx.stroke();
-
-    const qrSize = 236;
-    const qrBox = qrSize + 16;
-    const qrX = 48 + 984 - qrBox - 28;
-    const qrY = footerY + (footerH - qrBox) / 2;
-    roundedRect(qrX, qrY, qrBox, qrBox, 16);
-    ctx.fillStyle = '#ffffff';
+    // Dot
+    ctx.beginPath();
+    ctx.arc(badgeX + 20, headerY, 5, 0, Math.PI * 2);
+    ctx.fillStyle = c.m;
     ctx.fill();
+    // Badge text
+    ctx.fillStyle = c.m;
+    ctx.font = '800 17px sans-serif';
+    ctx.letterSpacing = '2.5px';
+    ctx.fillText(badgeText, badgeX + 34, headerY + 1);
+    ctx.letterSpacing = '0px';
+
+    // ── ROW 2: Main content (2 columns) ──
+    const row2Top = PY + 50;
+    const row2Bottom = H - 140; // leave space for gauge + CTA
+    const leftW = W * 0.44;
+
+    // === LEFT COLUMN: hero number + dimension squares ===
+    const leftX = PX + 36;
+    const leftCenterY = (row2Top + row2Bottom) / 2;
+
+    // "REPLACEMENT PROBABILITY" label
+    ctx.fillStyle = 'rgba(204,208,228,0.45)';
+    ctx.font = '600 16px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.letterSpacing = '3.5px';
+    ctx.fillText(zh ? '\u66FF\u4EE3\u6982\u7387' : 'REPLACEMENT PROBABILITY', leftX, leftCenterY - 100);
+    ctx.letterSpacing = '0px';
+
+    // Glow behind number
+    const numGlow = ctx.createRadialGradient(leftX + 120, leftCenterY - 20, 0, leftX + 120, leftCenterY - 20, 120);
+    numGlow.addColorStop(0, hexToRgba(c.m, 0.09));
+    numGlow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = numGlow;
+    ctx.fillRect(leftX - 10, leftCenterY - 140, 260, 200);
+
+    // Big probability number
+    ctx.fillStyle = c.m;
+    ctx.font = '900 170px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    const numText = String(prob);
+    ctx.fillText(numText, leftX, leftCenterY + 40);
+    const numW = ctx.measureText(numText).width;
+    // % sign
+    ctx.fillStyle = hexToRgba(c.m, 0.3);
+    ctx.font = '800 52px sans-serif';
+    ctx.fillText('%', leftX + numW + 4, leftCenterY - 38);
+
+    // Profile type name (below number)
+    if (profileName) {
+      ctx.fillStyle = 'rgba(204,208,228,0.4)';
+      ctx.font = '600 13px sans-serif';
+      ctx.letterSpacing = '2px';
+      ctx.fillText(zh ? '\u7C7B\u578B' : 'TYPE', leftX, leftCenterY + 68);
+      ctx.letterSpacing = '0px';
+      ctx.fillStyle = c.m;
+      ctx.font = '800 20px sans-serif';
+      ctx.fillText(profileName, leftX + (zh ? 40 : 50), leftCenterY + 68);
+    }
+
+    // Dimension squares (vertical, to the right of number)
+    const dimX = leftX + numW + 70;
+    const dimStartY = leftCenterY - 88;
+    dims.forEach((d, i) => {
+      const dy = dimStartY + i * 56;
+      const dimColor = d.risky ? '#f43f5e' : '#34d399';
+      const dimBorderColor = d.risky ? 'rgba(244,63,94,0.35)' : 'rgba(52,211,153,0.35)';
+      const dimBgColor = d.risky ? 'rgba(244,63,94,0.1)' : 'rgba(52,211,153,0.1)';
+      // Box
+      roundedRect(dimX, dy, 48, 48, 10);
+      ctx.fillStyle = dimBgColor;
+      ctx.fill();
+      ctx.strokeStyle = dimBorderColor;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // Letter
+      ctx.fillStyle = dimColor;
+      ctx.font = '900 26px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(d.v, dimX + 24, dy + 24);
+      // Label
+      ctx.fillStyle = dimColor;
+      ctx.font = '800 13px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.letterSpacing = '0.5px';
+      ctx.fillText(d.name, dimX + 58, dy + 24);
+      ctx.letterSpacing = '0px';
+    });
+
+    // === RIGHT COLUMN: data panels ===
+    const rightX = leftW + PX + 24;
+    const rightW = W - rightX - PX;
+    const panelCenterY = (row2Top + row2Bottom) / 2;
+
+    // Panel 1: Predicted Year + AI Capability
+    const p1Y = panelCenterY - 100;
+    const p1H = 100;
+    roundedRect(rightX, p1Y, rightW, p1H, 14);
+    ctx.fillStyle = 'rgba(255,255,255,0.025)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Left side: predicted year
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = 'rgba(204,208,228,0.45)';
+    ctx.font = '700 14px sans-serif';
+    ctx.letterSpacing = '3px';
+    ctx.fillText(zh ? '\u9884\u6D4B\u66FF\u4EE3\u5E74\u4EFD' : 'PREDICTED REPLACEMENT YEAR', rightX + 24, p1Y + 16);
+    ctx.letterSpacing = '0px';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 52px sans-serif';
+    ctx.textBaseline = 'top';
+    ctx.fillText(yr, rightX + 24, p1Y + 34);
+    // Confidence interval
+    if (result.predictedReplacementYear < 2100) {
+      ctx.fillStyle = 'rgba(204,208,228,0.3)';
+      ctx.font = '400 13px sans-serif';
+      ctx.fillText(`${result.confidenceInterval.earliest} \u2014 ${result.confidenceInterval.latest}`, rightX + 24, p1Y + 82);
+    }
+    // Right side: AI capability
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(204,208,228,0.35)';
+    ctx.font = '600 11px sans-serif';
+    ctx.letterSpacing = '1.5px';
+    ctx.fillText(zh ? 'AI\u5F53\u524D\u80FD\u529B' : 'AI CAPABILITY', rightX + rightW - 24, p1Y + 18);
+    ctx.letterSpacing = '0px';
+    ctx.fillStyle = '#67e8f9';
+    ctx.font = '800 28px sans-serif';
+    ctx.fillText(`${result.currentAICapability}%`, rightX + rightW - 24, p1Y + 34);
+    // Capability bar
+    const capBarX = rightX + rightW - 124;
+    const capBarY = p1Y + 68;
+    const capBarW = 100;
+    const capBarH = 5;
+    roundedRect(capBarX, capBarY, capBarW, capBarH, 3);
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fill();
+    const capFillW = (result.currentAICapability / 100) * capBarW;
+    if (capFillW > 0) {
+      const capGrad = ctx.createLinearGradient(capBarX, 0, capBarX + capFillW, 0);
+      capGrad.addColorStop(0, '#67e8f9');
+      capGrad.addColorStop(1, c.m);
+      roundedRect(capBarX, capBarY, capFillW, capBarH, 3);
+      ctx.fillStyle = capGrad;
+      ctx.fill();
+    }
+
+    // Panel 2: Hook / countdown
+    const p2Y = p1Y + p1H + 10;
+    const p2H = 50;
+    roundedRect(rightX, p2Y, rightW, p2H, 14);
+    ctx.fillStyle = hexToRgba(c.m, 0.04);
+    ctx.fill();
+    ctx.strokeStyle = hexToRgba(c.m, 0.15);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = c.m;
+    ctx.font = '800 22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(countdownText, rightX + rightW / 2, p2Y + p2H / 2);
+
+    // Panel 3: Percentile bar
+    const p3Y = p2Y + p2H + 10;
+    const p3H = 40;
+    roundedRect(rightX, p3Y, rightW, p3H, 14);
+    ctx.fillStyle = 'rgba(255,255,255,0.02)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Bar
+    const pctBarX = rightX + 24;
+    const pctBarW = rightW * 0.45;
+    const pctBarY2 = p3Y + (p3H - 6) / 2;
+    roundedRect(pctBarX, pctBarY2, pctBarW, 6, 3);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.fill();
+    const pctFillW = (percentileSafe / 100) * pctBarW;
+    if (pctFillW > 0) {
+      const pctGrad = ctx.createLinearGradient(pctBarX, 0, pctBarX + pctFillW, 0);
+      pctGrad.addColorStop(0, c.m);
+      pctGrad.addColorStop(1, '#34d399');
+      roundedRect(pctBarX, pctBarY2, pctFillW, 6, 3);
+      ctx.fillStyle = pctGrad;
+      ctx.fill();
+    }
+    // Percentile text
+    ctx.fillStyle = 'rgba(204,208,228,0.55)';
+    ctx.font = '700 16px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(pctText, pctBarX + pctBarW + 14, p3Y + p3H / 2);
+
+    // ── ROW 3: Gauge bar ──
+    const gaugeY = H - 108;
+    const gaugeBarH = 10;
+    const gaugeX = PX;
+    const gaugeW = W - PX * 2;
+    const segGap = 4;
+    const segW = (gaugeW - segGap * 4) / 5;
+    const barColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
+    const stages = ['SAFE', 'ASSIST', 'AGENT', 'LEAD', 'KILL'];
+
+    // "You are here" pointer
+    const pointerX = gaugeX + (prob / 100) * gaugeW;
+    ctx.fillStyle = c.m;
+    ctx.beginPath();
+    ctx.moveTo(pointerX - 5, gaugeY - 10);
+    ctx.lineTo(pointerX + 5, gaugeY - 10);
+    ctx.lineTo(pointerX, gaugeY - 3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.font = '700 11px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.letterSpacing = '1px';
+    ctx.fillText(zh ? '\u4F60\u5728\u8FD9\u91CC' : 'YOU ARE HERE', pointerX + 8, gaugeY - 4);
+    ctx.letterSpacing = '0px';
+
+    // Bar segments
+    for (let i = 0; i < 5; i++) {
+      const sx = gaugeX + i * (segW + segGap);
+      const s = i * 20, e = s + 20;
+      const f = prob >= e ? 1 : prob <= s ? 0 : (prob - s) / 20;
+      // Background
+      roundedRect(sx, gaugeY, segW, gaugeBarH, 5);
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.fill();
+      // Fill
+      if (f > 0) {
+        roundedRect(sx, gaugeY, segW * f, gaugeBarH, 5);
+        ctx.fillStyle = barColors[i];
+        ctx.fill();
+      }
+    }
+
+    // Stage labels
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
+    for (let i = 0; i < 5; i++) {
+      const sx = gaugeX + i * (segW + segGap) + segW / 2;
+      const active = i * 20 <= prob && prob < i * 20 + 20;
+      ctx.globalAlpha = active ? 1 : 0.4;
+      ctx.fillStyle = barColors[i];
+      ctx.font = '800 15px sans-serif';
+      ctx.letterSpacing = '2px';
+      ctx.fillText(stages[i], sx, gaugeY + gaugeBarH + 5);
+      ctx.letterSpacing = '0px';
+    }
+    ctx.globalAlpha = 1;
+
+    // ── ROW 4: CTA + QR ──
+    const ctaY = H - 52;
+
+    // CTA button
+    const ctaText = zh ? '\u6D4B\u6D4B\u4F60\u7684 AI \u66FF\u4EE3\u98CE\u9669 \u2192' : "What's your AI risk? Take the test \u2192";
+    ctx.font = '800 17px sans-serif';
+    const ctaTextW = ctx.measureText(ctaText).width;
+    const ctaBtnW = ctaTextW + 64;
+    const ctaBtnH = 42;
+    const ctaBtnX = PX;
+    const ctaBtnY = ctaY - ctaBtnH / 2;
+    const ctaGrad = ctx.createLinearGradient(ctaBtnX, ctaBtnY, ctaBtnX + ctaBtnW, ctaBtnY + ctaBtnH);
+    ctaGrad.addColorStop(0, c.m);
+    ctaGrad.addColorStop(1, c.a);
+    roundedRect(ctaBtnX, ctaBtnY, ctaBtnW, ctaBtnH, 12);
+    ctx.fillStyle = ctaGrad;
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '800 17px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(ctaText, ctaBtnX + ctaBtnW / 2, ctaY);
+
+    // QR code
+    const qrSize = 50;
+    const qrBoxSize = qrSize + 6;
+    const qrX = W - PX - qrBoxSize;
+    const qrY2 = ctaY - qrBoxSize / 2;
     try {
       const qrDataUrl = await QRCode.toDataURL(shareUrl, {
         errorCorrectionLevel: 'L', margin: 1, width: qrSize,
-        color: { dark: '#0c1322', light: '#ffffff' },
+        color: { dark: '#000000', light: '#ffffff' },
       });
       const qrImage = await loadImage(qrDataUrl);
-      ctx.drawImage(qrImage, qrX + 8, qrY + 8, qrSize, qrSize);
+      // White background
+      roundedRect(qrX, qrY2, qrBoxSize, qrBoxSize, 4);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.drawImage(qrImage, qrX + 3, qrY2 + 3, qrSize, qrSize);
     } catch {
-      ctx.fillStyle = '#0a1020';
-      ctx.font = '700 24px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('QR', qrX + qrBox / 2, qrY + qrBox / 2 + 8);
-      ctx.textAlign = 'left';
+      roundedRect(qrX, qrY2, qrBoxSize, qrBoxSize, 4);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
     }
 
-    const shortUrl = shareUrl.replace(/^https?:\/\//, '');
-    const textX = 76;
-    const textMax = qrX - textX - 16;
-    ctx.fillStyle = '#eef2ff';
-    ctx.font = '700 52px sans-serif';
-    ctx.fillText(lang === 'en' ? 'Calculate your AI risk' : '测测你的 AI 风险', textX, footerY + 78);
-    ctx.fillStyle = 'rgba(183,191,210,0.86)';
-    ctx.font = '500 33px sans-serif';
-    ctx.fillText(lang === 'en' ? 'Scan the QR code to view this page' : '扫码查看结果页', textX, footerY + 124);
-    ctx.fillStyle = 'rgba(238,242,255,0.88)';
-    ctx.font = '600 28px sans-serif';
-    ctx.fillText(truncateText(shortUrl, textMax), textX, footerY + 164);
-    ctx.fillStyle = 'rgba(255,255,255,0.42)';
-    ctx.font = '500 22px sans-serif';
-    ctx.fillText('Generated by AIR', textX, footerY + 200);
+    // URL text
+    ctx.fillStyle = 'rgba(204,208,228,0.2)';
+    ctx.font = '400 13px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.letterSpacing = '1.5px';
+    ctx.fillText('air.democra.ai', qrX - 10, ctaY);
+    ctx.letterSpacing = '0px';
+
+    // Bottom accent line
+    const bottomGrad = ctx.createLinearGradient(0, 0, W, 0);
+    bottomGrad.addColorStop(0.1, 'rgba(0,0,0,0)');
+    bottomGrad.addColorStop(0.5, hexToRgba(c.m, 0.15));
+    bottomGrad.addColorStop(0.9, 'rgba(0,0,0,0)');
+    ctx.fillStyle = bottomGrad;
+    ctx.fillRect(0, H - 1, W, 1);
 
     return new Promise((resolve) => {
       canvas.toBlob((blob) => resolve(blob), 'image/png');
@@ -1393,193 +1777,6 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                     </p>
                   </div>
                 </motion.div>
-              </div>
-
-              {/* Off-screen poster capture node — premium vertical poster */}
-              <div
-                aria-hidden="true"
-                style={{
-                  position: 'fixed', left: '-99999px', top: '0', width: '880px',
-                  boxSizing: 'border-box',
-                  fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-                }}
-              >
-                <div
-                  ref={posterCaptureRef}
-                  style={{
-                    position: 'relative', overflow: 'hidden', width: '880px',
-                    background: '#06080e', color: '#ccd0e4',
-                    fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-                    /* CSS grid lines via repeating background */
-                    backgroundImage:
-                      'repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255,255,255,0.07) 49px, rgba(255,255,255,0.07) 50px),' +
-                      'repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.07) 49px, rgba(255,255,255,0.07) 50px)',
-                    backgroundSize: '50px 50px',
-                  }}
-                >
-                  {/* BG glow orbs */}
-                  <div style={{ position: 'absolute', top: '-120px', left: '60px', width: '500px', height: '500px', borderRadius: '50%', background: `radial-gradient(circle, ${riskColor}18 0%, transparent 65%)`, pointerEvents: 'none' }} />
-                  <div style={{ position: 'absolute', bottom: '-80px', right: '100px', width: '400px', height: '400px', borderRadius: '50%', background: `radial-gradient(circle, ${riskColor}10 0%, transparent 60%)`, pointerEvents: 'none' }} />
-                  <div style={{ position: 'absolute', top: '40%', left: '35%', width: '350px', height: '350px', borderRadius: '50%', background: `radial-gradient(circle, ${riskColor}0a 0%, transparent 55%)`, pointerEvents: 'none' }} />
-
-                  {/* Top accent line */}
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent 5%, ${riskColor} 35%, ${riskColor}88 65%, transparent 95%)` }} />
-
-                  {/* Content */}
-                  <div style={{ position: 'relative', padding: '40px 48px 36px', display: 'flex', flexDirection: 'column' }}>
-
-                    {/* ── Header row ── */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <span style={{ fontSize: '44px', fontWeight: 900, letterSpacing: '10px', opacity: 0.72, color: '#ccd0e4' }}>AIR</span>
-                        <div style={{ width: '1.5px', height: '32px', background: 'rgba(255,255,255,0.25)' }} />
-                        <span style={{ fontSize: '18px', letterSpacing: '3px', opacity: 0.4, color: '#ccd0e4' }}>{lang === 'zh' ? 'AI替代风险指数' : 'AI REPLACEMENT INDEX'}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 26px', borderRadius: '100px', border: `1.5px solid ${riskColor}55`, background: `${riskColor}14` }}>
-                        <div style={{ width: '10px', height: '10px', borderRadius: '5px', background: riskColor }} />
-                        <span style={{ fontSize: '17px', fontWeight: 800, color: riskColor, letterSpacing: '2.5px' }}>
-                          {lang === 'zh' ? `${L(RISK_TIER_INFO[result.profile.riskTier].label, lang)}` : `${L(RISK_TIER_INFO[result.profile.riskTier].label, lang).replace(' Risk', '').toUpperCase()} RISK`}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* ── Hero: probability number ── */}
-                    <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                      <div style={{ fontSize: '15px', letterSpacing: '4px', opacity: 0.45, fontWeight: 600, marginBottom: '4px', color: '#ccd0e4' }}>
-                        {lang === 'zh' ? '替代概率' : 'REPLACEMENT PROBABILITY'}
-                      </div>
-                      <div style={{ position: 'relative', display: 'inline-block' }}>
-                        {/* Glow behind number */}
-                        <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '360px', height: '200px', borderRadius: '50%', background: `radial-gradient(ellipse, ${riskColor}20 0%, transparent 70%)`, pointerEvents: 'none' }} />
-                        <span style={{ fontSize: '200px', fontWeight: 900, lineHeight: 0.85, letterSpacing: '-8px', color: riskColor, position: 'relative' }}>{result.replacementProbability}</span>
-                        <span style={{ fontSize: '64px', fontWeight: 800, color: riskColor, opacity: 0.3, marginLeft: '4px', lineHeight: 0.8, position: 'relative', verticalAlign: 'top' }}>%</span>
-                      </div>
-                    </div>
-
-                    {/* ── Profile code + type name ── */}
-                    <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-                      <div style={{ fontSize: '72px', fontWeight: 900, letterSpacing: '0.25em', color: '#ffffff', lineHeight: 1, marginBottom: '8px' }}>
-                        {result.profileCode}
-                      </div>
-                      <div style={{ fontSize: '24px', fontWeight: 700, color: riskColor, marginBottom: '4px' }}>
-                        {L(result.profile.name, lang)}
-                      </div>
-                      <div style={{ fontSize: '14px', letterSpacing: '2px', opacity: 0.45, color: '#ccd0e4' }}>
-                        {L(RISK_TIER_INFO[result.profile.riskTier].label, lang)}
-                      </div>
-                    </div>
-
-                    {/* ── Dimension squares row ── */}
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '36px' }}>
-                      {result.dimensions.map((dim, i) => {
-                        const dimColor = dim.isFavorable ? '#f43f5e' : '#34d399';
-                        const dimBorder = dim.isFavorable ? 'rgba(244,63,94,0.35)' : 'rgba(52,211,153,0.35)';
-                        const dimBg = dim.isFavorable ? 'rgba(244,63,94,0.1)' : 'rgba(52,211,153,0.1)';
-                        const dimLabel = dim.isFavorable ? L(dim.favorableLabel, lang) : L(dim.resistantLabel, lang);
-                        return (
-                          <div key={dim.dimensionId} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '72px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '14px', border: `1.5px solid ${dimBorder}`, background: dimBg }}>
-                              <span style={{ fontSize: '36px', fontWeight: 900, color: dimColor }}>{dim.letter}</span>
-                            </div>
-                            <span style={{ fontSize: '13px', fontWeight: 700, color: dimColor, letterSpacing: '0.5px' }}>{dimLabel}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* ── Data panel: Predicted Year + AI Capability ── */}
-                    <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-                      {/* Predicted Year */}
-                      <div style={{ flex: 1, padding: '20px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.025)' }}>
-                        <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '3px', opacity: 0.45, color: '#ccd0e4', marginBottom: '4px' }}>
-                          {lang === 'zh' ? '预测替代年份' : 'PREDICTED YEAR'}
-                        </div>
-                        <div style={{ fontSize: '56px', fontWeight: 900, lineHeight: 1, color: '#ffffff' }}>
-                          {isFinite(result.predictedReplacementYear) ? result.predictedReplacementYear : '∞'}
-                        </div>
-                        {isFinite(result.predictedReplacementYear) && (
-                          <div style={{ fontSize: '13px', opacity: 0.3, marginTop: '4px', color: '#ccd0e4' }}>
-                            {result.confidenceInterval.earliest} — {result.confidenceInterval.latest}
-                          </div>
-                        )}
-                      </div>
-                      {/* AI Capability */}
-                      <div style={{ flex: 1, padding: '20px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.025)' }}>
-                        <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '3px', opacity: 0.45, color: '#ccd0e4', marginBottom: '4px' }}>
-                          {lang === 'zh' ? 'AI当前能力' : 'AI CAPABILITY'}
-                        </div>
-                        <div style={{ fontSize: '56px', fontWeight: 900, lineHeight: 1, color: '#67e8f9' }}>
-                          {result.currentAICapability}%
-                        </div>
-                        <div style={{ marginTop: '8px', width: '100%', height: '6px', borderRadius: '3px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)' }}>
-                          <div style={{ width: `${result.currentAICapability}%`, height: '100%', borderRadius: '3px', background: `linear-gradient(90deg, #67e8f9, ${riskColor})` }} />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* ── Hook: countdown text ── */}
-                    <div style={{ padding: '18px 24px', borderRadius: '16px', border: `1px solid ${riskColor}25`, background: `${riskColor}0a`, textAlign: 'center', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '24px', fontWeight: 800, color: riskColor, letterSpacing: '0.5px' }}>
-                        {(() => {
-                          const yearsLeft = isFinite(result.predictedReplacementYear) ? result.predictedReplacementYear - new Date().getFullYear() : null;
-                          return yearsLeft !== null
-                            ? (lang === 'zh' ? `距离你被替代还有 ${yearsLeft} 年` : `${yearsLeft} ${yearsLeft === 1 ? 'year' : 'years'} until you're replaced`)
-                            : (lang === 'zh' ? `AI 已经能做你 ${result.currentReplacementDegree}% 的工作` : `AI can already do ${result.currentReplacementDegree}% of your job`);
-                        })()}
-                      </span>
-                    </div>
-
-                    {/* ── Percentile bar ── */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)', marginBottom: '24px' }}>
-                      <div style={{ flex: 1, height: '6px', borderRadius: '3px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)' }}>
-                        <div style={{ width: `${100 - result.replacementProbability}%`, height: '100%', borderRadius: '3px', background: `linear-gradient(90deg, ${riskColor}, #34d399)` }} />
-                      </div>
-                      <span style={{ fontSize: '16px', fontWeight: 700, opacity: 0.55, color: '#ccd0e4', whiteSpace: 'nowrap' }}>
-                        {lang === 'zh' ? `你比 ${100 - result.replacementProbability}% 的测试者更安全` : `Safer than ${100 - result.replacementProbability}% of test takers`}
-                      </span>
-                    </div>
-
-                    {/* ── Gauge bar ── */}
-                    <div style={{ marginBottom: '24px' }}>
-                      <div style={{ display: 'flex', gap: '4px', height: '10px', marginBottom: '6px' }}>
-                        {[0, 1, 2, 3, 4].map(i => {
-                          const s = i * 20, e = s + 20;
-                          const f = result.replacementProbability >= e ? 1 : result.replacementProbability <= s ? 0 : (result.replacementProbability - s) / 20;
-                          const barColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
-                          return (
-                            <div key={i} style={{ flex: 1, borderRadius: '5px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)' }}>
-                              <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: '5px', background: barColors[i] }} />
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div style={{ display: 'flex' }}>
-                        {['SAFE', 'ASSIST', 'AGENT', 'LEAD', 'KILL'].map((s, i) => {
-                          const active = i * 20 <= result.replacementProbability && result.replacementProbability < i * 20 + 20;
-                          const stageColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
-                          return (
-                            <div key={i} style={{ flex: 1, textAlign: 'center' }}>
-                              <span style={{ fontSize: '13px', letterSpacing: '2px', opacity: active ? 1 : 0.35, color: stageColors[i], fontWeight: 800 }}>{s}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* ── CTA + URL ── */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ padding: '14px 36px', borderRadius: '14px', background: `linear-gradient(135deg, ${riskColor}, ${riskColor}88)` }}>
-                        <span style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', letterSpacing: '0.5px' }}>
-                          {lang === 'zh' ? '测测你的 AI 替代风险 →' : "What's your AI risk? Take the test →"}
-                        </span>
-                      </div>
-                      <span style={{ fontSize: '15px', opacity: 0.25, letterSpacing: '1.5px', color: '#ccd0e4' }}>air.democra.ai</span>
-                    </div>
-                  </div>
-
-                  {/* Bottom accent */}
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px', background: `linear-gradient(90deg, transparent 10%, ${riskColor}25 50%, transparent 90%)` }} />
-                </div>
               </div>
 
               {/* Social Sharing */}
