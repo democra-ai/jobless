@@ -705,7 +705,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
       id="risk-calculator"
       data-mobile-section="risk"
       data-lang={lang}
-      className="py-12 sm:py-24 px-4 md:px-6 relative overflow-hidden scroll-mt-8 responsive-copy-scope"
+      className="py-12 sm:py-24 px-4 md:px-6 relative overflow-hidden scroll-mt-8 responsive-copy-scope bg-background"
     >
       <div className="max-w-2xl mx-auto relative z-10">
         {/* Title */}

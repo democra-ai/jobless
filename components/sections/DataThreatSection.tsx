@@ -35,7 +35,7 @@ function DataThreatSection({ lang, t, theme = 'dark' }: { lang: Language; t: (ty
   const modelRef = useRef<HTMLDivElement>(null);
 
   return (
-    <section className="py-12 sm:py-20 px-4 sm:px-6 relative z-30 overflow-hidden border-t border-surface-elevated/50">
+    <section className="py-12 sm:py-20 px-4 sm:px-6 relative z-30 overflow-hidden border-t border-surface-elevated/50 bg-background">
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Header */}
         <BlurFade delay={0.1} inView>

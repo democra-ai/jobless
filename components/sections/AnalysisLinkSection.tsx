@@ -41,7 +41,7 @@ function AnalysisLinkSection({ lang, t, theme = 'dark' }: { lang: Language; t: R
   const text = linkText[lang] ?? linkText['en'];
 
   return (
-    <section className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50">
+    <section className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50 bg-background">
       <div className="max-w-xl mx-auto">
         <MagicCard className="relative card-glow-border rounded-xl p-6 sm:p-8 text-center overflow-hidden" gradientColor="rgba(167, 139, 219, 0.08)" gradientOpacity={0.8}>
           <BorderBeam size={120} duration={8} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
