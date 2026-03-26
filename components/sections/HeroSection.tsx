@@ -184,9 +184,9 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
                                 <div
                                   className="px-3 py-3 rounded-xl"
                                   style={{
-                                    background: 'var(--surface-elevated)',
-                                    border: '1px solid var(--overlay-15)',
-                                    boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+                                    background: '#262320',
+                                    border: '1px solid rgba(255,255,255,0.18)',
+                                    boxShadow: '0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.06)',
                                   }}
                                 >
                                   <div className="text-[11px] text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
