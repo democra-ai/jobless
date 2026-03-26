@@ -43,7 +43,7 @@ function AnalysisLinkSection({ lang, t, theme = 'dark' }: { lang: Language; t: R
   return (
     <section className="py-10 sm:py-16 px-4 sm:px-6 border-t border-surface-elevated/50">
       <div className="max-w-xl mx-auto">
-        <MagicCard className="relative glass-card card-glow-border rounded-xl p-6 sm:p-8 text-center overflow-hidden" gradientColor="rgba(167, 139, 219, 0.06)" gradientOpacity={80}>
+        <MagicCard className="relative card-glow-border rounded-xl p-6 sm:p-8 text-center overflow-hidden" gradientColor="rgba(167, 139, 219, 0.08)" gradientOpacity={0.8}>
           <BorderBeam size={120} duration={8} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
           <h2 className="text-2xl md:text-3xl font-bold mb-4 section-title">
             {text.title}

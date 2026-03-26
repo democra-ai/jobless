@@ -58,7 +58,7 @@ function DataThreatSection({ lang, t, theme = 'dark' }: { lang: Language; t: (ty
           <MagicCard
             className="relative rounded-xl p-0 card-glow-border mb-8"
             gradientColor="rgba(255, 107, 53, 0.06)"
-            gradientOpacity={80}
+            gradientOpacity={0.8}
           >
             <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none z-0">
               <BorderBeam size={150} duration={10} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />

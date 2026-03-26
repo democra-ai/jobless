@@ -736,7 +736,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           transition={{ duration: 0.6, delay: 0.1 }}
           className="relative overflow-hidden"
         >
-          <MagicCard className="glass-card card-glow-border rounded-2xl p-3 md:p-5 relative overflow-hidden" gradientColor="rgba(139, 92, 246, 0.06)" gradientOpacity={80}>
+          <MagicCard className="card-glow-border rounded-2xl p-3 md:p-5 relative overflow-hidden" gradientColor="rgba(139, 92, 246, 0.08)" gradientOpacity={0.8}>
           <BorderBeam
             size={150}
             duration={10}
