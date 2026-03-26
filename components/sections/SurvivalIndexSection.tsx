@@ -1091,17 +1091,24 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
   const handleDownloadResult = async () => {
     trackShareClick('download_result', lang);
     try {
-      const { default: html2canvas } = await import('html2canvas');
+      console.log('[SaveResult] Starting capture...');
       const captureEl = document.querySelector('[data-testid="share-result-capture"]') as HTMLElement;
-      if (!captureEl) return;
+      if (!captureEl) { console.error('[SaveResult] Capture element not found'); alert('Result element not found'); return; }
+      console.log('[SaveResult] Element found, size:', captureEl.offsetWidth, captureEl.offsetHeight);
 
-      // Capture the actual result section
+      const html2canvasModule = await import('html2canvas');
+      const html2canvas = html2canvasModule.default ?? html2canvasModule;
+      console.log('[SaveResult] html2canvas loaded:', typeof html2canvas);
+
       const snapshot = await html2canvas(captureEl, {
         backgroundColor: '#0a0908',
         scale: 2,
         useCORS: true,
-        logging: false,
+        logging: true,
+        windowWidth: captureEl.scrollWidth,
+        windowHeight: captureEl.scrollHeight,
       });
+      console.log('[SaveResult] Snapshot captured:', snapshot.width, snapshot.height);
 
       // Build a designed poster wrapping the screenshot
       const PAD = 80;
