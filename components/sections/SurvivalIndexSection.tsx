@@ -1395,59 +1395,190 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                 </motion.div>
               </div>
 
-              {/* Off-screen poster capture node */}
+              {/* Off-screen poster capture node — premium vertical poster */}
               <div
                 aria-hidden="true"
                 style={{
-                  position: 'fixed', left: '-99999px', top: '0', width: '880px', padding: '26px',
-                  background: 'linear-gradient(145deg, #040811 0%, #0b1020 58%, #1a1320 100%)',
-                  borderRadius: '28px', boxSizing: 'border-box', color: '#eef2ff',
+                  position: 'fixed', left: '-99999px', top: '0', width: '880px',
+                  boxSizing: 'border-box',
                   fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
                 }}
               >
-                <div ref={posterCaptureRef} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <div style={{
-                    borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)',
-                    background: 'linear-gradient(90deg, rgba(0,219,255,0.12), rgba(255,61,153,0.1))',
-                    padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  }}>
-                    <span style={{ fontSize: '22px', letterSpacing: '0.6px', fontWeight: 700 }}>AIR</span>
-                    <span style={{ fontSize: '16px', opacity: 0.74 }}>{lang === 'en' ? 'AIR Risk Profile' : 'AIR 风险画像'}</span>
+                <div
+                  ref={posterCaptureRef}
+                  style={{
+                    position: 'relative', overflow: 'hidden', width: '880px',
+                    background: '#06080e', color: '#ccd0e4',
+                    fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
+                    /* CSS grid lines via repeating background */
+                    backgroundImage:
+                      'repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255,255,255,0.07) 49px, rgba(255,255,255,0.07) 50px),' +
+                      'repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.07) 49px, rgba(255,255,255,0.07) 50px)',
+                    backgroundSize: '50px 50px',
+                  }}
+                >
+                  {/* BG glow orbs */}
+                  <div style={{ position: 'absolute', top: '-120px', left: '60px', width: '500px', height: '500px', borderRadius: '50%', background: `radial-gradient(circle, ${riskColor}18 0%, transparent 65%)`, pointerEvents: 'none' }} />
+                  <div style={{ position: 'absolute', bottom: '-80px', right: '100px', width: '400px', height: '400px', borderRadius: '50%', background: `radial-gradient(circle, ${riskColor}10 0%, transparent 60%)`, pointerEvents: 'none' }} />
+                  <div style={{ position: 'absolute', top: '40%', left: '35%', width: '350px', height: '350px', borderRadius: '50%', background: `radial-gradient(circle, ${riskColor}0a 0%, transparent 55%)`, pointerEvents: 'none' }} />
+
+                  {/* Top accent line */}
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent 5%, ${riskColor} 35%, ${riskColor}88 65%, transparent 95%)` }} />
+
+                  {/* Content */}
+                  <div style={{ position: 'relative', padding: '40px 48px 36px', display: 'flex', flexDirection: 'column' }}>
+
+                    {/* ── Header row ── */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <span style={{ fontSize: '44px', fontWeight: 900, letterSpacing: '10px', opacity: 0.72, color: '#ccd0e4' }}>AIR</span>
+                        <div style={{ width: '1.5px', height: '32px', background: 'rgba(255,255,255,0.25)' }} />
+                        <span style={{ fontSize: '18px', letterSpacing: '3px', opacity: 0.4, color: '#ccd0e4' }}>{lang === 'zh' ? 'AI替代风险指数' : 'AI REPLACEMENT INDEX'}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 26px', borderRadius: '100px', border: `1.5px solid ${riskColor}55`, background: `${riskColor}14` }}>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '5px', background: riskColor }} />
+                        <span style={{ fontSize: '17px', fontWeight: 800, color: riskColor, letterSpacing: '2.5px' }}>
+                          {lang === 'zh' ? `${L(RISK_TIER_INFO[result.profile.riskTier].label, lang)}` : `${L(RISK_TIER_INFO[result.profile.riskTier].label, lang).replace(' Risk', '').toUpperCase()} RISK`}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* ── Hero: probability number ── */}
+                    <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                      <div style={{ fontSize: '15px', letterSpacing: '4px', opacity: 0.45, fontWeight: 600, marginBottom: '4px', color: '#ccd0e4' }}>
+                        {lang === 'zh' ? '替代概率' : 'REPLACEMENT PROBABILITY'}
+                      </div>
+                      <div style={{ position: 'relative', display: 'inline-block' }}>
+                        {/* Glow behind number */}
+                        <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '360px', height: '200px', borderRadius: '50%', background: `radial-gradient(ellipse, ${riskColor}20 0%, transparent 70%)`, pointerEvents: 'none' }} />
+                        <span style={{ fontSize: '200px', fontWeight: 900, lineHeight: 0.85, letterSpacing: '-8px', color: riskColor, position: 'relative' }}>{result.replacementProbability}</span>
+                        <span style={{ fontSize: '64px', fontWeight: 800, color: riskColor, opacity: 0.3, marginLeft: '4px', lineHeight: 0.8, position: 'relative', verticalAlign: 'top' }}>%</span>
+                      </div>
+                    </div>
+
+                    {/* ── Profile code + type name ── */}
+                    <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+                      <div style={{ fontSize: '72px', fontWeight: 900, letterSpacing: '0.25em', color: '#ffffff', lineHeight: 1, marginBottom: '8px' }}>
+                        {result.profileCode}
+                      </div>
+                      <div style={{ fontSize: '24px', fontWeight: 700, color: riskColor, marginBottom: '4px' }}>
+                        {L(result.profile.name, lang)}
+                      </div>
+                      <div style={{ fontSize: '14px', letterSpacing: '2px', opacity: 0.45, color: '#ccd0e4' }}>
+                        {L(RISK_TIER_INFO[result.profile.riskTier].label, lang)}
+                      </div>
+                    </div>
+
+                    {/* ── Dimension squares row ── */}
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '36px' }}>
+                      {result.dimensions.map((dim, i) => {
+                        const dimColor = dim.isFavorable ? '#f43f5e' : '#34d399';
+                        const dimBorder = dim.isFavorable ? 'rgba(244,63,94,0.35)' : 'rgba(52,211,153,0.35)';
+                        const dimBg = dim.isFavorable ? 'rgba(244,63,94,0.1)' : 'rgba(52,211,153,0.1)';
+                        const dimLabel = dim.isFavorable ? L(dim.favorableLabel, lang) : L(dim.resistantLabel, lang);
+                        return (
+                          <div key={dim.dimensionId} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: '72px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '14px', border: `1.5px solid ${dimBorder}`, background: dimBg }}>
+                              <span style={{ fontSize: '36px', fontWeight: 900, color: dimColor }}>{dim.letter}</span>
+                            </div>
+                            <span style={{ fontSize: '13px', fontWeight: 700, color: dimColor, letterSpacing: '0.5px' }}>{dimLabel}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* ── Data panel: Predicted Year + AI Capability ── */}
+                    <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+                      {/* Predicted Year */}
+                      <div style={{ flex: 1, padding: '20px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.025)' }}>
+                        <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '3px', opacity: 0.45, color: '#ccd0e4', marginBottom: '4px' }}>
+                          {lang === 'zh' ? '预测替代年份' : 'PREDICTED YEAR'}
+                        </div>
+                        <div style={{ fontSize: '56px', fontWeight: 900, lineHeight: 1, color: '#ffffff' }}>
+                          {isFinite(result.predictedReplacementYear) ? result.predictedReplacementYear : '∞'}
+                        </div>
+                        {isFinite(result.predictedReplacementYear) && (
+                          <div style={{ fontSize: '13px', opacity: 0.3, marginTop: '4px', color: '#ccd0e4' }}>
+                            {result.confidenceInterval.earliest} — {result.confidenceInterval.latest}
+                          </div>
+                        )}
+                      </div>
+                      {/* AI Capability */}
+                      <div style={{ flex: 1, padding: '20px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.025)' }}>
+                        <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '3px', opacity: 0.45, color: '#ccd0e4', marginBottom: '4px' }}>
+                          {lang === 'zh' ? 'AI当前能力' : 'AI CAPABILITY'}
+                        </div>
+                        <div style={{ fontSize: '56px', fontWeight: 900, lineHeight: 1, color: '#67e8f9' }}>
+                          {result.currentAICapability}%
+                        </div>
+                        <div style={{ marginTop: '8px', width: '100%', height: '6px', borderRadius: '3px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)' }}>
+                          <div style={{ width: `${result.currentAICapability}%`, height: '100%', borderRadius: '3px', background: `linear-gradient(90deg, #67e8f9, ${riskColor})` }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ── Hook: countdown text ── */}
+                    <div style={{ padding: '18px 24px', borderRadius: '16px', border: `1px solid ${riskColor}25`, background: `${riskColor}0a`, textAlign: 'center', marginBottom: '12px' }}>
+                      <span style={{ fontSize: '24px', fontWeight: 800, color: riskColor, letterSpacing: '0.5px' }}>
+                        {(() => {
+                          const yearsLeft = isFinite(result.predictedReplacementYear) ? result.predictedReplacementYear - new Date().getFullYear() : null;
+                          return yearsLeft !== null
+                            ? (lang === 'zh' ? `距离你被替代还有 ${yearsLeft} 年` : `${yearsLeft} ${yearsLeft === 1 ? 'year' : 'years'} until you're replaced`)
+                            : (lang === 'zh' ? `AI 已经能做你 ${result.currentReplacementDegree}% 的工作` : `AI can already do ${result.currentReplacementDegree}% of your job`);
+                        })()}
+                      </span>
+                    </div>
+
+                    {/* ── Percentile bar ── */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)', marginBottom: '24px' }}>
+                      <div style={{ flex: 1, height: '6px', borderRadius: '3px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)' }}>
+                        <div style={{ width: `${100 - result.replacementProbability}%`, height: '100%', borderRadius: '3px', background: `linear-gradient(90deg, ${riskColor}, #34d399)` }} />
+                      </div>
+                      <span style={{ fontSize: '16px', fontWeight: 700, opacity: 0.55, color: '#ccd0e4', whiteSpace: 'nowrap' }}>
+                        {lang === 'zh' ? `你比 ${100 - result.replacementProbability}% 的测试者更安全` : `Safer than ${100 - result.replacementProbability}% of test takers`}
+                      </span>
+                    </div>
+
+                    {/* ── Gauge bar ── */}
+                    <div style={{ marginBottom: '24px' }}>
+                      <div style={{ display: 'flex', gap: '4px', height: '10px', marginBottom: '6px' }}>
+                        {[0, 1, 2, 3, 4].map(i => {
+                          const s = i * 20, e = s + 20;
+                          const f = result.replacementProbability >= e ? 1 : result.replacementProbability <= s ? 0 : (result.replacementProbability - s) / 20;
+                          const barColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
+                          return (
+                            <div key={i} style={{ flex: 1, borderRadius: '5px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)' }}>
+                              <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: '5px', background: barColors[i] }} />
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div style={{ display: 'flex' }}>
+                        {['SAFE', 'ASSIST', 'AGENT', 'LEAD', 'KILL'].map((s, i) => {
+                          const active = i * 20 <= result.replacementProbability && result.replacementProbability < i * 20 + 20;
+                          const stageColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
+                          return (
+                            <div key={i} style={{ flex: 1, textAlign: 'center' }}>
+                              <span style={{ fontSize: '13px', letterSpacing: '2px', opacity: active ? 1 : 0.35, color: stageColors[i], fontWeight: 800 }}>{s}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* ── CTA + URL ── */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ padding: '14px 36px', borderRadius: '14px', background: `linear-gradient(135deg, ${riskColor}, ${riskColor}88)` }}>
+                        <span style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', letterSpacing: '0.5px' }}>
+                          {lang === 'zh' ? '测测你的 AI 替代风险 →' : "What's your AI risk? Take the test →"}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '15px', opacity: 0.25, letterSpacing: '1.5px', color: '#ccd0e4' }}>air.democra.ai</span>
+                    </div>
                   </div>
 
-                  <div style={{
-                    borderRadius: '24px', border: `1.5px solid ${riskColor}66`,
-                    background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
-                    padding: '24px', textAlign: 'center',
-                  }}>
-                    <div style={{ fontSize: '12px', letterSpacing: '1.5px', opacity: 0.72 }}>
-                      {lang === 'en' ? 'YOUR AIR TYPE' : '你的 AIR 类型'}
-                    </div>
-                    <div style={{ marginTop: '10px', fontSize: '96px', fontWeight: 800, lineHeight: 1, color: riskColor, letterSpacing: '0.2em', fontFamily: 'var(--font-body)' }}>
-                      {result.profileCode}
-                    </div>
-                    <div style={{ marginTop: '10px', fontSize: '36px', fontWeight: 700 }}>
-                      {L(result.profile.name, lang)}
-                    </div>
-                    <div style={{ marginTop: '8px', fontSize: '20px', opacity: 0.78 }}>
-                      {L(RISK_TIER_INFO[result.profile.riskTier].label, lang)}
-                    </div>
-                  </div>
-
-                  {[
-                    { value: `${result.replacementProbability}%`, label: t.metric1Title, color: '#ff2f67' },
-                    { value: isFinite(result.predictedReplacementYear) ? `${result.predictedReplacementYear}` : '∞', label: t.metric2Title, color: '#ff9e1f' },
-                    { value: `${result.currentAICapability}%`, label: t.metric3Title, color: '#57d9ef' },
-                  ].map((metric) => (
-                    <div key={metric.label} style={{
-                      borderRadius: '22px', border: `1.2px solid ${metric.color}66`,
-                      background: 'linear-gradient(140deg, rgba(8,14,31,0.9), rgba(14,20,38,0.78))',
-                      padding: '20px 24px',
-                    }}>
-                      <div style={{ fontSize: '62px', fontWeight: 800, lineHeight: 1, color: metric.color }}>{metric.value}</div>
-                      <div style={{ marginTop: '8px', fontSize: '38px', fontWeight: 700, lineHeight: 1.1 }}>{metric.label}</div>
-                    </div>
-                  ))}
+                  {/* Bottom accent */}
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px', background: `linear-gradient(90deg, transparent 10%, ${riskColor}25 50%, transparent 90%)` }} />
                 </div>
               </div>
 
