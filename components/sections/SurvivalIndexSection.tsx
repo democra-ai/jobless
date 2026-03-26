@@ -1088,20 +1088,342 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     setTimeout(() => setTelegramShareState('idle'), 3200);
   };
 
-  const handleDownloadImage = async () => {
-    trackShareClick('download_image', lang);
+  const handleDownloadResult = async () => {
+    trackShareClick('download_result', lang);
     try {
-      const blob = await buildShareImageBlob();
-      if (!blob) { console.error('Poster: buildShareImageBlob returned null'); return; }
+      const blob = await buildResultPosterBlob();
+      if (!blob) { console.error('Result poster returned null'); return; }
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'air-risk-poster.png';
+      a.download = 'air-result.png';
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Poster generation failed:', err);
+      console.error('Result poster failed:', err);
     }
+  };
+
+  /** Build a vertical designed poster (1080×1920) for Save Result */
+  const buildResultPosterBlob = async (): Promise<Blob | null> => {
+    if (!result) return null;
+    const W = 1080, H = 1920;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const palMap: Record<string, { m: string; a: string; g: string }> = {
+      'very-low': { m: '#34d399', a: '#06b6d4', g: '#059669' },
+      'low':      { m: '#4ade80', a: '#22d3ee', g: '#16a34a' },
+      'medium':   { m: '#fbbf24', a: '#f97316', g: '#d97706' },
+      'high':     { m: '#fb923c', a: '#f43f5e', g: '#ea580c' },
+      'critical': { m: '#f43f5e', a: '#a855f7', g: '#dc2626' },
+    };
+    const c = palMap[result.riskLevel] || palMap.critical;
+    const zh = lang === 'zh';
+    const prob = result.replacementProbability;
+    const yr = result.predictedReplacementYear >= 2100 ? '∞' : String(result.predictedReplacementYear);
+    const currentYear = new Date().getFullYear();
+    const yearsLeft = result.predictedReplacementYear >= 2100 ? null : result.predictedReplacementYear - currentYear;
+    const percentileSafe = 100 - prob;
+
+    const riskLabelMap: Record<string, [string, string]> = {
+      'very-low': ['VERY LOW', '极低'], 'low': ['LOW', '低'], 'medium': ['MEDIUM', '中等'],
+      'high': ['HIGH', '高'], 'critical': ['CRITICAL', '极高'],
+    };
+    const lb = (riskLabelMap[result.riskLevel] || riskLabelMap.critical)[zh ? 1 : 0];
+
+    const profileNames: Record<string, { en: string; zh: string }> = {
+      EOFP: { en: 'Full Chain Open', zh: '全链路畅通型' }, EOFH: { en: 'Relationship Anchored', zh: '关系锚定型' },
+      EORP: { en: 'Compliance Gatekeeper', zh: '合规守门型' }, ESFP: { en: 'Creative Trial-and-Error', zh: '创意试错型' },
+      TOFP: { en: 'Skill Executor', zh: '技能执行型' }, EORH: { en: 'Licensed Trust', zh: '执证信任型' },
+      ESFH: { en: 'Taste Curator', zh: '审美策展型' }, ESRP: { en: 'Craft Guardian', zh: '工艺守护型' },
+      TSFP: { en: 'Experience Catalyst', zh: '体验催化型' }, TORP: { en: 'Field Commander', zh: '现场指挥型' },
+      TORH: { en: 'Crisis Navigator', zh: '危机领航型' }, ESRH: { en: 'Meaning Architect', zh: '意义建构型' },
+      TSRP: { en: 'Physical Sovereign', zh: '身体主权型' }, TSFH: { en: 'Bond Weaver', zh: '纽带编织型' },
+      TOFH: { en: 'Embodied Guide', zh: '身心引导型' }, TSRH: { en: 'Deep Human Core', zh: '深度人性型' },
+    };
+    const profileName = profileNames[result.profileCode]?.[zh ? 'zh' : 'en'] ?? result.profileCode;
+
+    const favorableLetters = ['E', 'O', 'F', 'P'];
+    const dimMeta: Record<string, { en: string; zh: string }> = {
+      E: { en: 'Explicit', zh: '显性型' }, T: { en: 'Tacit', zh: '隐性型' },
+      O: { en: 'Objective', zh: '客观型' }, S: { en: 'Subjective', zh: '主观型' },
+      F: { en: 'Flexible', zh: '弹性型' }, R: { en: 'Rigid', zh: '刚性型' },
+      P: { en: 'Product', zh: '对事型' }, H: { en: 'Human', zh: '对人型' },
+    };
+    const dims = result.profileCode.split('').map((letter, i) => ({
+      v: letter, name: dimMeta[letter]?.[zh ? 'zh' : 'en'] ?? letter,
+      risky: letter === favorableLetters[i],
+    }));
+
+    const hexA = (hex: string, a: number) => {
+      const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+      return `rgba(${r},${g},${b},${a})`;
+    };
+
+    const rr = (x: number, y: number, w: number, h: number, r: number) => {
+      ctx.beginPath();
+      if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); }
+      else { ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r); ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r); ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r); ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath(); }
+    };
+
+    try {
+    const PX = 60; // horizontal padding
+
+    // Background
+    ctx.fillStyle = '#06080e';
+    ctx.fillRect(0, 0, W, H);
+
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= H/50; i++) { ctx.beginPath(); ctx.moveTo(0, i*50); ctx.lineTo(W, i*50); ctx.stroke(); }
+    for (let i = 0; i <= W/50; i++) { ctx.beginPath(); ctx.moveTo(i*50, 0); ctx.lineTo(i*50, H); ctx.stroke(); }
+
+    // Glow orbs
+    const glow = (cx: number, cy: number, rad: number, col: string, a: number) => {
+      const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+      gr.addColorStop(0, hexA(col, a)); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = gr; ctx.fillRect(cx-rad, cy-rad, rad*2, rad*2);
+    };
+    glow(200, 300, 350, c.g, 0.08);
+    glow(W-150, 900, 300, c.a, 0.05);
+    glow(W/2, 600, 400, c.m, 0.04);
+
+    // Top accent
+    const topG = ctx.createLinearGradient(0,0,W,0);
+    topG.addColorStop(0.05, 'rgba(0,0,0,0)'); topG.addColorStop(0.35, c.m);
+    topG.addColorStop(0.65, c.a); topG.addColorStop(0.95, 'rgba(0,0,0,0)');
+    ctx.fillStyle = topG; ctx.fillRect(0, 0, W, 4);
+
+    // ── Header ──
+    let Y = 60;
+    ctx.fillStyle = 'rgba(204,208,228,0.7)';
+    ctx.font = '900 48px sans-serif';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('AIR', PX, Y);
+    const airW = ctx.measureText('AIR').width;
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillRect(PX + airW + 18, Y - 18, 2, 36);
+    ctx.fillStyle = 'rgba(204,208,228,0.35)';
+    ctx.font = '400 20px sans-serif';
+    ctx.fillText(zh ? 'AI替代风险指数' : 'AI REPLACEMENT INDEX', PX + airW + 36, Y);
+
+    // Risk badge
+    const badgeT = zh ? `${lb}风险` : `${lb} RISK`;
+    ctx.font = '800 20px sans-serif';
+    const badgeW = ctx.measureText(badgeT).width + 60;
+    const badgeX = W - PX - badgeW;
+    rr(badgeX, Y-20, badgeW, 40, 100);
+    ctx.fillStyle = hexA(c.m, 0.1); ctx.fill();
+    ctx.strokeStyle = hexA(c.m, 0.35); ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(badgeX + 22, Y, 6, 0, Math.PI*2); ctx.fillStyle = c.m; ctx.fill();
+    ctx.fillStyle = c.m; ctx.font = '800 20px sans-serif'; ctx.fillText(badgeT, badgeX + 38, Y + 1);
+
+    // ── Hero: Big probability number ──
+    Y = 220;
+    ctx.fillStyle = 'rgba(204,208,228,0.4)';
+    ctx.font = '600 18px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(zh ? '替代概率' : 'REPLACEMENT PROBABILITY', W/2, Y);
+
+    // Number glow
+    glow(W/2, Y + 160, 200, c.m, 0.12);
+
+    Y += 30;
+    ctx.fillStyle = c.m;
+    ctx.font = '900 260px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText(String(prob), W/2 - 20, Y + 230);
+    ctx.fillStyle = hexA(c.m, 0.3);
+    ctx.font = '800 80px sans-serif';
+    const numW = ctx.measureText(String(prob)).width;
+    ctx.textAlign = 'left';
+    ctx.fillText('%', W/2 - 20 + numW/2 + 8, Y + 140);
+
+    // Profile name
+    Y += 260;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '800 36px sans-serif';
+    ctx.fillText(profileName, W/2, Y);
+    Y += 50;
+    ctx.fillStyle = c.m;
+    ctx.font = '700 22px sans-serif';
+    ctx.fillText(result.profileCode, W/2, Y);
+
+    // ── 4 Dimension squares (horizontal row) ──
+    Y += 60;
+    const dimSize = 70, dimGap = 30;
+    const totalDimW = dims.length * dimSize + (dims.length-1) * dimGap;
+    let dimX = (W - totalDimW) / 2;
+    dims.forEach((d) => {
+      const dc = d.risky ? '#f43f5e' : '#34d399';
+      rr(dimX, Y, dimSize, dimSize, 14);
+      ctx.fillStyle = d.risky ? 'rgba(244,63,94,0.12)' : 'rgba(52,211,153,0.12)'; ctx.fill();
+      ctx.strokeStyle = d.risky ? 'rgba(244,63,94,0.4)' : 'rgba(52,211,153,0.4)'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = dc; ctx.font = '900 34px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(d.v, dimX + dimSize/2, Y + dimSize/2 - 2);
+      ctx.font = '700 13px sans-serif'; ctx.fillText(d.name, dimX + dimSize/2, Y + dimSize + 18);
+      dimX += dimSize + dimGap;
+    });
+
+    // ── Data panels ──
+    Y += dimSize + 60;
+
+    // Panel: Predicted Year + AI Capability
+    const panelW = W - PX*2, panelH = 140;
+    rr(PX, Y, panelW, panelH, 20);
+    ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+    // Year
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = 'rgba(204,208,228,0.4)'; ctx.font = '700 16px sans-serif';
+    ctx.fillText(zh ? '预测替代年份' : 'PREDICTED REPLACEMENT YEAR', PX + 30, Y + 20);
+    ctx.fillStyle = '#ffffff'; ctx.font = '900 64px sans-serif';
+    ctx.fillText(yr, PX + 30, Y + 44);
+    if (result.predictedReplacementYear < 2100) {
+      ctx.fillStyle = 'rgba(204,208,228,0.25)'; ctx.font = '400 16px sans-serif';
+      ctx.fillText(`${result.confidenceInterval.earliest} — ${result.confidenceInterval.latest}`, PX + 30, Y + 112);
+    }
+    // AI Capability (right)
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(204,208,228,0.3)'; ctx.font = '600 14px sans-serif';
+    ctx.fillText(zh ? 'AI当前能力' : 'AI CAPABILITY', W - PX - 30, Y + 22);
+    ctx.fillStyle = '#67e8f9'; ctx.font = '800 40px sans-serif';
+    ctx.fillText(`${result.currentAICapability}%`, W - PX - 30, Y + 44);
+    // Capability bar
+    const capBW = 160, capBH = 8, capBX = W - PX - 30 - capBW, capBY = Y + 100;
+    rr(capBX, capBY, capBW, capBH, 4); ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fill();
+    const capFill = (result.currentAICapability/100) * capBW;
+    if (capFill > 0) {
+      const cg = ctx.createLinearGradient(capBX, 0, capBX+capFill, 0);
+      cg.addColorStop(0, '#67e8f9'); cg.addColorStop(1, c.m);
+      rr(capBX, capBY, capFill, capBH, 4); ctx.fillStyle = cg; ctx.fill();
+    }
+
+    // Countdown hook panel
+    Y += panelH + 20;
+    const hookH = 70;
+    rr(PX, Y, panelW, hookH, 20);
+    ctx.fillStyle = hexA(c.m, 0.06); ctx.fill();
+    ctx.strokeStyle = hexA(c.m, 0.2); ctx.lineWidth = 1.5; ctx.stroke();
+    const hookText = yearsLeft !== null
+      ? (zh ? `距离你被替代还有 ${yearsLeft} 年` : `${yearsLeft} ${yearsLeft === 1 ? 'year' : 'years'} until you're replaced`)
+      : (zh ? `AI 已经能做你 ${result.currentAICapability}% 的工作` : `AI can already do ${result.currentAICapability}% of your job`);
+    ctx.fillStyle = c.m; ctx.font = '800 28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(hookText, W/2, Y + hookH/2);
+
+    // Percentile bar panel
+    Y += hookH + 20;
+    const pctH = 60;
+    rr(PX, Y, panelW, pctH, 20);
+    ctx.fillStyle = 'rgba(255,255,255,0.025)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; ctx.stroke();
+    // Bar
+    const barX = PX + 30, barY2 = Y + 20, barW = panelW * 0.55, barH2 = 8;
+    rr(barX, barY2, barW, barH2, 4); ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
+    const pctFill = (percentileSafe/100) * barW;
+    if (pctFill > 0) {
+      const pg = ctx.createLinearGradient(barX, 0, barX+pctFill, 0);
+      pg.addColorStop(0, c.m); pg.addColorStop(1, '#34d399');
+      rr(barX, barY2, pctFill, barH2, 4); ctx.fillStyle = pg; ctx.fill();
+    }
+    const pctText = zh ? `你比 ${percentileSafe}% 的测试者更安全` : `Safer than ${percentileSafe}% of test takers`;
+    ctx.fillStyle = 'rgba(204,208,228,0.5)'; ctx.font = '700 20px sans-serif';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(pctText, W - PX - 30, Y + pctH/2);
+
+    // ── Gauge bar ──
+    Y += pctH + 40;
+    const stages = ['SAFE', 'ASSIST', 'AGENT', 'LEAD', 'KILL'];
+    const stageColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
+    const gaugeW = W - PX*2, segGap = 6;
+    const segW = (gaugeW - segGap * 4) / 5;
+    // "You are here" pointer
+    const pointerX = PX + (prob / 100) * gaugeW;
+    ctx.fillStyle = c.m; ctx.font = '700 14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(zh ? '你在这里' : 'YOU ARE HERE', pointerX, Y - 4);
+    ctx.beginPath(); ctx.moveTo(pointerX-6, Y-2); ctx.lineTo(pointerX+6, Y-2); ctx.lineTo(pointerX, Y+6); ctx.closePath(); ctx.fill();
+    // Segments
+    const segY = Y + 10, segH = 14;
+    for (let i = 0; i < 5; i++) {
+      const sx = PX + i * (segW + segGap);
+      const s = i*20, e = s+20;
+      const f = prob >= e ? 1 : prob <= s ? 0 : (prob-s)/20;
+      rr(sx, segY, segW, segH, 7); ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
+      if (f > 0) { rr(sx, segY, segW * f, segH, 7); ctx.fillStyle = stageColors[i]; ctx.fill(); }
+    }
+    // Labels
+    ctx.textBaseline = 'top';
+    for (let i = 0; i < 5; i++) {
+      const sx = PX + i * (segW + segGap) + segW/2;
+      const active = i*20 <= prob && prob < i*20+20;
+      ctx.fillStyle = active ? stageColors[i] : 'rgba(204,208,228,0.35)';
+      ctx.font = `800 ${active ? 18 : 16}px sans-serif`; ctx.textAlign = 'center';
+      ctx.fillText(stages[i], sx, segY + segH + 8);
+    }
+
+    // ── Dimension detail cards ──
+    Y = segY + segH + 60;
+    const dimNames = [zh ? '可学习性' : 'Learnability', zh ? '评判客观性' : 'Evaluation', zh ? '容错性' : 'Risk Tolerance', zh ? '人格依赖性' : 'Human Presence'];
+    const cardW = (panelW - 20) / 2, cardH = 100;
+    result.dimensions.forEach((dim, i) => {
+      const cx = PX + (i % 2) * (cardW + 20);
+      const cy = Y + Math.floor(i / 2) * (cardH + 16);
+      const dc = dim.isFavorable ? '#f43f5e' : '#34d399';
+      rr(cx, cy, cardW, cardH, 16);
+      ctx.fillStyle = 'rgba(255,255,255,0.025)'; ctx.fill();
+      ctx.strokeStyle = hexA(dc, 0.2); ctx.lineWidth = 1; ctx.stroke();
+      // Letter
+      ctx.fillStyle = dc; ctx.font = '900 32px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      ctx.fillText(dim.letter, cx + 20, cy + 16);
+      // Name
+      ctx.fillStyle = 'rgba(204,208,228,0.6)'; ctx.font = '600 15px sans-serif';
+      ctx.fillText(dimNames[i], cx + 60, cy + 22);
+      // Score bar
+      const sbX = cx + 20, sbY = cy + 60, sbW = cardW - 40, sbH = 6;
+      rr(sbX, sbY, sbW, sbH, 3); ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
+      const scoreFill = ((dim.rawAverage - 1) / 4) * sbW;
+      if (scoreFill > 0) { rr(sbX, sbY, scoreFill, sbH, 3); ctx.fillStyle = dc; ctx.fill(); }
+      // Score text
+      ctx.fillStyle = dc; ctx.font = '700 14px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(`${dim.rawAverage.toFixed(1)} / 5.0`, cx + cardW - 20, cy + 80);
+      // Label
+      ctx.fillStyle = hexA(dc, 0.7); ctx.font = '700 13px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(dim.isFavorable ? (zh ? 'AI有利' : 'AI Favorable') : (zh ? 'AI不利' : 'AI Resistant'), cx + 20, cy + 78);
+    });
+
+    // ── CTA + URL ──
+    Y = H - 120;
+    rr(PX, Y, 420, 56, 14);
+    const ctaG = ctx.createLinearGradient(PX, 0, PX+420, 0);
+    ctaG.addColorStop(0, c.m); ctaG.addColorStop(1, c.a);
+    ctx.fillStyle = ctaG; ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.font = '800 22px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? →", PX + 210, Y + 28);
+    // URL
+    ctx.fillStyle = 'rgba(204,208,228,0.2)'; ctx.font = '400 16px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText('air.democra.ai', W - PX, Y + 28);
+
+    // QR code
+    try {
+      const qrDataUrl = await QRCode.toDataURL(getShareUrl(), { errorCorrectionLevel: 'L', margin: 1, width: 80, color: { dark: '#0c1322', light: '#ffffff' } });
+      const qrImg = new Image(); qrImg.src = qrDataUrl;
+      await new Promise<void>((res, rej) => { qrImg.onload = () => res(); qrImg.onerror = () => rej(); });
+      const qrS = 60, qrBX = W - PX - qrS - 10, qrBY = Y - 10;
+      rr(qrBX-4, qrBY-4, qrS+8, qrS+8, 6); ctx.fillStyle = '#fff'; ctx.fill();
+      ctx.drawImage(qrImg, qrBX, qrBY, qrS, qrS);
+    } catch { /* QR optional */ }
+
+    // Bottom accent
+    const btmG = ctx.createLinearGradient(0,0,W,0);
+    btmG.addColorStop(0.1, 'rgba(0,0,0,0)'); btmG.addColorStop(0.5, hexA(c.m, 0.15)); btmG.addColorStop(0.9, 'rgba(0,0,0,0)');
+    ctx.fillStyle = btmG; ctx.fillRect(0, H-2, W, 2);
+
+    } catch (err) { console.error('Poster draw error:', err); }
+
+    return new Promise((resolve) => { canvas.toBlob((blob) => resolve(blob), 'image/png'); });
   };
 
   // ─── Render ──────────────────────────────────────────────────────────────
@@ -1841,8 +2163,8 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                       className="space-y-3"
                     >
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
-                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }} onClick={handleDownloadImage} data-testid="share-download-btn" className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/40 text-sm font-semibold text-brand-primary transition-all">
-                          <Download className="w-4 h-4" />{t.shareDownload}
+                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }} onClick={handleDownloadResult} data-testid="share-download-btn" className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/40 text-sm font-semibold text-brand-primary transition-all">
+                          <Download className="w-4 h-4" />{t.shareSaveResult ?? 'Save Result'}
                         </motion.button>
                         <motion.button whileTap={{ scale: 0.95 }} onClick={handleCopyLink} data-testid="share-copy-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 border border-overlay-10 text-sm font-medium transition-all">
                           <Copy className="w-4 h-4" />{copied ? t.shareCopied : t.shareCopyLink}
