@@ -8,6 +8,7 @@ import Counter from '@/components/Counter';
 import AIKillLineBar from '@/components/AIKillLineBar';
 import { trackCtaClick, trackStatCardExpand } from '@/lib/analytics';
 import { BorderBeam } from '@/components/ui/border-beam';
+import { MagicCard } from '@/components/ui/magic-card';
 
 function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof translations)[Language]; theme?: Theme }) {
   const [activeStat, setActiveStat] = useState<number | null>(null);
@@ -54,7 +55,7 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="relative z-20 calc-container card-glow-border rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6" style={{ overflow: 'visible' }}>
+          <MagicCard className="relative z-20 calc-container card-glow-border rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6 !overflow-visible" gradientColor="rgba(255, 107, 53, 0.06)" gradientOpacity={80}>
             {/* Border beam — light traveling along card edge */}
             <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden pointer-events-none z-0">
               <BorderBeam
@@ -182,7 +183,7 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
                 </>
               );
             })()}
-          </div>
+          </MagicCard>
         </motion.div>
 
         {/* CTA */}

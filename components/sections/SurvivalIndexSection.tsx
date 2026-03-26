@@ -11,6 +11,7 @@ import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
 import { BorderBeam } from '@/components/ui/border-beam';
+import { MagicCard } from '@/components/ui/magic-card';
 
 /** Safely get a localized string from an object with en/zh keys, falling back to en */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -733,8 +734,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass-card card-glow-border rounded-2xl p-3 md:p-5 relative overflow-hidden"
+          className="relative overflow-hidden"
         >
+          <MagicCard className="glass-card card-glow-border rounded-2xl p-3 md:p-5 relative overflow-hidden" gradientColor="rgba(139, 92, 246, 0.06)" gradientOpacity={80}>
           <BorderBeam
             size={150}
             duration={10}
@@ -1525,6 +1527,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
               </motion.button>
             </motion.div>
           )}
+          </MagicCard>
         </motion.div>
       </div>
     </section>
