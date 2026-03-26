@@ -543,7 +543,21 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
 
     const roundedRect = (x: number, y: number, w: number, h: number, r: number) => {
       ctx.beginPath();
-      ctx.roundRect(x, y, w, h, r);
+      if (ctx.roundRect) {
+        ctx.roundRect(x, y, w, h, r);
+      } else {
+        // Polyfill for browsers without roundRect
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.arcTo(x + w, y, x + w, y + r, r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+        ctx.lineTo(x + r, y + h);
+        ctx.arcTo(x, y + h, x, y + h - r, r);
+        ctx.lineTo(x, y + r);
+        ctx.arcTo(x, y, x + r, y, r);
+        ctx.closePath();
+      }
     };
 
     // ── Color palette (matching OG card) ──
@@ -623,6 +637,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     // ═══════════════════════════════════════════════════════════════
     // DRAW — matching OG card layout exactly (1200×630)
     // ═══════════════════════════════════════════════════════════════
+    try {
 
     // 1. Background
     ctx.fillStyle = '#06080e';
@@ -674,9 +689,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     const headerY = PY + 21;
-    ctx.letterSpacing = '10px';
+    // Note: ctx.letterSpacing not widely supported, skip it
     ctx.fillText('AIR', PX, headerY);
-    ctx.letterSpacing = '0px';
+    // letterSpacing reset
     const airWidth = ctx.measureText('AIR').width;
     // Divider
     ctx.fillStyle = 'rgba(255,255,255,0.25)';
@@ -684,15 +699,15 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     // Subtitle
     ctx.fillStyle = 'rgba(204,208,228,0.4)';
     ctx.font = '400 18px sans-serif';
-    ctx.letterSpacing = '3px';
+    // letterSpacing 3px
     ctx.fillText(zh ? 'AI\u66FF\u4EE3\u98CE\u9669\u6307\u6570' : 'AI REPLACEMENT INDEX', PX + airWidth + 34, headerY);
-    ctx.letterSpacing = '0px';
+    // letterSpacing reset
     // Risk badge pill (right side)
     const badgeText = zh ? `${lb}\u98CE\u9669` : `${lb} RISK`;
     ctx.font = '800 17px sans-serif';
-    ctx.letterSpacing = '2.5px';
+    // letterSpacing 2.5px
     const badgeW = ctx.measureText(badgeText).width + 52 + 10; // padding + dot
-    ctx.letterSpacing = '0px';
+    // letterSpacing reset
     const badgeX = W - PX - badgeW;
     const badgeY = headerY - 18;
     const badgeH = 36;
@@ -710,9 +725,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     // Badge text
     ctx.fillStyle = c.m;
     ctx.font = '800 17px sans-serif';
-    ctx.letterSpacing = '2.5px';
+    // letterSpacing 2.5px
     ctx.fillText(badgeText, badgeX + 34, headerY + 1);
-    ctx.letterSpacing = '0px';
+    // letterSpacing reset
 
     // ── ROW 2: Main content (2 columns) ──
     const row2Top = PY + 50;
@@ -727,9 +742,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     ctx.fillStyle = 'rgba(204,208,228,0.45)';
     ctx.font = '600 16px sans-serif';
     ctx.textAlign = 'left';
-    ctx.letterSpacing = '3.5px';
+    // letterSpacing 3.5px
     ctx.fillText(zh ? '\u66FF\u4EE3\u6982\u7387' : 'REPLACEMENT PROBABILITY', leftX, leftCenterY - 100);
-    ctx.letterSpacing = '0px';
+    // letterSpacing reset
 
     // Glow behind number
     const numGlow = ctx.createRadialGradient(leftX + 120, leftCenterY - 20, 0, leftX + 120, leftCenterY - 20, 120);
@@ -755,9 +770,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     if (profileName) {
       ctx.fillStyle = 'rgba(204,208,228,0.4)';
       ctx.font = '600 13px sans-serif';
-      ctx.letterSpacing = '2px';
+      // letterSpacing 2px
       ctx.fillText(zh ? '\u7C7B\u578B' : 'TYPE', leftX, leftCenterY + 68);
-      ctx.letterSpacing = '0px';
+      // letterSpacing reset
       ctx.fillStyle = c.m;
       ctx.font = '800 20px sans-serif';
       ctx.fillText(profileName, leftX + (zh ? 40 : 50), leftCenterY + 68);
@@ -789,9 +804,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
       ctx.font = '800 13px sans-serif';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.letterSpacing = '0.5px';
+      // letterSpacing 0.5px
       ctx.fillText(d.name, dimX + 58, dy + 24);
-      ctx.letterSpacing = '0px';
+      // letterSpacing reset
     });
 
     // === RIGHT COLUMN: data panels ===
@@ -813,9 +828,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     ctx.textBaseline = 'top';
     ctx.fillStyle = 'rgba(204,208,228,0.45)';
     ctx.font = '700 14px sans-serif';
-    ctx.letterSpacing = '3px';
+    // letterSpacing 3px
     ctx.fillText(zh ? '\u9884\u6D4B\u66FF\u4EE3\u5E74\u4EFD' : 'PREDICTED REPLACEMENT YEAR', rightX + 24, p1Y + 16);
-    ctx.letterSpacing = '0px';
+    // letterSpacing reset
     ctx.fillStyle = '#ffffff';
     ctx.font = '900 52px sans-serif';
     ctx.textBaseline = 'top';
@@ -830,9 +845,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(204,208,228,0.35)';
     ctx.font = '600 11px sans-serif';
-    ctx.letterSpacing = '1.5px';
+    // letterSpacing 1.5px
     ctx.fillText(zh ? 'AI\u5F53\u524D\u80FD\u529B' : 'AI CAPABILITY', rightX + rightW - 24, p1Y + 18);
-    ctx.letterSpacing = '0px';
+    // letterSpacing reset
     ctx.fillStyle = '#67e8f9';
     ctx.font = '800 28px sans-serif';
     ctx.fillText(`${result.currentAICapability}%`, rightX + rightW - 24, p1Y + 34);
@@ -923,9 +938,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     ctx.font = '700 11px sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
-    ctx.letterSpacing = '1px';
+    // letterSpacing 1px
     ctx.fillText(zh ? '\u4F60\u5728\u8FD9\u91CC' : 'YOU ARE HERE', pointerX + 8, gaugeY - 4);
-    ctx.letterSpacing = '0px';
+    // letterSpacing reset
 
     // Bar segments
     for (let i = 0; i < 5; i++) {
@@ -953,9 +968,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
       ctx.globalAlpha = active ? 1 : 0.4;
       ctx.fillStyle = barColors[i];
       ctx.font = '800 15px sans-serif';
-      ctx.letterSpacing = '2px';
+      // letterSpacing 2px
       ctx.fillText(stages[i], sx, gaugeY + gaugeBarH + 5);
-      ctx.letterSpacing = '0px';
+      // letterSpacing reset
     }
     ctx.globalAlpha = 1;
 
@@ -1009,9 +1024,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     ctx.font = '400 13px sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    ctx.letterSpacing = '1.5px';
+    // letterSpacing 1.5px
     ctx.fillText('air.democra.ai', qrX - 10, ctaY);
-    ctx.letterSpacing = '0px';
+    // letterSpacing reset
 
     // Bottom accent line
     const bottomGrad = ctx.createLinearGradient(0, 0, W, 0);
@@ -1020,6 +1035,11 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     bottomGrad.addColorStop(0.9, 'rgba(0,0,0,0)');
     ctx.fillStyle = bottomGrad;
     ctx.fillRect(0, H - 1, W, 1);
+
+    } catch (drawErr) {
+      console.error('Canvas draw error:', drawErr);
+      // Even if drawing partially failed, still try to export what we have
+    }
 
     return new Promise((resolve) => {
       canvas.toBlob((blob) => resolve(blob), 'image/png');
@@ -1070,14 +1090,18 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
 
   const handleDownloadImage = async () => {
     trackShareClick('download_image', lang);
-    const blob = await buildShareImageBlob();
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'air-risk-poster.png';
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const blob = await buildShareImageBlob();
+      if (!blob) { console.error('Poster: buildShareImageBlob returned null'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'air-risk-poster.png';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Poster generation failed:', err);
+    }
   };
 
   // ─── Render ──────────────────────────────────────────────────────────────
