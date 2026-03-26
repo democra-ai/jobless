@@ -1106,17 +1106,20 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
         useCORS: true,
         logging: false,
         onclone: (clonedDoc) => {
-          // Fix: html2canvas can't parse CSS lab() color function (Tailwind v4)
-          // Replace all lab() occurrences with transparent in the cloned DOM
-          clonedDoc.querySelectorAll('*').forEach((el) => {
-            const style = (el as HTMLElement).style;
-            if (style.cssText.includes('lab(')) {
-              style.cssText = style.cssText.replace(/lab\([^)]*\)/g, 'transparent');
-            }
-          });
-          // Also fix computed border-color on elements with border-transparent
-          clonedDoc.querySelectorAll('[class*="border-transparent"]').forEach((el) => {
-            (el as HTMLElement).style.borderColor = 'transparent';
+          // Fix: html2canvas crashes on CSS lab() color function (Tailwind v4).
+          // lab() lives in compiled stylesheets, not inline styles.
+          // Must rewrite the stylesheet rules before html2canvas parses them.
+          Array.from(clonedDoc.styleSheets).forEach((sheet) => {
+            try {
+              const rules = Array.from(sheet.cssRules);
+              for (let i = rules.length - 1; i >= 0; i--) {
+                if (rules[i].cssText.includes('lab(')) {
+                  const fixed = rules[i].cssText.replace(/lab\([^)]*\)/g, 'transparent');
+                  sheet.deleteRule(i);
+                  sheet.insertRule(fixed, i);
+                }
+              }
+            } catch { /* cross-origin — skip */ }
           });
         },
       });
