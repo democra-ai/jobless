@@ -139,12 +139,18 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
                     })}
                   </div>
 
-                  {/* Desktop: 3-column grid */}
-                  <div className="hidden sm:grid grid-cols-3 gap-2 md:gap-3 mt-4 overflow-visible">
+                  {/* Desktop: 3-column grid — single controlled tooltip */}
+                  <div className="hidden sm:grid grid-cols-3 gap-2 md:gap-3 mt-4 relative">
                     {stats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (
-                        <div key={i} className="group relative z-20 hover:z-[220] rounded-lg p-3 md:p-4 bg-background card-glow-border overflow-visible" style={{ minHeight: '56px' }}>
+                        <div
+                          key={i}
+                          className="relative rounded-lg p-3 md:p-4 bg-background card-glow-border cursor-pointer"
+                          style={{ minHeight: '56px' }}
+                          onMouseEnter={() => setActiveStat(i)}
+                          onMouseLeave={() => setActiveStat(null)}
+                        >
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0 flex-1">
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
@@ -164,18 +170,34 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
                               {stat.value}
                             </span>
                           </div>
-                          {/* Desktop: hover tooltip */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-[240] w-max max-w-[260px]">
-                            <div className="px-3 py-3 rounded-xl"
-                              style={{ background: 'var(--surface-elevated)', border: '1px solid var(--overlay-15)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}
-                            >
-                              <div className="text-[11px] text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
-                              <a href={stat.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-medium transition-colors" style={{ color: stat.color }}>
-                                <ExternalLink className="w-3 h-3" />
-                                {stat.source}
-                              </a>
-                            </div>
-                          </div>
+
+                          {/* Tooltip — only ONE visible at a time, controlled by activeStat */}
+                          <AnimatePresence>
+                            {activeStat === i && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 4 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 z-[240] w-max max-w-[260px]"
+                              >
+                                <div
+                                  className="px-3 py-3 rounded-xl"
+                                  style={{
+                                    background: 'var(--surface-elevated)',
+                                    border: '1px solid var(--overlay-15)',
+                                    boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+                                  }}
+                                >
+                                  <div className="text-[11px] text-foreground-muted leading-relaxed mb-2">{stat.desc}</div>
+                                  <a href={stat.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-medium transition-colors" style={{ color: stat.color }}>
+                                    <ExternalLink className="w-3 h-3" />
+                                    {stat.source}
+                                  </a>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       );
                     })}
