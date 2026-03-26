@@ -233,9 +233,9 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                     className="hidden sm:block absolute top-full right-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 mt-3 z-[120] w-[calc(100vw-2rem)] max-w-[400px] rounded-xl border border-surface-elevated/50 p-4 sm:p-5 text-left"
                     style={{
-                      background: 'var(--surface-card)',
-                      boxShadow: 'var(--card-shadow)',
-                      backdropFilter: 'blur(16px)',
+                      background: '#262320',
+                      border: '1px solid rgba(255,255,255,0.18)',
+                      boxShadow: '0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.06)',
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -293,9 +293,9 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                       onClick={(e) => e.stopPropagation()}
                       className="absolute inset-x-0 bottom-0 rounded-t-3xl border px-4 pt-3 pb-4"
                       style={{
-                        background: 'var(--surface-card)',
-                        borderColor: 'var(--surface-elevated)',
-                        boxShadow: '0 -20px 40px var(--shadow-soft)',
+                        background: '#262320',
+                        borderColor: 'rgba(255,255,255,0.18)',
+                        boxShadow: '0 -20px 40px rgba(0,0,0,0.8)',
                         paddingBottom: 'calc(1rem + var(--safe-bottom))',
                       }}
                     >
@@ -686,7 +686,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
                 {/* Relationship */}
                 <div
                   className="text-xs leading-relaxed p-2.5 rounded-lg mb-3"
-                  style={{ background: 'var(--surface-card)', borderLeft: `2px solid ${stage.color}` }}
+                  style={{ background: 'rgba(255,255,255,0.06)', borderLeft: `2px solid ${stage.color}` }}
                 >
                   <span className="font-semibold text-foreground">{lang === 'zh' ? '人机关系' : 'Human / AI'}: </span>
                   <span className="text-foreground-muted">{L(stage.tooltip, lang).relationship}</span>
@@ -737,9 +737,9 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
               className="rounded-xl text-left hidden sm:block"
               style={{
                 ...posStyle,
-                background: 'var(--surface-card)',
-                border: '1px solid var(--tooltip-border)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                background: '#262320',
+                border: '1px solid rgba(255,255,255,0.18)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.06)',
               }}
               onClick={(e) => e.stopPropagation()}
             >
