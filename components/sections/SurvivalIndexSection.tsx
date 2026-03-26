@@ -1104,9 +1104,21 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
         backgroundColor: '#0a0908',
         scale: 2,
         useCORS: true,
-        logging: true,
-        windowWidth: captureEl.scrollWidth,
-        windowHeight: captureEl.scrollHeight,
+        logging: false,
+        onclone: (clonedDoc) => {
+          // Fix: html2canvas can't parse CSS lab() color function (Tailwind v4)
+          // Replace all lab() occurrences with transparent in the cloned DOM
+          clonedDoc.querySelectorAll('*').forEach((el) => {
+            const style = (el as HTMLElement).style;
+            if (style.cssText.includes('lab(')) {
+              style.cssText = style.cssText.replace(/lab\([^)]*\)/g, 'transparent');
+            }
+          });
+          // Also fix computed border-color on elements with border-transparent
+          clonedDoc.querySelectorAll('[class*="border-transparent"]').forEach((el) => {
+            (el as HTMLElement).style.borderColor = 'transparent';
+          });
+        },
       });
       console.log('[SaveResult] Snapshot captured:', snapshot.width, snapshot.height);
 
