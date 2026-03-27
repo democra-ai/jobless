@@ -52,10 +52,10 @@ export function t2(obj: { en: string; zh: string }, lang: Language): string {
 export const translations = {
   en: {
     // 首屏
-    alertBadge: '2026: AI has started satisfying the bus',
-    heroTitle: 'How long until AI takes your job?',
+    alertBadge: '2026: AI has started picking people off the bus',
+    heroTitle: 'Are you still on board?',
     heroSubtitlePre: '',
-    heroSubtitlePost: '16 questions. 3 minutes. Find out before it\'s too late.',
+    heroSubtitlePost: 'The AI Kill Line is approaching.',
     heroSubtitleEnd: '',
     mitStat: 'AI can already replace 24.7%',
     mckinseyStat: '57% of work hours',
@@ -175,7 +175,7 @@ export const translations = {
     source: 'Source: Layoff tracking reports, 2024-2025',
 
     // 过渡区
-    transitionCta: 'Find out now',
+    transitionCta: 'Calculate my risk',
 
     // AIR Quiz V3
     survivalBadge: 'AIR RISK TEST',
@@ -443,13 +443,13 @@ export const translations = {
     shareDownload: 'Save Image',
     shareSaveResult: 'Save Result',
     shareTelegramHint: 'Poster includes a QR code for your result page. Telegram sends the poster first, then falls back to link if needed.',
-    shareText: 'My AI replacement risk: {prob}% by {year}. I dare you to beat my score. Take the test:',
+    shareText: 'I just took the AI Replacement Risk test. {prob}% chance AI replaces my job by {year}. What about you?',
   },
   zh: {
-    alertBadge: '2026：AI 已经开始替代岗位了',
-    heroTitle: '你的工作还能活多久？',
+    alertBadge: '2026：AI 已经开始让人下车了',
+    heroTitle: '你还在车上吗？',
     heroSubtitlePre: '',
-    heroSubtitlePost: '16 道题，3 分钟，在被替代之前看清自己的处境。',
+    heroSubtitlePost: 'AI 斩杀线正在逼近。',
     heroSubtitleEnd: '',
     mitStat: 'AI 已可替代 24.7%',
     mckinseyStat: '57% 工作时长',
@@ -560,7 +560,7 @@ export const translations = {
     oneInTwenty: '2025 年约 1/20 的裁员在官方理由中点名 AI。',
     source: '来源：裁员追踪报告，2024-2025',
 
-    transitionCta: '立即测试',
+    transitionCta: '算算我的风险',
 
     // AIR 问卷 V3
     survivalBadge: 'AIR 职业风险测试',
@@ -821,14 +821,14 @@ export const translations = {
     shareDownload: '保存图片',
     shareSaveResult: '保存结果',
     shareTelegramHint: '海报右下角含结果二维码。Telegram 会优先发送海报，不可用时自动回退为链接分享。',
-    shareText: '我的 AI 替代风险：{prob}%，预计 {year} 年被取代。你敢测吗？',
+    shareText: '刚测了 AI 替代风险，{prob}% 的概率在 {year} 年前被 AI 取代。你呢？',
   },
   ja: {
     // ヒーローセクション
-    alertBadge: '2026年：AIが仕事を奪い始めた',
-    heroTitle: 'あなたの仕事はあと何年？',
+    alertBadge: '2026年：AIが人を降ろし始めた',
+    heroTitle: 'あなたはまだ乗っていますか？',
     heroSubtitlePre: '',
-    heroSubtitlePost: '16問・3分で、AIに代替される前に現実を知る。',
+    heroSubtitlePost: 'AIキルラインが迫っています。',
     heroSubtitleEnd: '',
     mitStat: 'AIは既に24.7%を代替可能',
     mckinseyStat: '労働時間の57%',
@@ -939,7 +939,7 @@ export const translations = {
     oneInTwenty: '2025年、約20件に1件のリストラがAIを公式理由に挙げています。',
     source: '出典：リストラ追跡レポート、2024-2025',
 
-    transitionCta: '今すぐ診断',
+    transitionCta: 'リスクを計算する',
 
     survivalBadge: 'AIRリスクテスト',
     survivalTitle: 'AIR：AI代替リスク',
@@ -1198,14 +1198,14 @@ export const translations = {
     shareDownload: '画像を保存',
     shareSaveResult: '結果を保存',
     shareTelegramHint: 'ポスターには結果ページのQRコードが含まれます。Telegramはまずポスターを送信し、不可能な場合はリンクにフォールバックします。',
-    shareText: '私のAI代替リスク：{prob}%、{year}年まで。あなたのスコアに勝てる？テストはこちら：',
+    shareText: 'AI代替リスクテストを受けました。{prob}%の確率で{year}年までにAIに代替されます。あなたは？',
   },
   ko: {
     // 히어로 섹션
-    alertBadge: '2026년: AI가 일자리를 대체하기 시작했다',
-    heroTitle: '당신의 직업은 얼마나 버틸 수 있나요?',
+    alertBadge: '2026년: AI가 사람들을 내리기 시작했다',
+    heroTitle: '당신은 아직 타고 있나요?',
     heroSubtitlePre: '',
-    heroSubtitlePost: '16문항, 3분. 대체되기 전에 현실을 확인하세요.',
+    heroSubtitlePost: 'AI 킬 라인이 다가오고 있습니다.',
     heroSubtitleEnd: '',
     mitStat: 'AI는 이미 24.7%를 대체 가능',
     mckinseyStat: '근무 시간의 57%',
@@ -1316,7 +1316,7 @@ export const translations = {
     oneInTwenty: '2025년, 약 20건 중 1건의 구조조정이 공식적으로 AI를 이유로 언급합니다.',
     source: '출처: 구조조정 추적 보고서, 2024-2025',
 
-    transitionCta: '지금 테스트',
+    transitionCta: '내 위험도 계산하기',
 
     survivalBadge: 'AIR 위험 테스트',
     survivalTitle: 'AIR: AI 대체 위험',
@@ -1575,14 +1575,14 @@ export const translations = {
     shareDownload: '이미지 저장',
     shareSaveResult: '결과 저장',
     shareTelegramHint: '포스터에는 결과 페이지의 QR 코드가 포함됩니다. Telegram은 먼저 포스터를 보내고, 불가능할 경우 링크로 폴백합니다.',
-    shareText: '내 AI 대체 위험: {prob}%, {year}년까지. 내 점수를 이길 수 있어? 테스트 해봐:',
+    shareText: 'AI 대체 위험 테스트를 받았습니다. {prob}%의 확률로 {year}년까지 AI에 대체됩니다. 당신은?',
   },
   de: {
     // Hero-Sektion
-    alertBadge: '2026: KI hat begonnen, Arbeitsplätze zu ersetzen',
-    heroTitle: 'Wie lange hält Ihr Job noch?',
+    alertBadge: '2026: KI hat begonnen, Menschen abzusetzen',
+    heroTitle: 'Sind Sie noch an Bord?',
     heroSubtitlePre: '',
-    heroSubtitlePost: '16 Fragen. 3 Minuten. Erfahren Sie es, bevor es zu spät ist.',
+    heroSubtitlePost: 'Die KI-Todeslinie rückt näher.',
     heroSubtitleEnd: '',
     mitStat: 'KI kann bereits 24,7% ersetzen',
     mckinseyStat: '57% der Arbeitszeit',
@@ -1693,7 +1693,7 @@ export const translations = {
     oneInTwenty: '2025 nennt etwa jede 20. Entlassung offiziell KI als Grund.',
     source: 'Quelle: Entlassungs-Tracking-Berichte, 2024-2025',
 
-    transitionCta: 'Jetzt testen',
+    transitionCta: 'Mein Risiko berechnen',
 
     survivalBadge: 'AIR-RISIKOTEST',
     survivalTitle: 'AIR: KI-Ersetzungsrisiko',
@@ -1952,6 +1952,6 @@ export const translations = {
     shareDownload: 'Bild speichern',
     shareSaveResult: 'Ergebnis speichern',
     shareTelegramHint: 'Das Poster enthält einen QR-Code für Ihre Ergebnisseite. Telegram sendet zuerst das Poster, dann als Fallback den Link.',
-    shareText: 'Mein KI-Ersetzungsrisiko: {prob}% bis {year}. Kannst du mich schlagen? Mach den Test:',
+    shareText: 'Ich habe den KI-Ersetzungsrisikotest gemacht. {prob}% Wahrscheinlichkeit, dass KI meinen Job bis {year} ersetzt. Und Sie?',
   },
 } satisfies Record<Language, Record<string, string>>;
