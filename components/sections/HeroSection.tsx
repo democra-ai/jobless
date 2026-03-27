@@ -56,8 +56,8 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
           transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
           <MagicCard className="relative z-20 calc-container card-glow-border rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6 !overflow-visible" gradientColor="rgba(255, 107, 53, 0.08)" gradientOpacity={0.8}>
-            {/* Border beam — light traveling along card edge */}
-            <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden pointer-events-none z-0">
+            {/* Border beam — on same border as MagicCard glow */}
+            <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden pointer-events-none z-[45]">
               <BorderBeam
                 size={150}
                 duration={8}

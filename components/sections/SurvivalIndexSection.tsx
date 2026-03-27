@@ -1582,16 +1582,19 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative overflow-hidden"
+          className="relative"
         >
           <MagicCard className="card-glow-border rounded-2xl p-3 md:p-5 relative overflow-hidden" gradientColor="rgba(139, 92, 246, 0.08)" gradientOpacity={0.8}>
-          <BorderBeam
-            size={150}
-            duration={10}
-            colorFrom={theme === 'dark' ? '#ffffff' : '#ff6b35'}
-            colorTo={theme === 'dark' ? '#c4b5fd' : '#ff1744'}
-            borderWidth={1.5}
-          />
+          {/* BorderBeam inside MagicCard — shares the same rounded border */}
+          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none z-[45]">
+            <BorderBeam
+              size={150}
+              duration={10}
+              colorFrom={theme === 'dark' ? '#ffffff' : '#ff6b35'}
+              colorTo={theme === 'dark' ? '#c4b5fd' : '#ff1744'}
+              borderWidth={1.5}
+            />
+          </div>
           {/* ══════════════ INTRO PHASE ══════════════ */}
           {phase === 'intro' && (
             <div className="text-center space-y-6 py-8">
