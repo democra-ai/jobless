@@ -28,6 +28,9 @@
 
 # 临时/测试文件（不纳入版本库）
 .tmp*
+
+# gstack skills (framework files, not project code)
+gstack-skills/
 .temp*
 
 # debug
