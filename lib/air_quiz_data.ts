@@ -599,7 +599,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   EOFP: {
     code: 'EOFP',
     name: { en: 'Full Chain Open', zh: '全链路畅通型' },
-    archetype: { en: 'The Transparent Target', zh: '透明靶心' },
+    archetype: { en: 'The Glass Cannon', zh: '玻璃大炮' },
     tagline: { en: 'Your entire workflow is a tutorial for AI', zh: '你的整个工作流程就是 AI 的教程' },
     superpower: { en: 'Unmatched execution speed and systematic thinking', zh: '无与伦比的执行速度和系统化思维' },
     kryptonite: { en: 'Every skill you have can be documented, measured, and automated', zh: '你的每一项技能都能被记录、量化、自动化' },
@@ -640,7 +640,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   EORP: {
     code: 'EORP',
     name: { en: 'Compliance Gatekeeper', zh: '合规守门型' },
-    archetype: { en: 'The Rule Keeper', zh: '规则守卫' },
+    archetype: { en: 'The Final Stamp', zh: '终审印章' },
     tagline: { en: 'AI knows the rules — you enforce the consequences', zh: 'AI 懂规则，你执行后果' },
     superpower: { en: 'Accountability and regulatory authority that AI cannot legally hold', zh: 'AI 在法律上无法承担的问责权和监管权力' },
     kryptonite: { en: 'AI already knows every regulation better than you do', zh: 'AI 已经比你更了解每一条法规了' },
@@ -680,7 +680,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   TOFP: {
     code: 'TOFP',
     name: { en: 'Skill Executor', zh: '技能执行型' },
-    archetype: { en: 'The Muscle Memory', zh: '肌肉记忆者' },
+    archetype: { en: 'The Bare Hand', zh: '赤手行者' },
     tagline: { en: 'Your hands know things your brain can\'t explain', zh: '你的双手懂得大脑无法解释的东西' },
     superpower: { en: 'Physical dexterity and embodied knowledge gained through years of practice', zh: '多年实践积累的身体灵活性和具身知识' },
     kryptonite: { en: 'Robotics is catching up — and robots don\'t get tired', zh: '机器人在追赶，而且它们不会累' },
@@ -701,7 +701,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   EORH: {
     code: 'EORH',
     name: { en: 'Licensed Trust', zh: '执证信任型' },
-    archetype: { en: 'The Certified Shield', zh: '持证护盾' },
+    archetype: { en: 'The License Wall', zh: '执照之墙' },
     tagline: { en: 'AI has the knowledge, but not the license on the wall', zh: 'AI 有知识，但墙上没有你的执照' },
     superpower: { en: 'Regulatory barriers and institutional trust that protect your position', zh: '保护你地位的监管壁垒和机构信任' },
     kryptonite: { en: 'Regulations change — and AI lobbying is a thing', zh: '法规会变——AI 游说已经是现实了' },
