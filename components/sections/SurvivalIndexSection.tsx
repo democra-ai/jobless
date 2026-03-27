@@ -1585,8 +1585,8 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           className="relative"
         >
           <MagicCard className="card-glow-border rounded-2xl p-3 md:p-5 relative overflow-hidden" gradientColor="rgba(139, 92, 246, 0.08)" gradientOpacity={0.8}>
-          {/* BorderBeam inside MagicCard — shares the same rounded border */}
-          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none z-[45]">
+          {/* BorderBeam — negative margin to escape padding and reach the border edge */}
+          <div className="absolute -inset-3 md:-inset-5 rounded-2xl overflow-hidden pointer-events-none z-[45]">
             <BorderBeam
               size={150}
               duration={10}
