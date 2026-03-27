@@ -208,27 +208,31 @@ function HeroSection({ lang, t, theme = 'dark' }: { lang: Language; t: (typeof t
           </MagicCard>
         </motion.div>
 
-        {/* CTA */}
+        {/* CTA — primary action button */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.2 }}
           className="mt-10 flex justify-center"
         >
-          <button
+          <motion.button
             onClick={() => { trackCtaClick('scroll_to_calculator', 'hero'); document.getElementById('risk-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-            className="group flex items-center gap-1.5 cursor-pointer"
+            className="group relative flex items-center gap-2.5 px-8 py-3.5 rounded-full text-base font-semibold text-white cursor-pointer overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #ff6b35, #ff1744)',
+              boxShadow: '0 8px 32px rgba(255, 23, 68, 0.35), 0 0 0 1px rgba(255, 107, 53, 0.2)',
+            }}
+            whileHover={{ scale: 1.04, boxShadow: '0 12px 40px rgba(255, 23, 68, 0.5)' }}
+            whileTap={{ scale: 0.97 }}
           >
+            <span>{t.transitionCta}</span>
             <motion.div
-              animate={{ y: [0, 3, 0] }}
-              transition={{ duration: 1.2, repeat: 2, repeatType: 'loop', ease: 'easeInOut' }}
+              animate={{ x: [0, 4, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop', ease: 'easeInOut' }}
             >
-              <ChevronDown className="w-4 h-4 text-foreground-muted" />
+              <ChevronDown className="w-5 h-5 rotate-[-90deg]" />
             </motion.div>
-            <span className="text-sm font-medium text-foreground-muted">
-              {t.transitionCta}
-            </span>
-          </button>
+          </motion.button>
         </motion.div>
       </div>
     </section>
