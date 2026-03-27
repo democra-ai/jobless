@@ -514,11 +514,17 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
   };
 
-  const handleShareWeibo = () => {
-    trackShareClick('weibo', lang);
+  const handleShareLinkedIn = () => {
+    trackShareClick('linkedin', lang);
+    const url = encodeURIComponent(getShareUrl());
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+  };
+
+  const handleShareReddit = () => {
+    trackShareClick('reddit', lang);
     const text = encodeURIComponent(getShareText());
     const url = encodeURIComponent(getShareUrl());
-    window.open(`https://service.weibo.com/share/share.php?title=${text}&url=${url}`, '_blank');
+    window.open(`https://www.reddit.com/submit?url=${url}&title=${text}`, '_blank');
   };
 
   const buildShareImageBlob = async (): Promise<Blob | null> => {
@@ -1200,8 +1206,19 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
       ctx.fillStyle = '#ffffff'; ctx.font = '800 24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? Take the test →", PAD + 250, footerY + 28);
 
+      // QR code (bottom-right)
+      try {
+        const qrDataUrl = await QRCode.toDataURL(getShareUrl(), { errorCorrectionLevel: 'L', margin: 1, width: 120, color: { dark: '#0c1322', light: '#ffffff' } });
+        const qrImg = new Image(); qrImg.src = qrDataUrl;
+        await new Promise<void>((res, rej) => { qrImg.onload = () => res(); qrImg.onerror = () => rej(); });
+        const qrS = 48;
+        const qrBX = W - PAD - qrS - 4, qrBY = footerY + 4;
+        rr(qrBX - 4, qrBY - 4, qrS + 8, qrS + 8, 6); ctx.fillStyle = '#fff'; ctx.fill();
+        ctx.drawImage(qrImg, qrBX, qrBY, qrS, qrS);
+      } catch { /* QR optional */ }
+
       ctx.fillStyle = 'rgba(204,208,228,0.2)'; ctx.font = '400 18px sans-serif'; ctx.textAlign = 'right';
-      ctx.fillText('air.democra.ai', W - PAD, footerY + 28);
+      ctx.fillText('air.democra.ai', W - PAD - 70, footerY + 28);
 
       // Bottom accent
       const btmG = ctx.createLinearGradient(0, 0, W, 0);
@@ -2246,7 +2263,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                 </motion.div>
               </div>
 
-              {/* Social Sharing */}
+              {/* Social Sharing — always expanded */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -2254,7 +2271,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                 className="result-card rounded-xl p-6"
                 style={{ borderColor: riskColor + '30', borderWidth: 1 }}
               >
-                <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: riskColor + '20' }}>
                     <Share2 className="w-4 h-4" style={{ color: riskColor }} />
                   </div>
@@ -2262,52 +2279,30 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                     <h5 className="font-semibold">{t.shareTitle}</h5>
                     <p className="text-xs text-foreground-muted">{t.shareSubtitle}</p>
                   </div>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setSharePanelOpen((prev) => { trackSharePanelToggle(!prev); return !prev; })}
-                    data-testid="share-trigger"
-                    className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-overlay-10 bg-surface-elevated/70 hover:bg-surface-elevated text-sm font-medium transition-all"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    {sharePanelOpen ? t.shareClose : t.shareOpen}
-                  </motion.button>
                 </div>
-                <AnimatePresence initial={false}>
-                  {sharePanelOpen && (
-                    <motion.div
-                      key="share-panel"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.2 }}
-                      data-testid="share-panel"
-                      className="space-y-3"
-                    >
-                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
-                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }} onClick={handleDownloadResult} data-testid="share-download-btn" className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/40 text-sm font-semibold text-brand-primary transition-all">
-                          <Download className="w-4 h-4" />{t.shareSaveResult ?? 'Save Result'}
-                        </motion.button>
-                        <motion.button whileTap={{ scale: 0.95 }} onClick={handleCopyLink} data-testid="share-copy-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 border border-overlay-10 text-sm font-medium transition-all">
-                          <Copy className="w-4 h-4" />{copied ? t.shareCopied : t.shareCopyLink}
-                        </motion.button>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareTwitter} data-testid="share-twitter-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 border border-[#1DA1F2]/20 text-sm font-medium text-[#1DA1F2] transition-all">
-                          <ExternalLink className="w-4 h-4" />{t.shareTwitter}
-                        </motion.button>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleCopyForWechat} data-testid="share-wechat-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#07C160]/10 hover:bg-[#07C160]/20 border border-[#07C160]/20 text-sm font-medium text-[#07C160] transition-all">
-                          <Copy className="w-4 h-4" />{wechatCopied ? t.shareWeChatCopied : t.shareWeChat}
-                        </motion.button>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareTelegram} data-testid="share-telegram-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#229ED9]/10 hover:bg-[#229ED9]/20 border border-[#229ED9]/20 text-sm font-medium text-[#229ED9] transition-all">
-                          <Send className="w-4 h-4" />
-                          {telegramShareState === 'sending' ? t.shareSending : telegramShareState === 'sent' ? t.shareSent : telegramShareState === 'fallback' ? t.shareTelegramFallback : t.shareTelegram}
-                        </motion.button>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareWeibo} data-testid="share-weibo-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#E6162D]/10 hover:bg-[#E6162D]/20 border border-[#E6162D]/20 text-sm font-medium text-[#E6162D] transition-all">
-                          <ExternalLink className="w-4 h-4" />{t.shareWeibo}
-                        </motion.button>
-                      </div>
-                      <p className="text-xs text-foreground-muted">{t.shareTelegramHint}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <div data-testid="share-panel" className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }} onClick={handleDownloadResult} data-testid="share-download-btn" className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/40 text-sm font-semibold text-brand-primary transition-all">
+                      <Download className="w-4 h-4" />{t.shareSaveResult ?? 'Save Result'}
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareTwitter} data-testid="share-twitter-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#000]/10 hover:bg-[#000]/20 border border-[#555]/30 text-sm font-medium text-foreground transition-all">
+                      <ExternalLink className="w-4 h-4" />X
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareLinkedIn} className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#0A66C2]/10 hover:bg-[#0A66C2]/20 border border-[#0A66C2]/20 text-sm font-medium text-[#0A66C2] transition-all">
+                      <ExternalLink className="w-4 h-4" />LinkedIn
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareReddit} className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#FF4500]/10 hover:bg-[#FF4500]/20 border border-[#FF4500]/20 text-sm font-medium text-[#FF4500] transition-all">
+                      <ExternalLink className="w-4 h-4" />Reddit
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleShareTelegram} data-testid="share-telegram-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#229ED9]/10 hover:bg-[#229ED9]/20 border border-[#229ED9]/20 text-sm font-medium text-[#229ED9] transition-all">
+                      <Send className="w-4 h-4" />
+                      {telegramShareState === 'sending' ? t.shareSending : telegramShareState === 'sent' ? t.shareSent : telegramShareState === 'fallback' ? t.shareTelegramFallback : t.shareTelegram}
+                    </motion.button>
+                    <motion.button whileTap={{ scale: 0.95 }} onClick={handleCopyLink} data-testid="share-copy-btn" className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 border border-overlay-10 text-sm font-medium transition-all">
+                      <Copy className="w-4 h-4" />{copied ? t.shareCopied : t.shareCopyLink}
+                    </motion.button>
+                  </div>
+                </div>
               </motion.div>
 
               {/* Recalculate */}
