@@ -1879,106 +1879,175 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           {/* ══════════════ RESULT PHASE ══════════════ */}
           {phase === 'result' && result && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-5"
             >
               <div data-testid="share-result-capture" className="space-y-5">
 
-                {/* ── Unified Result Card ── */}
+                {/* ── HERO IDENTITY CARD — the screenshot moment ── */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   className="relative overflow-hidden rounded-2xl"
-                  style={{ border: `1px solid ${riskColor}20` }}
+                  style={{ border: `1px solid ${riskColor}25` }}
                 >
-                  {/* Background glow */}
-                  <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full blur-[120px] opacity-15" style={{ backgroundColor: riskColor }} />
+                  {/* Multi-layer background */}
+                  <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${riskColor}12 0%, transparent 70%)` }} />
+                  <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 60% 80% at 80% 100%, ${riskColor}08 0%, transparent 60%)` }} />
+                  {/* Top accent line */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent 10%, ${riskColor} 50%, transparent 90%)` }} />
 
-                  <div className="relative z-10 p-6 sm:p-8">
-                    {/* ── Archetype Reveal (the shareable identity) ── */}
-                    <div className="text-center mb-6">
-                      {/* Icon + Archetype name — the hero moment */}
+                  <div className="relative z-10 px-6 sm:px-10 pt-10 sm:pt-14 pb-8 sm:pb-10">
+
+                    {/* ── ARCHETYPE REVEAL — the hero ── */}
+                    <div className="text-center mb-8 sm:mb-10">
+                      {/* Icon with glow */}
                       <motion.div
-                        initial={{ scale: 0, rotate: -10 }}
+                        initial={{ scale: 0, rotate: -15 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                        className="text-4xl sm:text-5xl mb-3"
+                        transition={{ type: 'spring', stiffness: 180, damping: 14, delay: 0.1 }}
+                        className="relative inline-block mb-4"
                       >
-                        {result.profile.icon}
+                        <div className="absolute inset-0 blur-2xl opacity-40" style={{ backgroundColor: riskColor }} />
+                        <span className="relative text-6xl sm:text-7xl block">{result.profile.icon}</span>
                       </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 15 }}
+
+                      {/* Archetype name — THE BIGGEST THING ON THE PAGE */}
+                      <motion.h2
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="text-2xl sm:text-3xl font-extrabold"
+                        transition={{ delay: 0.25, duration: 0.5 }}
+                        className="text-4xl sm:text-5xl md:text-[3.5rem] font-black leading-[1.05] tracking-tight"
                         style={{ color: result.profile.color || riskColor }}
                       >
                         {L(result.profile.archetype, lang)}
-                      </motion.div>
+                      </motion.h2>
 
-                      {/* Profile code — smaller, secondary */}
+                      {/* Profile code — MBTI-style large letters */}
                       <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="text-sm font-bold tracking-[0.25em] mt-1.5"
-                        style={{ color: (result.profile.color || riskColor) + 'aa', fontFamily: 'var(--font-body)' }}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="flex items-center justify-center gap-2 mt-3"
                       >
-                        {result.profileCode}
+                        {result.profileCode.split('').map((letter, li) => (
+                          <span
+                            key={li}
+                            className="inline-flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-lg text-base sm:text-lg font-black"
+                            style={{
+                              fontFamily: 'var(--font-body)',
+                              backgroundColor: DIMENSION_COLORS[li] + '15',
+                              color: DIMENSION_COLORS[li],
+                              border: `1px solid ${DIMENSION_COLORS[li]}30`,
+                            }}
+                          >
+                            {letter}
+                          </span>
+                        ))}
                       </motion.div>
 
                       {/* Tagline — the "that's so me" moment */}
                       <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6 }}
-                        className="text-sm sm:text-base text-foreground-muted mt-2 max-w-md mx-auto italic"
+                        transition={{ delay: 0.55 }}
+                        className="text-base sm:text-lg text-foreground-muted mt-4 max-w-lg mx-auto italic leading-relaxed"
                       >
                         &ldquo;{L(result.profile.tagline, lang)}&rdquo;
                       </motion.p>
 
                       {/* Risk tier badge */}
                       <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.7 }}
-                        className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
-                        style={{ color: riskColor, backgroundColor: riskColor + '15', border: `1px solid ${riskColor}30` }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.65, type: 'spring' }}
+                        className="inline-flex items-center gap-2 mt-5 px-5 py-2 rounded-full text-sm font-bold uppercase tracking-[0.2em]"
+                        style={{ color: riskColor, backgroundColor: riskColor + '12', border: `1.5px solid ${riskColor}30` }}
                       >
-                        {L(RISK_TIER_INFO[result.profile.riskTier].label, lang)}
+                        <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: riskColor }} />
+                        {L(RISK_TIER_INFO[result.profile.riskTier].label, lang)} {lang === 'zh' ? '风险' : 'RISK'}
                       </motion.div>
                     </div>
 
-                    {/* ── Superpower & Kryptonite ── */}
+                    {/* ── KEY METRICS — large, dramatic ── */}
+                    {(() => {
+                      const probColor = riskColorFromScore(result.replacementProbability);
+                      const isInfinity = !isFinite(result.predictedReplacementYear);
+                      const yearsAway = isInfinity ? 99 : result.predictedReplacementYear - new Date().getFullYear();
+                      const yearColor = isInfinity ? '#34d399' : riskColorFromScore(Math.max(0, Math.min(100, 100 - yearsAway * 4)));
+                      return (
+                        <motion.div
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.7 }}
+                          className="grid grid-cols-2 gap-3 sm:gap-4 mb-8"
+                        >
+                          <div className="text-center rounded-xl py-5 px-4" style={{ backgroundColor: probColor + '08', border: `1px solid ${probColor}18` }}>
+                            <div className="text-4xl sm:text-5xl font-black tabular-nums" style={{ color: probColor }}>
+                              <AnimatedNumber value={result.replacementProbability} suffix="%" />
+                            </div>
+                            <div className="text-[11px] text-foreground-muted uppercase tracking-[0.15em] mt-1.5 font-semibold">{t.metric1Title}</div>
+                          </div>
+                          <div className="text-center rounded-xl py-5 px-4" style={{ backgroundColor: yearColor + '08', border: `1px solid ${yearColor}18` }}>
+                            {isInfinity ? (
+                              <div className="text-4xl sm:text-5xl font-black" style={{ color: yearColor }}>∞</div>
+                            ) : (
+                              <div className="text-4xl sm:text-5xl font-black tabular-nums" style={{ color: yearColor }}>
+                                <AnimatedNumber value={result.predictedReplacementYear} />
+                              </div>
+                            )}
+                            <div className="text-[11px] text-foreground-muted uppercase tracking-[0.15em] mt-1.5 font-semibold">{t.metric2Title}</div>
+                            {!isInfinity && (
+                              <div className="text-[10px] text-foreground-muted/40 font-mono mt-0.5">
+                                {result.confidenceInterval.earliest}–{result.confidenceInterval.latest}
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      );
+                    })()}
+
+                    {/* ── SUPERPOWER & KRYPTONITE — dramatic cards ── */}
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.8 }}
-                      className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"
                     >
-                      <div className="rounded-xl p-4" style={{ backgroundColor: '#00c85310', border: '1px solid #00c85320' }}>
-                        <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1.5">
-                          {lang === 'zh' ? '你的超能力' : lang === 'ja' ? '超能力' : lang === 'ko' ? '초능력' : lang === 'de' ? 'Superkraft' : 'Superpower'}
+                      <div className="rounded-xl p-5 relative overflow-hidden" style={{ backgroundColor: '#34d39908', border: '1px solid #34d39918' }}>
+                        <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, #34d399, transparent)' }} />
+                        <div className="flex items-center gap-2 mb-2.5">
+                          <span className="text-lg">✨</span>
+                          <span className="text-xs font-bold uppercase tracking-[0.15em] text-emerald-400">
+                            {lang === 'zh' ? '你的超能力' : lang === 'ja' ? '超能力' : lang === 'ko' ? '초능력' : lang === 'de' ? 'Superkraft' : 'Superpower'}
+                          </span>
                         </div>
                         <p className="text-sm text-foreground-muted leading-relaxed">{L(result.profile.superpower, lang)}</p>
                       </div>
-                      <div className="rounded-xl p-4" style={{ backgroundColor: '#ff174410', border: '1px solid #ff174420' }}>
-                        <div className="text-xs font-bold uppercase tracking-wider text-rose-400 mb-1.5">
-                          {lang === 'zh' ? '你的弱点' : lang === 'ja' ? '弱点' : lang === 'ko' ? '약점' : lang === 'de' ? 'Schwäche' : 'Kryptonite'}
+                      <div className="rounded-xl p-5 relative overflow-hidden" style={{ backgroundColor: '#ff174408', border: '1px solid #ff174418' }}>
+                        <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, #ff1744, transparent)' }} />
+                        <div className="flex items-center gap-2 mb-2.5">
+                          <span className="text-lg">⚡</span>
+                          <span className="text-xs font-bold uppercase tracking-[0.15em] text-rose-400">
+                            {lang === 'zh' ? '你的弱点' : lang === 'ja' ? '弱点' : lang === 'ko' ? '약점' : lang === 'de' ? 'Schwäche' : 'Kryptonite'}
+                          </span>
                         </div>
                         <p className="text-sm text-foreground-muted leading-relaxed">{L(result.profile.kryptonite, lang)}</p>
                       </div>
                     </motion.div>
 
-                    {/* ── 4-Dimension Horizontal Axis Display (the hero) ── */}
-                    <div className="space-y-3 mb-6">
+                    {/* ── 4-DIMENSION AXIS — refined bars ── */}
+                    <div className="space-y-4 mb-8">
+                      <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-foreground-muted/50 flex items-center gap-3">
+                        <span className="h-px flex-1 bg-overlay-6" />
+                        {lang === 'zh' ? '四维度分析' : '4-DIMENSION PROFILE'}
+                        <span className="h-px flex-1 bg-overlay-6" />
+                      </h4>
                       {result.dimensions.map((dim, i) => {
                         const quizDim = QUIZ_DIMENSIONS[i];
                         const color = DIMENSION_COLORS[i];
-                        const Icon = DIMENSION_ICONS[i];
-                        // rawAverage 1-5: 1 = fully resistant, 5 = fully favorable
-                        // Map to 0-100% where 0% = resistant side, 100% = favorable side
                         const positionPct = ((dim.rawAverage - 1) / 4) * 100;
                         const leftPct = Math.round(100 - positionPct);
                         const rightPct = Math.round(positionPct);
@@ -1988,83 +2057,68 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                             key={dim.dimensionId}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.15 + i * 0.1 }}
-                            className="group relative"
+                            transition={{ delay: 0.2 + i * 0.1 }}
                           >
                             <div className="flex items-center gap-3">
                               {/* Letter badge */}
                               <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                transition={{ delay: 0.25 + i * 0.1, type: 'spring', stiffness: 300 }}
-                                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-lg sm:text-xl"
+                                transition={{ delay: 0.3 + i * 0.1, type: 'spring', stiffness: 300 }}
+                                className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center flex-shrink-0 font-black text-lg sm:text-xl"
                                 style={{
-                                  backgroundColor: color + '18',
+                                  backgroundColor: color + '15',
                                   color,
+                                  border: `1px solid ${color}25`,
                                   fontFamily: 'var(--font-body)',
                                 }}
                               >
                                 {dim.letter}
                               </motion.div>
 
-                              {/* Axis bar area */}
+                              {/* Axis */}
                               <div className="flex-1 min-w-0">
-                                {/* Axis labels */}
-                                <div className="flex items-center justify-between mb-1">
-                                  <span className={`text-[10px] sm:text-[11px] font-medium ${
-                                    !dim.isFavorable ? 'text-emerald-400' : 'text-foreground-muted/50'
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className={`text-[10px] sm:text-[11px] font-semibold ${
+                                    !dim.isFavorable ? 'text-emerald-400' : 'text-foreground-muted/40'
                                   }`}>
                                     {L(quizDim.resistantLabel, lang)}
                                   </span>
-                                  <span className="text-[10px] text-foreground-muted/40">{L(dim.name, lang)}</span>
-                                  <span className={`text-[10px] sm:text-[11px] font-medium ${
-                                    dim.isFavorable ? 'text-rose-400' : 'text-foreground-muted/50'
+                                  <span className="text-[10px] text-foreground-muted/30 font-medium">{L(dim.name, lang)}</span>
+                                  <span className={`text-[10px] sm:text-[11px] font-semibold ${
+                                    dim.isFavorable ? 'text-rose-400' : 'text-foreground-muted/40'
                                   }`}>
                                     {L(quizDim.favorableLabel, lang)}
                                   </span>
                                 </div>
 
-                                {/* Horizontal bar — center-out design */}
-                                <div className="relative h-2.5">
-                                  {/* Bar track */}
-                                  <div className="absolute inset-0 rounded-full bg-overlay-6 overflow-hidden">
-                                    {/* Filled portion: extends from center (50%) toward the score */}
-                                    <motion.div
-                                      className="absolute inset-y-0 rounded-full"
-                                      style={{
-                                        background: positionPct >= 50
-                                          ? `linear-gradient(to right, ${color}30, ${color}80)`
-                                          : `linear-gradient(to left, ${color}30, ${color}80)`,
-                                        left: positionPct >= 50 ? '50%' : undefined,
-                                        right: positionPct < 50 ? '50%' : undefined,
-                                      }}
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${Math.abs(positionPct - 50)}%` }}
-                                      transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
-                                    />
-                                  </div>
-                                  {/* Center line marker */}
-                                  <div
-                                    className="absolute top-0 bottom-0 w-px z-[5]"
-                                    style={{ left: '50%', backgroundColor: 'var(--foreground-dim)', opacity: 0.4 }}
-                                  />
-                                  {/* Position indicator dot */}
+                                {/* Bar */}
+                                <div className="relative h-3 rounded-full bg-overlay-4 overflow-hidden">
                                   <motion.div
-                                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 z-10"
+                                    className="absolute inset-y-0 rounded-full"
                                     style={{
-                                      backgroundColor: color,
-                                      borderColor: 'var(--shadow-soft)',
-                                      boxShadow: `0 0 8px ${color}60`,
+                                      background: positionPct >= 50
+                                        ? `linear-gradient(to right, ${color}20, ${color}90)`
+                                        : `linear-gradient(to left, ${color}20, ${color}90)`,
+                                      left: positionPct >= 50 ? '50%' : undefined,
+                                      right: positionPct < 50 ? '50%' : undefined,
                                     }}
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.abs(positionPct - 50)}%` }}
+                                    transition={{ duration: 0.8, delay: 0.4 + i * 0.1, ease: 'easeOut' }}
+                                  />
+                                  <div className="absolute top-0 bottom-0 w-px z-[5]" style={{ left: '50%', backgroundColor: 'var(--foreground-dim)', opacity: 0.3 }} />
+                                  <motion.div
+                                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 z-10"
+                                    style={{ backgroundColor: color, borderColor: '#0a0908', boxShadow: `0 0 12px ${color}80, 0 0 4px ${color}40` }}
                                     initial={{ left: '50%' }}
                                     animate={{ left: `${positionPct}%` }}
-                                    transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
+                                    transition={{ duration: 0.8, delay: 0.4 + i * 0.1, ease: 'easeOut' }}
                                   />
                                 </div>
 
-                                {/* Direction indicator */}
                                 <div className="flex items-center justify-center mt-1.5">
-                                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ color, backgroundColor: color + '15' }}>
+                                  <span className="text-[9px] sm:text-[10px] font-bold px-2.5 py-0.5 rounded-full" style={{ color, backgroundColor: color + '12' }}>
                                     {dim.isFavorable
                                       ? `→ ${L(quizDim.favorableLabel, lang)} (${rightPct}%)`
                                       : `← ${L(quizDim.resistantLabel, lang)} (${leftPct}%)`
@@ -2078,49 +2132,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                       })}
                     </div>
 
-                    {/* ── Metrics strip ── */}
-                    {(() => {
-                      const probColor = riskColorFromScore(result.replacementProbability);
-                      const isInfinity = !isFinite(result.predictedReplacementYear);
-                      // Year urgency: sooner = more red, ∞ = green
-                      const yearsAway = isInfinity ? 99 : result.predictedReplacementYear - new Date().getFullYear();
-                      const yearColor = isInfinity ? '#34d399' : riskColorFromScore(Math.max(0, Math.min(100, 100 - yearsAway * 4)));
-                      return (
-                        <div className="flex items-center justify-center gap-5 sm:gap-8 py-4 border-t border-b border-overlay-6">
-                          <div className="text-center">
-                            <div className="text-2xl sm:text-3xl font-bold" style={{ color: probColor }}>
-                              <AnimatedNumber value={result.replacementProbability} suffix="%" />
-                            </div>
-                            <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric1Title}</div>
-                          </div>
-                          <div className="w-px h-10 bg-overlay-10" />
-                          <div className="text-center">
-                            {isInfinity ? (
-                              <div className="text-2xl sm:text-3xl font-bold" style={{ color: yearColor }}>∞</div>
-                            ) : (
-                              <div className="text-2xl sm:text-3xl font-bold" style={{ color: yearColor }}>
-                                <AnimatedNumber value={result.predictedReplacementYear} />
-                              </div>
-                            )}
-                            <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">{t.metric2Title}</div>
-                            {isInfinity ? (
-                              <div className="text-[10px] text-foreground-muted/40">
-                                {lang === 'zh' ? '不可预测' : 'Unpredictable'}
-                              </div>
-                            ) : (
-                              <div className="text-[10px] text-foreground-muted/40 font-mono">
-                                {result.confidenceInterval.earliest}–{result.confidenceInterval.latest}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })()}
-
                     {/* ── Description ── */}
-                    <div className="pt-4">
+                    <div className="mb-6">
                       <p className="text-sm text-foreground-muted leading-relaxed">{L(result.profile.description, lang)}</p>
-                      {/* Only show occupation if user explicitly selected one */}
                       {result.occupationSOC && !result.occupationSOC.inferred && (() => {
                         const socGroup = SOC_MAJOR_GROUPS.find(s => s.code === result.occupationSOC!.code);
                         const socColor = socGroup ? riskColorFromScore(socGroup.riskScore) : riskColor;
@@ -2138,44 +2152,30 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                       const cal = getProfileCalibration(result.profileCode);
                       if (!cal) return null;
                       return (
-                        <div className="pt-4 mt-2 border-t border-overlay-6 space-y-3">
-                          {/* Vulnerability */}
-                          <motion.div
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
-                          >
+                        <div className="border-t border-overlay-6 pt-5 space-y-3 mb-6">
+                          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                             <div className="flex items-start gap-2.5">
-                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#ff174420' }}>
-                                <span className="text-[10px]">⚡</span>
+                              <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#ff174415' }}>
+                                <span className="text-[11px]">⚡</span>
                               </div>
                               <div className="min-w-0">
-                                <div className="text-[11px] font-bold" style={{ color: '#ff1744' }}>
+                                <div className="text-xs font-bold" style={{ color: '#ff1744' }}>
                                   {lang === 'zh' ? '为什么你容易被替代' : 'Why You\'re Vulnerable'}
                                 </div>
-                                <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-0.5">
-                                  {L(cal.vulnerabilities, lang)}
-                                </p>
+                                <p className="text-[11px] sm:text-xs text-foreground-muted/55 leading-relaxed mt-0.5">{L(cal.vulnerabilities, lang)}</p>
                               </div>
                             </div>
                           </motion.div>
-                          {/* Strength */}
-                          <motion.div
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.65 }}
-                          >
+                          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }}>
                             <div className="flex items-start gap-2.5">
-                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#34d39920' }}>
-                                <span className="text-[10px]">🛡️</span>
+                              <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#34d39915' }}>
+                                <span className="text-[11px]">🛡️</span>
                               </div>
                               <div className="min-w-0">
-                                <div className="text-[11px] font-bold" style={{ color: '#34d399' }}>
+                                <div className="text-xs font-bold" style={{ color: '#34d399' }}>
                                   {lang === 'zh' ? '你的防御优势' : 'Your Defense'}
                                 </div>
-                                <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-0.5">
-                                  {L(cal.strengths, lang)}
-                                </p>
+                                <p className="text-[11px] sm:text-xs text-foreground-muted/55 leading-relaxed mt-0.5">{L(cal.strengths, lang)}</p>
                               </div>
                             </div>
                           </motion.div>
@@ -2188,16 +2188,16 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                       const careers = PROFILE_CAREERS[result.profileCode];
                       if (!careers || careers.length === 0) return null;
                       return (
-                        <div className="pt-4 mt-2 border-t border-overlay-6">
+                        <div className="border-t border-overlay-6 pt-5 mb-6">
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70">
+                            <h4 className="text-xs font-bold uppercase tracking-[0.12em] text-foreground-muted/60">
                               {lang === 'zh' ? '相关职业风险图谱' : 'Career Risk Spectrum'}
                             </h4>
-                            <span className="text-[9px] text-foreground-muted/40">
-                              {lang === 'zh' ? '风险越高 = 越易被AI替代' : 'Higher risk = easier to replace'}
+                            <span className="text-[9px] text-foreground-muted/30">
+                              {lang === 'zh' ? '风险越高 = 越易被AI替代' : 'Higher = easier to replace'}
                             </span>
                           </div>
-                          <div className="space-y-2">
+                          <div className="space-y-2.5">
                             {careers.map((career, ci) => {
                               const cColor = riskColorFromScore(career.riskScore);
                               return (
@@ -2209,37 +2209,18 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                                   className="group/career"
                                 >
                                   <div className="flex items-center gap-2.5">
-                                    {/* Risk score badge */}
-                                    <div
-                                      className="flex-shrink-0 w-9 h-6 rounded flex items-center justify-center text-[10px] font-bold"
-                                      style={{ backgroundColor: cColor + '18', color: cColor }}
-                                    >
+                                    <div className="flex-shrink-0 w-10 h-7 rounded-md flex items-center justify-center text-[11px] font-bold" style={{ backgroundColor: cColor + '15', color: cColor }}>
                                       {career.riskScore}
                                     </div>
-
-                                    {/* Career info */}
                                     <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs font-medium truncate">{L(career.title, lang)}</span>
-                                      </div>
-                                      {/* Risk bar */}
-                                      <div className="h-1 rounded-full bg-overlay-6 mt-1 overflow-hidden">
-                                        <motion.div
-                                          className="h-full rounded-full"
-                                          style={{ backgroundColor: cColor }}
-                                          initial={{ width: 0 }}
-                                          animate={{ width: `${career.riskScore}%` }}
-                                          transition={{ duration: 0.6, delay: 0.6 + ci * 0.06 }}
-                                        />
+                                      <span className="text-xs font-medium truncate block">{L(career.title, lang)}</span>
+                                      <div className="h-1.5 rounded-full bg-overlay-4 mt-1 overflow-hidden">
+                                        <motion.div className="h-full rounded-full" style={{ backgroundColor: cColor }} initial={{ width: 0 }} animate={{ width: `${career.riskScore}%` }} transition={{ duration: 0.6, delay: 0.6 + ci * 0.06 }} />
                                       </div>
                                     </div>
                                   </div>
-
-                                  {/* Reason - shows on hover */}
                                   <div className="max-h-0 group-hover/career:max-h-16 overflow-hidden transition-all duration-200 ease-out">
-                                    <p className="text-[10px] text-foreground-muted/50 leading-relaxed mt-1 ml-[46px]">
-                                      {L(career.reason, lang)}
-                                    </p>
+                                    <p className="text-[10px] text-foreground-muted/45 leading-relaxed mt-1 ml-[50px]">{L(career.reason, lang)}</p>
                                   </div>
                                 </motion.div>
                               );
@@ -2254,9 +2235,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                       const adviceList = generateAdvice(result.dimensions);
                       const accentColors = ['#ff1744', '#ffc107', '#34d399', '#448aff', '#e040fb'];
                       return (
-                        <div className="pt-5 mt-3 border-t border-overlay-6">
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70 mb-4 flex items-center gap-2">
-                            <span className="inline-block w-4 h-px" style={{ background: 'linear-gradient(90deg, #ff1744, #ffc107, #34d399)' }} />
+                        <div className="border-t border-overlay-6 pt-5">
+                          <h4 className="text-xs font-bold uppercase tracking-[0.12em] text-foreground-muted/60 mb-4 flex items-center gap-2">
+                            <span className="inline-block w-5 h-[2px] rounded-full" style={{ background: `linear-gradient(90deg, ${riskColor}, #34d399)` }} />
                             {lang === 'zh' ? '行动建议' : 'Action Plan'}
                             <span className="inline-block flex-1 h-px bg-overlay-6" />
                           </h4>
@@ -2265,43 +2246,24 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                               const accent = accentColors[ai % accentColors.length];
                               const isFirst = ai === 0;
                               return (
-                                <motion.div
-                                  key={ai}
-                                  initial={{ opacity: 0, x: -12 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: 0.8 + ai * 0.1, type: 'spring', stiffness: 200, damping: 25 }}
-                                >
+                                <motion.div key={ai} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8 + ai * 0.1, type: 'spring', stiffness: 200, damping: 25 }}>
                                   <div className={`relative flex items-start gap-3 py-3.5 ${ai > 0 ? 'border-t border-overlay-4' : ''}`}>
-                                    {/* Accent bar + number */}
-                                    <div className="flex flex-col items-center gap-1 flex-shrink-0 w-7">
-                                      <div
-                                        className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm ${isFirst ? 'ring-1 ring-overlay-10' : ''}`}
-                                        style={{ background: isFirst ? `${accent}20` : `${accent}10`, color: accent }}
-                                      >
+                                    <div className="flex flex-col items-center gap-1 flex-shrink-0 w-8">
+                                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${isFirst ? 'ring-1 ring-overlay-10' : ''}`} style={{ background: isFirst ? `${accent}18` : `${accent}0a`, color: accent }}>
                                         {advice.icon}
                                       </div>
-                                      {ai < adviceList.length - 1 && (
-                                        <div className="w-px flex-1 min-h-[8px] bg-overlay-6" />
-                                      )}
+                                      {ai < adviceList.length - 1 && <div className="w-px flex-1 min-h-[8px] bg-overlay-6" />}
                                     </div>
-                                    {/* Content */}
                                     <div className="min-w-0 flex-1 pt-0.5">
                                       <div className="flex items-center gap-2">
-                                        <span className="text-[11px] sm:text-xs font-bold" style={{ color: isFirst ? accent : undefined }}>
-                                          {L(advice.title, lang)}
-                                        </span>
+                                        <span className="text-xs font-bold" style={{ color: isFirst ? accent : undefined }}>{L(advice.title, lang)}</span>
                                         {isFirst && (
-                                          <span
-                                            className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
-                                            style={{ background: `${accent}20`, color: accent }}
-                                          >
+                                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: `${accent}15`, color: accent }}>
                                             {lang === 'zh' ? '首要' : 'Priority'}
                                           </span>
                                         )}
                                       </div>
-                                      <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-1">
-                                        {L(advice.body, lang)}
-                                      </p>
+                                      <p className="text-[11px] sm:text-xs text-foreground-muted/50 leading-relaxed mt-1">{L(advice.body, lang)}</p>
                                     </div>
                                   </div>
                                 </motion.div>
@@ -2314,31 +2276,31 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                   </div>
 
                   {/* Reality check footer */}
-                  <div className="flex items-start gap-3 px-6 sm:px-8 py-3 bg-overlay-2 border-t border-overlay-4">
+                  <div className="flex items-start gap-3 px-6 sm:px-10 py-4 border-t border-overlay-6" style={{ backgroundColor: riskColor + '05' }}>
                     <Flame className="w-3.5 h-3.5 text-risk-critical flex-shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-foreground-muted/60 leading-relaxed">
-                      <span className="font-semibold text-foreground-muted/80">{t.realityCheck}</span>{' '}
+                    <p className="text-[11px] text-foreground-muted/50 leading-relaxed">
+                      <span className="font-semibold text-foreground-muted/70">{t.realityCheck}</span>{' '}
                       {t.realityCheckText}
                     </p>
                   </div>
                 </motion.div>
               </div>
 
-              {/* Social Sharing — always expanded */}
+              {/* Social Sharing */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="result-card rounded-xl p-6"
-                style={{ borderColor: riskColor + '30', borderWidth: 1 }}
+                className="rounded-xl p-6 relative overflow-hidden"
+                style={{ border: `1px solid ${riskColor}20`, backgroundColor: riskColor + '04' }}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: riskColor + '20' }}>
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: riskColor + '18' }}>
                     <Share2 className="w-4 h-4" style={{ color: riskColor }} />
                   </div>
                   <div>
-                    <h5 className="font-semibold">{t.shareTitle}</h5>
-                    <p className="text-xs text-foreground-muted">{t.shareSubtitle}</p>
+                    <h5 className="font-bold text-sm">{t.shareTitle}</h5>
+                    <p className="text-xs text-foreground-muted/60">{t.shareSubtitle}</p>
                   </div>
                 </div>
                 <div data-testid="share-panel" className="space-y-3">
@@ -2371,7 +2333,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={resetQuiz}
-                className="w-full bg-surface-elevated hover:bg-surface-elevated/80 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 border border-overlay-10"
+                className="w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 border border-overlay-10 bg-surface-elevated hover:bg-surface-elevated/80"
               >
                 <RefreshCw className="w-5 h-5" />
                 {t.recalculate}
