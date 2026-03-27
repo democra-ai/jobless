@@ -48,6 +48,18 @@ export interface SurveyQuestion {
 export interface ProfileType {
   code: string;
   name: { en: string; zh: string };
+  /** Evocative archetype title for social sharing */
+  archetype: { en: string; zh: string };
+  /** One-line tagline that makes people say "that's so me" */
+  tagline: { en: string; zh: string };
+  /** The unique strength AI can't replicate */
+  superpower: { en: string; zh: string };
+  /** The vulnerability AI exploits */
+  kryptonite: { en: string; zh: string };
+  /** Signature color for visual identity (hex) */
+  color: string;
+  /** Emoji icon for quick visual recognition */
+  icon: string;
   description: { en: string; zh: string };
   typicalJobs: { en: string; zh: string };
   riskTier: 'extreme-high' | 'high' | 'medium' | 'low' | 'extreme-low';
@@ -583,10 +595,16 @@ export const SOC_MAJOR_GROUPS: { code: number; name: { en: string; zh: string };
 // ─── 16 Profile Types ────────────────────────────────────────────────────────
 
 export const PROFILE_TYPES: Record<string, ProfileType> = {
-  // Extreme high (4/4 AI favorable)
+  // ── Extreme high (4/4 AI favorable) ──
   EOFP: {
     code: 'EOFP',
     name: { en: 'Full Chain Open', zh: '全链路畅通型' },
+    archetype: { en: 'The Transparent Target', zh: '透明靶心' },
+    tagline: { en: 'Your entire workflow is a tutorial for AI', zh: '你的整个工作流程就是 AI 的教程' },
+    superpower: { en: 'Unmatched execution speed and systematic thinking', zh: '无与伦比的执行速度和系统化思维' },
+    kryptonite: { en: 'Every skill you have can be documented, measured, and automated', zh: '你的每一项技能都能被记录、量化、自动化' },
+    color: '#ff1744',
+    icon: '🎯',
     description: {
       en: 'Explicit + Objective + Flexible + Product: Knowledge is transparent, evaluation is clear, errors are fixable, only results matter',
       zh: '显+客+弹+事：知识透明、标准客观、出错可改、只看结果',
@@ -598,10 +616,16 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     riskTier: 'extreme-high',
     primarySOC: 43,
   },
-  // High (3/4 AI favorable)
+  // ── High (3/4 AI favorable) ──
   EOFH: {
     code: 'EOFH',
     name: { en: 'Relationship Anchored', zh: '关系锚定型' },
+    archetype: { en: 'The Human Bridge', zh: '人脉桥梁' },
+    tagline: { en: 'AI does the work, but they come back for YOU', zh: 'AI 能干活，但客户回来找的是你' },
+    superpower: { en: 'Trust and relationships that no algorithm can replicate', zh: '算法无法复制的信任和人际关系' },
+    kryptonite: { en: 'Once AI builds rapport through persistent personalization, your moat shrinks', zh: '一旦 AI 通过持续个性化建立关系，你的护城河就缩小了' },
+    color: '#ff6d00',
+    icon: '🤝',
     description: {
       en: 'Explicit + Objective + Flexible + Human: AI can do everything, but clients trust YOU specifically',
       zh: '显+客+弹+人：AI全都能做，但客户认的是你这个人',
@@ -616,6 +640,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   EORP: {
     code: 'EORP',
     name: { en: 'Compliance Gatekeeper', zh: '合规守门型' },
+    archetype: { en: 'The Rule Keeper', zh: '规则守卫' },
+    tagline: { en: 'AI knows the rules — you enforce the consequences', zh: 'AI 懂规则，你执行后果' },
+    superpower: { en: 'Accountability and regulatory authority that AI cannot legally hold', zh: 'AI 在法律上无法承担的问责权和监管权力' },
+    kryptonite: { en: 'AI already knows every regulation better than you do', zh: 'AI 已经比你更了解每一条法规了' },
+    color: '#ff9100',
+    icon: '🛡️',
     description: {
       en: 'Explicit + Objective + Rigid + Product: AI can learn and do it, but errors are too costly / regulated',
       zh: '显+客+刚+事：AI能学也能做，但出错代价太大/有监管',
@@ -630,6 +660,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   ESFP: {
     code: 'ESFP',
     name: { en: 'Creative Trial-and-Error', zh: '创意试错型' },
+    archetype: { en: 'The Taste Maker', zh: '品味定义者' },
+    tagline: { en: 'AI generates a thousand options — you know which one is right', zh: 'AI 生成一千个选项，你知道哪个是对的' },
+    superpower: { en: 'Aesthetic judgment and cultural intuition machines can\'t learn from data', zh: '机器无法从数据中学到的审美判断和文化直觉' },
+    kryptonite: { en: 'AI is already generating content that passes the taste test', zh: 'AI 已经在生成能通过品味测试的内容了' },
+    color: '#e040fb',
+    icon: '🎨',
     description: {
       en: 'Explicit + Subjective + Flexible + Product: AI can learn, errors are tolerable, only results matter, but quality is subjective',
       zh: '显+主+弹+事：AI能学、可以试错、只看结果，但好坏全靠主观判断',
@@ -644,6 +680,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   TOFP: {
     code: 'TOFP',
     name: { en: 'Skill Executor', zh: '技能执行型' },
+    archetype: { en: 'The Muscle Memory', zh: '肌肉记忆者' },
+    tagline: { en: 'Your hands know things your brain can\'t explain', zh: '你的双手懂得大脑无法解释的东西' },
+    superpower: { en: 'Physical dexterity and embodied knowledge gained through years of practice', zh: '多年实践积累的身体灵活性和具身知识' },
+    kryptonite: { en: 'Robotics is catching up — and robots don\'t get tired', zh: '机器人在追赶，而且它们不会累' },
+    color: '#ff6e40',
+    icon: '🔧',
     description: {
       en: 'Tacit + Objective + Flexible + Product: Clear standards, fixable errors, results-only, but needs physical experience',
       zh: '隐+客+弹+事：标准客观、可试错、只看结果，但需要身体经验',
@@ -655,10 +697,16 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     riskTier: 'high',
     primarySOC: 49,
   },
-  // Medium (2/4 AI favorable)
+  // ── Medium (2/4 AI favorable) ──
   EORH: {
     code: 'EORH',
     name: { en: 'Licensed Trust', zh: '执证信任型' },
+    archetype: { en: 'The Certified Shield', zh: '持证护盾' },
+    tagline: { en: 'AI has the knowledge, but not the license on the wall', zh: 'AI 有知识，但墙上没有你的执照' },
+    superpower: { en: 'Regulatory barriers and institutional trust that protect your position', zh: '保护你地位的监管壁垒和机构信任' },
+    kryptonite: { en: 'Regulations change — and AI lobbying is a thing', zh: '法规会变——AI 游说已经是现实了' },
+    color: '#ffc107',
+    icon: '📜',
     description: {
       en: 'Explicit + Objective + Rigid + Human: Transparent knowledge + regulated + clients trust you — AI only lacks entry',
       zh: '显+客+刚+人：知识透明+有监管+客户认人，AI只缺一个入口',
@@ -673,6 +721,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   ESFH: {
     code: 'ESFH',
     name: { en: 'Digital Persona', zh: '数字人格型' },
+    archetype: { en: 'The Living Brand', zh: '活体品牌' },
+    tagline: { en: 'AI can mimic your style, but it can\'t BE you', zh: 'AI 能模仿你的风格，但它成不了你' },
+    superpower: { en: 'Personal brand and audience loyalty that follows the person, not the content', zh: '跟随人而非内容的个人品牌和受众忠诚度' },
+    kryptonite: { en: 'AI influencers are already gaining followers — and they never have a bad day', zh: 'AI 网红已经在涨粉了——而且它们永远不会有糟糕的一天' },
+    color: '#7c4dff',
+    icon: '⭐',
     description: {
       en: 'Explicit + Subjective + Flexible + Human: AI can learn, but quality is subjective + fans trust the person',
       zh: '显+主+弹+人：AI能学，但好坏靠主观+粉丝认的是人',
@@ -687,6 +741,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   ESRP: {
     code: 'ESRP',
     name: { en: 'High-Stakes Creative', zh: '高压创造型' },
+    archetype: { en: 'The Pressure Alchemist', zh: '高压炼金师' },
+    tagline: { en: 'When failure isn\'t an option, they call a human', zh: '当失败不是选项时，他们会找一个人类' },
+    superpower: { en: 'Making irreversible creative decisions under pressure — stakes too high for AI', zh: '在高压下做出不可逆的创造性决策——风险太高，AI 承担不了' },
+    kryptonite: { en: 'AI is getting better at high-stakes reasoning every quarter', zh: 'AI 的高风险推理能力每个季度都在提升' },
+    color: '#ffab00',
+    icon: '⚗️',
     description: {
       en: 'Explicit + Subjective + Rigid + Product: AI can learn, but quality is subjective + errors have serious consequences',
       zh: '显+主+刚+事：AI能学，但好坏靠主观+出错后果严重',
@@ -701,6 +761,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   TOFH: {
     code: 'TOFH',
     name: { en: 'Craftsman Persona', zh: '手艺人格型' },
+    archetype: { en: 'The Signature Touch', zh: '签名手艺人' },
+    tagline: { en: 'People don\'t pay for the haircut — they pay for YOUR haircut', zh: '人们不是为理发买单——是为你的理发买单' },
+    superpower: { en: 'Physical craft combined with personal connection — clients come for the experience of YOU', zh: '身体技艺与个人连接的结合——客户是为了体验你而来' },
+    kryptonite: { en: 'Scaling is your weakness — AI doesn\'t need appointments', zh: '规模化是你的弱点——AI 不需要预约' },
+    color: '#00bfa5',
+    icon: '✂️',
     description: {
       en: 'Tacit + Objective + Flexible + Human: Physical skills needed + clients come for you specifically',
       zh: '隐+客+弹+人：需要身体技能+客户认你这个人',
@@ -715,6 +781,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   TORP: {
     code: 'TORP',
     name: { en: 'Precision Operator', zh: '精密操控型' },
+    archetype: { en: 'The Steady Hand', zh: '不颤之手' },
+    tagline: { en: 'One wrong move and it\'s over — that\'s why they need you', zh: '一步走错就完了——这就是为什么他们需要你' },
+    superpower: { en: 'Split-second physical judgment in irreversible situations', zh: '在不可逆情境中做出瞬间的身体判断' },
+    kryptonite: { en: 'Surgical robots and autonomous vehicles are already in trials', zh: '手术机器人和自动驾驶汽车已经在试验了' },
+    color: '#00e5ff',
+    icon: '🎯',
     description: {
       en: 'Tacit + Objective + Rigid + Product: Physical experience needed + errors are irreversible',
       zh: '隐+客+刚+事：需要身体经验+出错不可逆',
@@ -729,6 +801,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   TSFP: {
     code: 'TSFP',
     name: { en: 'Artisan Creator', zh: '匠心创作型' },
+    archetype: { en: 'The Soul Craftsman', zh: '灵魂匠人' },
+    tagline: { en: 'Your imperfections are what make your work perfect', zh: '你的不完美恰恰是作品完美的原因' },
+    superpower: { en: 'Physical mastery meets artistic vision — each piece carries your signature', zh: '身体技艺与艺术视野的结合——每件作品都带着你的签名' },
+    kryptonite: { en: 'Mass production doesn\'t need signatures', zh: '量产不需要签名' },
+    color: '#64dd17',
+    icon: '🏺',
     description: {
       en: 'Tacit + Subjective + Flexible + Product: Physical experience + subjective quality, but fixable errors, results-only',
       zh: '隐+主+弹+事：身体经验+好坏靠主观，但可试错、只看结果',
@@ -740,10 +818,16 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     riskTier: 'medium',
     primarySOC: 35,
   },
-  // Low (1/4 AI favorable)
+  // ── Low (1/4 AI favorable) ──
   ESRH: {
     code: 'ESRH',
     name: { en: 'Authority Advisor', zh: '权威顾问型' },
+    archetype: { en: 'The Oracle', zh: '神谕者' },
+    tagline: { en: 'People trust your judgment with their careers, fortunes, and lives', zh: '人们把职业、财富和生命交给你的判断' },
+    superpower: { en: 'Decades of judgment that carries legal and moral weight — AI has opinions, you have authority', zh: '数十年积累的判断力，承载着法律和道德分量——AI 有意见，你有权威' },
+    kryptonite: { en: 'AI is accessible 24/7 and costs nothing — some will choose convenience over credentials', zh: 'AI 全天候可用且免费——有些人会选择便利而非资历' },
+    color: '#00c853',
+    icon: '🔮',
     description: {
       en: 'Explicit + Subjective + Rigid + Human: AI can learn knowledge, but subjective quality + high liability + clients trust the person',
       zh: '显+主+刚+人：AI能学知识，但好坏靠主观+高责任+客户认人',
@@ -758,6 +842,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   TORH: {
     code: 'TORH',
     name: { en: 'Life Guardian', zh: '生命守护型' },
+    archetype: { en: 'The Healing Hand', zh: '疗愈之手' },
+    tagline: { en: 'When lives are on the line, no one asks for the AI', zh: '命悬一线时，没人想要 AI' },
+    superpower: { en: 'Physical healing skill combined with irreversible stakes and deep patient trust', zh: '身体治愈技能结合不可逆的风险和深厚的患者信任' },
+    kryptonite: { en: 'AI diagnostics are already more accurate — the hands may be last to go, but the mind goes first', zh: 'AI 诊断已经更准确了——双手可能最后被替代，但大脑会先被取代' },
+    color: '#18ffff',
+    icon: '🫀',
     description: {
       en: 'Tacit + Objective + Rigid + Human: Physical experience + irreversible errors + patient trust',
       zh: '隐+客+刚+人：身体经验+出错不可逆+患者信任关系',
@@ -772,6 +862,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   TSFH: {
     code: 'TSFH',
     name: { en: 'Soul Expresser', zh: '灵魂表达型' },
+    archetype: { en: 'The Irreplaceable', zh: '不可替代者' },
+    tagline: { en: 'You ARE the product — no one can automate who you are', zh: '你就是产品本身——没人能自动化你这个人' },
+    superpower: { en: 'Your identity IS the value — physical artistry, subjective taste, and personal presence fused into one', zh: '你的身份就是价值——身体技艺、主观品味和个人存在融为一体' },
+    kryptonite: { en: 'Deepfakes and AI avatars are blurring the line between real and synthetic presence', zh: '深度伪造和 AI 虚拟人正在模糊真实与合成存在的界限' },
+    color: '#69f0ae',
+    icon: '🦋',
     description: {
       en: 'Tacit + Subjective + Flexible + Human: Physical experience + subjective quality + the person IS the work',
       zh: '隐+主+弹+人：身体经验+好坏靠主观+人本身就是作品',
@@ -786,6 +882,12 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
   TSRP: {
     code: 'TSRP',
     name: { en: 'Extreme Judgment', zh: '极限判断型' },
+    archetype: { en: 'The Last Call', zh: '终极裁决者' },
+    tagline: { en: 'In chaos, you decide who lives — AI freezes', zh: '混乱中，你决定谁活——AI 死机了' },
+    superpower: { en: 'Irreversible physical decisions under extreme uncertainty — no training data exists for this', zh: '极端不确定性下做出不可逆的身体决策——不存在这类训练数据' },
+    kryptonite: { en: 'Predictive AI may reduce the chaos you thrive in', zh: '预测性 AI 可能会减少你赖以生存的混乱' },
+    color: '#b2ff59',
+    icon: '⚡',
     description: {
       en: 'Tacit + Subjective + Rigid + Product: Physical experience + subjective quality + irreversible errors',
       zh: '隐+主+刚+事：身体经验+好坏靠主观+出错不可逆',
@@ -797,10 +899,16 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     riskTier: 'low',
     primarySOC: 33,
   },
-  // Extreme low (0/4 AI favorable)
+  // ── Extreme low (0/4 AI favorable) ──
   TSRH: {
     code: 'TSRH',
     name: { en: 'Full Barrier', zh: '全维壁垒型' },
+    archetype: { en: 'The Iron Fortress', zh: '铁壁堡垒' },
+    tagline: { en: 'Four walls between you and AI — it can\'t even see you', zh: '你和 AI 之间隔着四道墙——它连你的影子都看不到' },
+    superpower: { en: 'Every dimension blocks AI: tacit knowledge, subjective judgment, irreversible stakes, and human trust', zh: '每个维度都阻断 AI：隐性知识、主观判断、不可逆风险、人际信任' },
+    kryptonite: { en: 'Your fortress is strong — but the world around it is changing', zh: '你的堡垒很坚固——但周围的世界在变' },
+    color: '#34d399',
+    icon: '🏰',
     description: {
       en: 'Tacit + Subjective + Rigid + Human: All four dimensions block AI replacement',
       zh: '隐+主+刚+人：四个维度全部阻断AI替代链路',

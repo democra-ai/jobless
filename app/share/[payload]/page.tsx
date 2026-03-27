@@ -231,21 +231,29 @@ export default async function ShareResultPage({ params }: SharePageProps) {
 
           <div className="relative z-10 p-6 sm:p-8">
 
-            {/* ── Profile Code + Name + Risk Tier ── */}
+            {/* ── Archetype Reveal (shareable identity) ── */}
             {profileCode && profile ? (
               <div className="text-center mb-6">
+                {/* Icon + Archetype name */}
+                <div className="text-4xl sm:text-5xl mb-3">{profile.icon}</div>
                 <div
-                  className="text-3xl sm:text-4xl font-extrabold tracking-[0.2em]"
-                  style={{ color: riskColor, fontFamily: 'var(--font-body)' }}
+                  className="text-2xl sm:text-3xl font-extrabold"
+                  style={{ color: profile.color || riskColor }}
+                >
+                  {L(profile.archetype, lang)}
+                </div>
+                <div
+                  className="text-sm font-bold tracking-[0.25em] mt-1.5"
+                  style={{ color: (profile.color || riskColor) + 'aa', fontFamily: 'var(--font-body)' }}
                 >
                   {profileCode}
                 </div>
-                <div className="text-lg sm:text-xl font-semibold mt-1.5">
-                  {L(profile.name, lang)}
-                </div>
+                <p className="text-sm sm:text-base text-foreground-muted mt-2 max-w-md mx-auto italic">
+                  &ldquo;{L(profile.tagline, lang)}&rdquo;
+                </p>
                 <div
-                  className="text-xs font-bold uppercase tracking-widest mt-1"
-                  style={{ color: riskColor }}
+                  className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
+                  style={{ color: riskColor, backgroundColor: riskColor + '15', border: `1px solid ${riskColor}30` }}
                 >
                   {L(RISK_TIER_INFO[profile.riskTier].label, lang)}
                 </div>
@@ -400,12 +408,21 @@ export default async function ShareResultPage({ params }: SharePageProps) {
               </div>
             </div>
 
-            {/* ── Profile Description ── */}
+            {/* ── Superpower & Kryptonite ── */}
             {profile && (
-              <div className="pt-4">
-                <p className="text-sm text-foreground-muted leading-relaxed">
-                  {L(profile.description, lang)}
-                </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
+                <div className="rounded-xl p-4" style={{ backgroundColor: '#00c85310', border: '1px solid #00c85320' }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1.5">
+                    {lang === 'zh' ? '你的超能力' : lang === 'ja' ? '超能力' : lang === 'ko' ? '초능력' : lang === 'de' ? 'Superkraft' : 'Superpower'}
+                  </div>
+                  <p className="text-sm text-foreground-muted leading-relaxed">{L(profile.superpower, lang)}</p>
+                </div>
+                <div className="rounded-xl p-4" style={{ backgroundColor: '#ff174410', border: '1px solid #ff174420' }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-rose-400 mb-1.5">
+                    {lang === 'zh' ? '你的弱点' : lang === 'ja' ? '弱点' : lang === 'ko' ? '약점' : lang === 'de' ? 'Schwäche' : 'Kryptonite'}
+                  </div>
+                  <p className="text-sm text-foreground-muted leading-relaxed">{L(profile.kryptonite, lang)}</p>
+                </div>
               </div>
             )}
 

@@ -1896,19 +1896,80 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                   <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full blur-[120px] opacity-15" style={{ backgroundColor: riskColor }} />
 
                   <div className="relative z-10 p-6 sm:p-8">
-                    {/* Profile code + Name + Risk tier */}
+                    {/* ── Archetype Reveal (the shareable identity) ── */}
                     <div className="text-center mb-6">
-                      <div
-                        className="text-3xl sm:text-4xl font-extrabold tracking-[0.2em]"
-                        style={{ color: riskColor, fontFamily: 'var(--font-body)' }}
+                      {/* Icon + Archetype name — the hero moment */}
+                      <motion.div
+                        initial={{ scale: 0, rotate: -10 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                        className="text-4xl sm:text-5xl mb-3"
+                      >
+                        {result.profile.icon}
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-2xl sm:text-3xl font-extrabold"
+                        style={{ color: result.profile.color || riskColor }}
+                      >
+                        {L(result.profile.archetype, lang)}
+                      </motion.div>
+
+                      {/* Profile code — smaller, secondary */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="text-sm font-bold tracking-[0.25em] mt-1.5"
+                        style={{ color: (result.profile.color || riskColor) + 'aa', fontFamily: 'var(--font-body)' }}
                       >
                         {result.profileCode}
-                      </div>
-                      <div className="text-lg sm:text-xl font-semibold mt-1.5">{L(result.profile.name, lang)}</div>
-                      <div className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: riskColor }}>
+                      </motion.div>
+
+                      {/* Tagline — the "that's so me" moment */}
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                        className="text-sm sm:text-base text-foreground-muted mt-2 max-w-md mx-auto italic"
+                      >
+                        &ldquo;{L(result.profile.tagline, lang)}&rdquo;
+                      </motion.p>
+
+                      {/* Risk tier badge */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.7 }}
+                        className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
+                        style={{ color: riskColor, backgroundColor: riskColor + '15', border: `1px solid ${riskColor}30` }}
+                      >
                         {L(RISK_TIER_INFO[result.profile.riskTier].label, lang)}
-                      </div>
+                      </motion.div>
                     </div>
+
+                    {/* ── Superpower & Kryptonite ── */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8 }}
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"
+                    >
+                      <div className="rounded-xl p-4" style={{ backgroundColor: '#00c85310', border: '1px solid #00c85320' }}>
+                        <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1.5">
+                          {lang === 'zh' ? '你的超能力' : lang === 'ja' ? '超能力' : lang === 'ko' ? '초능력' : lang === 'de' ? 'Superkraft' : 'Superpower'}
+                        </div>
+                        <p className="text-sm text-foreground-muted leading-relaxed">{L(result.profile.superpower, lang)}</p>
+                      </div>
+                      <div className="rounded-xl p-4" style={{ backgroundColor: '#ff174410', border: '1px solid #ff174420' }}>
+                        <div className="text-xs font-bold uppercase tracking-wider text-rose-400 mb-1.5">
+                          {lang === 'zh' ? '你的弱点' : lang === 'ja' ? '弱点' : lang === 'ko' ? '약점' : lang === 'de' ? 'Schwäche' : 'Kryptonite'}
+                        </div>
+                        <p className="text-sm text-foreground-muted leading-relaxed">{L(result.profile.kryptonite, lang)}</p>
+                      </div>
+                    </motion.div>
 
                     {/* ── 4-Dimension Horizontal Axis Display (the hero) ── */}
                     <div className="space-y-3 mb-6">

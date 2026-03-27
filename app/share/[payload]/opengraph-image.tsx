@@ -87,26 +87,28 @@ export default async function Image({ params }: Props) {
         { v: 'H', name: zh ? '对人型' : 'Human', risky: false },
       ];
 
-  // Profile type name lookup
-  const profileNames: Record<string, { en: string; zh: string }> = {
-    EOFP: { en: 'Full Chain Open', zh: '全链路畅通型' },
-    EOFH: { en: 'Relationship Anchored', zh: '关系锚定型' },
-    EORP: { en: 'Compliance Gatekeeper', zh: '合规守门型' },
-    ESFP: { en: 'Creative Trial-and-Error', zh: '创意试错型' },
-    TOFP: { en: 'Skill Executor', zh: '技能执行型' },
-    EORH: { en: 'Licensed Trust', zh: '执证信任型' },
-    ESFH: { en: 'Taste Curator', zh: '审美策展型' },
-    ESRP: { en: 'Craft Guardian', zh: '工艺守护型' },
-    TSFP: { en: 'Experience Catalyst', zh: '体验催化型' },
-    TORP: { en: 'Field Commander', zh: '现场指挥型' },
-    TORH: { en: 'Crisis Navigator', zh: '危机领航型' },
-    ESRH: { en: 'Meaning Architect', zh: '意义建构型' },
-    TSRP: { en: 'Physical Sovereign', zh: '身体主权型' },
-    TSFH: { en: 'Bond Weaver', zh: '纽带编织型' },
-    TOFH: { en: 'Embodied Guide', zh: '身心引导型' },
-    TSRH: { en: 'Deep Human Core', zh: '深度人性型' },
+  // Profile archetype name + icon lookup (matches PROFILE_TYPES in air_quiz_data.ts)
+  const profileArchetypes: Record<string, { en: string; zh: string; icon: string }> = {
+    EOFP: { en: 'The Transparent Target', zh: '透明靶心', icon: '🎯' },
+    EOFH: { en: 'The Human Bridge', zh: '人脉桥梁', icon: '🤝' },
+    EORP: { en: 'The Rule Keeper', zh: '规则守卫', icon: '🛡️' },
+    ESFP: { en: 'The Taste Maker', zh: '品味定义者', icon: '🎨' },
+    TOFP: { en: 'The Muscle Memory', zh: '肌肉记忆者', icon: '🔧' },
+    EORH: { en: 'The Certified Shield', zh: '持证护盾', icon: '📜' },
+    ESFH: { en: 'The Living Brand', zh: '活体品牌', icon: '⭐' },
+    ESRP: { en: 'The Pressure Alchemist', zh: '高压炼金师', icon: '⚗️' },
+    TOFH: { en: 'The Signature Touch', zh: '签名手艺人', icon: '✂️' },
+    TORP: { en: 'The Steady Hand', zh: '不颤之手', icon: '🎯' },
+    TSFP: { en: 'The Soul Craftsman', zh: '灵魂匠人', icon: '🏺' },
+    ESRH: { en: 'The Oracle', zh: '神谕者', icon: '🔮' },
+    TORH: { en: 'The Healing Hand', zh: '疗愈之手', icon: '🫀' },
+    TSFH: { en: 'The Irreplaceable', zh: '不可替代者', icon: '🦋' },
+    TSRP: { en: 'The Last Call', zh: '终极裁决者', icon: '⚡' },
+    TSRH: { en: 'The Iron Fortress', zh: '铁壁堡垒', icon: '🏰' },
   };
-  const profileName = profileCode ? (profileNames[profileCode]?.[zh ? 'zh' : 'en'] ?? null) : null;
+  const profileArch = profileCode ? profileArchetypes[profileCode] : null;
+  const profileName = profileArch?.[zh ? 'zh' : 'en'] ?? null;
+  const profileIcon = profileArch?.icon ?? null;
 
   // Hook: countdown + percentile
   const countdownText = yearsLeft !== null
@@ -162,11 +164,11 @@ export default async function Image({ params }: Props) {
                 <span style={{ fontSize: 170, fontWeight: 900, lineHeight: 0.8, letterSpacing: -6, color: c.m, position: 'relative' }}>{prob}</span>
                 <span style={{ fontSize: 52, fontWeight: 800, color: c.m, opacity: 0.3, marginLeft: 4, lineHeight: 0.8, position: 'relative' }}>%</span>
               </div>
-              {/* Profile type name */}
+              {/* Profile archetype name */}
               {profileName && (
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 14 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, opacity: 0.4, letterSpacing: 2 }}>{zh ? '类型' : 'TYPE'}</span>
-                  <span style={{ fontSize: 20, fontWeight: 800, color: c.m }}>{profileName}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
+                  {profileIcon && <span style={{ fontSize: 22 }}>{profileIcon}</span>}
+                  <span style={{ fontSize: 22, fontWeight: 800, color: c.m }}>{profileName}</span>
                 </div>
               )}
             </div>
