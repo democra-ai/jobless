@@ -664,7 +664,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     tagline: { en: 'AI generates a thousand options — you know which one is right', zh: 'AI 生成一千个选项，你知道哪个是对的' },
     superpower: { en: 'Aesthetic judgment and cultural intuition machines can\'t learn from data', zh: '机器无法从数据中学到的审美判断和文化直觉' },
     kryptonite: { en: 'AI is already generating content that passes the taste test', zh: 'AI 已经在生成能通过品味测试的内容了' },
-    color: '#e040fb',
+    color: '#ff5252',
     icon: '🎨',
     description: {
       en: 'Explicit + Subjective + Flexible + Product: AI can learn, errors are tolerable, only results matter, but quality is subjective',
@@ -725,7 +725,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     tagline: { en: 'AI can mimic your style, but it can\'t BE you', zh: 'AI 能模仿你的风格，但它成不了你' },
     superpower: { en: 'Personal brand and audience loyalty that follows the person, not the content', zh: '跟随人而非内容的个人品牌和受众忠诚度' },
     kryptonite: { en: 'AI influencers are already gaining followers — and they never have a bad day', zh: 'AI 网红已经在涨粉了——而且它们永远不会有糟糕的一天' },
-    color: '#7c4dff',
+    color: '#ffca28',
     icon: '⭐',
     description: {
       en: 'Explicit + Subjective + Flexible + Human: AI can learn, but quality is subjective + fans trust the person',
@@ -765,7 +765,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     tagline: { en: 'People don\'t pay for the haircut — they pay for YOUR haircut', zh: '人们不是为理发买单——是为你的理发买单' },
     superpower: { en: 'Physical craft combined with personal connection — clients come for the experience of YOU', zh: '身体技艺与个人连接的结合——客户是为了体验你而来' },
     kryptonite: { en: 'Scaling is your weakness — AI doesn\'t need appointments', zh: '规模化是你的弱点——AI 不需要预约' },
-    color: '#00bfa5',
+    color: '#ffd740',
     icon: '✂️',
     description: {
       en: 'Tacit + Objective + Flexible + Human: Physical skills needed + clients come for you specifically',
@@ -785,7 +785,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     tagline: { en: 'One wrong move and it\'s over — that\'s why they need you', zh: '一步走错就完了——这就是为什么他们需要你' },
     superpower: { en: 'Split-second physical judgment in irreversible situations', zh: '在不可逆情境中做出瞬间的身体判断' },
     kryptonite: { en: 'Surgical robots and autonomous vehicles are already in trials', zh: '手术机器人和自动驾驶汽车已经在试验了' },
-    color: '#00e5ff',
+    color: '#ff8f00',
     icon: '🎯',
     description: {
       en: 'Tacit + Objective + Rigid + Product: Physical experience needed + errors are irreversible',
@@ -805,7 +805,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     tagline: { en: 'Your imperfections are what make your work perfect', zh: '你的不完美恰恰是作品完美的原因' },
     superpower: { en: 'Physical mastery meets artistic vision — each piece carries your signature', zh: '身体技艺与艺术视野的结合——每件作品都带着你的签名' },
     kryptonite: { en: 'Mass production doesn\'t need signatures', zh: '量产不需要签名' },
-    color: '#64dd17',
+    color: '#ffe082',
     icon: '🏺',
     description: {
       en: 'Tacit + Subjective + Flexible + Product: Physical experience + subjective quality, but fixable errors, results-only',
@@ -846,7 +846,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     tagline: { en: 'When lives are on the line, no one asks for the AI', zh: '命悬一线时，没人想要 AI' },
     superpower: { en: 'Physical healing skill combined with irreversible stakes and deep patient trust', zh: '身体治愈技能结合不可逆的风险和深厚的患者信任' },
     kryptonite: { en: 'AI diagnostics are already more accurate — the hands may be last to go, but the mind goes first', zh: 'AI 诊断已经更准确了——双手可能最后被替代，但大脑会先被取代' },
-    color: '#18ffff',
+    color: '#66bb6a',
     icon: '🫀',
     description: {
       en: 'Tacit + Objective + Rigid + Human: Physical experience + irreversible errors + patient trust',
@@ -886,7 +886,7 @@ export const PROFILE_TYPES: Record<string, ProfileType> = {
     tagline: { en: 'In chaos, you decide who lives — AI freezes', zh: '混乱中，你决定谁活——AI 死机了' },
     superpower: { en: 'Irreversible physical decisions under extreme uncertainty — no training data exists for this', zh: '极端不确定性下做出不可逆的身体决策——不存在这类训练数据' },
     kryptonite: { en: 'Predictive AI may reduce the chaos you thrive in', zh: '预测性 AI 可能会减少你赖以生存的混乱' },
-    color: '#b2ff59',
+    color: '#81c784',
     icon: '⚡',
     description: {
       en: 'Tacit + Subjective + Rigid + Product: Physical experience + subjective quality + irreversible errors',
