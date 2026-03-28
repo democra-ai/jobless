@@ -1,236 +1,131 @@
-# AIR 16 Archetype Character Illustration Prompts
+# AIR 16 Archetype Character Design Spec
 
-## 统一风格基底 (每个 prompt 前面都要加这段)
-
-```
-Flat vector illustration of a single character, minimal geometric style,
-clean lines, solid color fills, no gradients, dark charcoal background (#0a0908),
-character uses only ONE accent color palette matching their theme,
-full body standing pose, slight 3/4 angle, large head proportion (chibi-adjacent
-but not cute — more editorial/sophisticated), simple geometric face features
-(dot eyes, simple line mouth), thick bold outlines, no shadows, modern tech
-startup poster aesthetic, character centered in frame, plenty of negative space,
-transparent PNG, 1024x1024
-```
-
-## 风格参考关键词
-
-- 类似: Kurzgesagt 动画风格 / Slack emoji 风格 / Notion 插画但更有个性
-- 线条: 粗且均匀, 3-4px
-- 身体比例: 头:身 = 1:2 (偏大头但不是Q版)
-- 面部: 极简 (两个点做眼睛, 一条线做嘴)
-- 配色: 每个角色只用一个主色 + 黑白灰
+每个角色的视觉元素、人物特质、典型职业。用于 AI 图像生成或插画师参考。
 
 ---
 
-## 16 个角色 Prompts
-
-### 1. EOFP — 玻璃大炮 / The Glass Cannon
-**色系:** 红色 (#ff1744)
-```
-[BASE STYLE] A office worker character sitting at a desk with a transparent/glass
-body that reveals data streams and code flowing inside them. Wearing a simple
-white collared shirt. One hand on keyboard, other hand holding their head in worry.
-Small cracks visible on the glass body surface. Surrounded by floating document
-icons and spreadsheet symbols. Expression: slightly worried, dot eyes looking to
-the side. Accent color: red (#ff1744). The character's transparency symbolizes
-being fully readable/replaceable by AI.
-```
-
-### 2. EOFH — 人脉桥梁 / The Human Bridge
-**色系:** 橙色 (#ff6d00)
-```
-[BASE STYLE] A cheerful salesperson character with arms wide open in a welcoming
-gesture. Wearing a casual blazer over t-shirt. Connected to multiple small
-person-silhouettes by thin orange lines radiating from their body like a network
-hub. A warm glowing circle around their chest area (representing personal
-connection). Expression: big smile, open welcoming posture. Accent color:
-orange (#ff6d00). The network lines represent relationships AI can't replicate.
-```
-
-### 3. EORP — 终审印章 / The Final Stamp
-**色系:** 深橙 (#ff9100)
-```
-[BASE STYLE] A stern authority figure standing rigidly upright, holding a
-large rubber stamp in one hand. Wearing a buttoned-up uniform-like shirt with
-a badge/ID on the chest. A stack of documents beside them with checkmarks.
-Expression: serious, straight-line mouth, focused dot eyes behind square glasses.
-Small gavel or clipboard in other hand. Accent color: dark orange (#ff9100).
-The character embodies "the final human who signs off."
-```
-
-### 4. ESFP — 品味定义者 / The Taste Maker
-**色系:** 珊瑚红 (#ff5252)
-```
-[BASE STYLE] A stylish creative director character pointing upward with one
-finger in an "eureka" gesture. Wearing a turtleneck and beret or fashionable
-hat. Surrounded by floating color swatches, design tools (pen tool cursor,
-color wheel). One eye replaced by a diamond/gem shape symbolizing "refined eye."
-Expression: confident half-smile, one eyebrow raised. Accent color: coral red
-(#ff5252). The character radiates taste and aesthetic judgment.
-```
-
-### 5. TOFP — 赤手行者 / The Bare Hand
-**色系:** 暗橙 (#ff6e40)
-```
-[BASE STYLE] A sturdy worker character with visibly large, detailed hands
-(emphasized, slightly oversized). Wearing a simple hoodie and work pants.
-Holding a wrench in one hand, other hand open showing calloused palm.
-Small mechanical gears and tools floating around them. Expression: calm,
-steady, reliable — straight mouth, focused eyes. Accent color: burnt orange
-(#ff6e40). Hands glow slightly, symbolizing embodied physical knowledge.
-```
-
-### 6. EORH — 执照之墙 / The License Wall
-**色系:** 琥珀 (#ffc107)
-```
-[BASE STYLE] A professional standing behind a literal wall made of framed
-certificates and licenses. Only upper body visible above the wall. Wearing
-formal business attire with thick-rimmed glasses. Holding a sealed document
-with a wax stamp. The wall of frames creates a fortress-like barrier.
-Expression: dignified, composed, slightly raised chin. Accent color: amber
-(#ffc107). The certificates form a visual barrier between the character and AI.
-```
-
-### 7. ESFH — 活体品牌 / The Living Brand
-**色系:** 金色 (#ffca28)
-```
-[BASE STYLE] A charismatic influencer/creator character with a spotlight beam
-shining down on them. Wearing trendy clothes with a star motif. One hand holding
-a phone showing their own face on screen. Small follower/heart/like icons
-floating around them. Their shadow on the ground is shaped differently than
-their body (suggesting AI can copy the shadow but not the person).
-Expression: bright, magnetic smile, winking. Accent color: gold (#ffca28).
-```
-
-### 8. ESRP — 高压炼金师 / The Pressure Alchemist
-**色系:** 深琥珀 (#ffab00)
-```
-[BASE STYLE] An engineer/architect character standing confidently with
-blueprints rolled under one arm. Other hand adjusting safety goggles on
-forehead. Wearing a work vest over shirt. Behind them, a complex structure
-(bridge/building outline) with a crack that they're examining. A pressure
-gauge or thermometer nearby showing "high." Expression: intense focused stare,
-jaw set. Accent color: deep amber (#ffab00). Symbolizes making irreversible
-decisions under pressure.
-```
-
-### 9. TOFH — 签名手艺人 / The Signature Touch
-**色系:** 暖金 (#ffd740)
-```
-[BASE STYLE] A craftsperson/barber character with one hand elegantly raised
-holding scissors (or a crafting tool), other hand on hip. Wearing an apron.
-Their work tool has a personal monogram/signature engraved on it. A satisfied
-customer silhouette visible behind them. Expression: warm, knowing smile,
-head slightly tilted. Accent color: warm gold (#ffd740). Small sparkle effects
-around their hands, suggesting magic in the personal touch.
-```
-
-### 10. TORP — 不颤之手 / The Steady Hand
-**色系:** 深琥珀 (#ff8f00)
-```
-[BASE STYLE] A surgeon/pilot character standing perfectly still, one hand
-extended forward holding a tiny delicate object (needle, or miniature plane)
-with absolute precision. Wearing scrubs or a flight suit. A straight horizontal
-line across the image behind them (like a heart monitor flatline or flight
-altitude indicator — perfectly level). Expression: absolutely calm, laser-focused
-dot eyes, no expression on mouth. Accent color: deep amber (#ff8f00).
-The stillness itself is the superpower.
-```
-
-### 11. TSFP — 灵魂匠人 / The Soul Craftsman
-**色系:** 暖米 (#ffe082)
-```
-[BASE STYLE] A chef/artisan character lovingly holding up a handmade creation
-(pottery vase, or a plated dish) that glows with a warm inner light. Wearing a
-rolled-up sleeve shirt and apron. Small intentional "imperfections" visible on
-the creation (wabi-sabi). Clay/flour dust on their clothes. Expression: gentle,
-proud, soft smile while looking at their creation. Accent color: warm cream
-(#ffe082). The creation has a visible "heartbeat" glow, unlike mass-produced items.
-```
-
-### 12. ESRH — 神谕者 / The Oracle
-**色系:** 翡翠绿 (#00c853)
-```
-[BASE STYLE] A wise senior advisor character sitting in a high-backed chair,
-chin resting on steepled fingers. Wearing a blazer, gray hair, small goatee.
-A crystal ball or scales of justice on the desk beside them. Books stacked
-behind. Junior figures standing at a respectful distance, waiting for their
-verdict. Expression: knowing, slight smirk, half-lidded eyes that have "seen
-everything." Accent color: emerald green (#00c853). Decades of judgment
-radiating as subtle green aura.
-```
-
-### 13. TORH — 疗愈之手 / The Healing Hand
-**色系:** 柔绿 (#66bb6a)
-```
-[BASE STYLE] A medical professional character with gentle open palms facing
-outward, warm light emanating from their hands. Wearing medical attire (scrubs
-or white coat). A heartbeat/pulse wave flowing between their hands. Small
-healing symbols (bandaid, heart, pulse) floating gently around them.
-Expression: kind, gentle, slightly concerned but reassuring — soft dot eyes,
-small caring smile. Accent color: soft green (#66bb6a). The hands are the
-focus, rendered slightly larger and more detailed than the rest.
-```
-
-### 14. TSFH — 不可替代者 / The Irreplaceable
-**色系:** 明绿 (#69f0ae)
-```
-[BASE STYLE] A performing artist character in a dramatic pose — one arm
-extended upward, the other across their chest. Wearing an expressive flowing
-outfit. Their body IS the art — colors and patterns flowing across their
-surface like living paint. A stage spotlight illuminating them from above.
-No audience visible but implied by the spotlight. Expression: passionate,
-eyes closed or looking upward, mouth open as if singing. Accent color:
-bright green (#69f0ae). The character and the art are inseparable.
-```
-
-### 15. TSRP — 终极裁决者 / The Last Call
-**色系:** 中绿 (#81c784)
-```
-[BASE STYLE] An emergency responder/commander character in a power stance,
-legs apart, pointing decisively in one direction. Wearing tactical/emergency
-gear (helmet, vest). Behind them: chaos symbols (flames, broken lines,
-exclamation marks) — but in front of them: order and calm. A split composition
-showing chaos behind, order ahead. Expression: fierce determination, gritted
-teeth, intense focused eyes. Accent color: medium green (#81c784). The
-character is the dividing line between chaos and resolution.
-```
-
-### 16. TSRH — 铁壁堡垒 / The Iron Fortress
-**色系:** 翠绿 (#34d399)
-```
-[BASE STYLE] A powerful executive/leader character standing with arms crossed,
-feet planted wide. Wearing a long coat over business attire, full beard.
-Four distinct shield/wall layers visible around them (representing the four
-dimensions blocking AI). Each wall layer is labeled with a small icon: brain
-(tacit), eye (subjective), lock (rigid), person (human). The character is at
-the center, completely protected. Expression: absolute confidence, unwavering
-gaze directly at viewer, slight upward chin. Accent color: teal (#34d399).
-Unbreakable.
-```
+## 1. EOFP — 玻璃大炮 / The Glass Cannon
+**风险等级：** 极高
+**典型职业：** 数据录入员、行政助理、出纳、初级会计、文秘、客服专员
+**视觉：** 坐在办公桌前，一只手撑着头，另一只手放在键盘上。周围漂浮着文件/表格图标。身体有细微裂纹（玻璃质感）。笔记本电脑打开着。
+**特质：** 焦虑、透明、一切都被看穿。普通办公族，白衬衫，头发略凌乱。
 
 ---
 
-## 使用说明
+## 2. EOFH — 人脉桥梁 / The Human Bridge
+**风险等级：** 高
+**典型职业：** 销售经理、客户经理、房产经纪人、保险代理、商务拓展、猎头
+**视觉：** 张开双臂欢迎姿态，身体向外辐射连接线到周围的小人剪影。胸口有一圈温暖的光环。穿休闲西装外套+T恤。
+**特质：** 热情、开放、社交中心。天生的销售/关系维护者。
 
-1. **选一个 AI 工具**: Midjourney、DALL-E 3、Stable Diffusion、或 Lovart.ai
-2. **先生成风格测试**: 用 TSRH（铁壁堡垒）或 EOFP（玻璃大炮）测试，调整到你满意的风格
-3. **锁定风格后批量生成**: 确认风格后，用同样的 base prompt 生成全部 16 个
-4. **关键**: 每次生成都带上 `[BASE STYLE]` 部分，保证风格统一
-5. **输出格式**: 1024x1024 PNG，透明背景（或深色背景 #0a0908）
+---
 
-## Midjourney 专用格式
+## 3. EORP — 终审印章 / The Final Stamp
+**风险等级：** 高
+**典型职业：** 质检员、药剂师、合规审核员、检验技师、食品安全检查员
+**视觉：** 笔直站立，一手握着大印章，另一手拿着文件夹。身旁是一摞带勾号的文件。戴方框眼镜，穿制服式衬衫，胸前有工牌。
+**特质：** 严肃、一丝不苟、权威。最后拍板的那个人。
 
-如果用 Midjourney，在每个 prompt 末尾加:
-```
---style raw --ar 1:1 --s 50 --no realistic, photograph, 3d render
-```
+---
 
-## DALL-E 3 专用提示
+## 4. ESFP — 品味定义者 / The Taste Maker
+**风险等级：** 高
+**典型职业：** 平面设计师、UI设计师、创意策划、时尚编辑、广告创意总监、前端开发
+**视觉：** 一根手指指向上方（"灵感来了"的姿态）。戴贝雷帽或时尚帽子，穿高领衫。周围漂浮色板、画笔光标、色轮。一只眼睛是钻石形状（代表审美之眼）。
+**特质：** 自信、有品位、创意驱动。设计师/创意总监。
 
-如果用 DALL-E，在开头加:
-```
-I NEED to test how the tool works with extremely simple prompts.
-DO NOT add any detail, just use the prompt AS-IS:
-```
+---
+
+## 5. TOFP — 赤手行者 / The Bare Hand
+**风险等级：** 高
+**典型职业：** 维修技师、水电工、仓库操作员、快递分拣、连锁餐饮厨师、保洁
+**视觉：** 双手特写放大（比正常比例大），一手握扳手，另一手摊开展示手掌。穿连帽衫和工装裤。周围漂浮齿轮和工具小图标。双手微微发光。
+**特质：** 沉稳、可靠、务实。靠身体经验吃饭的技术工人。
+
+---
+
+## 6. EORH — 执照之墙 / The License Wall
+**风险等级：** 中等
+**典型职业：** 注册会计师(CPA)、律师(合规方向)、公证员、持证理财顾问、审计师
+**视觉：** 人物站在一面由证书/执照框组成的墙后面，只露出上半身。穿正装，戴厚框眼镜，手里拿着一份带蜡封的文件。证书墙形成一道屏障。
+**特质：** 严谨、专业、制度保护。靠资质壁垒生存的持证人士。
+
+---
+
+## 7. ESFH — 活体品牌 / The Living Brand
+**风险等级：** 中等
+**典型职业：** 网红/博主、自媒体创作者、知名讲师、品牌代言人、播客主持人
+**视觉：** 聚光灯从上方打下来，人物站在光柱中央。一手举着手机（手机屏幕显示自己的脸）。周围漂浮爱心、点赞、关注图标。地上的影子与本人形状不同（AI能复制影子但不能复制人）。
+**特质：** 闪耀、有魅力、自带流量。网红/内容创作者/个人品牌。
+
+---
+
+## 8. ESRP — 高压炼金师 / The Pressure Alchemist
+**风险等级：** 中等
+**典型职业：** 结构工程师、建筑师、投资经理、科研人员、航空工程师
+**视觉：** 一手夹着卷起的蓝图，另一手把安全护目镜推到额头上。穿工作背心。身后是一个建筑/桥梁的轮廓线稿，上面有一条裂缝正在被检查。旁边有一个压力表指向"高"。
+**特质：** 专注、高压、不容出错。在不可逆决策中保持冷静的工程师/建筑师。
+
+---
+
+## 9. TOFH — 签名手艺人 / The Signature Touch
+**风险等级：** 中等
+**典型职业：** 理发师/造型师、美甲师、按摩师、私人健身教练、宠物美容师
+**视觉：** 一只手优雅地举起剪刀（或手工工具），另一只手叉腰。穿围裙。工具上刻着个人花体签名。身后有一个满意的客户剪影。手部周围有微小的闪光效果。
+**特质：** 温暖、自豪、个人化。客户为"你这个人"买单的手艺人。
+
+---
+
+## 10. TORP — 不颤之手 / The Steady Hand
+**风险等级：** 中等
+**典型职业：** 外科医生、飞行员、精密焊接技师、爆破专家、脑外科手术护士
+**视觉：** 一只手向前平伸，精准地夹着一根极细的针（或微型飞机模型），纹丝不动。穿手术服或飞行服。身后横穿一条完美水平线（像心电图平线或飞行高度指示器）。
+**特质：** 绝对冷静、精准、零误差。外科医生/飞行员的沉着。
+
+---
+
+## 11. TSFP — 灵魂匠人 / The Soul Craftsman
+**风险等级：** 中等
+**典型职业：** 独立主厨、陶艺家、手工皮具匠人、独立酿酒师、有机农场主
+**视觉：** 双手捧着一件手工作品（陶罐或摆盘料理），作品内部发出温暖的心跳般的光。穿卷袖衬衫和围裙，衣服上有面粉/泥土痕迹。作品上有故意的"不完美"纹理。
+**特质：** 温柔、骄傲、匠心。每件作品都带着灵魂的手艺人/大厨。
+
+---
+
+## 12. ESRH — 神谕者 / The Oracle
+**风险等级：** 低
+**典型职业：** 资深合伙人律师、管理咨询顾问、主治医师、投资银行高级合伙人
+**视觉：** 坐在高背椅上，双手合十抵在下巴（经典思考姿势）。穿西装外套，灰发，小山羊胡，戴圆框眼镜。桌上有水晶球或天平。身后有书架。年轻人在远处恭敬地等待他的裁决。
+**特质：** 智慧、权威、阅历。数十年经验凝成的判断力，无可替代的资深顾问。
+
+---
+
+## 13. TORH — 疗愈之手 / The Healing Hand
+**风险等级：** 低
+**典型职业：** 牙科医生、产科医生、物理治疗师、康复治疗师、护理主管
+**视觉：** 双手掌心朝外张开，手掌中发出温暖的光芒。一条脉搏/心跳波形在双手之间流动。穿白大褂或医疗服。周围漂浮着小型治愈符号（创可贴、心形、脉搏线）。
+**特质：** 温柔、关怀、可信赖。把生命交到他手里的医护人员。
+
+---
+
+## 14. TSFH — 不可替代者 / The Irreplaceable
+**风险等级：** 低
+**典型职业：** 舞蹈家、戏剧演员、歌手、脱口秀演员、魔术师、行为艺术家
+**视觉：** 舞台聚光灯下，一只手臂向上伸展，另一只横在胸前（表演姿态）。穿着流动的表演服，身体表面像活的画布一样流淌着色彩和图案。嘴巴微张像在歌唱，眼睛闭着或望向上方。
+**特质：** 热情、戏剧化、独一无二。人本身就是艺术品的表演者。
+
+---
+
+## 15. TSRP — 终极裁决者 / The Last Call
+**风险等级：** 低
+**典型职业：** 消防员、特警、急诊医生、军事指挥官、灾难救援队长
+**视觉：** 双腿分开站立的力量姿态，一只手果断地指向一个方向。穿战术装备（头盔、背心）。画面分成两半——身后是混乱符号（火焰、碎裂线、感叹号），身前是秩序与平静。
+**特质：** 果决、无畏、混乱中的定海神针。急救人员/军人/消防员。
+
+---
+
+## 16. TSRH — 铁壁堡垒 / The Iron Fortress
+**风险等级：** 极低
+**典型职业：** CEO/企业高管、顶级运动员、心理治疗师、社工督导、宗教领袖
+**视觉：** 双臂交叉，双脚站稳，穿长风衣+正装，络腮胡。四层盾牌/城墙环绕在身体周围（代表四个维度），每层盾牌上有一个小图标：大脑（隐性知识）、眼睛（主观判断）、锁（不可逆风险）、人形（人际信任）。直视观众。
+**特质：** 不可动摇、全方位防护、绝对自信。站在食物链顶端的领导者。
