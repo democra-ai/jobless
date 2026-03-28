@@ -235,7 +235,8 @@ export default async function ShareResultPage({ params }: SharePageProps) {
             {profileCode && profile ? (
               <div className="text-center mb-6">
                 {/* Icon + Archetype name */}
-                <div className="text-4xl sm:text-5xl mb-3">{profile.icon}</div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/characters/${profileCode}.png`} alt={L(profile.archetype, lang)} className="w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-2 object-contain" />
                 <div
                   className="text-2xl sm:text-3xl font-extrabold"
                   style={{ color: profile.color || riskColor }}

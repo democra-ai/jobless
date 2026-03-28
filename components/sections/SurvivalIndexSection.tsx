@@ -9,8 +9,7 @@ import {
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
-import ArchetypeAvatar from '@/components/ArchetypeAvatar';
-import type { AvatarStyle } from '@/lib/air_character_designs';
+// Character illustrations: custom AI-generated images at /public/characters/{CODE}.png
 import { BorderBeam } from '@/components/ui/border-beam';
 import { MagicCard } from '@/components/ui/magic-card';
 
@@ -328,8 +327,6 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
   const [socOpen, setSOCOpen] = useState(false);
 
   const [result, setResult] = useState<QuizResult | null>(null);
-  const [avatarStyle, setAvatarStyle] = useState<AvatarStyle>('peeps');
-
   // Share state
   const [copied, setCopied] = useState(false);
   const [wechatCopied, setWechatCopied] = useState(false);
@@ -1898,45 +1895,20 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className="text-center pt-10 sm:pt-14 pb-8 sm:pb-10"
                 >
-                  {/* Character avatar */}
+                  {/* Character illustration */}
                   <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
+                    initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: 'spring', stiffness: 180, damping: 16, delay: 0.1 }}
-                    className="relative mx-auto mb-4"
+                    transition={{ type: 'spring', stiffness: 160, damping: 18, delay: 0.1 }}
+                    className="mx-auto mb-2 w-32 h-32 sm:w-40 sm:h-40"
                   >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full overflow-hidden border" style={{ borderColor: ac + '30' }}>
-                      <ArchetypeAvatar
-                        profileCode={result.profileCode}
-                        style={avatarStyle}
-                        size={96}
-                        accentColor={ac}
-                      />
-                    </div>
-                    <span className="absolute -bottom-1 -right-1 text-lg sm:text-xl">{result.profile.icon}</span>
-                  </motion.div>
-
-                  {/* Avatar style switcher */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    className="flex items-center justify-center gap-1.5 mb-2"
-                  >
-                    {(['peeps', 'notion', 'adventurer', 'notionists', 'lorelei', 'personas'] as AvatarStyle[]).map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setAvatarStyle(s)}
-                        className="px-2 py-0.5 rounded-full text-[9px] font-medium transition-all"
-                        style={{
-                          color: avatarStyle === s ? ac : undefined,
-                          backgroundColor: avatarStyle === s ? ac + '15' : undefined,
-                          opacity: avatarStyle === s ? 1 : 0.35,
-                        }}
-                      >
-                        {s === 'peeps' ? 'Peeps' : s === 'notion' ? 'Notion' : s.charAt(0).toUpperCase() + s.slice(1)}
-                      </button>
-                    ))}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/characters/${result.profileCode}.png`}
+                      alt={L(result.profile.archetype, lang)}
+                      className="w-full h-full object-contain"
+                      loading="eager"
+                    />
                   </motion.div>
 
                   {/* Archetype name */}
