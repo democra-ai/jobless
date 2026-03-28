@@ -39,9 +39,10 @@ export function getAvatarUrl(profileCode: string, size = 128): string {
 
 /**
  * Get avatar URL optimized for OG images (PNG format, larger size).
- * Note: DiceBear returns SVG by default. For OG <img> in @vercel/og,
- * SVG works fine inside ImageResponse.
+ * Satori (used by @vercel/og ImageResponse) has limited SVG-in-img support,
+ * so we use PNG format for server-rendered OG cards and posters.
  */
 export function getAvatarUrlForOG(profileCode: string): string {
-  return getAvatarUrl(profileCode, 200);
+  const seed = ARCHETYPE_SEEDS[profileCode] || profileCode;
+  return `https://api.dicebear.com/9.x/adventurer/png?seed=${encodeURIComponent(seed)}&size=200&backgroundColor=transparent`;
 }
