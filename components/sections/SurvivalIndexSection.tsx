@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
+import { getAvatarUrl } from '@/lib/air_avatar';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { MagicCard } from '@/components/ui/magic-card';
 
@@ -1893,16 +1894,32 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-center py-12 sm:py-16"
+                  className="text-center pt-10 sm:pt-14 pb-8 sm:pb-10"
                 >
-                  {/* Icon */}
+                  {/* Avatar — DiceBear character */}
                   <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 16, delay: 0.15 }}
-                    className="text-5xl sm:text-6xl mb-5"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 180, damping: 16, delay: 0.1 }}
+                    className="relative mx-auto mb-5 w-24 h-24 sm:w-28 sm:h-28"
                   >
-                    {result.profile.icon}
+                    <div className="absolute inset-0 rounded-full blur-2xl opacity-25" style={{ backgroundColor: ac }} />
+                    <div
+                      className="relative w-full h-full rounded-full overflow-hidden border-2"
+                      style={{ borderColor: ac + '40' }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={getAvatarUrl(result.profileCode, 160)}
+                        alt={L(result.profile.archetype, lang)}
+                        className="w-full h-full"
+                        loading="eager"
+                      />
+                    </div>
+                    {/* Emoji badge — small, bottom-right */}
+                    <span className="absolute -bottom-1 -right-1 text-xl sm:text-2xl drop-shadow-lg">
+                      {result.profile.icon}
+                    </span>
                   </motion.div>
 
                   {/* Archetype name */}

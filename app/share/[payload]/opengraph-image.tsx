@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { decodeSharePayload, type SharePayload } from '@/lib/share_payload';
+import { getAvatarUrlForOG } from '@/lib/air_avatar';
 
 export const runtime = 'edge';
 export const contentType = 'image/png';
@@ -147,9 +148,20 @@ export default async function Image({ params }: Props) {
 
         {/* ── ROW 2: HERO — Identity first (icon + archetype name + tagline) ── */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: 4, position: 'relative' }}>
-          {/* Archetype icon */}
-          {profileIcon && (
-            <span style={{ fontSize: 52 }}>{profileIcon}</span>
+          {/* Avatar + emoji badge */}
+          {profileCode && (
+            <div style={{ display: 'flex', position: 'relative', width: 100, height: 100, marginBottom: 4 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={getAvatarUrlForOG(profileCode)}
+                width={100}
+                height={100}
+                style={{ borderRadius: '50%', border: `2px solid ${c.m}50` }}
+              />
+              {profileIcon && (
+                <span style={{ position: 'absolute', bottom: -4, right: -4, fontSize: 28 }}>{profileIcon}</span>
+              )}
+            </div>
           )}
           {/* Archetype name — THE PRIMARY VISUAL FOCUS */}
           {profileName && (

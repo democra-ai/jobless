@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { decodeSharePayload, type SharePayload } from '@/lib/share_payload';
+import { getAvatarUrlForOG } from '@/lib/air_avatar';
 
 export const runtime = 'edge';
 
@@ -146,9 +147,20 @@ export async function GET(
 
         {/* ── HERO: Identity section ── */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: 80, gap: 8 }}>
-          {/* Icon */}
-          {profileIcon && (
-            <span style={{ fontSize: 80 }}>{profileIcon}</span>
+          {/* Avatar + emoji badge */}
+          {profileCode && (
+            <div style={{ display: 'flex', position: 'relative', width: 140, height: 140, marginBottom: 8 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={getAvatarUrlForOG(profileCode)}
+                width={140}
+                height={140}
+                style={{ borderRadius: '50%', border: `3px solid ${c.m}50` }}
+              />
+              {profileIcon && (
+                <span style={{ position: 'absolute', bottom: -6, right: -6, fontSize: 40 }}>{profileIcon}</span>
+              )}
+            </div>
           )}
           {/* Archetype name — BIGGEST ELEMENT */}
           {profileName && (
