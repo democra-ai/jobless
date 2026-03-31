@@ -33,6 +33,9 @@ const UI: Record<string, Record<ShareLang, string>> = {
   takeSelf:       { en: 'Take the Test Yourself', zh: '自己来测一下', ja: '自分でテストしてみる', ko: '직접 테스트 해보기', de: 'Selbst testen' },
   realityCheck:   { en: 'Reality Check:', zh: '现实检查：', ja: 'リアリティチェック:', ko: '현실 확인:', de: 'Realitätscheck:' },
   realityText:    { en: 'This is a probability estimate based on dimensional analysis, not a certainty. Your actual trajectory depends on your choices.', zh: '这是基于维度分析的概率估算，并非确定结论。你的实际轨迹取决于你的选择。', ja: 'これは次元分析に基づく確率推定であり、確実性ではありません。あなたの実際の軌跡はあなたの選択次第です。', ko: '이것은 차원 분석에 기반한 확률 추정이며, 확실한 결과가 아닙니다. 실제 경로는 당신의 선택에 달려 있습니다.', de: 'Dies ist eine Wahrscheinlichkeitsschätzung basierend auf Dimensionsanalyse, keine Gewissheit. Ihre tatsächliche Entwicklung hängt von Ihren Entscheidungen ab.' },
+  superpower:     { en: 'Superpower', zh: '超能力', ja: '超能力', ko: '초능력', de: 'Superkraft' },
+  kryptonite:     { en: 'Kryptonite', zh: '弱点', ja: '弱点', ko: '약점', de: 'Schwäche' },
+  youAreHere:     { en: 'YOU ARE HERE', zh: '你在这里', ja: 'あなたはここ', ko: '당신은 여기', de: 'SIE SIND HIER' },
 };
 
 function t(key: string, lang: ShareLang): string {
@@ -54,7 +57,17 @@ const DIMENSION_COLORS = ['#7c4dff', '#ff6e40', '#5ec6b0', '#ff80ab'];
 // The favorable letters per dimension (in order: learnability, evaluation, risk, presence)
 const FAVORABLE_LETTERS = ['E', 'O', 'F', 'P'];
 
-// ─── Metadata (unchanged) ────────────────────────────────────────────────────
+// ─── Gauge helpers ──────────────────────────────────────────────────────────
+
+const GAUGE_STAGES = [
+  { label: 'SAFE', labelZh: '安全', color: '#34d399' },
+  { label: 'ASSIST', labelZh: '辅助', color: '#4ade80' },
+  { label: 'AGENT', labelZh: '代理', color: '#fbbf24' },
+  { label: 'LEAD', labelZh: '主导', color: '#fb923c' },
+  { label: 'KILL', labelZh: '斩杀', color: '#f43f5e' },
+];
+
+// ─── Metadata ────────────────────────────────────────────────────────────────
 
 function riskLabel(payload: SharePayload): string {
   const isZh = payload.lang === 'zh';
@@ -177,33 +190,28 @@ export default async function ShareResultPage({ params }: SharePageProps) {
   const careers = profileCode ? PROFILE_CAREERS[profileCode] : null;
   const riskTier = profile?.riskTier;
   const riskColor = riskTier ? RISK_TIER_INFO[riskTier].color : riskColorFromScore(result.replacementProbability);
+  const ac = profile?.color || riskColor; // accent color
 
   // Reconstruct dimension info from profileCode letters
   const dimLetters = profileCode ? profileCode.split('') : [];
   const dimensions = dimLetters.map((letter, i) => {
     const quizDim = QUIZ_DIMENSIONS[i];
     const isFavorable = letter === FAVORABLE_LETTERS[i];
-    return {
-      letter,
-      dimensionId: quizDim?.id ?? '',
-      isFavorable,
-      quizDim,
-    };
+    return { letter, dimensionId: quizDim?.id ?? '', isFavorable, quizDim };
   });
 
   // Generate advice from dimensions
   const adviceList = profileCode
     ? generateAdvice(dimensions.map(d => ({ dimensionId: d.dimensionId, isFavorable: d.isFavorable })))
     : [];
-  const accentColors = ['#ff1744', '#ffc107', '#34d399', '#448aff', '#e040fb'];
 
   const isInfinity = !isFinite(result.predictedReplacementYear);
-  const probColor = riskColorFromScore(result.replacementProbability);
-  const yearsAway = isInfinity ? 99 : result.predictedReplacementYear - new Date().getFullYear();
-  const yearColor = isInfinity ? '#34d399' : riskColorFromScore(Math.max(0, Math.min(100, 100 - yearsAway * 4)));
+  const prob = result.replacementProbability;
+  const activeStageIdx = Math.min(Math.floor(prob / 20), 4);
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:px-6 sm:py-12">
+    <main className="min-h-screen px-4 py-8 sm:py-12">
+      {/* Hidden image for crawlers */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`${origin}/share-card.png`}
@@ -213,304 +221,334 @@ export default async function ShareResultPage({ params }: SharePageProps) {
         aria-hidden="true"
         style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}
       />
-      <div className="max-w-[640px] mx-auto">
-        <div className="mb-4 text-sm text-foreground-muted text-center">
-          {t('sharedFrom', lang)}
-        </div>
 
-        {/* ══════════════ Unified Result Card ══════════════ */}
+      <div className="max-w-[480px] mx-auto">
+
+        {/* ══════════════ THE CARD ══════════════ */}
         <div
-          className="relative overflow-hidden rounded-2xl"
-          style={{ border: `1px solid ${riskColor}20` }}
+          className="relative overflow-hidden rounded-3xl"
+          style={{
+            background: `linear-gradient(180deg, ${ac}08 0%, transparent 40%, ${ac}05 100%)`,
+            border: `1px solid ${ac}18`,
+            boxShadow: `0 0 80px ${ac}08, 0 24px 48px rgba(0,0,0,0.4)`,
+          }}
         >
-          {/* Background glow */}
+          {/* Decorative background elements */}
           <div
-            className="absolute -top-32 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full blur-[120px] opacity-15"
-            style={{ backgroundColor: riskColor }}
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-[0.07]"
+            style={{ background: `radial-gradient(circle, ${ac}, transparent 70%)` }}
+          />
+          <div
+            className="absolute top-20 right-0 w-48 h-48 rounded-full opacity-[0.04]"
+            style={{ background: `radial-gradient(circle, ${ac}, transparent 70%)` }}
           />
 
-          <div className="relative z-10 p-6 sm:p-8">
+          <div className="relative z-10">
 
-            {/* ── Archetype Reveal (shareable identity) ── */}
-            {profileCode && profile ? (
-              <div className="text-center mb-6">
-                {/* Icon + Archetype name */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/characters/${profileCode}.png`} alt={L(profile.archetype, lang)} className="w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-2 object-contain" />
+            {/* ── Top bar: AIR branding ── */}
+            <div className="flex items-center justify-between px-6 pt-5 pb-2">
+              <div className="flex items-center gap-2">
                 <div
-                  className="text-2xl sm:text-3xl font-extrabold"
-                  style={{ color: profile.color || riskColor }}
-                >
-                  {L(profile.archetype, lang)}
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: ac, boxShadow: `0 0 8px ${ac}80` }}
+                />
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-muted/40">
+                  AI Replacement Index
+                </span>
+              </div>
+              <span className="text-[10px] text-foreground-muted/30 font-mono">
+                air.democra.ai
+              </span>
+            </div>
+
+            {/* ── HERO: Character + Identity ── */}
+            <div className="text-center px-6 pt-4 pb-6">
+              {profileCode && profile ? (
+                <>
+                  {/* Character illustration with glow backdrop */}
+                  <div className="relative inline-block mb-4">
+                    <div
+                      className="absolute inset-0 rounded-full blur-[40px] opacity-20"
+                      style={{ backgroundColor: ac }}
+                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/characters/${profileCode}.png`}
+                      alt={L(profile.archetype, lang)}
+                      className="relative w-36 h-36 sm:w-44 sm:h-44 object-contain"
+                    />
+                  </div>
+
+                  {/* Archetype name */}
+                  <h1
+                    className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none"
+                    style={{ color: ac }}
+                  >
+                    {L(profile.archetype, lang)}
+                  </h1>
+
+                  {/* Profile code */}
+                  <div
+                    className="mt-2 text-sm sm:text-base font-bold tracking-[0.35em]"
+                    style={{ color: `${ac}88`, fontFamily: 'var(--font-body)' }}
+                  >
+                    {profileCode}
+                  </div>
+
+                  {/* Tagline */}
+                  <p className="mt-3 text-sm text-foreground-muted/60 italic max-w-xs mx-auto leading-relaxed">
+                    &ldquo;{L(profile.tagline, lang)}&rdquo;
+                  </p>
+                </>
+              ) : (
+                <div className="py-4">
+                  <div className="text-4xl font-extrabold" style={{ color: ac }}>
+                    {result.replacementProbability}%
+                  </div>
+                  <div className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: ac }}>
+                    {riskLabel(result)}
+                  </div>
                 </div>
+              )}
+            </div>
+
+            {/* ── GAUGE BAR ── */}
+            <div className="px-6 pb-5">
+              {/* Pointer */}
+              <div className="relative h-5 mb-1">
                 <div
-                  className="text-sm font-bold tracking-[0.25em] mt-1.5"
-                  style={{ color: (profile.color || riskColor) + 'aa', fontFamily: 'var(--font-body)' }}
+                  className="absolute top-0 flex flex-col items-center -translate-x-1/2"
+                  style={{ left: `${Math.min(Math.max(prob, 3), 97)}%` }}
                 >
-                  {profileCode}
-                </div>
-                <p className="text-sm sm:text-base text-foreground-muted mt-2 max-w-md mx-auto italic">
-                  &ldquo;{L(profile.tagline, lang)}&rdquo;
-                </p>
-                <div
-                  className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
-                  style={{ color: riskColor, backgroundColor: riskColor + '15', border: `1px solid ${riskColor}30` }}
-                >
-                  {L(RISK_TIER_INFO[profile.riskTier].label, lang)}
+                  <span
+                    className="text-[8px] font-bold uppercase tracking-[0.15em] whitespace-nowrap"
+                    style={{ color: ac }}
+                  >
+                    {t('youAreHere', lang)}
+                  </span>
+                  <div
+                    className="w-0 h-0 mt-0.5"
+                    style={{
+                      borderLeft: '4px solid transparent',
+                      borderRight: '4px solid transparent',
+                      borderTop: `5px solid ${ac}`,
+                    }}
+                  />
                 </div>
               </div>
-            ) : (
-              <div className="text-center mb-6">
-                <div
-                  className="text-2xl sm:text-3xl font-bold"
-                  style={{ color: riskColor }}
-                >
-                  {result.replacementProbability}%
-                </div>
-                <div
-                  className="text-xs font-bold uppercase tracking-widest mt-1"
-                  style={{ color: riskColor }}
-                >
-                  {riskLabel(result)}
-                </div>
-              </div>
-            )}
 
-            {/* ── 4-Dimension Axis Display ── */}
-            {dimensions.length === 4 && (
-              <div className="space-y-3 mb-6">
-                {dimensions.map((dim, i) => {
-                  const quizDim = dim.quizDim;
-                  if (!quizDim) return null;
-                  const color = DIMENSION_COLORS[i];
-                  // Without rawAverage, show binary: favorable = 75%, resistant = 25%
-                  const positionPct = dim.isFavorable ? 75 : 25;
-                  const leftPct = Math.round(100 - positionPct);
-                  const rightPct = Math.round(positionPct);
+              {/* Bar segments */}
+              <div className="flex gap-[3px]">
+                {GAUGE_STAGES.map((stage, i) => {
+                  const segStart = i * 20;
+                  const segEnd = segStart + 20;
+                  const fill = prob >= segEnd ? 1 : prob <= segStart ? 0 : (prob - segStart) / 20;
+                  const isActive = i === activeStageIdx;
 
                   return (
-                    <div key={dim.dimensionId} className="group relative">
-                      <div className="flex items-center gap-3">
-                        {/* Letter badge */}
-                        <div
-                          className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-lg sm:text-xl"
-                          style={{
-                            backgroundColor: color + '18',
-                            color,
-                            fontFamily: 'var(--font-body)',
-                          }}
-                        >
-                          {dim.letter}
-                        </div>
-
-                        {/* Axis bar area */}
-                        <div className="flex-1 min-w-0">
-                          {/* Axis labels */}
-                          <div className="flex items-center justify-between mb-1">
-                            <span className={`text-[10px] sm:text-[11px] font-medium ${
-                              !dim.isFavorable ? 'text-emerald-400' : 'text-foreground-muted/50'
-                            }`}>
-                              {L(quizDim.resistantLabel, lang)}
-                            </span>
-                            <span className="text-[10px] text-foreground-muted/40">
-                              {L(quizDim.name, lang)}
-                            </span>
-                            <span className={`text-[10px] sm:text-[11px] font-medium ${
-                              dim.isFavorable ? 'text-rose-400' : 'text-foreground-muted/50'
-                            }`}>
-                              {L(quizDim.favorableLabel, lang)}
-                            </span>
-                          </div>
-
-                          {/* Horizontal bar */}
-                          <div className="relative h-2.5">
-                            <div className="absolute inset-0 rounded-full bg-overlay-6 overflow-hidden">
-                              {/* Filled portion from center */}
-                              <div
-                                className="absolute inset-y-0 rounded-full"
-                                style={{
-                                  background: positionPct >= 50
-                                    ? `linear-gradient(to right, ${color}30, ${color}80)`
-                                    : `linear-gradient(to left, ${color}30, ${color}80)`,
-                                  left: positionPct >= 50 ? '50%' : undefined,
-                                  right: positionPct < 50 ? '50%' : undefined,
-                                  width: `${Math.abs(positionPct - 50)}%`,
-                                }}
-                              />
-                            </div>
-                            {/* Center line */}
-                            <div
-                              className="absolute top-0 bottom-0 w-px z-[5]"
-                              style={{ left: '50%', backgroundColor: 'var(--foreground-dim)', opacity: 0.4 }}
-                            />
-                            {/* Position dot */}
-                            <div
-                              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 z-10"
-                              style={{
-                                left: `${positionPct}%`,
-                                backgroundColor: color,
-                                borderColor: 'var(--shadow-soft)',
-                                boxShadow: `0 0 8px ${color}60`,
-                              }}
-                            />
-                          </div>
-
-                          {/* Direction indicator */}
-                          <div className="flex items-center justify-center mt-1.5">
-                            <span
-                              className="text-[9px] font-bold px-2 py-0.5 rounded-full"
-                              style={{ color, backgroundColor: color + '15' }}
-                            >
-                              {dim.isFavorable
-                                ? `→ ${L(quizDim.favorableLabel, lang)} (${rightPct}%)`
-                                : `← ${L(quizDim.resistantLabel, lang)} (${leftPct}%)`
-                              }
-                            </span>
-                          </div>
-                        </div>
+                    <div key={i} className="flex-1">
+                      {/* Segment bar */}
+                      <div className="relative h-2 rounded-full overflow-hidden bg-white/[0.04]">
+                        {fill > 0 && (
+                          <div
+                            className="absolute inset-y-0 left-0 rounded-full"
+                            style={{ width: `${fill * 100}%`, backgroundColor: stage.color }}
+                          />
+                        )}
+                      </div>
+                      {/* Label */}
+                      <div
+                        className="text-center mt-1.5 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-[0.12em]"
+                        style={{
+                          color: isActive ? stage.color : 'var(--foreground-muted)',
+                          opacity: isActive ? 1 : 0.25,
+                        }}
+                      >
+                        {lang === 'zh' ? stage.labelZh : stage.label}
                       </div>
                     </div>
                   );
                 })}
               </div>
-            )}
+            </div>
 
-            {/* ── Metrics Strip ── */}
-            <div className="flex items-center justify-center gap-5 sm:gap-8 py-4 border-t border-b border-overlay-6">
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold" style={{ color: probColor }}>
-                  {result.replacementProbability}%
+            {/* ── Metrics: Probability + Year ── */}
+            <div className="mx-6 flex items-stretch rounded-2xl overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="flex-1 text-center py-4 px-3">
+                <div className="text-3xl sm:text-4xl font-extrabold tabular-nums" style={{ color: ac }}>
+                  {result.replacementProbability}<span className="text-lg">%</span>
                 </div>
-                <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">
+                <div className="text-[9px] text-foreground-muted/40 uppercase tracking-[0.12em] mt-1 font-medium">
                   {t('replProb', lang)}
                 </div>
               </div>
-              <div className="w-px h-10 bg-overlay-10" />
-              <div className="text-center">
+              <div className="w-px my-3" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }} />
+              <div className="flex-1 text-center py-4 px-3">
                 {isInfinity ? (
-                  <div className="text-2xl sm:text-3xl font-bold" style={{ color: yearColor }}>&#8734;</div>
+                  <div className="text-3xl sm:text-4xl font-extrabold text-foreground/80">&infin;</div>
                 ) : (
-                  <div className="text-2xl sm:text-3xl font-bold" style={{ color: yearColor }}>
+                  <div className="text-3xl sm:text-4xl font-extrabold tabular-nums text-foreground/90">
                     {result.predictedReplacementYear}
                   </div>
                 )}
-                <div className="text-[10px] text-foreground-muted uppercase tracking-wider mt-0.5">
+                <div className="text-[9px] text-foreground-muted/40 uppercase tracking-[0.12em] mt-1 font-medium">
                   {t('predYear', lang)}
                 </div>
                 {isInfinity ? (
-                  <div className="text-[10px] text-foreground-muted/40">
+                  <div className="text-[9px] text-foreground-muted/25 mt-0.5">
                     {t('unpredictable', lang)}
                   </div>
                 ) : (
-                  <div className="text-[10px] text-foreground-muted/40 font-mono">
+                  <div className="text-[9px] text-foreground-muted/25 font-mono mt-0.5">
                     {result.earliestYear}&ndash;{result.latestYear}
                   </div>
                 )}
               </div>
             </div>
 
+            {/* ── 4-Dimension DNA ── */}
+            {dimensions.length === 4 && (
+              <div className="px-6 pt-6 pb-2">
+                <div className="grid grid-cols-4 gap-2">
+                  {dimensions.map((dim, i) => {
+                    const quizDim = dim.quizDim;
+                    if (!quizDim) return null;
+                    const color = DIMENSION_COLORS[i];
+                    const label = dim.isFavorable
+                      ? L(quizDim.favorableLabel, lang)
+                      : L(quizDim.resistantLabel, lang);
+
+                    return (
+                      <div
+                        key={dim.dimensionId}
+                        className="text-center rounded-xl py-3 px-1"
+                        style={{ backgroundColor: `${color}08`, border: `1px solid ${color}12` }}
+                      >
+                        {/* Letter */}
+                        <div
+                          className="text-2xl font-extrabold leading-none"
+                          style={{ color, fontFamily: 'var(--font-body)' }}
+                        >
+                          {dim.letter}
+                        </div>
+                        {/* Dimension name */}
+                        <div className="text-[8px] text-foreground-muted/30 uppercase tracking-wider mt-1.5 font-medium">
+                          {L(quizDim.name, lang)}
+                        </div>
+                        {/* Direction label */}
+                        <div
+                          className="text-[9px] font-bold mt-1 leading-tight"
+                          style={{ color: `${color}cc` }}
+                        >
+                          {label}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* ── Superpower & Kryptonite ── */}
             {profile && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
-                <div className="rounded-xl p-4" style={{ backgroundColor: '#00c85310', border: '1px solid #00c85320' }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1.5">
-                    {lang === 'zh' ? '你的超能力' : lang === 'ja' ? '超能力' : lang === 'ko' ? '초능력' : lang === 'de' ? 'Superkraft' : 'Superpower'}
-                  </div>
-                  <p className="text-sm text-foreground-muted leading-relaxed">{L(profile.superpower, lang)}</p>
-                </div>
-                <div className="rounded-xl p-4" style={{ backgroundColor: '#ff174410', border: '1px solid #ff174420' }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-rose-400 mb-1.5">
-                    {lang === 'zh' ? '你的弱点' : lang === 'ja' ? '弱点' : lang === 'ko' ? '약점' : lang === 'de' ? 'Schwäche' : 'Kryptonite'}
-                  </div>
-                  <p className="text-sm text-foreground-muted leading-relaxed">{L(profile.kryptonite, lang)}</p>
-                </div>
-              </div>
-            )}
-
-            {/* ── Vulnerability & Defense Analysis ── */}
-            {calibration && (
-              <div className="pt-4 mt-2 border-t border-overlay-6 space-y-3">
-                {/* Vulnerability */}
-                <div className="flex items-start gap-2.5">
-                  <div
-                    className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5"
-                    style={{ background: '#ff174420' }}
-                  >
-                    <span className="text-[10px]">&#9889;</span>
+              <div className="px-6 pt-4 pb-2 space-y-2.5">
+                <div className="flex items-start gap-3 rounded-xl px-4 py-3" style={{ backgroundColor: '#34d39908', border: '1px solid #34d39912' }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#34d39915' }}>
+                    <span className="text-sm">&#9889;</span>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[11px] font-bold" style={{ color: '#ff1744' }}>
-                      {t('vulnerable', lang)}
+                    <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-emerald-400/70 mb-0.5">
+                      {t('superpower', lang)}
                     </div>
-                    <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-0.5">
-                      {L(calibration.vulnerabilities, lang)}
-                    </p>
+                    <p className="text-xs text-foreground-muted/50 leading-relaxed">{L(profile.superpower, lang)}</p>
                   </div>
                 </div>
-                {/* Defense */}
-                <div className="flex items-start gap-2.5">
-                  <div
-                    className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5"
-                    style={{ background: '#34d39920' }}
-                  >
-                    <span className="text-[10px]">&#128737;&#65039;</span>
+                <div className="flex items-start gap-3 rounded-xl px-4 py-3" style={{ backgroundColor: '#ff174408', border: '1px solid #ff174412' }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#ff174415' }}>
+                    <span className="text-sm">&#128165;</span>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[11px] font-bold" style={{ color: '#34d399' }}>
-                      {t('defense', lang)}
+                    <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-rose-400/70 mb-0.5">
+                      {t('kryptonite', lang)}
                     </div>
-                    <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-0.5">
-                      {L(calibration.strengths, lang)}
-                    </p>
+                    <p className="text-xs text-foreground-muted/50 leading-relaxed">{L(profile.kryptonite, lang)}</p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* ── Career Risk Spectrum ── */}
+            {/* ── Career Risk Spectrum (compact: top 3) ── */}
             {careers && careers.length > 0 && (
-              <div className="pt-4 mt-2 border-t border-overlay-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70">
+              <div className="px-6 pt-4 pb-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-foreground-muted/40">
                     {t('careerSpectrum', lang)}
                   </h4>
-                  <span className="text-[9px] text-foreground-muted/40">
-                    {t('careerHint', lang)}
-                  </span>
+                  <div className="flex-1 h-px bg-white/[0.04]" />
                 </div>
                 <div className="space-y-2">
-                  {careers.map((career, ci) => {
+                  {careers.slice(0, 4).map((career, ci) => {
                     const cColor = riskColorFromScore(career.riskScore);
                     return (
-                      <div key={ci} className="group/career">
-                        <div className="flex items-center gap-2.5">
-                          {/* Risk score badge */}
-                          <div
-                            className="flex-shrink-0 w-9 h-6 rounded flex items-center justify-center text-[10px] font-bold"
-                            style={{ backgroundColor: cColor + '18', color: cColor }}
-                          >
-                            {career.riskScore}
-                          </div>
-                          {/* Career info */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium truncate">
-                                {L(career.title, lang)}
-                              </span>
-                            </div>
-                            {/* Risk bar */}
-                            <div className="h-1 rounded-full bg-overlay-6 mt-1 overflow-hidden">
-                              <div
-                                className="h-full rounded-full"
-                                style={{ backgroundColor: cColor, width: `${career.riskScore}%` }}
-                              />
-                            </div>
+                      <div key={ci} className="flex items-center gap-2.5">
+                        <span
+                          className="flex-shrink-0 w-8 text-right text-[11px] font-bold tabular-nums"
+                          style={{ color: cColor }}
+                        >
+                          {career.riskScore}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[11px] text-foreground/70 font-medium">
+                            {L(career.title, lang)}
+                          </span>
+                          <div className="h-1 rounded-full bg-white/[0.04] mt-1 overflow-hidden">
+                            <div
+                              className="h-full rounded-full"
+                              style={{ backgroundColor: cColor, width: `${career.riskScore}%` }}
+                            />
                           </div>
                         </div>
-                        {/* Reason */}
-                        <div className="max-h-0 group-hover/career:max-h-16 overflow-hidden transition-all duration-200 ease-out">
-                          <p className="text-[10px] text-foreground-muted/50 leading-relaxed mt-1 ml-[46px]">
-                            {L(career.reason, lang)}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ── Action Plan (compact: top 3) ── */}
+            {adviceList.length > 0 && (
+              <div className="px-6 pt-4 pb-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-foreground-muted/40">
+                    {t('actionPlan', lang)}
+                  </h4>
+                  <div className="flex-1 h-px bg-white/[0.04]" />
+                </div>
+                <div className="space-y-2">
+                  {adviceList.slice(0, 3).map((advice, ai) => {
+                    const isFirst = ai === 0;
+                    return (
+                      <div key={ai} className="flex items-start gap-2.5">
+                        <span className="text-sm flex-shrink-0 mt-0.5 opacity-50">{advice.icon}</span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className="text-[11px] font-bold"
+                              style={{ color: isFirst ? ac : undefined }}
+                            >
+                              {L(advice.title, lang)}
+                            </span>
+                            {isFirst && (
+                              <span
+                                className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                                style={{ background: `${ac}15`, color: ac }}
+                              >
+                                {t('priority', lang)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-foreground-muted/40 leading-relaxed mt-0.5">
+                            {L(advice.body, lang)}
                           </p>
                         </div>
                       </div>
@@ -520,82 +558,38 @@ export default async function ShareResultPage({ params }: SharePageProps) {
               </div>
             )}
 
-            {/* ── Personalized Action Plan ── */}
-            {adviceList.length > 0 && (
-              <div className="pt-5 mt-3 border-t border-overlay-6">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground-muted/70 mb-4 flex items-center gap-2">
-                  <span className="inline-block w-4 h-px" style={{ background: 'linear-gradient(90deg, #ff1744, #ffc107, #34d399)' }} />
-                  {t('actionPlan', lang)}
-                  <span className="inline-block flex-1 h-px bg-overlay-6" />
-                </h4>
-                <div className="space-y-0">
-                  {adviceList.map((advice, ai) => {
-                    const accent = accentColors[ai % accentColors.length];
-                    const isFirst = ai === 0;
-                    return (
-                      <div key={ai}>
-                        <div className={`relative flex items-start gap-3 py-3.5 ${ai > 0 ? 'border-t border-overlay-4' : ''}`}>
-                          {/* Icon */}
-                          <div className="flex flex-col items-center gap-1 flex-shrink-0 w-7">
-                            <div
-                              className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm ${isFirst ? 'ring-1 ring-overlay-10' : ''}`}
-                              style={{ background: isFirst ? `${accent}20` : `${accent}10`, color: accent }}
-                            >
-                              {advice.icon}
-                            </div>
-                            {ai < adviceList.length - 1 && (
-                              <div className="w-px flex-1 min-h-[8px] bg-overlay-6" />
-                            )}
-                          </div>
-                          {/* Content */}
-                          <div className="min-w-0 flex-1 pt-0.5">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className="text-[11px] sm:text-xs font-bold"
-                                style={{ color: isFirst ? accent : undefined }}
-                              >
-                                {L(advice.title, lang)}
-                              </span>
-                              {isFirst && (
-                                <span
-                                  className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
-                                  style={{ background: `${accent}20`, color: accent }}
-                                >
-                                  {t('priority', lang)}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-[10px] sm:text-[11px] text-foreground-muted/55 leading-relaxed mt-1">
-                              {L(advice.body, lang)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Reality check footer */}
-          <div className="flex items-start gap-3 px-6 sm:px-8 py-3 bg-overlay-2 border-t border-overlay-4">
-            <span className="text-sm flex-shrink-0 mt-0.5" style={{ color: '#ff1744' }}>&#128293;</span>
-            <p className="text-[11px] text-foreground-muted/60 leading-relaxed">
-              <span className="font-semibold text-foreground-muted/80">{t('realityCheck', lang)}</span>{' '}
-              {t('realityText', lang)}
-            </p>
+            {/* ── Footer: Reality check ── */}
+            <div className="mx-6 mt-4 mb-6 rounded-xl px-4 py-3" style={{ backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <p className="text-[10px] text-foreground-muted/35 leading-relaxed">
+                <span className="font-semibold text-foreground-muted/50">{t('realityCheck', lang)}</span>{' '}
+                {t('realityText', lang)}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* ── CTA Button ── */}
-        <div className="mt-8 flex justify-center">
+        <div className="mt-6 flex justify-center">
           <Link
             href="/#risk-calculator"
-            className="inline-flex rounded-xl bg-risk-high px-6 py-3 text-white font-semibold hover:bg-risk-high/85 transition-colors"
+            className="group relative inline-flex items-center gap-2 rounded-2xl px-8 py-3.5 font-bold text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            style={{
+              background: `linear-gradient(135deg, ${ac}, ${ac}cc)`,
+              boxShadow: `0 8px 24px ${ac}30, 0 2px 8px ${ac}20`,
+            }}
           >
             {t('takeSelf', lang)}
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="transition-transform group-hover:translate-x-0.5">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </Link>
+        </div>
+
+        {/* ── Branding footer ── */}
+        <div className="mt-4 text-center">
+          <span className="text-[10px] text-foreground-muted/20 tracking-wider">
+            air.democra.ai
+          </span>
         </div>
       </div>
     </main>
