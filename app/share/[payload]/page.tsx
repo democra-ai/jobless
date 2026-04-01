@@ -158,361 +158,256 @@ export default async function ShareResultPage({ params }: SharePageProps) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={`${origin}/share-card.png`} alt="" width={600} height={315} aria-hidden="true" style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} />
 
-      <main className="min-h-screen overflow-hidden" style={{ background: '#0a0908' }}>
+      <main className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-12" style={{ background: '#0a0908' }}>
+        <div className="w-full max-w-[420px]">
 
-        {/* ━━━ HERO ZONE ━━━ Full-bleed character reveal */}
-        <section className="relative min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-end">
-
-          {/* Accent color wash behind character */}
+          {/* ━━━ THE CARD ━━━ */}
           <div
-            className="absolute inset-0 opacity-[0.12]"
-            style={{ background: `radial-gradient(ellipse 80% 60% at 50% 30%, ${ac}, transparent)` }}
-          />
-
-          {/* Subtle noise texture */}
-          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.5\'/%3E%3C/svg%3E")', backgroundSize: '256px 256px' }} />
-
-          {/* Profile code as massive watermark */}
-          {profileCode && (
-            <div
-              className="absolute top-[12vh] left-1/2 -translate-x-1/2 select-none pointer-events-none"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 'clamp(180px, 35vw, 360px)',
-                fontWeight: 900,
-                letterSpacing: '0.15em',
-                lineHeight: 1,
-                color: `${ac}06`,
-              }}
-            >
-              {profileCode}
-            </div>
-          )}
-
-          {/* Character illustration, centered and large */}
-          {profileCode && profile && (
-            <div className="absolute top-[8vh] sm:top-[6vh] left-1/2 -translate-x-1/2 w-[280px] h-[280px] sm:w-[340px] sm:h-[340px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`/characters/${profileCode}.png`}
-                alt={L(profile.archetype, lang)}
-                className="w-full h-full object-contain drop-shadow-[0_0_60px_rgba(0,0,0,0.5)]"
-              />
-            </div>
-          )}
-
-          {/* Bottom content overlay */}
-          <div
-            className="relative z-10 px-6 sm:px-8 pb-8"
-            style={{ background: 'linear-gradient(to top, #0a0908 0%, #0a0908ee 40%, transparent 100%)' }}
+            className="relative overflow-hidden"
+            style={{
+              background: '#100e0c',
+              border: `1px solid rgba(255,255,255,0.06)`,
+              borderRadius: '2px',
+            }}
           >
-            {/* AIR tag */}
-            <div className="mb-6 pt-32 sm:pt-40">
-              <span
-                className="inline-block text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1"
-                style={{ color: ac, borderLeft: `2px solid ${ac}` }}
-              >
-                AI Replacement Index
-              </span>
-            </div>
+            {/* Accent color wash */}
+            <div
+              className="absolute inset-0 opacity-[0.08] pointer-events-none"
+              style={{ background: `radial-gradient(ellipse 100% 50% at 50% 0%, ${ac}, transparent)` }}
+            />
 
-            {/* Archetype name — large, left-aligned */}
-            {profile ? (
-              <h1
-                className="leading-[0.9] tracking-tight"
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(2.5rem, 10vw, 4.5rem)',
-                  fontWeight: 800,
-                  color: ac,
-                }}
-              >
-                {L(profile.archetype, lang)}
-              </h1>
-            ) : (
-              <h1
-                className="text-5xl sm:text-7xl font-extrabold tracking-tight leading-[0.9]"
-                style={{ color: ac }}
-              >
-                {prob}%
-              </h1>
-            )}
-
-            {/* Profile code + tagline */}
-            {profile && profileCode && (
-              <div className="mt-4 flex items-start gap-4">
+            {/* ── Hero: Character + Identity ── */}
+            <div className="relative pt-5 px-5 pb-4">
+              {/* Top bar */}
+              <div className="flex items-center justify-between mb-4">
                 <span
-                  className="text-sm font-bold tracking-[0.3em] mt-1 flex-shrink-0"
-                  style={{ color: `${ac}66`, fontFamily: 'var(--font-body)' }}
+                  className="text-[9px] font-bold uppercase tracking-[0.2em] pl-2"
+                  style={{ color: ac, borderLeft: `2px solid ${ac}` }}
                 >
-                  {profileCode}
+                  AI Replacement Index
                 </span>
-                <p className="text-sm leading-relaxed" style={{ color: '#8e878099' }}>
-                  {L(profile.tagline, lang)}
-                </p>
+                <span className="text-[9px]" style={{ color: '#8e878025' }}>
+                  air.democra.ai
+                </span>
               </div>
-            )}
-          </div>
-        </section>
 
-        {/* ━━━ GAUGE STRIP ━━━ Full-width status bar */}
-        <section className="relative" style={{ backgroundColor: '#0d0b09' }}>
-          {/* Top accent line */}
-          <div className="h-px w-full" style={{ background: `linear-gradient(90deg, transparent, ${ac}30, transparent)` }} />
-
-          <div className="px-6 sm:px-8 py-5">
-            <div className="flex gap-1">
-              {GAUGE_STAGES.map((stage, i) => {
-                const segStart = i * 20;
-                const segEnd = segStart + 20;
-                const fill = prob >= segEnd ? 1 : prob <= segStart ? 0 : (prob - segStart) / 20;
-                const isActive = i === activeStageIdx;
-
-                return (
-                  <div key={i} className="flex-1">
+              {profileCode && profile ? (
+                <div className="flex items-start gap-4">
+                  {/* Character */}
+                  <div className="relative flex-shrink-0">
                     <div
-                      className="relative h-1.5 rounded-sm overflow-hidden"
-                      style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
-                    >
-                      {fill > 0 && (
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-sm"
-                          style={{ width: `${fill * 100}%`, backgroundColor: stage.color }}
-                        />
-                      )}
-                    </div>
-                    <div
-                      className="mt-2 text-center"
-                      style={{
-                        fontSize: '9px',
-                        fontWeight: 800,
-                        letterSpacing: '0.15em',
-                        color: isActive ? stage.color : 'rgba(255,255,255,0.12)',
-                      }}
-                    >
-                      {lang === 'zh' ? stage.zh : stage.label}
-                    </div>
+                      className="absolute inset-0 blur-[30px] opacity-25 rounded-full"
+                      style={{ backgroundColor: ac }}
+                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/characters/${profileCode}.png`}
+                      alt={L(profile.archetype, lang)}
+                      className="relative w-28 h-28 sm:w-32 sm:h-32 object-contain"
+                    />
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="h-px w-full" style={{ background: `linear-gradient(90deg, transparent, ${ac}15, transparent)` }} />
-        </section>
-
-        {/* ━━━ DATA ZONE ━━━ */}
-        <section className="px-6 sm:px-8 pt-10 pb-8">
-
-          {/* Two big numbers side by side */}
-          <div className="flex items-baseline gap-8 sm:gap-12">
-            {/* Probability */}
-            <div>
-              <div className="flex items-baseline">
-                <span
-                  className="tabular-nums leading-none"
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'clamp(3rem, 12vw, 5rem)',
-                    fontWeight: 700,
-                    color: ac,
-                  }}
-                >
-                  {prob}
-                </span>
-                <span
-                  className="leading-none ml-1"
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'clamp(1.2rem, 4vw, 1.8rem)',
-                    fontWeight: 700,
-                    color: `${ac}80`,
-                  }}
-                >
-                  %
-                </span>
-              </div>
-              <div className="mt-1 text-[11px] uppercase tracking-[0.12em] font-medium" style={{ color: '#8e878060' }}>
-                {t('replProb', lang)}
-              </div>
-            </div>
-
-            {/* Year */}
-            <div>
-              <div className="flex items-baseline">
-                {isInfinity ? (
-                  <span
-                    className="leading-none"
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 'clamp(3rem, 12vw, 5rem)',
-                      fontWeight: 700,
-                      color: '#f5f3f0',
-                    }}
-                  >
-                    &infin;
-                  </span>
-                ) : (
-                  <span
-                    className="tabular-nums leading-none"
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 'clamp(3rem, 12vw, 5rem)',
-                      fontWeight: 700,
-                      color: '#f5f3f0',
-                    }}
-                  >
-                    {result.predictedReplacementYear}
-                  </span>
-                )}
-              </div>
-              <div className="mt-1 text-[11px] uppercase tracking-[0.12em] font-medium" style={{ color: '#8e878060' }}>
-                {t('predYear', lang)}
-              </div>
-              {!isInfinity && (
-                <div className="mt-0.5 text-[10px] font-mono" style={{ color: '#8e878030' }}>
-                  {t('range', lang)} {result.earliestYear}&ndash;{result.latestYear}
+                  {/* Identity */}
+                  <div className="flex-1 min-w-0 pt-2">
+                    <h1
+                      className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-[0.95]"
+                      style={{ color: ac }}
+                    >
+                      {L(profile.archetype, lang)}
+                    </h1>
+                    <div
+                      className="mt-1.5 text-xs font-bold tracking-[0.3em]"
+                      style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}
+                    >
+                      {profileCode}
+                    </div>
+                    <p className="mt-2 text-[11px] leading-relaxed" style={{ color: '#8e878070' }}>
+                      {L(profile.tagline, lang)}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-2">
+                  <div className="text-4xl font-extrabold" style={{ color: ac }}>{prob}%</div>
+                  <div className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: ac }}>{riskLabel(result)}</div>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Divider */}
-          <div className="mt-10 mb-8 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
-
-          {/* 4-Dimension DNA strip */}
-          {dimensions.length === 4 && (
-            <div className="flex items-stretch gap-0 mb-10">
-              {dimensions.map((dim, i) => {
-                const quizDim = dim.quizDim;
-                if (!quizDim) return null;
-                const color = DIMENSION_COLORS[i];
-                const label = dim.isFavorable
-                  ? L(quizDim.favorableLabel, lang)
-                  : L(quizDim.resistantLabel, lang);
-
-                return (
-                  <div key={dim.dimensionId} className="flex-1 relative" style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.04)' : undefined }}>
-                    {/* Colored top bar */}
-                    <div className="h-1 mb-3" style={{ backgroundColor: color, opacity: 0.7 }} />
-                    <div className="px-3">
+            {/* ── Gauge strip ── */}
+            <div className="px-5 pb-4">
+              <div className="flex gap-[2px]">
+                {GAUGE_STAGES.map((stage, i) => {
+                  const segStart = i * 20;
+                  const segEnd = segStart + 20;
+                  const fill = prob >= segEnd ? 1 : prob <= segStart ? 0 : (prob - segStart) / 20;
+                  const isActive = i === activeStageIdx;
+                  return (
+                    <div key={i} className="flex-1">
+                      <div className="relative h-1 overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '1px' }}>
+                        {fill > 0 && (
+                          <div className="absolute inset-y-0 left-0" style={{ width: `${fill * 100}%`, backgroundColor: stage.color, borderRadius: '1px' }} />
+                        )}
+                      </div>
                       <div
-                        className="text-xl sm:text-2xl font-bold leading-none"
-                        style={{ color, fontFamily: 'var(--font-body)' }}
+                        className="mt-1 text-center"
+                        style={{ fontSize: '7px', fontWeight: 800, letterSpacing: '0.12em', color: isActive ? stage.color : 'rgba(255,255,255,0.1)' }}
                       >
-                        {dim.letter}
-                      </div>
-                      <div className="mt-2 text-[9px] uppercase tracking-[0.08em] font-medium leading-tight" style={{ color: '#8e878040' }}>
-                        {L(quizDim.name, lang)}
-                      </div>
-                      <div className="mt-1 text-[10px] font-semibold leading-tight" style={{ color: `${color}99` }}>
-                        {label}
+                        {lang === 'zh' ? stage.zh : stage.label}
                       </div>
                     </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Divider ── */}
+            <div className="h-px mx-5" style={{ background: 'rgba(255,255,255,0.05)' }} />
+
+            {/* ── Metrics ── */}
+            <div className="px-5 py-4 flex items-baseline gap-6">
+              <div>
+                <div className="flex items-baseline">
+                  <span className="tabular-nums leading-none" style={{ fontFamily: 'var(--font-body)', fontSize: '2.5rem', fontWeight: 700, color: ac }}>
+                    {prob}
+                  </span>
+                  <span className="leading-none ml-0.5" style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', fontWeight: 700, color: `${ac}70` }}>
+                    %
+                  </span>
+                </div>
+                <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium" style={{ color: '#8e878050' }}>
+                  {t('replProb', lang)}
+                </div>
+              </div>
+              <div>
+                <span className="tabular-nums leading-none" style={{ fontFamily: 'var(--font-body)', fontSize: '2.5rem', fontWeight: 700, color: '#f5f3f0' }}>
+                  {isInfinity ? '\u221E' : result.predictedReplacementYear}
+                </span>
+                <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium" style={{ color: '#8e878050' }}>
+                  {t('predYear', lang)}
+                </div>
+                {!isInfinity && (
+                  <div className="text-[9px] font-mono" style={{ color: '#8e878025' }}>
+                    {result.earliestYear}&ndash;{result.latestYear}
                   </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Superpower + Kryptonite — editorial layout */}
-          {profile && (
-            <div className="space-y-6 mb-10">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-1 h-4 rounded-full" style={{ backgroundColor: '#34d399' }} />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: '#34d39999' }}>
-                    {t('superpower', lang)}
-                  </span>
-                </div>
-                <p className="text-sm leading-relaxed pl-3" style={{ color: '#f5f3f0bb' }}>
-                  {L(profile.superpower, lang)}
-                </p>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-1 h-4 rounded-full" style={{ backgroundColor: '#f43f5e' }} />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: '#f43f5e99' }}>
-                    {t('kryptonite', lang)}
-                  </span>
-                </div>
-                <p className="text-sm leading-relaxed pl-3" style={{ color: '#f5f3f0bb' }}>
-                  {L(profile.kryptonite, lang)}
-                </p>
+                )}
               </div>
             </div>
-          )}
 
-          {/* Vulnerability + Defense (if available) — brief one-liners */}
-          {calibration && (
-            <div className="mb-10 py-5" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-              <p className="text-xs leading-relaxed" style={{ color: '#8e878060' }}>
-                <span style={{ color: '#f43f5e88' }}>&#9632;</span>{' '}
-                {L(calibration.vulnerabilities, lang)}
-              </p>
-              <p className="text-xs leading-relaxed mt-3" style={{ color: '#8e878060' }}>
-                <span style={{ color: '#34d39988' }}>&#9632;</span>{' '}
-                {L(calibration.strengths, lang)}
-              </p>
-            </div>
-          )}
+            {/* ── 4-Dimension DNA ── */}
+            {dimensions.length === 4 && (
+              <div className="flex mx-5 mb-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                {dimensions.map((dim, i) => {
+                  const quizDim = dim.quizDim;
+                  if (!quizDim) return null;
+                  const color = DIMENSION_COLORS[i];
+                  const label = dim.isFavorable ? L(quizDim.favorableLabel, lang) : L(quizDim.resistantLabel, lang);
+                  return (
+                    <div
+                      key={dim.dimensionId}
+                      className="flex-1 pt-3"
+                      style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.04)' : undefined }}
+                    >
+                      <div className="h-[3px] w-6 mb-2 mx-2" style={{ backgroundColor: color, opacity: 0.6, borderRadius: '1px' }} />
+                      <div className="px-2">
+                        <div className="text-base font-bold leading-none" style={{ color, fontFamily: 'var(--font-body)' }}>
+                          {dim.letter}
+                        </div>
+                        <div className="mt-1 text-[8px] uppercase tracking-[0.06em] font-medium leading-tight" style={{ color: '#8e878035' }}>
+                          {L(quizDim.name, lang)}
+                        </div>
+                        <div className="mt-0.5 text-[9px] font-semibold leading-tight" style={{ color: `${color}88` }}>
+                          {label}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
-          {/* Top 3 action items — numbered list, minimal */}
-          {adviceList.length > 0 && (
-            <div className="mb-10">
-              {adviceList.slice(0, 3).map((advice, ai) => (
-                <div
-                  key={ai}
-                  className="flex items-baseline gap-3 py-3"
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}
-                >
-                  <span
-                    className="text-[10px] font-bold tabular-nums flex-shrink-0"
-                    style={{ color: ai === 0 ? ac : '#8e878040', fontFamily: 'var(--font-body)' }}
+            {/* ── Superpower + Kryptonite ── */}
+            {profile && (
+              <div className="mx-5 mb-4 space-y-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '12px' }}>
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <div className="w-[3px] h-3 rounded-sm" style={{ backgroundColor: '#34d399' }} />
+                    <span className="text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: '#34d39988' }}>
+                      {t('superpower', lang)}
+                    </span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed pl-[9px]" style={{ color: '#f5f3f0aa' }}>
+                    {L(profile.superpower, lang)}
+                  </p>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <div className="w-[3px] h-3 rounded-sm" style={{ backgroundColor: '#f43f5e' }} />
+                    <span className="text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: '#f43f5e88' }}>
+                      {t('kryptonite', lang)}
+                    </span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed pl-[9px]" style={{ color: '#f5f3f0aa' }}>
+                    {L(profile.kryptonite, lang)}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ── Vulnerability + Defense ── */}
+            {calibration && (
+              <div className="mx-5 mb-4 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                <p className="text-[10px] leading-relaxed" style={{ color: '#8e878050' }}>
+                  <span style={{ color: '#f43f5e77' }}>&#9632;</span>{' '}
+                  {L(calibration.vulnerabilities, lang)}
+                </p>
+                <p className="text-[10px] leading-relaxed mt-2" style={{ color: '#8e878050' }}>
+                  <span style={{ color: '#34d39977' }}>&#9632;</span>{' '}
+                  {L(calibration.strengths, lang)}
+                </p>
+              </div>
+            )}
+
+            {/* ── Action items ── */}
+            {adviceList.length > 0 && (
+              <div className="mx-5 mb-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '10px' }}>
+                {adviceList.slice(0, 3).map((advice, ai) => (
+                  <div
+                    key={ai}
+                    className="flex items-baseline gap-2 py-2"
+                    style={{ borderBottom: ai < 2 ? '1px solid rgba(255,255,255,0.02)' : undefined }}
                   >
-                    {String(ai + 1).padStart(2, '0')}
-                  </span>
-                  <div className="min-w-0">
-                    <span className="text-xs font-semibold" style={{ color: ai === 0 ? '#f5f3f0cc' : '#f5f3f099' }}>
-                      {L(advice.title, lang)}
+                    <span
+                      className="text-[9px] font-bold tabular-nums flex-shrink-0"
+                      style={{ color: ai === 0 ? ac : '#8e878035', fontFamily: 'var(--font-body)' }}
+                    >
+                      {String(ai + 1).padStart(2, '0')}
                     </span>
-                    <span className="text-[11px] ml-2" style={{ color: '#8e878040' }}>
-                      {L(advice.body, lang)}
-                    </span>
+                    <div className="min-w-0">
+                      <span className="text-[11px] font-semibold" style={{ color: ai === 0 ? '#f5f3f0bb' : '#f5f3f088' }}>
+                        {L(advice.title, lang)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+                ))}
+              </div>
+            )}
 
-        {/* ━━━ CTA ━━━ */}
-        <section className="px-6 sm:px-8 pb-12">
-          <Link
-            href="/#risk-calculator"
-            className="group flex items-center justify-between w-full py-5 px-6 transition-colors duration-300"
-            style={{
-              backgroundColor: ac,
-              color: '#0a0908',
-            }}
-          >
-            <span className="text-base sm:text-lg font-bold tracking-tight">
-              {t('takeSelf', lang)}
-            </span>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
-              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-
-          <div className="mt-6 flex items-center justify-between">
-            <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: '#8e878030' }}>
-              air.democra.ai
-            </span>
-            <span className="text-[10px]" style={{ color: '#8e878020' }}>
-              AI Replacement Index
-            </span>
+            {/* ── CTA bar ── */}
+            <Link
+              href="/#risk-calculator"
+              className="group flex items-center justify-between w-full py-3.5 px-5 transition-colors duration-300"
+              style={{ backgroundColor: ac, color: '#0a0908' }}
+            >
+              <span className="text-sm font-bold tracking-tight">
+                {t('takeSelf', lang)}
+              </span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
           </div>
-        </section>
+
+        </div>
       </main>
     </>
   );
