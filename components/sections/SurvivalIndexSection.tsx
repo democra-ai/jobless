@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Language, translations } from '@/lib/translations';
-// Character illustrations: custom AI-generated images at /public/characters/{CODE}.png
+import CharacterIllustration from '@/components/CharacterIllustration';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { MagicCard } from '@/components/ui/magic-card';
 
