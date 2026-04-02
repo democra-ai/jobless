@@ -243,7 +243,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
 
         {/* ═══════════ MOBILE LAYOUT (< lg) ═══════════ */}
         <div className="lg:hidden w-full max-w-[420px]">
-          <MagicCard className="card-glow-border card-hover rounded-2xl">
+          <MagicCard className="card-glow-border card-hover rounded-2xl" gradientOpacity={0}>
             <div className="absolute -inset-3 rounded-2xl overflow-hidden pointer-events-none z-[45]">
               <BorderBeam size={150} duration={10} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
             </div>
@@ -294,7 +294,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
 
         {/* ═══════════ DESKTOP LAYOUT (>= lg) ═══════════ */}
         <div className="hidden lg:block w-full max-w-[860px]">
-          <MagicCard className="card-glow-border card-hover rounded-2xl">
+          <MagicCard className="card-glow-border card-hover rounded-2xl" gradientOpacity={0}>
             <div className="absolute -inset-3 rounded-2xl overflow-hidden pointer-events-none z-[45]">
               <BorderBeam size={200} duration={12} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
             </div>
