@@ -260,7 +260,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                   <div className="relative flex-shrink-0">
                     <div className="absolute inset-0 blur-[30px] opacity-25 rounded-full" style={{ backgroundColor: ac }} />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/characters/${profileCode}.png`} alt={L(profile.archetype, shareLang)} className="relative w-24 h-24 object-contain" />
+                    <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-24 h-24 object-contain" />
                   </div>
                   <div className="flex-1 min-w-0 pt-1">
                     <h1 className="text-2xl font-extrabold tracking-tight leading-[0.95]" style={{ color: ac }}>{L(profile.archetype, shareLang)}</h1>
@@ -312,7 +312,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                     <div className="relative mb-4">
                       <div className="absolute inset-0 blur-[50px] opacity-20 rounded-full" style={{ backgroundColor: ac }} />
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`/characters/${profileCode}.png`} alt={L(profile.archetype, shareLang)} className="relative w-44 h-44 object-contain" />
+                      <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-44 h-44 object-contain" />
                     </div>
                     <h1 className="text-3xl font-extrabold tracking-tight leading-[0.95]" style={{ color: ac }}>
                       {L(profile.archetype, shareLang)}
