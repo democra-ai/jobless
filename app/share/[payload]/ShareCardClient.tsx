@@ -143,15 +143,15 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
           <span className="tabular-nums leading-none" style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(2rem, 5vw, 2.75rem)', fontWeight: 700, color: ac }}>{prob}</span>
           <span className="leading-none ml-0.5" style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', fontWeight: 700, color: `${ac}70` }}>%</span>
         </div>
-        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/40">{t('replProb', shareLang)}</div>
+        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/60">{t('replProb', shareLang)}</div>
       </div>
       <div className="w-px h-8 bg-foreground/[0.06]" />
       <div>
         <span className="tabular-nums leading-none text-foreground" style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(2rem, 5vw, 2.75rem)', fontWeight: 700 }}>
           {isInfinity ? '\u221E' : predictedYear}
         </span>
-        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/40">{t('predYear', shareLang)}</div>
-        {!isInfinity && <div className="text-[9px] font-mono text-foreground-muted/20">{earliestYear}&ndash;{latestYear}</div>}
+        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/60">{t('predYear', shareLang)}</div>
+        {!isInfinity && <div className="text-[9px] font-mono text-foreground-muted/40">{earliestYear}&ndash;{latestYear}</div>}
       </div>
     </div>
   );
@@ -165,8 +165,8 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
             <div className="h-[3px] w-6 mb-2 mx-2 rounded-sm" style={{ backgroundColor: dim.color, opacity: 0.6 }} />
             <div className="px-2">
               <div className="text-lg font-bold leading-none" style={{ color: dim.color, fontFamily: 'var(--font-body)' }}>{dim.letter}</div>
-              <div className="mt-1 text-[8px] uppercase tracking-[0.06em] font-medium leading-tight text-foreground-muted/25">{L(dim.name, shareLang)}</div>
-              <div className="mt-0.5 text-[9px] font-semibold leading-tight" style={{ color: `${dim.color}88` }}>{label}</div>
+              <div className="mt-1 text-[8px] uppercase tracking-[0.06em] font-medium leading-tight text-foreground-muted/50">{L(dim.name, shareLang)}</div>
+              <div className="mt-0.5 text-[9px] font-semibold leading-tight" style={{ color: `${dim.color}cc` }}>{label}</div>
             </div>
           </div>
         );
@@ -181,26 +181,26 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
           <div>
             <div className="flex items-center gap-1.5 mb-1">
               <div className="w-[3px] h-3 rounded-sm" style={{ backgroundColor: '#34d399' }} />
-              <span className="text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: '#34d39988' }}>{t('superpower', shareLang)}</span>
+              <span className="text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: '#34d399cc' }}>{t('superpower', shareLang)}</span>
             </div>
-            <p className="text-[11px] leading-relaxed pl-[10px] text-foreground/70">{L(profile.superpower, shareLang)}</p>
+            <p className="text-[11px] leading-relaxed pl-[10px] text-foreground/80">{L(profile.superpower, shareLang)}</p>
           </div>
           <div>
             <div className="flex items-center gap-1.5 mb-1">
               <div className="w-[3px] h-3 rounded-sm" style={{ backgroundColor: '#f43f5e' }} />
-              <span className="text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: '#f43f5e88' }}>{t('kryptonite', shareLang)}</span>
+              <span className="text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: '#f43f5ecc' }}>{t('kryptonite', shareLang)}</span>
             </div>
-            <p className="text-[11px] leading-relaxed pl-[10px] text-foreground/70">{L(profile.kryptonite, shareLang)}</p>
+            <p className="text-[11px] leading-relaxed pl-[10px] text-foreground/80">{L(profile.kryptonite, shareLang)}</p>
           </div>
         </>
       )}
       {calibration && (
         <div className="pt-3 border-t border-foreground/[0.04] space-y-2">
-          <p className="text-[10px] leading-relaxed text-foreground-muted/40">
-            <span style={{ color: '#f43f5e77' }}>&#9632;</span> {L(calibration.vulnerabilities, shareLang)}
+          <p className="text-[10px] leading-relaxed text-foreground-muted/70">
+            <span style={{ color: '#f43f5eaa' }}>&#9632;</span> {L(calibration.vulnerabilities, shareLang)}
           </p>
-          <p className="text-[10px] leading-relaxed text-foreground-muted/40">
-            <span style={{ color: '#34d39977' }}>&#9632;</span> {L(calibration.strengths, shareLang)}
+          <p className="text-[10px] leading-relaxed text-foreground-muted/70">
+            <span style={{ color: '#34d399aa' }}>&#9632;</span> {L(calibration.strengths, shareLang)}
           </p>
         </div>
       )}
@@ -218,7 +218,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
             <span className="text-[11px] font-semibold" style={{ color: ai === 0 ? 'var(--foreground)' : 'var(--foreground-muted)' }}>
               {L(advice.title, shareLang)}
             </span>
-            <span className="text-[10px] ml-1.5 text-foreground-muted/30">{L(advice.body, shareLang)}</span>
+            <span className="text-[10px] ml-1.5 text-foreground-muted/55">{L(advice.body, shareLang)}</span>
           </div>
         </div>
       ))}
@@ -251,7 +251,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[9px] font-bold uppercase tracking-[0.2em] pl-2" style={{ color: ac, borderLeft: `2px solid ${ac}` }}>AI Replacement Index</span>
-                <span className="text-[9px] text-foreground-muted/20">air.democra.ai</span>
+                <span className="text-[9px] text-foreground-muted/40">air.democra.ai</span>
               </div>
 
               {/* Character + Name */}
@@ -265,7 +265,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                   <div className="flex-1 min-w-0 pt-1">
                     <h1 className="text-2xl font-extrabold tracking-tight leading-[0.95]" style={{ color: ac }}>{L(profile.archetype, shareLang)}</h1>
                     <div className="mt-1 text-xs font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>{profileCode}</div>
-                    <p className="mt-2 text-[11px] leading-relaxed text-foreground-muted/50">{L(profile.tagline, shareLang)}</p>
+                    <p className="mt-2 text-[11px] leading-relaxed text-foreground-muted/70">{L(profile.tagline, shareLang)}</p>
                   </div>
                 </div>
               )}
@@ -304,7 +304,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
               {/* Top bar */}
               <div className="flex items-center justify-between mb-6">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] pl-2" style={{ color: ac, borderLeft: `2px solid ${ac}` }}>AI Replacement Index</span>
-                <span className="text-[10px] text-foreground-muted/20">air.democra.ai</span>
+                <span className="text-[10px] text-foreground-muted/40">air.democra.ai</span>
               </div>
 
               {profileCode && profile && (
@@ -323,8 +323,8 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                     </h1>
                     <div className="mt-2 flex items-center gap-3">
                       <span className="text-sm font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>{profileCode}</span>
-                      <span className="text-foreground-muted/20">·</span>
-                      <span className="text-xs text-foreground-muted/40">{L(profile.tagline, shareLang)}</span>
+                      <span className="text-foreground-muted/40">·</span>
+                      <span className="text-xs text-foreground-muted/65">{L(profile.tagline, shareLang)}</span>
                     </div>
 
                     {/* Inline metrics */}
@@ -334,15 +334,15 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                           <span className="tabular-nums leading-none" style={{ fontFamily: 'var(--font-body)', fontSize: '2.75rem', fontWeight: 700, color: ac }}>{prob}</span>
                           <span className="leading-none ml-0.5" style={{ fontFamily: 'var(--font-body)', fontSize: '1.1rem', fontWeight: 700, color: `${ac}60` }}>%</span>
                         </div>
-                        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/35">{t('replProb', shareLang)}</div>
+                        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/55">{t('replProb', shareLang)}</div>
                       </div>
                       <div className="w-px h-10 bg-foreground/[0.05]" />
                       <div>
                         <span className="tabular-nums leading-none text-foreground/90" style={{ fontFamily: 'var(--font-body)', fontSize: '2.75rem', fontWeight: 700 }}>
                           {isInfinity ? '\u221E' : predictedYear}
                         </span>
-                        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/35">{t('predYear', shareLang)}</div>
-                        {!isInfinity && <div className="text-[9px] font-mono text-foreground-muted/20">{earliestYear}&ndash;{latestYear}</div>}
+                        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/55">{t('predYear', shareLang)}</div>
+                        {!isInfinity && <div className="text-[9px] font-mono text-foreground-muted/40">{earliestYear}&ndash;{latestYear}</div>}
                       </div>
                     </div>
                   </div>
@@ -373,16 +373,16 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#34d399' }} />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#34d39988' }}>{t('superpower', shareLang)}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#34d399cc' }}>{t('superpower', shareLang)}</span>
                     </div>
-                    <p className="text-xs leading-relaxed pl-[10px] text-foreground/65">{L(profile.superpower, shareLang)}</p>
+                    <p className="text-xs leading-relaxed pl-[10px] text-foreground/80">{L(profile.superpower, shareLang)}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#f43f5e' }} />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#f43f5e88' }}>{t('kryptonite', shareLang)}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#f43f5ecc' }}>{t('kryptonite', shareLang)}</span>
                     </div>
-                    <p className="text-xs leading-relaxed pl-[10px] text-foreground/65">{L(profile.kryptonite, shareLang)}</p>
+                    <p className="text-xs leading-relaxed pl-[10px] text-foreground/80">{L(profile.kryptonite, shareLang)}</p>
                   </div>
                 </div>
               )}
@@ -396,11 +396,11 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                   {/* Left: Vulnerability/Defense */}
                   {calibration && (
                     <div className="space-y-2.5">
-                      <p className="text-[11px] leading-relaxed text-foreground-muted/45">
-                        <span style={{ color: '#f43f5e77' }}>&#9632;</span> {L(calibration.vulnerabilities, shareLang)}
+                      <p className="text-[11px] leading-relaxed text-foreground-muted/70">
+                        <span style={{ color: '#f43f5eaa' }}>&#9632;</span> {L(calibration.vulnerabilities, shareLang)}
                       </p>
-                      <p className="text-[11px] leading-relaxed text-foreground-muted/45">
-                        <span style={{ color: '#34d39977' }}>&#9632;</span> {L(calibration.strengths, shareLang)}
+                      <p className="text-[11px] leading-relaxed text-foreground-muted/70">
+                        <span style={{ color: '#34d399aa' }}>&#9632;</span> {L(calibration.strengths, shareLang)}
                       </p>
                     </div>
                   )}
