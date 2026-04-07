@@ -293,52 +293,49 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
         </div>
 
         {/* ═══════════ DESKTOP LAYOUT (>= lg) ═══════════ */}
-        <div className="hidden lg:block w-full max-w-[720px]">
+        <div className="hidden lg:block w-full max-w-[680px]">
           <MagicCard className="card-glow-border card-hover rounded-2xl" gradientOpacity={0}>
             <div className="absolute -inset-3 rounded-2xl overflow-hidden pointer-events-none z-[45]">
               <BorderBeam size={200} duration={12} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
             </div>
 
             {/* ── Hero: Character + Identity + Metrics ── */}
-            <div className="px-10 pt-8 pb-6">
+            <div className="px-8 pt-7 pb-5">
               {/* Top bar */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-5">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] pl-2" style={{ color: ac, borderLeft: `2px solid ${ac}` }}>AI Replacement Index</span>
                 <span className="text-[10px] text-foreground-muted/40">air.democra.ai</span>
               </div>
 
               {profileCode && profile && (
-                <div className="flex items-center gap-8">
+                <div className="flex items-center gap-7">
                   {/* Character */}
                   <div className="relative flex-shrink-0">
                     <div className="absolute inset-0 blur-[50px] opacity-20 rounded-full" style={{ backgroundColor: ac }} />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-40 h-40 object-contain" />
+                    <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-36 h-36 object-contain" />
                   </div>
 
                   {/* Identity + Metrics */}
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-4xl font-extrabold tracking-tight leading-[0.92]" style={{ color: ac }}>
+                    <h1 className="text-3xl font-extrabold tracking-tight leading-[0.92]" style={{ color: ac }}>
                       {L(profile.archetype, shareLang)}
                     </h1>
-                    <div className="mt-2 flex items-center gap-3">
-                      <span className="text-sm font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>{profileCode}</span>
-                      <span className="text-foreground-muted/40">·</span>
-                      <span className="text-xs text-foreground-muted/65">{L(profile.tagline, shareLang)}</span>
-                    </div>
+                    <div className="mt-1.5 text-xs font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>{profileCode}</div>
+                    <p className="mt-1.5 text-[11px] leading-relaxed text-foreground-muted/60">{L(profile.tagline, shareLang)}</p>
 
                     {/* Inline metrics */}
-                    <div className="mt-5 flex items-baseline gap-8">
+                    <div className="mt-4 flex items-baseline gap-7">
                       <div>
                         <div className="flex items-baseline">
-                          <span className="tabular-nums leading-none" style={{ fontFamily: 'var(--font-body)', fontSize: '2.75rem', fontWeight: 700, color: ac }}>{prob}</span>
-                          <span className="leading-none ml-0.5" style={{ fontFamily: 'var(--font-body)', fontSize: '1.1rem', fontWeight: 700, color: `${ac}60` }}>%</span>
+                          <span className="tabular-nums leading-none" style={{ fontFamily: 'var(--font-body)', fontSize: '2.25rem', fontWeight: 700, color: ac }}>{prob}</span>
+                          <span className="leading-none ml-0.5" style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', fontWeight: 700, color: `${ac}60` }}>%</span>
                         </div>
                         <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/55">{t('replProb', shareLang)}</div>
                       </div>
-                      <div className="w-px h-10 bg-foreground/[0.05]" />
+                      <div className="w-px h-8 bg-foreground/[0.05]" />
                       <div>
-                        <span className="tabular-nums leading-none text-foreground/90" style={{ fontFamily: 'var(--font-body)', fontSize: '2.75rem', fontWeight: 700 }}>
+                        <span className="tabular-nums leading-none text-foreground/90" style={{ fontFamily: 'var(--font-body)', fontSize: '2.25rem', fontWeight: 700 }}>
                           {isInfinity ? '\u221E' : predictedYear}
                         </span>
                         <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/55">{t('predYear', shareLang)}</div>
@@ -351,72 +348,62 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
             </div>
 
             {/* ── Gauge (full width) ── */}
-            <div className="px-10 pb-6">
+            <div className="px-8 pb-5">
               <GaugeStrip />
             </div>
 
-            {/* ── Divider ── */}
-            <div className="h-px mx-10 bg-foreground/[0.05]" />
+            <div className="h-px mx-8 bg-foreground/[0.05]" />
 
-            {/* ── 2-column grid: Dimensions + Strengths ── */}
-            <div className="px-10 py-6 grid grid-cols-2 gap-8">
-              {/* Left col: Dimensions */}
-              {dimensions.length === 4 && (
+            {/* ── 4-Dimension strip (full width) ── */}
+            {dimensions.length === 4 && (
+              <div className="px-8 py-5">
+                <DimensionStrip />
+              </div>
+            )}
+
+            <div className="h-px mx-8 bg-foreground/[0.04]" />
+
+            {/* ── Superpower + Kryptonite (2-col, compact) ── */}
+            {profile && (
+              <div className="px-8 py-5 grid grid-cols-2 gap-6">
                 <div>
-                  <DimensionStrip />
-                </div>
-              )}
-
-              {/* Right col: Superpower + Kryptonite */}
-              {profile && (
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#34d399' }} />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#34d399cc' }}>{t('superpower', shareLang)}</span>
-                    </div>
-                    <p className="text-xs leading-relaxed pl-[10px] text-foreground/80">{L(profile.superpower, shareLang)}</p>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#34d399' }} />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#34d399cc' }}>{t('superpower', shareLang)}</span>
                   </div>
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#f43f5e' }} />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#f43f5ecc' }}>{t('kryptonite', shareLang)}</span>
-                    </div>
-                    <p className="text-xs leading-relaxed pl-[10px] text-foreground/80">{L(profile.kryptonite, shareLang)}</p>
-                  </div>
+                  <p className="text-xs leading-relaxed pl-[10px] text-foreground/80">{L(profile.superpower, shareLang)}</p>
                 </div>
-              )}
-            </div>
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#f43f5e' }} />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#f43f5ecc' }}>{t('kryptonite', shareLang)}</span>
+                  </div>
+                  <p className="text-xs leading-relaxed pl-[10px] text-foreground/80">{L(profile.kryptonite, shareLang)}</p>
+                </div>
+              </div>
+            )}
 
-            {/* ── Vulnerability/Defense + Actions (2-col) ── */}
-            {(calibration || adviceList.length > 0) && (
+            {/* ── Action items (3-col, title only) ── */}
+            {adviceList.length > 0 && (
               <>
-                <div className="h-px mx-10 bg-foreground/[0.04]" />
-                <div className="px-10 py-6 grid grid-cols-2 gap-8">
-                  {/* Left: Vulnerability/Defense */}
-                  {calibration && (
-                    <div className="space-y-2.5">
-                      <p className="text-[11px] leading-relaxed text-foreground-muted/70">
-                        <span style={{ color: '#f43f5eaa' }}>&#9632;</span> {L(calibration.vulnerabilities, shareLang)}
-                      </p>
-                      <p className="text-[11px] leading-relaxed text-foreground-muted/70">
-                        <span style={{ color: '#34d399aa' }}>&#9632;</span> {L(calibration.strengths, shareLang)}
-                      </p>
+                <div className="h-px mx-8 bg-foreground/[0.04]" />
+                <div className="px-8 py-5 grid grid-cols-3 gap-4">
+                  {adviceList.slice(0, 3).map((advice, ai) => (
+                    <div key={ai} className="flex items-start gap-2">
+                      <span className="text-[10px] font-bold tabular-nums flex-shrink-0 mt-0.5" style={{ color: ai === 0 ? ac : 'var(--foreground-dim)', fontFamily: 'var(--font-body)' }}>
+                        {String(ai + 1).padStart(2, '0')}
+                      </span>
+                      <span className="text-xs font-semibold leading-snug" style={{ color: ai === 0 ? 'var(--foreground)' : 'var(--foreground-muted)' }}>
+                        {L(advice.title, shareLang)}
+                      </span>
                     </div>
-                  )}
-
-                  {/* Right: Actions */}
-                  {adviceList.length > 0 && (
-                    <div>
-                      <ActionItems />
-                    </div>
-                  )}
+                  ))}
                 </div>
               </>
             )}
 
             {/* ── CTA bar ── */}
-            <div className="px-10 pb-8 pt-2">
+            <div className="px-8 pb-7 pt-1">
               <Link
                 href="/#risk-calculator"
                 className="group flex items-center justify-center gap-2 w-full py-3.5 rounded-xl transition-all duration-300 hover:brightness-110 text-sm font-bold"
