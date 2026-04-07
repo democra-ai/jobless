@@ -293,86 +293,138 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
         </div>
 
         {/* ═══════════ DESKTOP LAYOUT (>= lg) ═══════════ */}
-        <div className="hidden lg:block w-full max-w-[860px]">
+        <div className="hidden lg:block w-full max-w-[720px]">
           <MagicCard className="card-glow-border card-hover rounded-2xl" gradientOpacity={0}>
             <div className="absolute -inset-3 rounded-2xl overflow-hidden pointer-events-none z-[45]">
               <BorderBeam size={200} duration={12} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
             </div>
 
-            <div className="flex">
-              {/* ── Left panel: Character hero ── */}
-              <div className="w-[300px] flex-shrink-0 p-8 flex flex-col items-center justify-center text-center border-r border-foreground/[0.04]">
-                {/* AIR tag */}
-                <span className="text-[9px] font-bold uppercase tracking-[0.2em] pl-2 self-start mb-6" style={{ color: ac, borderLeft: `2px solid ${ac}` }}>
-                  AI Replacement Index
-                </span>
+            {/* ── Hero: Character + Identity + Metrics ── */}
+            <div className="px-10 pt-8 pb-6">
+              {/* Top bar */}
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] pl-2" style={{ color: ac, borderLeft: `2px solid ${ac}` }}>AI Replacement Index</span>
+                <span className="text-[10px] text-foreground-muted/20">air.democra.ai</span>
+              </div>
 
-                {profileCode && profile && (
-                  <>
-                    <div className="relative mb-4">
-                      <div className="absolute inset-0 blur-[50px] opacity-20 rounded-full" style={{ backgroundColor: ac }} />
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-44 h-44 object-contain" />
-                    </div>
-                    <h1 className="text-3xl font-extrabold tracking-tight leading-[0.95]" style={{ color: ac }}>
+              {profileCode && profile && (
+                <div className="flex items-center gap-8">
+                  {/* Character */}
+                  <div className="relative flex-shrink-0">
+                    <div className="absolute inset-0 blur-[50px] opacity-20 rounded-full" style={{ backgroundColor: ac }} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-40 h-40 object-contain" />
+                  </div>
+
+                  {/* Identity + Metrics */}
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-4xl font-extrabold tracking-tight leading-[0.92]" style={{ color: ac }}>
                       {L(profile.archetype, shareLang)}
                     </h1>
-                    <div className="mt-1.5 text-xs font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>
-                      {profileCode}
+                    <div className="mt-2 flex items-center gap-3">
+                      <span className="text-sm font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>{profileCode}</span>
+                      <span className="text-foreground-muted/20">·</span>
+                      <span className="text-xs text-foreground-muted/40">{L(profile.tagline, shareLang)}</span>
                     </div>
-                    <p className="mt-3 text-[11px] leading-relaxed text-foreground-muted/50 max-w-[220px]">
-                      {L(profile.tagline, shareLang)}
-                    </p>
-                  </>
-                )}
 
-                {/* CTA button at bottom of left panel */}
-                <Link
-                  href="/#risk-calculator"
-                  className="group flex items-center justify-center gap-2 w-full mt-8 py-3 rounded-lg transition-all duration-300 hover:brightness-110 text-sm font-bold"
-                  style={{ backgroundColor: ac, color: '#0a0908' }}
-                >
-                  {t('takeSelf', shareLang)}
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                </Link>
-              </div>
-
-              {/* ── Right panel: Data ── */}
-              <div className="flex-1 p-6">
-                {/* Gauge */}
-                <GaugeStrip />
-
-                {/* Metrics */}
-                <div className="mt-5 pt-5 border-t border-foreground/[0.05]">
-                  <Metrics />
+                    {/* Inline metrics */}
+                    <div className="mt-5 flex items-baseline gap-8">
+                      <div>
+                        <div className="flex items-baseline">
+                          <span className="tabular-nums leading-none" style={{ fontFamily: 'var(--font-body)', fontSize: '2.75rem', fontWeight: 700, color: ac }}>{prob}</span>
+                          <span className="leading-none ml-0.5" style={{ fontFamily: 'var(--font-body)', fontSize: '1.1rem', fontWeight: 700, color: `${ac}60` }}>%</span>
+                        </div>
+                        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/35">{t('replProb', shareLang)}</div>
+                      </div>
+                      <div className="w-px h-10 bg-foreground/[0.05]" />
+                      <div>
+                        <span className="tabular-nums leading-none text-foreground/90" style={{ fontFamily: 'var(--font-body)', fontSize: '2.75rem', fontWeight: 700 }}>
+                          {isInfinity ? '\u221E' : predictedYear}
+                        </span>
+                        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/35">{t('predYear', shareLang)}</div>
+                        {!isInfinity && <div className="text-[9px] font-mono text-foreground-muted/20">{earliestYear}&ndash;{latestYear}</div>}
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              )}
+            </div>
 
-                {/* Dimensions */}
-                {dimensions.length === 4 && (
-                  <div className="mt-5 pt-5 border-t border-foreground/[0.04]">
-                    <DimensionStrip />
-                  </div>
-                )}
+            {/* ── Gauge (full width) ── */}
+            <div className="px-10 pb-6">
+              <GaugeStrip />
+            </div>
 
-                {/* Strengths */}
-                {(profile || calibration) && (
-                  <div className="mt-5 pt-5 border-t border-foreground/[0.04]">
-                    <StrengthsBlock />
-                  </div>
-                )}
+            {/* ── Divider ── */}
+            <div className="h-px mx-10 bg-foreground/[0.05]" />
 
-                {/* Actions */}
-                {adviceList.length > 0 && (
-                  <div className="mt-5 pt-5 border-t border-foreground/[0.04]">
-                    <ActionItems />
-                  </div>
-                )}
-
-                {/* Footer */}
-                <div className="mt-5 pt-3 border-t border-foreground/[0.03] text-right">
-                  <span className="text-[9px] text-foreground-muted/15">air.democra.ai</span>
+            {/* ── 2-column grid: Dimensions + Strengths ── */}
+            <div className="px-10 py-6 grid grid-cols-2 gap-8">
+              {/* Left col: Dimensions */}
+              {dimensions.length === 4 && (
+                <div>
+                  <DimensionStrip />
                 </div>
-              </div>
+              )}
+
+              {/* Right col: Superpower + Kryptonite */}
+              {profile && (
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#34d399' }} />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#34d39988' }}>{t('superpower', shareLang)}</span>
+                    </div>
+                    <p className="text-xs leading-relaxed pl-[10px] text-foreground/65">{L(profile.superpower, shareLang)}</p>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#f43f5e' }} />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#f43f5e88' }}>{t('kryptonite', shareLang)}</span>
+                    </div>
+                    <p className="text-xs leading-relaxed pl-[10px] text-foreground/65">{L(profile.kryptonite, shareLang)}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ── Vulnerability/Defense + Actions (2-col) ── */}
+            {(calibration || adviceList.length > 0) && (
+              <>
+                <div className="h-px mx-10 bg-foreground/[0.04]" />
+                <div className="px-10 py-6 grid grid-cols-2 gap-8">
+                  {/* Left: Vulnerability/Defense */}
+                  {calibration && (
+                    <div className="space-y-2.5">
+                      <p className="text-[11px] leading-relaxed text-foreground-muted/45">
+                        <span style={{ color: '#f43f5e77' }}>&#9632;</span> {L(calibration.vulnerabilities, shareLang)}
+                      </p>
+                      <p className="text-[11px] leading-relaxed text-foreground-muted/45">
+                        <span style={{ color: '#34d39977' }}>&#9632;</span> {L(calibration.strengths, shareLang)}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Right: Actions */}
+                  {adviceList.length > 0 && (
+                    <div>
+                      <ActionItems />
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* ── CTA bar ── */}
+            <div className="px-10 pb-8 pt-2">
+              <Link
+                href="/#risk-calculator"
+                className="group flex items-center justify-center gap-2 w-full py-3.5 rounded-xl transition-all duration-300 hover:brightness-110 text-sm font-bold"
+                style={{ backgroundColor: ac, color: '#0a0908' }}
+              >
+                {t('takeSelf', shareLang)}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </Link>
             </div>
           </MagicCard>
         </div>
