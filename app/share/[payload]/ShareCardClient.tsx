@@ -307,64 +307,158 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
       </div>
 
       <div className="relative z-[2] min-h-screen flex items-center justify-center px-4 py-8 sm:py-12">
-        <div className="w-full max-w-[440px]">
 
-          {/* ═══════════ UNIFIED CARD ═══════════ */}
+        {/* ═══════════ MOBILE (< lg) ═══════════ */}
+        <div className="lg:hidden w-full max-w-[440px]">
           <MagicCard className="card-glow-border card-hover rounded-2xl !overflow-visible" gradientOpacity={0}>
             <div className="absolute -inset-px rounded-2xl overflow-hidden pointer-events-none z-[45]">
               <BorderBeam size={150} duration={8} colorFrom={beamColor1} colorTo={beamColor2} borderWidth={2} />
             </div>
-            <div className="p-5 sm:p-6">
-              {/* Header */}
+            <div className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[9px] font-bold uppercase tracking-[0.2em] pl-2" style={{ color: ac, borderLeft: `2px solid ${ac}` }}>AI Replacement Index</span>
                 <span className="text-[9px] text-foreground-muted/40">air.democra.ai</span>
               </div>
-
-              {/* Character + Name */}
               {profileCode && profile && (
                 <div className="flex items-start gap-4 mb-5">
                   <div className="relative flex-shrink-0">
                     <div className="absolute inset-0 blur-[30px] opacity-25 rounded-full" style={{ backgroundColor: ac }} />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-24 h-24 sm:w-28 sm:h-28 object-contain" />
+                    <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-24 h-24 object-contain" />
                   </div>
                   <div className="flex-1 min-w-0 pt-1">
-                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-[0.95]" style={{ color: ac }}>{L(profile.archetype, shareLang)}</h1>
+                    <h1 className="text-2xl font-extrabold tracking-tight leading-[0.95]" style={{ color: ac }}>{L(profile.archetype, shareLang)}</h1>
                     <div className="mt-1 text-xs font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>{profileCode}</div>
                     <p className="mt-2 text-[11px] leading-relaxed text-foreground-muted/70">{L(profile.tagline, shareLang)}</p>
                   </div>
                 </div>
               )}
-
               <GaugeStrip />
               <div className="mt-5 pt-5 border-t border-foreground/[0.05]"><Metrics /></div>
-
               {dimensions.length === 4 && <div className="mt-5 pt-5 border-t border-foreground/[0.04]"><DimensionStrip /></div>}
-
               {(profile || calibration) && <div className="mt-5 pt-5 border-t border-foreground/[0.04]"><StrengthsBlock /></div>}
-
               {adviceList.length > 0 && <div className="mt-5 pt-5 border-t border-foreground/[0.04]"><ActionItems /></div>}
+              <Link href="/#risk-calculator" className="group flex items-center justify-center gap-2 w-full mt-6 py-3 rounded-lg transition-all duration-300 hover:brightness-110 text-sm font-bold" style={{ backgroundColor: ac, color: '#0a0908' }}>
+                {t('takeSelf', shareLang)}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </Link>
+            </div>
+          </MagicCard>
+          <div className="mt-5 flex items-center justify-between">
+            <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-foreground-muted/40">{t('share', shareLang)}</div>
+            <ShareButtons />
+          </div>
+        </div>
 
-              {/* CTA */}
-              <Link
-                href="/#risk-calculator"
-                className="group flex items-center justify-center gap-2 w-full mt-6 py-3 rounded-lg transition-all duration-300 hover:brightness-110 text-sm font-bold"
-                style={{ backgroundColor: ac, color: '#0a0908' }}
-              >
+        {/* ═══════════ DESKTOP (>= lg) ═══════════ */}
+        <div className="hidden lg:block w-full max-w-[680px]">
+          <MagicCard className="card-glow-border card-hover rounded-2xl !overflow-visible" gradientOpacity={0}>
+            <div className="absolute -inset-px rounded-2xl overflow-hidden pointer-events-none z-[45]">
+              <BorderBeam size={150} duration={8} colorFrom={beamColor1} colorTo={beamColor2} borderWidth={2} />
+            </div>
+
+            {/* Hero: Character + Identity + Metrics */}
+            <div className="px-8 pt-7 pb-5">
+              <div className="flex items-center justify-between mb-5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] pl-2" style={{ color: ac, borderLeft: `2px solid ${ac}` }}>AI Replacement Index</span>
+                <span className="text-[10px] text-foreground-muted/40">air.democra.ai</span>
+              </div>
+              {profileCode && profile && (
+                <div className="flex items-center gap-7">
+                  <div className="relative flex-shrink-0">
+                    <div className="absolute inset-0 blur-[50px] opacity-20 rounded-full" style={{ backgroundColor: ac }} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-36 h-36 object-contain" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-3xl font-extrabold tracking-tight leading-[0.92]" style={{ color: ac }}>{L(profile.archetype, shareLang)}</h1>
+                    <div className="mt-1.5 text-xs font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>{profileCode}</div>
+                    <p className="mt-1.5 text-[11px] leading-relaxed text-foreground-muted/60">{L(profile.tagline, shareLang)}</p>
+                    <div className="mt-4 flex items-baseline gap-7">
+                      <div>
+                        <div className="flex items-baseline">
+                          <span className="tabular-nums leading-none" style={{ fontFamily: 'var(--font-body)', fontSize: '2.25rem', fontWeight: 700, color: ac }}>{prob}</span>
+                          <span className="leading-none ml-0.5" style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', fontWeight: 700, color: `${ac}60` }}>%</span>
+                        </div>
+                        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/55">{t('replProb', shareLang)}</div>
+                      </div>
+                      <div className="w-px h-8 bg-foreground/[0.05]" />
+                      <div>
+                        <span className="tabular-nums leading-none text-foreground/90" style={{ fontFamily: 'var(--font-body)', fontSize: '2.25rem', fontWeight: 700 }}>
+                          {isInfinity ? '\u221E' : predictedYear}
+                        </span>
+                        <div className="mt-0.5 text-[9px] uppercase tracking-[0.1em] font-medium text-foreground-muted/55">{t('predYear', shareLang)}</div>
+                        {!isInfinity && <div className="text-[9px] font-mono text-foreground-muted/40">{earliestYear}&ndash;{latestYear}</div>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Gauge */}
+            <div className="px-8 pb-5"><GaugeStrip /></div>
+            <div className="h-px mx-8 bg-foreground/[0.05]" />
+
+            {/* Dimensions (full width) */}
+            {dimensions.length === 4 && <div className="px-8 py-5"><DimensionStrip /></div>}
+            <div className="h-px mx-8 bg-foreground/[0.04]" />
+
+            {/* Superpower + Kryptonite (2-col) */}
+            {profile && (
+              <div className="px-8 py-5 grid grid-cols-2 gap-6">
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#34d399' }} />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#34d399cc' }}>{t('superpower', shareLang)}</span>
+                  </div>
+                  <p className="text-xs leading-relaxed pl-[10px] text-foreground/80">{L(profile.superpower, shareLang)}</p>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="w-[3px] h-3.5 rounded-sm" style={{ backgroundColor: '#f43f5e' }} />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: '#f43f5ecc' }}>{t('kryptonite', shareLang)}</span>
+                  </div>
+                  <p className="text-xs leading-relaxed pl-[10px] text-foreground/80">{L(profile.kryptonite, shareLang)}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Action items (3-col, title only) */}
+            {adviceList.length > 0 && (
+              <>
+                <div className="h-px mx-8 bg-foreground/[0.04]" />
+                <div className="px-8 py-5 grid grid-cols-3 gap-4">
+                  {adviceList.slice(0, 3).map((advice, ai) => (
+                    <div key={ai} className="flex items-start gap-2">
+                      <span className="text-[10px] font-bold tabular-nums flex-shrink-0 mt-0.5" style={{ color: ai === 0 ? ac : 'var(--foreground-dim)', fontFamily: 'var(--font-body)' }}>
+                        {String(ai + 1).padStart(2, '0')}
+                      </span>
+                      <span className="text-xs font-semibold leading-snug" style={{ color: ai === 0 ? 'var(--foreground)' : 'var(--foreground-muted)' }}>
+                        {L(advice.title, shareLang)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* CTA */}
+            <div className="px-8 pb-7 pt-1">
+              <Link href="/#risk-calculator" className="group flex items-center justify-center gap-2 w-full py-3.5 rounded-xl transition-all duration-300 hover:brightness-110 text-sm font-bold" style={{ backgroundColor: ac, color: '#0a0908' }}>
                 {t('takeSelf', shareLang)}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </Link>
             </div>
           </MagicCard>
 
-          {/* ═══════════ SHARE BUTTONS (outside card) ═══════════ */}
+          {/* Share buttons outside card */}
           <div className="mt-5 flex items-center justify-between">
             <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-foreground-muted/40">{t('share', shareLang)}</div>
             <ShareButtons />
           </div>
-
         </div>
+
       </div>
     </main>
   );
