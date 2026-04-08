@@ -107,126 +107,117 @@ export default async function Image({ params }: Props) {
 
   return new ImageResponse(
     <div style={{
-      width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: '#0a0908', fontFamily: 'sans-serif', position: 'relative', overflow: 'hidden',
+      width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+      background: '#110f0d', fontFamily: 'sans-serif', position: 'relative', overflow: 'hidden', color: '#ccd0e4',
     }}>
-      {/* Background grid */}
-      {Array.from({ length: 13 }).map((_, i) => (
-        <div key={`h${i}`} style={{ position: 'absolute', left: 0, right: 0, top: i * 50, height: 1, display: 'flex', background: 'rgba(255,255,255,0.04)' }} />
-      ))}
-      {Array.from({ length: 25 }).map((_, i) => (
-        <div key={`v${i}`} style={{ position: 'absolute', top: 0, bottom: 0, left: i * 50, width: 1, display: 'flex', background: 'rgba(255,255,255,0.04)' }} />
-      ))}
+      {/* Subtle accent glow */}
+      <div style={{ position: 'absolute', top: -80, left: '30%', width: 500, height: 300, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${c.m}10 0%, transparent 65%)` }} />
 
-      {/* Glow */}
-      <div style={{ position: 'absolute', top: -100, left: '40%', width: 400, height: 400, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${c.m}12 0%, transparent 65%)` }} />
+      {/* Top border accent */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, display: 'flex', background: `linear-gradient(90deg, transparent, ${c.m}60, transparent)` }} />
 
-      {/* ═══ THE CARD ═══ */}
-      <div style={{
-        display: 'flex', flexDirection: 'column', width: 540, background: '#110f0d',
-        border: `1px solid ${c.m}22`, borderRadius: 16, overflow: 'hidden', position: 'relative',
-      }}>
-        {/* Top border accent */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, display: 'flex', background: `linear-gradient(90deg, transparent, ${c.m}60, transparent)` }} />
-
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 2, height: 12, background: c.m, display: 'flex' }} />
-            <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 3, color: c.m }}>AI REPLACEMENT INDEX</span>
-          </div>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>air.democra.ai</span>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '28px 48px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 3, height: 18, background: c.m, display: 'flex' }} />
+          <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: 4, color: c.m }}>AI REPLACEMENT INDEX</span>
         </div>
+        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>air.democra.ai</span>
+      </div>
 
-        {/* Hero: Character + Identity */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '16px 24px' }}>
-          {charImgUrl && (
-            <div style={{ width: 100, height: 100, flexShrink: 0, display: 'flex', borderRadius: 12, overflow: 'hidden' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={charImgUrl} alt="" width={100} height={100} style={{ objectFit: 'contain' }} />
-            </div>
-          )}
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-            {archName && (
-              <span style={{ fontSize: 28, fontWeight: 900, color: c.m, lineHeight: 1, letterSpacing: -0.5 }}>{archName}</span>
-            )}
-            {profileCode && (
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 5, color: `${c.m}66`, marginTop: 4 }}>{profileCode}</span>
-            )}
-            {tagline && (
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 6, lineHeight: 1.4, fontStyle: 'italic' }}>
-                &ldquo;{tagline}&rdquo;
-              </span>
-            )}
+      {/* Hero: Character + Identity */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 32, padding: '24px 48px 20px' }}>
+        {charImgUrl && (
+          <div style={{ width: 160, height: 160, flexShrink: 0, display: 'flex', borderRadius: 16, overflow: 'hidden' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={charImgUrl} alt="" width={160} height={160} style={{ objectFit: 'contain' }} />
           </div>
-        </div>
-
-        {/* Gauge strip */}
-        <div style={{ display: 'flex', gap: 2, padding: '0 24px', marginBottom: 12 }}>
-          {stages.map((stage, i) => {
-            const s = i * 20, e = s + 20;
-            const f = prob >= e ? 1 : prob <= s ? 0 : (prob - s) / 20;
-            const active = Math.min(Math.floor(prob / 20), 4) === i;
-            return (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: '100%', height: 5, borderRadius: 3, display: 'flex', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
-                  {f > 0 && <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 3, display: 'flex', background: stage.color }} />}
-                </div>
-                <span style={{ fontSize: 7, fontWeight: 800, letterSpacing: 2, color: active ? stage.color : 'rgba(255,255,255,0.12)' }}>
-                  {zh ? stage.zh : stage.label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Divider */}
-        <div style={{ height: 1, margin: '0 24px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
-
-        {/* Metrics */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 24, padding: '14px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline' }}>
-            <span style={{ fontSize: 40, fontWeight: 700, color: c.m, lineHeight: 1 }}>{prob}</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: `${c.m}80`, marginLeft: 2 }}>%</span>
-          </div>
-          <div style={{ width: 1, height: 30, display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: 40, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
-            {data.predictedReplacementYear < 2100 && (
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{data.earliestYear}–{data.latestYear}</span>
-            )}
-          </div>
-          <div style={{ display: 'flex', flex: 1 }} />
-          <div style={{ display: 'flex', padding: '6px 14px', borderRadius: 100, border: `1px solid ${c.m}40`, background: `${c.m}10` }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: c.m, letterSpacing: 1 }}>{riskLabel(data.riskLevel, zh)}</span>
-          </div>
-        </div>
-
-        {/* 4-Dimension strip */}
-        {dims.length === 4 && (
-          <>
-            <div style={{ height: 1, margin: '0 24px', display: 'flex', background: 'rgba(255,255,255,0.04)' }} />
-            <div style={{ display: 'flex', padding: '12px 24px', gap: 0 }}>
-              {dims.map((dim, i) => (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: i > 0 ? 12 : 0, borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                  <div style={{ width: 20, height: 3, borderRadius: 2, background: dim.color, opacity: 0.6, display: 'flex', marginBottom: 6 }} />
-                  <span style={{ fontSize: 18, fontWeight: 700, color: dim.color, lineHeight: 1 }}>{dim.letter}</span>
-                  <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, marginTop: 4, textTransform: 'uppercase' as const }}>{dim.name}</span>
-                </div>
-              ))}
-            </div>
-          </>
         )}
-
-        {/* CTA bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 24px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '10px 0', borderRadius: 10, background: c.m }}>
-            <span style={{ fontSize: 13, fontWeight: 800, color: '#0a0908' }}>
-              {zh ? '测测你的风险 →' : "What's your risk? →"}
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          {archName && (
+            <span style={{ fontSize: 48, fontWeight: 900, color: c.m, lineHeight: 1, letterSpacing: -1 }}>{archName}</span>
+          )}
+          {profileCode && (
+            <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: 6, color: `${c.m}55`, marginTop: 6 }}>{profileCode}</span>
+          )}
+          {tagline && (
+            <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', marginTop: 10, lineHeight: 1.4, fontStyle: 'italic' }}>
+              &ldquo;{tagline}&rdquo;
             </span>
-          </div>
+          )}
         </div>
       </div>
+
+      {/* Gauge strip */}
+      <div style={{ display: 'flex', gap: 3, padding: '0 48px', marginBottom: 16 }}>
+        {stages.map((stage, i) => {
+          const s = i * 20, e = s + 20;
+          const f = prob >= e ? 1 : prob <= s ? 0 : (prob - s) / 20;
+          const active = Math.min(Math.floor(prob / 20), 4) === i;
+          return (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: '100%', height: 8, borderRadius: 4, display: 'flex', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
+                {f > 0 && <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 4, display: 'flex', background: stage.color }} />}
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2, color: active ? stage.color : 'rgba(255,255,255,0.12)' }}>
+                {zh ? stage.zh : stage.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: 1, margin: '0 48px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
+
+      {/* Metrics + Dimensions row */}
+      <div style={{ display: 'flex', alignItems: 'center', padding: '20px 48px', flex: 1 }}>
+        {/* Probability */}
+        <div style={{ display: 'flex', alignItems: 'baseline' }}>
+          <span style={{ fontSize: 64, fontWeight: 700, color: c.m, lineHeight: 1 }}>{prob}</span>
+          <span style={{ fontSize: 24, fontWeight: 700, color: `${c.m}70`, marginLeft: 3 }}>%</span>
+        </div>
+        <div style={{ width: 1, height: 48, margin: '0 28px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
+        {/* Year */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontSize: 64, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
+          {data.predictedReplacementYear < 2100 && (
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>{data.earliestYear}–{data.latestYear}</span>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flex: 1 }} />
+
+        {/* Risk badge */}
+        <div style={{ display: 'flex', padding: '8px 20px', borderRadius: 100, border: `1.5px solid ${c.m}40`, background: `${c.m}10`, marginRight: 24 }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: c.m, letterSpacing: 1.5 }}>{riskLabel(data.riskLevel, zh)}</span>
+        </div>
+
+        {/* 4 Dimensions */}
+        {dims.length === 4 && (
+          <div style={{ display: 'flex', gap: 8 }}>
+            {dims.map((dim, i) => (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 48 }}>
+                <div style={{ width: 24, height: 4, borderRadius: 2, background: dim.color, opacity: 0.6, display: 'flex', marginBottom: 6 }} />
+                <span style={{ fontSize: 24, fontWeight: 700, color: dim.color, lineHeight: 1 }}>{dim.letter}</span>
+                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, marginTop: 4 }}>{dim.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* CTA bar at bottom */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 48px 28px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '14px 0', borderRadius: 14, background: c.m }}>
+          <span style={{ fontSize: 18, fontWeight: 800, color: '#0a0908' }}>
+            {zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? Take the test →"}
+          </span>
+        </div>
+      </div>
+
+      {/* Bottom accent line */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, display: 'flex', background: `linear-gradient(90deg, transparent, ${c.m}20, transparent)` }} />
     </div>,
     { ...size },
   );
