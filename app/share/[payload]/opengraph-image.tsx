@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og';
 import { decodeSharePayload, type SharePayload } from '@/lib/share_payload';
-import { headers } from 'next/headers';
 
 export const runtime = 'edge';
 export const contentType = 'image/png';
@@ -58,12 +57,8 @@ const profileArchetypes: Record<string, { en: string; zh: string; tagEn: string;
   TSRH: { en: 'The Iron Fortress', zh: '铁壁堡垒', tagEn: "Four walls between you and AI — it can't even see you", tagZh: '你和 AI 之间隔着四道墙——它连你的影子都看不到' },
 };
 
-async function resolveOrigin(): Promise<string> {
-  const h = await headers();
-  const host = h.get('x-forwarded-host') ?? h.get('host');
-  if (!host) return process.env.NEXT_PUBLIC_BASE_URL || 'https://air.democra.ai';
-  const proto = h.get('x-forwarded-proto') ?? (host.includes('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https');
-  return `${proto}://${host}`;
+function resolveOrigin(): string {
+  return process.env.NEXT_PUBLIC_BASE_URL || 'https://air.democra.ai';
 }
 
 export default async function Image({ params }: Props) {
@@ -104,7 +99,7 @@ export default async function Image({ params }: Props) {
   const profileArch = profileCode ? profileArchetypes[profileCode] : null;
   const profileName = profileArch?.[zh ? 'zh' : 'en'] ?? null;
   const tagline = profileArch ? (zh ? profileArch.tagZh : profileArch.tagEn) : null;
-  const origin = await resolveOrigin();
+  const origin = resolveOrigin();
   const charImgUrl = profileCode ? `${origin}/characters/${profileCode}.png` : null;
 
   const countdownText = yearsLeft !== null
