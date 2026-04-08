@@ -27,23 +27,23 @@ function riskLabel(lv: SharePayload['riskLevel'], zh: boolean) {
   return (m[lv] || m.critical)[zh ? 1 : 0];
 }
 
-const profileArchetypes: Record<string, { en: string; zh: string; tagEn: string; tagZh: string }> = {
-  EOFP: { en: 'The Glass Cannon', zh: '玻璃大炮', tagEn: 'Your entire workflow is a tutorial for AI', tagZh: '你的整个工作流程就是 AI 的教程' },
-  EOFH: { en: 'The Human Bridge', zh: '人脉桥梁', tagEn: 'AI does the work, but they come back for YOU', tagZh: 'AI 能干活，但客户回来找的是你' },
-  EORP: { en: 'The Final Stamp', zh: '终审印章', tagEn: 'AI knows the rules — you enforce the consequences', tagZh: 'AI 懂规则，你执行后果' },
-  ESFP: { en: 'The Taste Maker', zh: '品味定义者', tagEn: 'AI generates a thousand options — you know which one is right', tagZh: 'AI 生成一千个选项，你知道哪个是对的' },
-  TOFP: { en: 'The Bare Hand', zh: '赤手行者', tagEn: "Your hands know things your brain can't explain", tagZh: '你的双手懂得大脑无法解释的东西' },
-  EORH: { en: 'The License Wall', zh: '执照之墙', tagEn: 'AI has the knowledge, but not the license on the wall', tagZh: 'AI 有知识，但墙上没有你的执照' },
-  ESFH: { en: 'The Living Brand', zh: '活体品牌', tagEn: "AI can mimic your style, but it can't BE you", tagZh: 'AI 能模仿你的风格，但它成不了你' },
-  ESRP: { en: 'The Pressure Alchemist', zh: '高压炼金师', tagEn: "When failure isn't an option, they call a human", tagZh: '当失败不是选项时，他们会找一个人类' },
-  TOFH: { en: 'The Signature Touch', zh: '签名手艺人', tagEn: "People don't pay for the haircut — they pay for YOUR haircut", tagZh: '人们不是为理发买单——是为你的理发买单' },
-  TORP: { en: 'The Steady Hand', zh: '不颤之手', tagEn: "One wrong move and it's over — that's why they need you", tagZh: '一步走错就完了——这就是为什么他们需要你' },
-  TSFP: { en: 'The Soul Craftsman', zh: '灵魂匠人', tagEn: 'Your imperfections are what make your work perfect', tagZh: '你的不完美恰恰是作品完美的原因' },
-  ESRH: { en: 'The Oracle', zh: '神谕者', tagEn: 'People trust your judgment with their careers, fortunes, and lives', tagZh: '人们把职业、财富和生命交给你的判断' },
-  TORH: { en: 'The Healing Hand', zh: '疗愈之手', tagEn: 'When lives are on the line, no one asks for the AI', tagZh: '命悬一线时，没人想要 AI' },
-  TSFH: { en: 'The Irreplaceable', zh: '不可替代者', tagEn: "You ARE the product — no one can automate who you are", tagZh: '你就是产品本身——没人能自动化你这个人' },
-  TSRP: { en: 'The Last Call', zh: '终极裁决者', tagEn: 'In chaos, you decide who lives — AI freezes', tagZh: '混乱中，你决定谁活——AI 死机了' },
-  TSRH: { en: 'The Iron Fortress', zh: '铁壁堡垒', tagEn: "Four walls between you and AI — it can't even see you", tagZh: '你和 AI 之间隔着四道墙——它连你的影子都看不到' },
+const profileArchetypes: Record<string, { en: string; zh: string; icon: string; tagEn: string; tagZh: string }> = {
+  EOFP: { en: 'The Glass Cannon', zh: '玻璃大炮', icon: '🎯', tagEn: 'Your entire workflow is a tutorial for AI', tagZh: '你的整个工作流程就是 AI 的教程' },
+  EOFH: { en: 'The Human Bridge', zh: '人脉桥梁', icon: '🤝', tagEn: 'AI does the work, but they come back for YOU', tagZh: 'AI 能干活，但客户回来找的是你' },
+  EORP: { en: 'The Final Stamp', zh: '终审印章', icon: '🛡️', tagEn: 'AI knows the rules — you enforce the consequences', tagZh: 'AI 懂规则，你执行后果' },
+  ESFP: { en: 'The Taste Maker', zh: '品味定义者', icon: '🎨', tagEn: 'AI generates a thousand options — you know which one is right', tagZh: 'AI 生成一千个选项，你知道哪个是对的' },
+  TOFP: { en: 'The Bare Hand', zh: '赤手行者', icon: '🔧', tagEn: "Your hands know things your brain can't explain", tagZh: '你的双手懂得大脑无法解释的东西' },
+  EORH: { en: 'The License Wall', zh: '执照之墙', icon: '📜', tagEn: 'AI has the knowledge, but not the license on the wall', tagZh: 'AI 有知识，但墙上没有你的执照' },
+  ESFH: { en: 'The Living Brand', zh: '活体品牌', icon: '⭐', tagEn: "AI can mimic your style, but it can't BE you", tagZh: 'AI 能模仿你的风格，但它成不了你' },
+  ESRP: { en: 'The Pressure Alchemist', zh: '高压炼金师', icon: '⚗️', tagEn: "When failure isn't an option, they call a human", tagZh: '当失败不是选项时，他们会找一个人类' },
+  TOFH: { en: 'The Signature Touch', zh: '签名手艺人', icon: '✂️', tagEn: "People don't pay for the haircut — they pay for YOUR haircut", tagZh: '人们不是为理发买单——是为你的理发买单' },
+  TORP: { en: 'The Steady Hand', zh: '不颤之手', icon: '🎯', tagEn: "One wrong move and it's over — that's why they need you", tagZh: '一步走错就完了——这就是为什么他们需要你' },
+  TSFP: { en: 'The Soul Craftsman', zh: '灵魂匠人', icon: '🏺', tagEn: 'Your imperfections are what make your work perfect', tagZh: '你的不完美恰恰是作品完美的原因' },
+  ESRH: { en: 'The Oracle', zh: '神谕者', icon: '🔮', tagEn: 'People trust your judgment with their careers, fortunes, and lives', tagZh: '人们把职业、财富和生命交给你的判断' },
+  TORH: { en: 'The Healing Hand', zh: '疗愈之手', icon: '🫀', tagEn: 'When lives are on the line, no one asks for the AI', tagZh: '命悬一线时，没人想要 AI' },
+  TSFH: { en: 'The Irreplaceable', zh: '不可替代者', icon: '🦋', tagEn: "You ARE the product — no one can automate who you are", tagZh: '你就是产品本身——没人能自动化你这个人' },
+  TSRP: { en: 'The Last Call', zh: '终极裁决者', icon: '⚡', tagEn: 'In chaos, you decide who lives — AI freezes', tagZh: '混乱中，你决定谁活——AI 死机了' },
+  TSRH: { en: 'The Iron Fortress', zh: '铁壁堡垒', icon: '🏰', tagEn: "Four walls between you and AI — it can't even see you", tagZh: '你和 AI 之间隔着四道墙——它连你的影子都看不到' },
 };
 
 const DIMENSION_COLORS = ['#7c4dff', '#ff6e40', '#5ec6b0', '#ff80ab'];
@@ -77,10 +77,6 @@ const kryptoniteData: Record<string, { en: string; zh: string }> = {
   TSRP: { en: 'AI getting better at chaos', zh: 'AI 在混乱中进步' }, TSRH: { en: 'Post-singularity unknown', zh: '后奇点未知' },
 };
 
-function resolveOrigin(): string {
-  return process.env.NEXT_PUBLIC_BASE_URL || 'https://air.democra.ai';
-}
-
 export default async function Image({ params }: Props) {
   const { payload } = await params;
   const data = decodeSharePayload(payload);
@@ -102,8 +98,7 @@ export default async function Image({ params }: Props) {
   const arch = profileCode ? profileArchetypes[profileCode] : null;
   const archName = arch ? (zh ? arch.zh : arch.en) : null;
   const tagline = arch ? (zh ? arch.tagZh : arch.tagEn) : null;
-  const origin = resolveOrigin();
-  const charImgUrl = profileCode ? `${origin}/characters/${profileCode}.png` : null;
+  const profileIcon = arch?.icon ?? null;
   const sp = profileCode ? superpowerData[profileCode] : null;
   const kp = profileCode ? kryptoniteData[profileCode] : null;
 
@@ -137,12 +132,11 @@ export default async function Image({ params }: Props) {
         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>air.democra.ai</span>
       </div>
 
-      {/* ── ROW 2: Hero — Character + Identity + Metrics ── */}
+      {/* ── ROW 2: Hero — Icon + Identity + Metrics ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginBottom: 20 }}>
-        {charImgUrl && (
-          <div style={{ width: 130, height: 130, flexShrink: 0, display: 'flex', borderRadius: 14, overflow: 'hidden' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={charImgUrl} alt="" width={130} height={130} style={{ objectFit: 'contain' }} />
+        {profileIcon && (
+          <div style={{ width: 110, height: 110, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 20, background: `${c.m}12`, border: `1.5px solid ${c.m}25` }}>
+            <span style={{ fontSize: 60 }}>{profileIcon}</span>
           </div>
         )}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
