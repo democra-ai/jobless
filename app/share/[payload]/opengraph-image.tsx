@@ -191,58 +191,51 @@ export default async function Image({ params }: Props) {
         })}
       </div>
 
-      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.06)', marginBottom: 16 }} />
+      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.06)', marginBottom: 12 }} />
 
-      {/* ── ROW 4: Dimensions + Superpower/Kryptonite (2-col) ── */}
-      <div style={{ display: 'flex', gap: 32, flex: 1 }}>
-        {/* Left: 4 Dimensions */}
-        {dims.length === 4 && (
-          <div style={{ display: 'flex', gap: 0, flex: 1 }}>
-            {dims.map((dim, i) => (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: i > 0 ? 14 : 0, borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                <div style={{ width: 22, height: 3, borderRadius: 2, background: dim.color, opacity: 0.7, display: 'flex', marginBottom: 6 }} />
-                <span style={{ fontSize: 22, fontWeight: 700, color: dim.color, lineHeight: 1 }}>{dim.letter}</span>
-                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, marginTop: 4 }}>{dim.name}</span>
-              </div>
-            ))}
+      {/* ── ROW 4: 4-Dimension strip (full width) ── */}
+      {dims.length === 4 && (
+        <div style={{ display: 'flex', gap: 0, marginBottom: 12 }}>
+          {dims.map((dim, i) => (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: i > 0 ? 14 : 0, borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+              <div style={{ width: 22, height: 3, borderRadius: 2, background: dim.color, opacity: 0.7, display: 'flex', marginBottom: 5 }} />
+              <span style={{ fontSize: 20, fontWeight: 700, color: dim.color, lineHeight: 1 }}>{dim.letter}</span>
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, marginTop: 3 }}>{dim.name}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.04)', marginBottom: 12 }} />
+
+      {/* ── ROW 5: Superpower + Kryptonite (2-col) ── */}
+      <div style={{ display: 'flex', gap: 28, marginBottom: 12 }}>
+        {sp && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ width: 3, height: 12, borderRadius: 2, background: '#34d399', display: 'flex' }} />
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
+            </div>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4, paddingLeft: 9 }}>{zh ? sp.zh : sp.en}</span>
           </div>
         )}
-
-        {/* Right: Superpower + Kryptonite */}
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 12 }}>
-          {sp && (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 3, height: 12, borderRadius: 2, background: '#34d399', display: 'flex' }} />
-                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
-              </div>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4, paddingLeft: 9 }}>{zh ? sp.zh : sp.en}</span>
+        {kp && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ width: 3, height: 12, borderRadius: 2, background: '#f43f5e', display: 'flex' }} />
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
             </div>
-          )}
-          {kp && (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 3, height: 12, borderRadius: 2, background: '#f43f5e', display: 'flex' }} />
-                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
-              </div>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4, paddingLeft: 9 }}>{zh ? kp.zh : kp.en}</span>
-            </div>
-          )}
-        </div>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4, paddingLeft: 9 }}>{zh ? kp.zh : kp.en}</span>
+          </div>
+        )}
       </div>
 
-      {/* ── ROW 5: CTA + Badge ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', padding: '10px 24px', borderRadius: 10, background: c.m }}>
-          <span style={{ fontSize: 14, fontWeight: 800, color: '#0a0908' }}>
-            {zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? →"}
+      {/* ── ROW 6: CTA (full width) ── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '12px 0', borderRadius: 12, background: c.m }}>
+          <span style={{ fontSize: 15, fontWeight: 800, color: '#0a0908' }}>
+            {zh ? '测测你的风险 →' : "What's your risk? →"}
           </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', padding: '6px 14px', borderRadius: 100, border: `1px solid ${c.m}40`, background: `${c.m}10` }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: c.m, letterSpacing: 1 }}>{riskLabel(data.riskLevel, zh)}</span>
-          </div>
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', letterSpacing: 1 }}>air.democra.ai</span>
         </div>
       </div>
     </div>,
