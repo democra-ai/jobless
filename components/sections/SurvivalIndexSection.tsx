@@ -395,12 +395,20 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           }
           const trackAnswers: QuizAnswers = { core: pendingAdvance.answers, snapshot: {}, survey: {} };
           setResult(quizResult);
-          setPhase('result');
-          setSharePanelOpen(true);
-          setTelegramShareState('idle');
-          setCopied(false);
-          setWechatCopied(false);
           trackQuizComplete(quizResult, trackAnswers, lang);
+
+          // Redirect to share page with result
+          const payload = encodeSharePayload({
+            riskLevel: quizResult.riskLevel,
+            replacementProbability: quizResult.replacementProbability,
+            predictedReplacementYear: isFinite(quizResult.predictedReplacementYear) ? quizResult.predictedReplacementYear : 9999,
+            currentReplacementDegree: quizResult.currentReplacementDegree,
+            earliestYear: quizResult.confidenceInterval.earliest,
+            latestYear: isFinite(quizResult.confidenceInterval.latest) ? quizResult.confidenceInterval.latest : 9999,
+            lang,
+            profileCode: quizResult.profileCode,
+          });
+          window.location.href = `/share/${payload}`;
         } catch (err) {
           console.error('Quiz calculation error:', err);
         }

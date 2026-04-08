@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { Copy, Check, ExternalLink, Send } from 'lucide-react';
 import type { ShareLang } from '@/lib/share_payload';
 import type { Language, Theme } from '@/lib/translations';
 import { getHtmlLang } from '@/lib/translations';
@@ -64,6 +65,9 @@ const UI: Record<string, Record<ShareLang, string>> = {
   takeSelf:    { en: 'What\u2019s your risk?', zh: '测测你的风险', ja: 'あなたのリスクは?', ko: '당신의 리스크는?', de: 'Ihr Risiko?' },
   superpower:  { en: 'Superpower', zh: '超能力', ja: '超能力', ko: '초능력', de: 'Superkraft' },
   kryptonite:  { en: 'Weakness', zh: '弱点', ja: '弱点', ko: '약점', de: 'Schwäche' },
+  share:       { en: 'Share', zh: '分享', ja: '共有', ko: '공유', de: 'Teilen' },
+  copied:      { en: 'Copied!', zh: '已复制！', ja: 'コピー済み', ko: '복사됨!', de: 'Kopiert!' },
+  copyLink:    { en: 'Copy Link', zh: '复制链接', ja: 'リンクをコピー', ko: '링크 복사', de: 'Link kopieren' },
 };
 
 function t(key: string, lang: ShareLang): string {
@@ -108,12 +112,75 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
     localStorage.setItem('air-lang', lang);
   }, [lang]);
 
+  const [copied, setCopied] = useState(false);
+
   const shareLang = lang as ShareLang;
   const { prob, ac, profileCode, profile, dimensions, calibration, adviceList, activeStageIdx, isInfinity, predictedYear, earliestYear, latestYear } = data;
   const beamColor1 = theme === 'dark' ? '#ffffff' : ac;
   const beamColor2 = theme === 'dark' ? ac : '#ff1744';
 
+  const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const getShareText = useCallback(() => {
+    const archetype = profile ? L(profile.archetype, shareLang) : '';
+    return shareLang === 'zh'
+      ? `我的 AI 替代风险：${prob}%，预测年份：${isInfinity ? '∞' : predictedYear}。我是「${archetype}」型。来测测你的？`
+      : `My AI replacement risk: ${prob}%, predicted year: ${isInfinity ? '∞' : predictedYear}. I'm "${archetype}". What's yours?`;
+  }, [prob, isInfinity, predictedYear, profile, shareLang]);
+
+  const handleCopyLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(pageUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch { /* ignore */ }
+  }, [pageUrl]);
+
+  const handleShareTwitter = useCallback(() => {
+    const text = encodeURIComponent(getShareText());
+    const url = encodeURIComponent(pageUrl);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+  }, [getShareText, pageUrl]);
+
+  const handleShareLinkedIn = useCallback(() => {
+    const url = encodeURIComponent(pageUrl);
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+  }, [pageUrl]);
+
+  const handleShareReddit = useCallback(() => {
+    const url = encodeURIComponent(pageUrl);
+    const title = encodeURIComponent(getShareText());
+    window.open(`https://reddit.com/submit?url=${url}&title=${title}`, '_blank');
+  }, [getShareText, pageUrl]);
+
+  const handleShareTelegram = useCallback(() => {
+    const url = encodeURIComponent(pageUrl);
+    const text = encodeURIComponent(getShareText());
+    window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+  }, [getShareText, pageUrl]);
+
   // ─── Shared sub-components ────────────────────────────────────────────────
+
+  const ShareButtons = () => (
+    <div className="flex items-center gap-2 flex-wrap">
+      <button onClick={handleCopyLink} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-overlay-10 text-xs font-medium text-foreground/70 hover:text-foreground transition-colors">
+        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+        {copied ? t('copied', shareLang) : t('copyLink', shareLang)}
+      </button>
+      <button onClick={handleShareTwitter} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-overlay-10 text-xs font-medium text-foreground/70 hover:text-foreground transition-colors">
+        <ExternalLink className="w-3.5 h-3.5" />X
+      </button>
+      <button onClick={handleShareLinkedIn} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-overlay-10 text-xs font-medium text-foreground/70 hover:text-foreground transition-colors">
+        <ExternalLink className="w-3.5 h-3.5" />LinkedIn
+      </button>
+      <button onClick={handleShareReddit} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-overlay-10 text-xs font-medium text-foreground/70 hover:text-foreground transition-colors">
+        <ExternalLink className="w-3.5 h-3.5" />Reddit
+      </button>
+      <button onClick={handleShareTelegram} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-overlay-10 text-xs font-medium text-foreground/70 hover:text-foreground transition-colors">
+        <Send className="w-3.5 h-3.5" />Telegram
+      </button>
+    </div>
+  );
 
   const GaugeStrip = () => (
     <div className="flex gap-[2px]">
@@ -288,6 +355,12 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                 {t('takeSelf', shareLang)}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </Link>
+
+              {/* Share buttons */}
+              <div className="mt-4 pt-4 border-t border-foreground/[0.04]">
+                <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-foreground-muted/40 mb-3">{t('share', shareLang)}</div>
+                <ShareButtons />
+              </div>
             </div>
           </MagicCard>
         </div>
@@ -402,8 +475,12 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
               </>
             )}
 
-            {/* ── CTA bar ── */}
+            {/* ── Share + CTA ── */}
             <div className="px-8 pb-7 pt-1">
+              <div className="flex items-center justify-between mb-5">
+                <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-foreground-muted/40">{t('share', shareLang)}</div>
+                <ShareButtons />
+              </div>
               <Link
                 href="/#risk-calculator"
                 className="group flex items-center justify-center gap-2 w-full py-3.5 rounded-xl transition-all duration-300 hover:brightness-110 text-sm font-bold"
