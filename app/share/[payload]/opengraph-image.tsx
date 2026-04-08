@@ -87,8 +87,8 @@ export default async function Image({ params }: Props) {
         <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }}>air.democra.ai</span>
       </div>
 
-      {/* ROW 2: Hero — flex:1, takes all remaining top space */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 28, flex: 1, marginTop: 12 }}>
+      {/* ROW 2: Hero — flex:3, takes more top space */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 28, flex: 3, marginTop: 12 }}>
         {charImg && (
           <div style={{ width: 180, height: 180, flexShrink: 0, display: 'flex', borderRadius: 20, overflow: 'hidden' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -113,8 +113,8 @@ export default async function Image({ params }: Props) {
         </div>
       </div>
 
-      {/* ROW 3: Gauge — fixed height */}
-      <div style={{ display: 'flex', gap: 3, marginTop: 12 }}>
+      {/* ROW 3: Gauge — divider zone, pushed down */}
+      <div style={{ display: 'flex', gap: 3, marginTop: 16 }}>
         {stages.map((s, i) => {
           const start = i * 20, end = start + 20;
           const f = prob >= end ? 1 : prob <= start ? 0 : (prob - start) / 20;
@@ -130,10 +130,10 @@ export default async function Image({ params }: Props) {
         })}
       </div>
 
-      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.06)', margin: '12px 0' }} />
+      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.06)', margin: '8px 0' }} />
 
-      {/* ROW 4: Dims + Strengths — flex:1, fills remaining bottom space */}
-      <div style={{ display: 'flex', gap: 28, flex: 1 }}>
+      {/* ROW 4: Dims + Strengths — flex:2, tighter bottom */}
+      <div style={{ display: 'flex', gap: 28, flex: 2 }}>
         {/* Left: 4 Dimensions */}
         {dims.length === 4 && (
           <div style={{ display: 'flex', gap: 0, flex: 1 }}>
@@ -170,7 +170,7 @@ export default async function Image({ params }: Props) {
       </div>
 
       {/* ROW 5: Actions + CTA — fixed at bottom */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 8 }}>
         {adviceList.map((a, i) => (
           <div key={i} style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 7 }}>
             <span style={{ fontSize: 13, fontWeight: 700, color: i === 0 ? ac : 'rgba(255,255,255,0.2)', marginTop: 1 }}>{String(i + 1).padStart(2, '0')}</span>
