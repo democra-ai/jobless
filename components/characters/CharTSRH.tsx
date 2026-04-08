@@ -4,75 +4,79 @@ import type { CharacterProps } from './CharacterBase';
 
 /**
  * TSRH — 铁壁堡垒 / The Iron Fortress
- * Commanding leader, crossed arms, full beard, long coat.
- * Four shield icons. Teal accent (#34d399).
+ * Corporate Memphis: Figure seated upright, wrapped tightly in four concentric
+ * colorful shield rings, outermost with castle-wall crenellation edges,
+ * perfect symmetry, gold and deep blue palette, immovable authority.
  */
 export default function CharTSRH({ size = 200, className }: CharacterProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" className={className}>
-      {/* Four shield icons — the 4 dimensions */}
-      <g opacity={0.35}>
-        {/* Top-left: brain (tacit) */}
-        <path d="M32 28 L32 44 Q32 52 40 55 Q48 52 48 44 L48 28 Z" fill="#34d399" opacity={0.15} stroke="#34d399" strokeWidth={1.2} />
-        <circle cx={40} cy={40} r={4} fill="none" stroke="#34d399" strokeWidth={1} />
+    <svg width={size} height={size} viewBox="0 0 400 400" fill="none" className={className}>
+      <defs>
+        <linearGradient id="tsrh-gold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#FFD54F" />
+          <stop offset="100%" stopColor="#FFA000" />
+        </linearGradient>
+      </defs>
 
-        {/* Top-right: eye (subjective) */}
-        <path d="M152 28 L152 44 Q152 52 160 55 Q168 52 168 44 L168 28 Z" fill="#34d399" opacity={0.15} stroke="#34d399" strokeWidth={1.2} />
-        <ellipse cx={160} cy={40} rx={5} ry={3} fill="none" stroke="#34d399" strokeWidth={1} />
+      {/* Outermost shield ring — with castle crenellation */}
+      <circle cx={200} cy={210} r={165} fill="none" stroke="#1A237E" strokeWidth={12} opacity={0.3} />
+      {/* Crenellation teeth on outer ring */}
+      {/* Top */}
+      <rect x={190} y={38} width={20} height={14} fill="#1A237E" opacity={0.3} />
+      <rect x={230} y={42} width={18} height={14} fill="#1A237E" opacity={0.25} />
+      <rect x={150} y={42} width={18} height={14} fill="#1A237E" opacity={0.25} />
+      {/* Sides */}
+      <rect x={34} y={200} width={14} height={20} fill="#1A237E" opacity={0.25} />
+      <rect x={352} y={200} width={14} height={20} fill="#1A237E" opacity={0.25} />
+      <rect x={38} y={250} width={14} height={18} fill="#1A237E" opacity={0.22} />
+      <rect x={348} y={250} width={14} height={18} fill="#1A237E" opacity={0.22} />
+      <rect x={38} y={155} width={14} height={18} fill="#1A237E" opacity={0.22} />
+      <rect x={348} y={155} width={14} height={18} fill="#1A237E" opacity={0.22} />
+      {/* Bottom */}
+      <rect x={190} y={368} width={20} height={14} fill="#1A237E" opacity={0.25} />
+      <rect x={140} y={362} width={18} height={14} fill="#1A237E" opacity={0.22} />
+      <rect x={240} y={362} width={18} height={14} fill="#1A237E" opacity={0.22} />
 
-        {/* Mid-left: lock (rigid) */}
-        <path d="M22 80 L22 96 Q22 104 30 107 Q38 104 38 96 L38 80 Z" fill="#34d399" opacity={0.15} stroke="#34d399" strokeWidth={1.2} />
-        <rect x={27} y={92} width={6} height={5} rx={1} fill="none" stroke="#34d399" strokeWidth={1} />
+      {/* Second ring — gold */}
+      <circle cx={200} cy={210} r={130} fill="none" stroke="url(#tsrh-gold)" strokeWidth={10} opacity={0.5} />
 
-        {/* Mid-right: person (human) */}
-        <path d="M162 80 L162 96 Q162 104 170 107 Q178 104 178 96 L178 80 Z" fill="#34d399" opacity={0.15} stroke="#34d399" strokeWidth={1.2} />
-        <circle cx={170} cy={90} r={3} fill="none" stroke="#34d399" strokeWidth={1} />
-        <path d="M166 98 Q170 101 174 98" fill="none" stroke="#34d399" strokeWidth={1} />
-      </g>
+      {/* Third ring — deep blue */}
+      <circle cx={200} cy={210} r={100} fill="none" stroke="#283593" strokeWidth={8} opacity={0.45} />
 
-      {/* Coat */}
-      <path d="M58 112 L50 180 L150 180 L142 112" fill="#1A3830" />
-      {/* Coat opening */}
-      <path d="M82 112 L94 140 L100 120 L106 140 L118 112" fill="#225A44" />
+      {/* Fourth (innermost) ring — bright gold */}
+      <circle cx={200} cy={210} r={72} fill="none" stroke="#FFD54F" strokeWidth={6} opacity={0.55} />
 
-      {/* Body under coat */}
-      <path d="M74 108 Q74 104 84 102 L100 98 L116 102 Q126 104 126 108 L130 145 L70 145 Z" fill="#2A5A48" />
-      {/* Shirt visible at collar */}
-      <path d="M92 102 L100 112 L108 102" fill="#D0CCC6" />
+      {/* Seated figure — perfectly centered, upright posture */}
+      {/* Body */}
+      <path d="M175 195 Q172 188 178 182 L200 176 L222 182 Q228 188 225 195 L228 280 L172 280 Z" fill="#1A237E" />
+      {/* Chest emblem — golden */}
+      <circle cx={200} cy={220} r={12} fill="#FFD54F" opacity={0.7} />
+      <circle cx={200} cy={220} r={7} fill="#FFA000" opacity={0.5} />
 
-      {/* Crossed arms */}
-      <path d="M68 118 Q84 130 108 116" fill="#1A3830" />
-      <path d="M132 118 Q116 130 92 116" fill="#1A3830" />
-      {/* Hands on arms */}
-      <circle cx={108} cy={118} r={7} fill="#C69060" />
-      <circle cx={92} cy={118} r={7} fill="#C69060" />
+      {/* Arms folded / at sides — composed */}
+      <path d="M175 200 Q155 210 148 235" stroke="#1A237E" strokeWidth={14} strokeLinecap="round" fill="none" />
+      <path d="M225 200 Q245 210 252 235" stroke="#1A237E" strokeWidth={14} strokeLinecap="round" fill="none" />
+      <circle cx={146} cy={238} r={8} fill="#FADCBC" />
+      <circle cx={254} cy={238} r={8} fill="#FADCBC" />
+
+      {/* Legs — seated cross-legged */}
+      <path d="M180 275 Q165 295 175 310 Q185 318 200 312" stroke="#1A237E" strokeWidth={14} strokeLinecap="round" fill="none" />
+      <path d="M220 275 Q235 295 225 310 Q215 318 200 312" stroke="#1A237E" strokeWidth={14} strokeLinecap="round" fill="none" />
 
       {/* Head */}
-      <circle cx={100} cy={66} r={32} fill="#C69060" />
+      <circle cx={200} cy={155} r={32} fill="#FADCBC" />
+      {/* Hair — neat, authoritative */}
+      <path d="M168 148 Q170 122 200 116 Q230 122 232 148 L230 138 Q228 126 200 122 Q172 126 170 138 Z" fill="#2C2420" />
 
-      {/* Hair — short wavy brown */}
-      <path d="M68 56 Q68 30 100 28 Q132 30 132 56 L130 48 Q128 36 100 34 Q72 36 70 48 Z" fill="#3A2A1A" />
-      <path d="M130 56 Q134 62 132 68" fill="#3A2A1A" />
-      <path d="M70 56 Q66 62 68 68" fill="#3A2A1A" />
+      {/* Eyes — steady, commanding */}
+      <circle cx={190} cy={154} r={4} fill="#1A237E" />
+      <circle cx={210} cy={154} r={4} fill="#1A237E" />
+      {/* Eye glint */}
+      <circle cx={191.5} cy={152.5} r={1.2} fill="white" opacity={0.6} />
+      <circle cx={211.5} cy={152.5} r={1.2} fill="white" opacity={0.6} />
 
-      {/* Full beard */}
-      <path d="M78 76 Q78 98 100 102 Q122 98 122 76" fill="#3A2A1A" />
-
-      {/* Eyes — commanding direct gaze */}
-      <circle cx={87} cy={62} r={4} fill="#2C2420" />
-      <circle cx={113} cy={62} r={4} fill="#2C2420" />
-      <circle cx={88} cy={61} r={1.5} fill="white" />
-      <circle cx={114} cy={61} r={1.5} fill="white" />
-
-      {/* Strong eyebrows */}
-      <rect x={79} y={53} width={16} height={3.5} rx={1.7} fill="#3A2A1A" />
-      <rect x={105} y={53} width={16} height={3.5} rx={1.7} fill="#3A2A1A" />
-
-      {/* Mouth in beard — serious line */}
-      <line x1={93} y1={82} x2={107} y2={82} stroke="#2A1A10" strokeWidth={2} strokeLinecap="round" />
-
-      {/* Nose — simple triangle */}
-      <path d="M97 68 L100 76 L103 68" fill="#B08050" opacity={0.4} />
+      {/* Composed mouth */}
+      <rect x={193} y={166} width={14} height={2.5} rx={1.2} fill="#C08060" />
     </svg>
   );
 }

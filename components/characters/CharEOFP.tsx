@@ -4,75 +4,82 @@ import type { CharacterProps } from './CharacterBase';
 
 /**
  * EOFP — 玻璃大炮 / The Glass Cannon
- * Worried office worker at desk. Red accent (#ff1744).
- * Clean flat style: no strokes on skin, pure color blocks.
+ * Corporate Memphis: Translucent blue limbs, glass bottle torso with flowing binary,
+ * exaggerated long arms hitting floating geometric keys.
  */
 export default function CharEOFP({ size = 200, className }: CharacterProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" className={className}>
-      {/* Floating data icons — what makes them replaceable */}
-      <rect x={24} y={18} width={18} height={22} rx={3} fill="#ff1744" opacity={0.15} />
-      <rect x={28} y={24} width={10} height={2} rx={1} fill="#ff1744" opacity={0.25} />
-      <rect x={28} y={28} width={7} height={2} rx={1} fill="#ff1744" opacity={0.2} />
+    <svg width={size} height={size} viewBox="0 0 400 400" fill="none" className={className}>
+      {/* Background subtle grain texture */}
+      <defs>
+        <linearGradient id="eofp-glass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#7EC8E3" stopOpacity={0.6} />
+          <stop offset="100%" stopColor="#4A90D9" stopOpacity={0.35} />
+        </linearGradient>
+        <linearGradient id="eofp-key" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#FFD54F" />
+          <stop offset="100%" stopColor="#FF8A65" />
+        </linearGradient>
+        <filter id="eofp-glow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
 
-      <rect x={158} y={25} width={18} height={22} rx={3} fill="#ff1744" opacity={0.12} />
-      <rect x={162} y={31} width={10} height={2} rx={1} fill="#ff1744" opacity={0.2} />
+      {/* Floating geometric keys */}
+      <rect x={40} y={80} width={50} height={40} rx={8} fill="url(#eofp-key)" opacity={0.8} />
+      <rect x={48} y={94} width={18} height={4} rx={2} fill="white" opacity={0.6} />
+      <rect x={310} y={60} width={55} height={42} rx={8} fill="#FF8A65" opacity={0.7} />
+      <rect x={318} y={74} width={20} height={4} rx={2} fill="white" opacity={0.5} />
+      <rect x={280} y={130} width={40} height={35} rx={6} fill="#FFD54F" opacity={0.6} />
+      <rect x={60} y={150} width={35} height={30} rx={6} fill="#FF8A65" opacity={0.5} />
 
-      <rect x={152} y={58} width={15} height={19} rx={3} fill="#ff1744" opacity={0.08} />
+      {/* Workflow fragments — pink and yellow squares */}
+      <rect x={30} y={200} width={24} height={24} rx={4} fill="#FF6B9D" opacity={0.4} transform="rotate(15 42 212)" />
+      <rect x={340} y={190} width={28} height={28} rx={4} fill="#FFD54F" opacity={0.35} transform="rotate(-10 354 204)" />
+      <rect x={50} y={320} width={20} height={20} rx={3} fill="#FFD54F" opacity={0.3} transform="rotate(25 60 330)" />
+      <rect x={320} y={300} width={22} height={22} rx={3} fill="#FF6B9D" opacity={0.3} transform="rotate(-20 331 311)" />
 
-      {/* Desk */}
-      <rect x={35} y={148} width={130} height={8} rx={4} fill="#3D2E22" />
+      {/* Glass bottle torso */}
+      <path d="M160 180 Q155 175 155 170 L155 155 Q155 140 170 135 L200 130 L230 135 Q245 140 245 155 L245 170 Q245 175 240 180 L245 310 Q245 320 235 325 L165 325 Q155 320 155 310 Z" fill="url(#eofp-glass)" stroke="#7EC8E3" strokeWidth={1.5} />
 
-      {/* Laptop */}
-      <rect x={68} y={128} width={44} height={20} rx={3} fill="#2A2420" />
-      <rect x={72} y={132} width={36} height={12} rx={2} fill="#ff1744" opacity={0.12} />
-      <rect x={62} y={147} width={56} height={4} rx={2} fill="#352E28" />
+      {/* Binary code flowing inside torso */}
+      <text x={175} y={200} fill="#2196F3" opacity={0.4} fontSize={11} fontFamily="monospace">01101</text>
+      <text x={180} y={218} fill="#2196F3" opacity={0.35} fontSize={10} fontFamily="monospace">1001</text>
+      <text x={172} y={236} fill="#2196F3" opacity={0.3} fontSize={11} fontFamily="monospace">11010</text>
+      <text x={185} y={254} fill="#2196F3" opacity={0.25} fontSize={10} fontFamily="monospace">0110</text>
+      <text x={175} y={272} fill="#2196F3" opacity={0.3} fontSize={11} fontFamily="monospace">10011</text>
+      <text x={180} y={290} fill="#2196F3" opacity={0.2} fontSize={10} fontFamily="monospace">0101</text>
 
-      {/* Body — white shirt */}
-      <path d="M72 108 Q72 104 80 102 L100 98 L120 102 Q128 104 128 108 L132 148 L68 148 Z" fill="#F0EBE6" />
-      {/* Collar V */}
-      <path d="M90 102 L100 114 L110 102" fill="#E0DBD5" />
+      {/* Crack lines on glass body */}
+      <path d="M165 200 L172 220 L168 235" fill="none" stroke="white" strokeWidth={1.2} opacity={0.5} strokeLinecap="round" />
+      <path d="M238 210 L232 228 L235 240" fill="none" stroke="white" strokeWidth={1} opacity={0.4} strokeLinecap="round" />
+      <path d="M175 270 L180 285" fill="none" stroke="white" strokeWidth={1} opacity={0.35} strokeLinecap="round" />
 
-      {/* Right arm on desk */}
-      <rect x={128} y={116} width={14} height={34} rx={7} fill="#F0EBE6" />
-      <circle cx={135} cy={146} r={7} fill="#FADCBC" />
+      {/* Left arm — extremely long, reaching to floating key */}
+      <path d="M155 190 Q120 170 90 140 Q75 120 60 105" stroke="#7EC8E3" strokeWidth={18} strokeLinecap="round" fill="none" opacity={0.7} />
+      {/* Left hand */}
+      <circle cx={58} cy={102} r={14} fill="#7EC8E3" opacity={0.75} />
 
-      {/* Left arm — hand on head */}
-      <rect x={52} y={80} width={14} height={34} rx={7} fill="#F0EBE6" transform="rotate(-25 59 97)" />
-      <circle cx={54} cy={78} r={7} fill="#FADCBC" />
+      {/* Right arm — extremely long, reaching to other key */}
+      <path d="M245 185 Q280 160 310 130 Q325 110 335 90" stroke="#7EC8E3" strokeWidth={18} strokeLinecap="round" fill="none" opacity={0.7} />
+      {/* Right hand */}
+      <circle cx={337} cy={87} r={14} fill="#7EC8E3" opacity={0.75} />
+
+      {/* Legs — translucent blue */}
+      <rect x={170} y={325} width={22} height={55} rx={11} fill="#7EC8E3" opacity={0.55} />
+      <rect x={208} y={325} width={22} height={55} rx={11} fill="#7EC8E3" opacity={0.55} />
+      {/* Feet */}
+      <ellipse cx={181} cy={382} rx={16} ry={8} fill="#4A90D9" opacity={0.5} />
+      <ellipse cx={219} cy={382} rx={16} ry={8} fill="#4A90D9" opacity={0.5} />
 
       {/* Head */}
-      <circle cx={100} cy={68} r={30} fill="#FADCBC" />
-
-      {/* Hair — messy auburn */}
-      <path d="M70 60 Q70 36 100 34 Q130 36 130 60 L128 52 Q126 42 100 40 Q74 42 72 52 Z" fill="#8B3A20" />
-      {/* Messy tufts */}
-      <circle cx={78} cy={42} r={6} fill="#8B3A20" />
-      <circle cx={92} cy={36} r={7} fill="#8B3A20" />
-      <circle cx={108} cy={37} r={6} fill="#8B3A20" />
-      <circle cx={120} cy={42} r={5} fill="#8B3A20" />
-
-      {/* Eyes — dot, looking sideways (worried) */}
-      <circle cx={89} cy={66} r={3.5} fill="#2C2420" />
-      <circle cx={111} cy={66} r={3.5} fill="#2C2420" />
-      {/* Eye whites (looking to side) */}
-      <circle cx={90.5} cy={65.5} r={1.2} fill="white" />
-      <circle cx={112.5} cy={65.5} r={1.2} fill="white" />
-
-      {/* Eyebrows — raised worried */}
-      <rect x={84} y={57} width={12} height={3} rx={1.5} fill="#8B3A20" transform="rotate(-8 90 58)" />
-      <rect x={104} y={57} width={12} height={3} rx={1.5} fill="#8B3A20" transform="rotate(8 110 58)" />
-
-      {/* Mouth — small worried curve */}
-      <path d="M94 79 Q100 76 106 79" fill="none" stroke="#C08060" strokeWidth={2} strokeLinecap="round" />
-
-      {/* Cheek blush */}
-      <circle cx={80} cy={74} r={5} fill="#E8A090" opacity={0.3} />
-      <circle cx={120} cy={74} r={5} fill="#E8A090" opacity={0.3} />
-
-      {/* Glass crack lines (fragility) */}
-      <path d="M73 100 L78 112 L75 118" fill="none" stroke="#ff1744" strokeWidth={1.2} opacity={0.25} strokeLinecap="round" />
-      <path d="M127 104 L124 114" fill="none" stroke="#ff1744" strokeWidth={1.2} opacity={0.2} strokeLinecap="round" />
+      <circle cx={200} cy={115} r={38} fill="#7EC8E3" opacity={0.65} />
+      {/* Minimal face — two dots for eyes */}
+      <circle cx={188} cy={112} r={4} fill="#1A237E" />
+      <circle cx={212} cy={112} r={4} fill="#1A237E" />
+      {/* Small line mouth */}
+      <path d="M193 126 Q200 130 207 126" fill="none" stroke="#1A237E" strokeWidth={2} strokeLinecap="round" opacity={0.6} />
     </svg>
   );
 }
