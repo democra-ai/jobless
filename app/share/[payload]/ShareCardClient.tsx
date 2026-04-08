@@ -110,8 +110,8 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
 
   const shareLang = lang as ShareLang;
   const { prob, ac, profileCode, profile, dimensions, calibration, adviceList, activeStageIdx, isInfinity, predictedYear, earliestYear, latestYear } = data;
-  const beamFrom = theme === 'dark' ? '#ffffff' : ac;
-  const beamTo = theme === 'dark' ? '#c4b5fd' : '#ff1744';
+  const beamColor1 = theme === 'dark' ? '#ffffff' : ac;
+  const beamColor2 = theme === 'dark' ? ac : '#ff1744';
 
   // ─── Shared sub-components ────────────────────────────────────────────────
 
@@ -244,8 +244,8 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
         {/* ═══════════ MOBILE LAYOUT (< lg) ═══════════ */}
         <div className="lg:hidden w-full max-w-[420px]">
           <MagicCard className="card-glow-border card-hover rounded-2xl !overflow-visible" gradientOpacity={0}>
-            <div className="absolute -inset-3 rounded-2xl overflow-hidden pointer-events-none z-[45]">
-              <BorderBeam size={150} duration={10} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
+            <div className="absolute -inset-px rounded-2xl overflow-hidden pointer-events-none z-[45]">
+              <BorderBeam size={150} duration={8} colorFrom={beamColor1} colorTo={beamColor2} borderWidth={2} />
             </div>
             <div className="p-5">
               {/* Header */}
@@ -295,8 +295,8 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
         {/* ═══════════ DESKTOP LAYOUT (>= lg) ═══════════ */}
         <div className="hidden lg:block w-full max-w-[680px]">
           <MagicCard className="card-glow-border card-hover rounded-2xl !overflow-visible" gradientOpacity={0}>
-            <div className="absolute -inset-3 rounded-2xl overflow-hidden pointer-events-none z-[45]">
-              <BorderBeam size={200} duration={12} colorFrom={beamFrom} colorTo={beamTo} borderWidth={1.5} />
+            <div className="absolute -inset-px rounded-2xl overflow-hidden pointer-events-none z-[45]">
+              <BorderBeam size={150} duration={8} colorFrom={beamColor1} colorTo={beamColor2} borderWidth={2} />
             </div>
 
             {/* ── Hero: Character + Identity + Metrics ── */}
