@@ -310,7 +310,7 @@ function AxisSlider({
 
 // ─── Quiz phases ─────────────────────────────────────────────────────────────
 
-type QuizPhase = 'intro' | 'core' | 'result';
+type QuizPhase = 'intro' | 'core' | 'confirm' | 'result';
 type QuizMode = 'compact' | 'full';
 
 // ─── Main Component ──────────────────────────────────────────────────────────
@@ -395,20 +395,8 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           }
           const trackAnswers: QuizAnswers = { core: pendingAdvance.answers, snapshot: {}, survey: {} };
           setResult(quizResult);
+          setPhase('confirm');
           trackQuizComplete(quizResult, trackAnswers, lang);
-
-          // Redirect to share page with result
-          const payload = encodeSharePayload({
-            riskLevel: quizResult.riskLevel,
-            replacementProbability: quizResult.replacementProbability,
-            predictedReplacementYear: isFinite(quizResult.predictedReplacementYear) ? quizResult.predictedReplacementYear : 9999,
-            currentReplacementDegree: quizResult.currentReplacementDegree,
-            earliestYear: quizResult.confidenceInterval.earliest,
-            latestYear: isFinite(quizResult.confidenceInterval.latest) ? quizResult.confidenceInterval.latest : 9999,
-            lang,
-            profileCode: quizResult.profileCode,
-          });
-          window.location.href = `/share/${payload}`;
         } catch (err) {
           console.error('Quiz calculation error:', err);
         }
@@ -1882,6 +1870,46 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                 </button>
               </div>
             </div>
+          )}
+
+          {/* ══════════════ CONFIRM PHASE ══════════════ */}
+          {phase === 'confirm' && result && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-center py-12 space-y-6"
+            >
+              <div className="text-4xl sm:text-5xl font-extrabold" style={{ color: result.profile.color || riskColor }}>
+                {L(result.profile.archetype, lang)}
+              </div>
+              <p className="text-sm text-foreground-muted/60 max-w-xs mx-auto">
+                {lang === 'zh' ? '你的 AI 替代风险分析已完成' : lang === 'ja' ? 'AI代替リスク分析が完了しました' : lang === 'ko' ? 'AI 대체 리스크 분석이 완료되었습니다' : lang === 'de' ? 'Ihre KI-Ersetzungsrisikoanalyse ist abgeschlossen' : 'Your AI replacement risk analysis is complete'}
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    setPhase('result');
+                    setSharePanelOpen(true);
+                    setTelegramShareState('idle');
+                    setCopied(false);
+                    setWechatCopied(false);
+                  }}
+                  className="px-8 py-3 rounded-xl text-sm font-bold transition-all duration-300 hover:brightness-110"
+                  style={{ backgroundColor: result.profile.color || riskColor, color: '#0a0908' }}
+                >
+                  {lang === 'zh' ? '查看结果' : lang === 'ja' ? '結果を見る' : lang === 'ko' ? '결과 보기' : lang === 'de' ? 'Ergebnis ansehen' : 'View Results'}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => { setPhase('core'); setResult(null); }}
+                  className="px-6 py-3 rounded-xl text-sm font-medium text-foreground-muted/60 hover:text-foreground border border-overlay-8 transition-colors"
+                >
+                  {lang === 'zh' ? '返回修改' : lang === 'ja' ? '戻って修正' : lang === 'ko' ? '돌아가서 수정' : lang === 'de' ? 'Zurück & ändern' : 'Go Back & Edit'}
+                </motion.button>
+              </div>
+            </motion.div>
           )}
 
           {/* ══════════════ RESULT PHASE ══════════════ */}
