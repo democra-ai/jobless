@@ -327,8 +327,10 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                     <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-24 h-24 object-contain" />
                   </div>
                   <div className="flex-1 min-w-0 pt-1">
-                    <h1 className="text-2xl font-extrabold tracking-tight leading-[0.95]" style={{ color: ac }}>{L(profile.archetype, shareLang)}</h1>
-                    <div className="mt-1 text-xs font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>{profileCode}</div>
+                    <div className="flex items-baseline gap-2">
+                      <h1 className="text-2xl font-extrabold tracking-tight leading-[0.95]" style={{ color: ac }}>{L(profile.archetype, shareLang)}</h1>
+                      <span className="text-sm font-bold tracking-[0.25em]" style={{ color: `${ac}70`, fontFamily: 'var(--font-body)' }}>{profileCode}</span>
+                    </div>
                     <p className="mt-2 text-[11px] leading-relaxed text-foreground-muted/70">{L(profile.tagline, shareLang)}</p>
                   </div>
                 </div>
@@ -371,8 +373,10 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                     <img src={`/characters/${profileCode}.webp`} alt={L(profile.archetype, shareLang)} className="relative w-36 h-36 object-contain" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-3xl font-extrabold tracking-tight leading-[0.92]" style={{ color: ac }}>{L(profile.archetype, shareLang)}</h1>
-                    <div className="mt-1.5 text-xs font-bold tracking-[0.3em]" style={{ color: `${ac}55`, fontFamily: 'var(--font-body)' }}>{profileCode}</div>
+                    <div className="flex items-baseline gap-3">
+                      <h1 className="text-3xl font-extrabold tracking-tight leading-[0.92]" style={{ color: ac }}>{L(profile.archetype, shareLang)}</h1>
+                      <span className="text-base font-bold tracking-[0.25em]" style={{ color: `${ac}70`, fontFamily: 'var(--font-body)' }}>{profileCode}</span>
+                    </div>
                     <p className="mt-1.5 text-[11px] leading-relaxed text-foreground-muted/60">{L(profile.tagline, shareLang)}</p>
                     <div className="mt-4 flex items-baseline gap-7">
                       <div>
