@@ -9,33 +9,22 @@ export const alt = 'AIR Share Result';
 type Props = { params: Promise<{ payload: string }> };
 
 function pal(lv: SharePayload['riskLevel']) {
-  const p: Record<string, { m: string; a: string; g: string }> = {
-    'very-low': { m: '#34d399', a: '#06b6d4', g: '#059669' },
-    'low':      { m: '#4ade80', a: '#22d3ee', g: '#16a34a' },
-    'medium':   { m: '#fbbf24', a: '#f97316', g: '#d97706' },
-    'high':     { m: '#fb923c', a: '#f43f5e', g: '#ea580c' },
-    'critical': { m: '#f43f5e', a: '#a855f7', g: '#dc2626' },
+  const p: Record<string, { m: string; a: string }> = {
+    'very-low': { m: '#34d399', a: '#059669' },
+    'low':      { m: '#4ade80', a: '#16a34a' },
+    'medium':   { m: '#fbbf24', a: '#d97706' },
+    'high':     { m: '#fb923c', a: '#ea580c' },
+    'critical': { m: '#f43f5e', a: '#dc2626' },
   };
   return p[lv] || p.critical;
 }
 
 function riskLabel(lv: SharePayload['riskLevel'], zh: boolean) {
   const m: Record<string, [string, string]> = {
-    'very-low': ['VERY LOW', '极低'], 'low': ['LOW', '低'], 'medium': ['MEDIUM', '中等'],
-    'high': ['HIGH', '高'], 'critical': ['CRITICAL', '极高'],
+    'very-low': ['VERY LOW RISK', '极低风险'], 'low': ['LOW RISK', '低风险'], 'medium': ['MEDIUM RISK', '中等风险'],
+    'high': ['HIGH RISK', '高风险'], 'critical': ['CRITICAL RISK', '极高风险'],
   };
   return (m[lv] || m.critical)[zh ? 1 : 0];
-}
-
-function HLines({ n, gap }: { n: number; gap: number }) {
-  return <>{Array.from({ length: n }).map((_, i) => (
-    <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: i * gap, height: 1, display: 'flex', background: 'rgba(255,255,255,0.07)' }} />
-  ))}</>;
-}
-function VLines({ n, gap }: { n: number; gap: number }) {
-  return <>{Array.from({ length: n }).map((_, i) => (
-    <div key={i} style={{ position: 'absolute', top: 0, bottom: 0, left: i * gap, width: 1, display: 'flex', background: 'rgba(255,255,255,0.07)' }} />
-  ))}</>;
 }
 
 const profileArchetypes: Record<string, { en: string; zh: string; tagEn: string; tagZh: string }> = {
@@ -57,6 +46,37 @@ const profileArchetypes: Record<string, { en: string; zh: string; tagEn: string;
   TSRH: { en: 'The Iron Fortress', zh: '铁壁堡垒', tagEn: "Four walls between you and AI — it can't even see you", tagZh: '你和 AI 之间隔着四道墙——它连你的影子都看不到' },
 };
 
+const DIMENSION_COLORS = ['#7c4dff', '#ff6e40', '#5ec6b0', '#ff80ab'];
+const FAVORABLE_LETTERS = ['E', 'O', 'F', 'P'];
+const dimNames: Record<string, { en: string; zh: string }> = {
+  E: { en: 'Learnability', zh: '知识类型' }, T: { en: 'Learnability', zh: '知识类型' },
+  O: { en: 'Evaluation', zh: '评判标准' }, S: { en: 'Evaluation', zh: '评判标准' },
+  F: { en: 'Risk', zh: '容错空间' }, R: { en: 'Risk', zh: '容错空间' },
+  P: { en: 'Presence', zh: '人际依赖' }, H: { en: 'Presence', zh: '人际依赖' },
+};
+
+const superpowerData: Record<string, { en: string; zh: string }> = {
+  EOFP: { en: 'Efficient, fast execution', zh: '高效快速执行' }, EOFH: { en: 'Human connection + trust', zh: '人脉连接与信任' },
+  EORP: { en: 'Legal accountability shield', zh: '法律责任护盾' }, ESFP: { en: 'Aesthetic taste & judgment', zh: '审美品味与判断' },
+  TOFP: { en: 'Physical muscle memory', zh: '身体肌肉记忆' }, EORH: { en: 'Regulatory moat', zh: '法规护城河' },
+  ESFH: { en: 'Personal brand identity', zh: '个人品牌辨识度' }, ESRP: { en: 'High-stakes decision making', zh: '高风险决策力' },
+  TOFH: { en: 'Touch + personal bond', zh: '触感+人际纽带' }, TORP: { en: 'Zero-error physical precision', zh: '零容错精密操作' },
+  TSFP: { en: 'Unique handmade signature', zh: '独特手作印记' }, ESRH: { en: 'Decades of trusted judgment', zh: '数十年信任判断' },
+  TORH: { en: 'Healing hands + trust', zh: '治愈之手+信任' }, TSFH: { en: 'YOU are the product', zh: '你就是产品本身' },
+  TSRP: { en: 'Chaos → order under pressure', zh: '混乱中的秩序决策' }, TSRH: { en: 'All 4 barriers active', zh: '四重壁垒全激活' },
+};
+
+const kryptoniteData: Record<string, { en: string; zh: string }> = {
+  EOFP: { en: 'All skills are learnable', zh: '所有技能可被学习' }, EOFH: { en: 'AI learning personalization', zh: 'AI 学会个性化' },
+  EORP: { en: 'Regulation may change', zh: '法规可能会变' }, ESFP: { en: 'AI taste is improving', zh: 'AI 审美在进步' },
+  TOFP: { en: 'Robotics advancing fast', zh: '机器人快速进步' }, EORH: { en: 'License rules may loosen', zh: '执照规则可能放松' },
+  ESFH: { en: 'AI deepfakes improving', zh: 'AI 深度伪造进步' }, ESRP: { en: 'AI risk models improving', zh: 'AI 风险模型进步' },
+  TOFH: { en: 'Client loyalty can shift', zh: '客户忠诚可能转移' }, TORP: { en: 'Surgical robots advancing', zh: '手术机器人在进步' },
+  TSFP: { en: 'Mass customization growing', zh: '大规模定制增长' }, ESRH: { en: 'World is changing around you', zh: '世界在你周围变化' },
+  TORH: { en: 'Remote diagnosis improving', zh: '远程诊断在进步' }, TSFH: { en: 'Attention economy shifting', zh: '注意力经济在变' },
+  TSRP: { en: 'AI getting better at chaos', zh: 'AI 在混乱中进步' }, TSRH: { en: 'Post-singularity unknown', zh: '后奇点未知' },
+};
+
 function resolveOrigin(): string {
   return process.env.NEXT_PUBLIC_BASE_URL || 'https://air.democra.ai';
 }
@@ -67,7 +87,7 @@ export default async function Image({ params }: Props) {
 
   if (!data) {
     return new ImageResponse(
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', background: '#06080e', color: '#fafafa', fontFamily: 'sans-serif' }}>
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', background: '#0a0908', color: '#f5f3f0', fontFamily: 'sans-serif' }}>
         <span style={{ fontSize: 80, fontWeight: 900, letterSpacing: 12 }}>AIR</span>
         <span style={{ fontSize: 22, opacity: 0.4, marginTop: 14, letterSpacing: 4 }}>AI REPLACEMENT INDEX</span>
       </div>, { ...size },
@@ -76,164 +96,155 @@ export default async function Image({ params }: Props) {
 
   const zh = data.lang === 'zh';
   const c = pal(data.riskLevel);
-  const lb = riskLabel(data.riskLevel, zh);
   const prob = data.replacementProbability;
   const yr = data.predictedReplacementYear >= 2100 ? '∞' : String(data.predictedReplacementYear);
-  const stages = ['SAFE', 'ASSIST', 'AGENT', 'LEAD', 'KILL'];
-
-  const currentYear = new Date().getFullYear();
-  const yearsLeft = data.predictedReplacementYear >= 2100 ? null : data.predictedReplacementYear - currentYear;
-
   const profileCode = (data.v === 2 && 'profileCode' in data && data.profileCode) || null;
-  const favorableLetters = ['E', 'O', 'F', 'P'];
-  const dimMeta: Record<string, { en: string; zh: string }> = {
-    E: { en: 'Explicit', zh: '显性型' }, T: { en: 'Tacit', zh: '隐性型' },
-    O: { en: 'Objective', zh: '客观型' }, S: { en: 'Subjective', zh: '主观型' },
-    F: { en: 'Flexible', zh: '弹性型' }, R: { en: 'Rigid', zh: '刚性型' },
-    P: { en: 'Product', zh: '对事型' }, H: { en: 'Human', zh: '对人型' },
-  };
-  const dims = profileCode
-    ? profileCode.split('').map((letter, i) => ({ v: letter, name: dimMeta[letter]?.[zh ? 'zh' : 'en'] ?? letter, risky: letter === favorableLetters[i] }))
-    : [{ v: 'E', name: zh ? '显性型' : 'Explicit', risky: true }, { v: 'O', name: zh ? '客观型' : 'Objective', risky: true }, { v: 'F', name: zh ? '弹性型' : 'Flexible', risky: true }, { v: 'H', name: zh ? '对人型' : 'Human', risky: false }];
-
-  const profileArch = profileCode ? profileArchetypes[profileCode] : null;
-  const profileName = profileArch?.[zh ? 'zh' : 'en'] ?? null;
-  const tagline = profileArch ? (zh ? profileArch.tagZh : profileArch.tagEn) : null;
+  const arch = profileCode ? profileArchetypes[profileCode] : null;
+  const archName = arch ? (zh ? arch.zh : arch.en) : null;
+  const tagline = arch ? (zh ? arch.tagZh : arch.tagEn) : null;
   const origin = resolveOrigin();
   const charImgUrl = profileCode ? `${origin}/characters/${profileCode}.png` : null;
+  const sp = profileCode ? superpowerData[profileCode] : null;
+  const kp = profileCode ? kryptoniteData[profileCode] : null;
 
-  const countdownText = yearsLeft !== null
-    ? (zh ? `距离你被替代还有 ${yearsLeft} 年` : `${yearsLeft} ${yearsLeft === 1 ? 'year' : 'years'} until you're replaced`)
-    : (zh ? `AI 已经能做你 ${data.currentReplacementDegree}% 的工作` : `AI can already do ${data.currentReplacementDegree}% of your job`);
+  const dims = profileCode
+    ? profileCode.split('').map((letter, i) => ({ letter, name: dimNames[letter]?.[zh ? 'zh' : 'en'] ?? '', color: DIMENSION_COLORS[i] }))
+    : [];
+
+  const stages = [
+    { label: 'SAFE', zh: '安全', color: '#34d399' },
+    { label: 'ASSIST', zh: '辅助', color: '#4ade80' },
+    { label: 'AGENT', zh: '代理', color: '#fbbf24' },
+    { label: 'LEAD', zh: '主导', color: '#fb923c' },
+    { label: 'KILL', zh: '斩杀', color: '#f43f5e' },
+  ];
 
   return new ImageResponse(
-    <div style={{ width: '100%', height: '100%', display: 'flex', background: '#06080e', fontFamily: 'sans-serif', position: 'relative', overflow: 'hidden', color: '#ccd0e4' }}>
+    <div style={{
+      width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+      background: '#0f0d0b', fontFamily: 'sans-serif', position: 'relative', overflow: 'hidden', color: '#f5f3f0',
+      padding: '32px 40px 28px',
+    }}>
+      {/* Subtle glow */}
+      <div style={{ position: 'absolute', top: -60, right: '20%', width: 400, height: 300, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${c.m}0c 0%, transparent 65%)` }} />
 
-      {/* BG grid */}
-      <HLines n={13} gap={50} />
-      <VLines n={25} gap={50} />
-
-      {/* BG glows */}
-      <div style={{ position: 'absolute', top: -60, left: '30%', width: 500, height: 500, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${c.g}15 0%, transparent 65%)` }} />
-      <div style={{ position: 'absolute', bottom: -80, right: '20%', width: 400, height: 400, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${c.a}0a 0%, transparent 60%)` }} />
-
-      {/* Top accent */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, display: 'flex', background: `linear-gradient(90deg, transparent 5%, ${c.m} 35%, ${c.a} 65%, transparent 95%)` }} />
-
-      {/* ═══ CONTENT ═══ */}
-      <div style={{ display: 'flex', width: '100%', height: '100%', padding: '28px 44px 20px', flexDirection: 'column' }}>
-
-        {/* ── ROW 1: Header — AIR brand + risk badge ── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <span style={{ fontSize: 36, fontWeight: 900, letterSpacing: 8, opacity: 0.65 }}>AIR</span>
-            <div style={{ width: 1.5, height: 28, background: 'rgba(255,255,255,0.2)', display: 'flex' }} />
-            <span style={{ fontSize: 15, letterSpacing: 3, opacity: 0.35 }}>{zh ? 'AI替代风险指数' : 'AI REPLACEMENT INDEX'}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 22px', borderRadius: 100, border: `1.5px solid ${c.m}55`, background: `${c.m}14` }}>
-            <div style={{ width: 9, height: 9, borderRadius: 5, background: c.m, display: 'flex' }} />
-            <span style={{ fontSize: 15, fontWeight: 800, color: c.m, letterSpacing: 2 }}>{zh ? `${lb}风险` : `${lb} RISK`}</span>
-          </div>
+      {/* ── ROW 1: Header ── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 3, height: 16, background: c.m, display: 'flex' }} />
+          <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: 4, color: c.m }}>AI REPLACEMENT INDEX</span>
         </div>
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>air.democra.ai</span>
+      </div>
 
-        {/* ── ROW 2: HERO — Character image + archetype name + tagline ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: 6, position: 'relative' }}>
-          {/* Character image */}
-          {charImgUrl && (
-            <div style={{ width: 120, height: 120, display: 'flex', borderRadius: 16, overflow: 'hidden', marginBottom: 4 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={charImgUrl} alt="" width={120} height={120} style={{ objectFit: 'contain' }} />
-            </div>
+      {/* ── ROW 2: Hero — Character + Identity + Metrics ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginBottom: 20 }}>
+        {charImgUrl && (
+          <div style={{ width: 130, height: 130, flexShrink: 0, display: 'flex', borderRadius: 14, overflow: 'hidden' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={charImgUrl} alt="" width={130} height={130} style={{ objectFit: 'contain' }} />
+          </div>
+        )}
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          {archName && (
+            <span style={{ fontSize: 40, fontWeight: 900, color: c.m, lineHeight: 1, letterSpacing: -0.5 }}>{archName}</span>
           )}
-          {/* Archetype name */}
-          {profileName && (
-            <span style={{ fontSize: 62, fontWeight: 900, color: c.m, lineHeight: 1.1, textAlign: 'center', letterSpacing: 1 }}>
-              {profileName}
-            </span>
-          )}
-          {/* Profile code */}
           {profileCode && (
-            <span style={{ fontSize: 20, fontWeight: 800, color: c.m, opacity: 0.5, letterSpacing: 6, marginTop: 2 }}>{profileCode}</span>
+            <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: 5, color: `${c.m}55`, marginTop: 4 }}>{profileCode}</span>
           )}
-          {/* Tagline */}
           {tagline && (
-            <span style={{ fontSize: 19, fontWeight: 600, opacity: 0.55, textAlign: 'center', maxWidth: 700, lineHeight: 1.3, marginTop: 4, fontStyle: 'italic' }}>
-              &ldquo;{tagline}&rdquo;
-            </span>
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 8, lineHeight: 1.4 }}>{tagline}</span>
           )}
-        </div>
-
-        {/* ── ROW 3: Stats bar — probability + year + dimensions + countdown ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 4 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <span style={{ fontSize: 56, fontWeight: 900, lineHeight: 0.85, color: c.m }}>{prob}</span>
-            <span style={{ fontSize: 22, fontWeight: 800, color: c.m, opacity: 0.4 }}>%</span>
-            <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.35, letterSpacing: 1, marginLeft: 4 }}>{zh ? '替代概率' : 'RISK'}</span>
+          {/* Inline metrics */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 24, marginTop: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline' }}>
+              <span style={{ fontSize: 48, fontWeight: 700, color: c.m, lineHeight: 1 }}>{prob}</span>
+              <span style={{ fontSize: 18, fontWeight: 700, color: `${c.m}70`, marginLeft: 2 }}>%</span>
+            </div>
+            <div style={{ width: 1, height: 36, display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: 48, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
+              {data.predictedReplacementYear < 2100 && (
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{data.earliestYear}–{data.latestYear}</span>
+              )}
+            </div>
           </div>
-          <div style={{ width: 1.5, height: 40, background: 'rgba(255,255,255,0.1)', display: 'flex' }} />
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <span style={{ fontSize: 42, fontWeight: 900, lineHeight: 0.85, color: '#fff' }}>{yr}</span>
-            <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.35, letterSpacing: 1, marginLeft: 4 }}>{zh ? '预测年份' : 'YEAR'}</span>
-          </div>
-          <div style={{ width: 1.5, height: 40, background: 'rgba(255,255,255,0.1)', display: 'flex' }} />
-          <div style={{ display: 'flex', gap: 6 }}>
-            {dims.map((d, i) => {
-              const dimColor = d.risky ? '#f43f5e' : '#34d399';
-              const dimBg = d.risky ? 'rgba(244,63,94,0.12)' : 'rgba(52,211,153,0.12)';
-              const dimBorder = d.risky ? 'rgba(244,63,94,0.3)' : 'rgba(52,211,153,0.3)';
-              return (
-                <div key={i} style={{ display: 'flex', width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 8, border: `1.5px solid ${dimBorder}`, background: dimBg }}>
-                  <span style={{ fontSize: 22, fontWeight: 900, color: dimColor }}>{d.v}</span>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ flex: 1, display: 'flex' }} />
-          <div style={{ display: 'flex', padding: '10px 20px', borderRadius: 10, border: `1px solid ${c.m}30`, background: `${c.m}0c` }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: c.m }}>{countdownText}</span>
-          </div>
-        </div>
-
-        {/* ── ROW 4: Gauge bar ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginTop: 10, position: 'relative' }}>
-          <div style={{ display: 'flex', gap: 3, height: 8 }}>
-            {[0, 1, 2, 3, 4].map(i => {
-              const s = i * 20, e = s + 20;
-              const f = prob >= e ? 1 : prob <= s ? 0 : (prob - s) / 20;
-              const barColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
-              return (
-                <div key={i} style={{ flex: 1, borderRadius: 4, display: 'flex', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-                  <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 4, display: 'flex', background: barColors[i] }} />
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ display: 'flex', marginTop: 3 }}>
-            {stages.map((s, i) => {
-              const active = i * 20 <= prob && prob < i * 20 + 20;
-              const stageColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
-              return (
-                <div key={i} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                  <span style={{ fontSize: 12, letterSpacing: 2, opacity: active ? 1 : 0.3, color: stageColors[i], fontWeight: 800 }}>{s}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── ROW 5: CTA ── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', padding: '10px 28px', borderRadius: 10, background: `linear-gradient(135deg, ${c.m}, ${c.a})` }}>
-            <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: 0.5 }}>
-              {zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? Take the test →"}
-            </span>
-          </div>
-          <span style={{ fontSize: 12, opacity: 0.2, letterSpacing: 1.5, display: 'flex' }}>air.democra.ai</span>
         </div>
       </div>
 
-      {/* Bottom accent */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, display: 'flex', background: `linear-gradient(90deg, transparent 10%, ${c.m}25 50%, transparent 90%)` }} />
+      {/* ── ROW 3: Gauge ── */}
+      <div style={{ display: 'flex', gap: 3, marginBottom: 16 }}>
+        {stages.map((stage, i) => {
+          const s = i * 20, e = s + 20;
+          const f = prob >= e ? 1 : prob <= s ? 0 : (prob - s) / 20;
+          const active = Math.min(Math.floor(prob / 20), 4) === i;
+          return (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: '100%', height: 6, borderRadius: 3, display: 'flex', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
+                {f > 0 && <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 3, display: 'flex', background: stage.color }} />}
+              </div>
+              <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: active ? stage.color : 'rgba(255,255,255,0.12)' }}>
+                {zh ? stage.zh : stage.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.06)', marginBottom: 16 }} />
+
+      {/* ── ROW 4: Dimensions + Superpower/Kryptonite (2-col) ── */}
+      <div style={{ display: 'flex', gap: 32, flex: 1 }}>
+        {/* Left: 4 Dimensions */}
+        {dims.length === 4 && (
+          <div style={{ display: 'flex', gap: 0, flex: 1 }}>
+            {dims.map((dim, i) => (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: i > 0 ? 14 : 0, borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                <div style={{ width: 22, height: 3, borderRadius: 2, background: dim.color, opacity: 0.7, display: 'flex', marginBottom: 6 }} />
+                <span style={{ fontSize: 22, fontWeight: 700, color: dim.color, lineHeight: 1 }}>{dim.letter}</span>
+                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, marginTop: 4 }}>{dim.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Right: Superpower + Kryptonite */}
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 12 }}>
+          {sp && (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <div style={{ width: 3, height: 12, borderRadius: 2, background: '#34d399', display: 'flex' }} />
+                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
+              </div>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4, paddingLeft: 9 }}>{zh ? sp.zh : sp.en}</span>
+            </div>
+          )}
+          {kp && (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <div style={{ width: 3, height: 12, borderRadius: 2, background: '#f43f5e', display: 'flex' }} />
+                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
+              </div>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4, paddingLeft: 9 }}>{zh ? kp.zh : kp.en}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── ROW 5: CTA + Badge ── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', padding: '10px 24px', borderRadius: 10, background: c.m }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#0a0908' }}>
+            {zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? →"}
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', padding: '6px 14px', borderRadius: 100, border: `1px solid ${c.m}40`, background: `${c.m}10` }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: c.m, letterSpacing: 1 }}>{riskLabel(data.riskLevel, zh)}</span>
+          </div>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', letterSpacing: 1 }}>air.democra.ai</span>
+        </div>
+      </div>
     </div>,
     { ...size },
   );
