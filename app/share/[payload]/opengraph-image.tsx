@@ -37,7 +37,7 @@ export default async function Image({ params }: Props) {
 
   if (!data) {
     return new ImageResponse(
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', background: '#0a0908', color: '#f5f3f0', fontFamily: 'sans-serif' }}>
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0908', color: '#f5f3f0', fontFamily: 'sans-serif' }}>
         <span style={{ fontSize: 80, fontWeight: 900, letterSpacing: 12 }}>AIR</span>
       </div>, { ...size },
     );
@@ -52,23 +52,13 @@ export default async function Image({ params }: Props) {
   const profile = pc ? PROFILE_TYPES[pc] : null;
   const charImg = pc ? await loadCharImg(pc) : null;
 
-  const dimLetters = pc ? pc.split('') : [];
-  const dims = dimLetters.map((letter, i) => {
+  const dims = pc ? pc.split('').map((letter, i) => {
     const qd = QUIZ_DIMENSIONS[i];
-    const isFavorable = letter === FAVORABLE_LETTERS[i];
-    return {
-      letter,
-      dimensionId: qd?.id ?? '',
-      isFavorable,
-      name: qd ? L(qd.name as L10n, lang) : '',
-      label: qd ? L((isFavorable ? qd.favorableLabel : qd.resistantLabel) as L10n, lang) : '',
-      color: DIMENSION_COLORS[i],
-    };
-  });
+    const fav = letter === FAVORABLE_LETTERS[i];
+    return { letter, dimensionId: qd?.id ?? '', isFavorable: fav, name: qd ? L(qd.name as L10n, lang) : '', label: qd ? L((fav ? qd.favorableLabel : qd.resistantLabel) as L10n, lang) : '', color: DIMENSION_COLORS[i] };
+  }) : [];
 
-  const adviceList = pc
-    ? generateAdvice(dims.map(d => ({ dimensionId: d.dimensionId, isFavorable: d.isFavorable }))).slice(0, 3)
-    : [];
+  const adviceList = pc ? generateAdvice(dims.map(d => ({ dimensionId: d.dimensionId, isFavorable: d.isFavorable }))).slice(0, 3) : [];
 
   const stages = [
     { label: 'SAFE', zh: '安全', color: '#34d399' },
@@ -78,115 +68,117 @@ export default async function Image({ params }: Props) {
     { label: 'KILL', zh: '斩杀', color: '#f43f5e' },
   ];
 
+  // The entire 1200x630 is the card. Every row uses flex to fill available space.
   return new ImageResponse(
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#0f0d0b', fontFamily: 'sans-serif', color: '#f5f3f0', padding: '30px 40px 24px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{
+      width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+      background: '#0f0d0b', fontFamily: 'sans-serif', color: '#f5f3f0',
+      padding: '28px 36px', position: 'relative', overflow: 'hidden',
+    }}>
       {/* Glow */}
-      <div style={{ position: 'absolute', top: -50, right: '25%', width: 400, height: 300, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${ac}0c 0%, transparent 65%)` }} />
+      <div style={{ position: 'absolute', top: -80, right: '20%', width: 500, height: 350, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${ac}0e 0%, transparent 65%)` }} />
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+      {/* ROW 1: Header — fixed height */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 4, height: 18, background: ac, display: 'flex' }} />
-          <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: 4, color: ac }}>AI REPLACEMENT INDEX</span>
+          <div style={{ width: 4, height: 20, background: ac, display: 'flex' }} />
+          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: 4, color: ac }}>AI REPLACEMENT INDEX</span>
         </div>
-        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>air.democra.ai</span>
+        <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }}>air.democra.ai</span>
       </div>
 
-      {/* Hero: Char + Identity + Metrics */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginBottom: 16 }}>
+      {/* ROW 2: Hero — flex:1, takes all remaining top space */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 28, flex: 1, marginTop: 12 }}>
         {charImg && (
-          <div style={{ width: 150, height: 150, flexShrink: 0, display: 'flex', borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ width: 180, height: 180, flexShrink: 0, display: 'flex', borderRadius: 20, overflow: 'hidden' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={charImg} alt="" width={150} height={150} style={{ objectFit: 'cover' }} />
+            <img src={charImg} alt="" width={180} height={180} style={{ objectFit: 'cover' }} />
           </div>
         )}
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          {profile && <span style={{ fontSize: 44, fontWeight: 900, color: ac, lineHeight: 1 }}>{L(profile.archetype as L10n, lang)}</span>}
-          {pc && <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: 6, color: `${ac}55`, marginTop: 4 }}>{pc}</span>}
-          {profile && <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', marginTop: 6, lineHeight: 1.3 }}>{L(profile.tagline as L10n, lang)}</span>}
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 24, marginTop: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
+          {profile && <span style={{ fontSize: 52, fontWeight: 900, color: ac, lineHeight: 1 }}>{L(profile.archetype as L10n, lang)}</span>}
+          {pc && <span style={{ fontSize: 17, fontWeight: 700, letterSpacing: 7, color: `${ac}55`, marginTop: 6 }}>{pc}</span>}
+          {profile && <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', marginTop: 8, lineHeight: 1.3 }}>{L(profile.tagline as L10n, lang)}</span>}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 28, marginTop: 14 }}>
             <div style={{ display: 'flex', alignItems: 'baseline' }}>
-              <span style={{ fontSize: 52, fontWeight: 700, color: ac, lineHeight: 1 }}>{prob}</span>
-              <span style={{ fontSize: 22, fontWeight: 700, color: `${ac}70`, marginLeft: 3 }}>%</span>
+              <span style={{ fontSize: 60, fontWeight: 700, color: ac, lineHeight: 1 }}>{prob}</span>
+              <span style={{ fontSize: 24, fontWeight: 700, color: `${ac}70`, marginLeft: 3 }}>%</span>
             </div>
-            <div style={{ width: 1.5, height: 36, display: 'flex', background: 'rgba(255,255,255,0.08)' }} />
+            <div style={{ width: 2, height: 42, display: 'flex', background: 'rgba(255,255,255,0.08)' }} />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: 52, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
-              {data.predictedReplacementYear < 2100 && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>{data.earliestYear}–{data.latestYear}</span>}
+              <span style={{ fontSize: 60, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
+              {data.predictedReplacementYear < 2100 && <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>{data.earliestYear}–{data.latestYear}</span>}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Gauge */}
-      <div style={{ display: 'flex', gap: 3, marginBottom: 12 }}>
+      {/* ROW 3: Gauge — fixed height */}
+      <div style={{ display: 'flex', gap: 3, marginTop: 12 }}>
         {stages.map((s, i) => {
           const start = i * 20, end = start + 20;
           const f = prob >= end ? 1 : prob <= start ? 0 : (prob - start) / 20;
           const active = Math.min(Math.floor(prob / 20), 4) === i;
           return (
             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-              <div style={{ width: '100%', height: 8, borderRadius: 4, display: 'flex', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
-                {f > 0 && <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 4, display: 'flex', background: s.color }} />}
+              <div style={{ width: '100%', height: 10, borderRadius: 5, display: 'flex', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
+                {f > 0 && <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 5, display: 'flex', background: s.color }} />}
               </div>
-              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2, color: active ? s.color : 'rgba(255,255,255,0.12)' }}>{zh ? s.zh : s.label}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2, color: active ? s.color : 'rgba(255,255,255,0.12)' }}>{zh ? s.zh : s.label}</span>
             </div>
           );
         })}
       </div>
 
-      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.06)', marginBottom: 12 }} />
+      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.06)', margin: '12px 0' }} />
 
-      {/* Dimensions + Superpower/Kryptonite (side by side) */}
-      <div style={{ display: 'flex', gap: 28, marginBottom: 12 }}>
-        {/* Dimensions */}
+      {/* ROW 4: Dims + Strengths — flex:1, fills remaining bottom space */}
+      <div style={{ display: 'flex', gap: 28, flex: 1 }}>
+        {/* Left: 4 Dimensions */}
         {dims.length === 4 && (
           <div style={{ display: 'flex', gap: 0, flex: 1 }}>
             {dims.map((d, i) => (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: i > 0 ? 14 : 0, borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                <div style={{ width: 24, height: 4, borderRadius: 2, background: d.color, opacity: 0.7, display: 'flex', marginBottom: 6 }} />
-                <span style={{ fontSize: 22, fontWeight: 700, color: d.color, lineHeight: 1 }}>{d.letter}</span>
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, marginTop: 4 }}>{d.name}</span>
-                <span style={{ fontSize: 10, fontWeight: 600, color: `${d.color}aa`, marginTop: 2 }}>{d.label}</span>
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: i > 0 ? 16 : 0, borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                <div style={{ width: 28, height: 4, borderRadius: 2, background: d.color, opacity: 0.7, display: 'flex', marginBottom: 6 }} />
+                <span style={{ fontSize: 26, fontWeight: 700, color: d.color, lineHeight: 1 }}>{d.letter}</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, marginTop: 5 }}>{d.name}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: `${d.color}aa`, marginTop: 3 }}>{d.label}</span>
               </div>
             ))}
           </div>
         )}
 
-        {/* Superpower + Kryptonite */}
+        {/* Right: Superpower + Kryptonite */}
         {profile && (
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center', gap: 14 }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 4, height: 14, borderRadius: 2, background: '#34d399', display: 'flex' }} />
-                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                <div style={{ width: 4, height: 16, borderRadius: 2, background: '#34d399', display: 'flex' }} />
+                <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
               </div>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4, paddingLeft: 10 }}>{L(profile.superpower as L10n, lang)}</span>
+              <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, paddingLeft: 10 }}>{L(profile.superpower as L10n, lang)}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 4, height: 14, borderRadius: 2, background: '#f43f5e', display: 'flex' }} />
-                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                <div style={{ width: 4, height: 16, borderRadius: 2, background: '#f43f5e', display: 'flex' }} />
+                <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
               </div>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4, paddingLeft: 10 }}>{L(profile.kryptonite as L10n, lang)}</span>
+              <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, paddingLeft: 10 }}>{L(profile.kryptonite as L10n, lang)}</span>
             </div>
           </div>
         )}
       </div>
 
-      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.05)', marginBottom: 12 }} />
-
-      {/* Action items (3-col) + CTA row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-        {adviceList.length > 0 && adviceList.map((a, i) => (
-          <div key={i} style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: i === 0 ? ac : 'rgba(255,255,255,0.2)', marginTop: 1 }}>{String(i + 1).padStart(2, '0')}</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', lineHeight: 1.3 }}>{L(a.title as L10n, lang)}</span>
+      {/* ROW 5: Actions + CTA — fixed at bottom */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 12 }}>
+        {adviceList.map((a, i) => (
+          <div key={i} style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 7 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: i === 0 ? ac : 'rgba(255,255,255,0.2)', marginTop: 1 }}>{String(i + 1).padStart(2, '0')}</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', lineHeight: 1.3 }}>{L(a.title as L10n, lang)}</span>
           </div>
         ))}
-        {/* CTA */}
-        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', padding: '12px 28px', borderRadius: 12, background: ac }}>
-          <span style={{ fontSize: 15, fontWeight: 800, color: '#0a0908' }}>{zh ? '测测你的风险 →' : "What's your risk? →"}</span>
+        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', padding: '14px 32px', borderRadius: 14, background: ac }}>
+          <span style={{ fontSize: 17, fontWeight: 800, color: '#0a0908' }}>{zh ? '测测你的风险 →' : "What's your risk? →"}</span>
         </div>
       </div>
     </div>,
