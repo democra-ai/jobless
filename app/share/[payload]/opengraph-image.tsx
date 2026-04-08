@@ -10,22 +10,33 @@ export const alt = 'AIR Share Result';
 type Props = { params: Promise<{ payload: string }> };
 
 function pal(lv: SharePayload['riskLevel']) {
-  const p: Record<string, { m: string; a: string }> = {
-    'very-low': { m: '#34d399', a: '#059669' },
-    'low':      { m: '#4ade80', a: '#16a34a' },
-    'medium':   { m: '#fbbf24', a: '#d97706' },
-    'high':     { m: '#fb923c', a: '#ea580c' },
-    'critical': { m: '#f43f5e', a: '#dc2626' },
+  const p: Record<string, { m: string; a: string; g: string }> = {
+    'very-low': { m: '#34d399', a: '#06b6d4', g: '#059669' },
+    'low':      { m: '#4ade80', a: '#22d3ee', g: '#16a34a' },
+    'medium':   { m: '#fbbf24', a: '#f97316', g: '#d97706' },
+    'high':     { m: '#fb923c', a: '#f43f5e', g: '#ea580c' },
+    'critical': { m: '#f43f5e', a: '#a855f7', g: '#dc2626' },
   };
   return p[lv] || p.critical;
 }
 
 function riskLabel(lv: SharePayload['riskLevel'], zh: boolean) {
   const m: Record<string, [string, string]> = {
-    'very-low': ['VERY LOW RISK', '极低风险'], 'low': ['LOW RISK', '低风险'], 'medium': ['MEDIUM RISK', '中等风险'],
-    'high': ['HIGH RISK', '高风险'], 'critical': ['CRITICAL RISK', '极高风险'],
+    'very-low': ['VERY LOW', '极低'], 'low': ['LOW', '低'], 'medium': ['MEDIUM', '中等'],
+    'high': ['HIGH', '高'], 'critical': ['CRITICAL', '极高'],
   };
   return (m[lv] || m.critical)[zh ? 1 : 0];
+}
+
+function HLines({ n, gap }: { n: number; gap: number }) {
+  return <>{Array.from({ length: n }).map((_, i) => (
+    <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: i * gap, height: 1, display: 'flex', background: 'rgba(255,255,255,0.07)' }} />
+  ))}</>;
+}
+function VLines({ n, gap }: { n: number; gap: number }) {
+  return <>{Array.from({ length: n }).map((_, i) => (
+    <div key={i} style={{ position: 'absolute', top: 0, bottom: 0, left: i * gap, width: 1, display: 'flex', background: 'rgba(255,255,255,0.07)' }} />
+  ))}</>;
 }
 
 const profileArchetypes: Record<string, { en: string; zh: string; tagEn: string; tagZh: string }> = {
@@ -47,15 +58,6 @@ const profileArchetypes: Record<string, { en: string; zh: string; tagEn: string;
   TSRH: { en: 'The Iron Fortress', zh: '铁壁堡垒', tagEn: "Four walls between you and AI — it can't even see you", tagZh: '你和 AI 之间隔着四道墙——它连你的影子都看不到' },
 };
 
-const DIMENSION_COLORS = ['#7c4dff', '#ff6e40', '#5ec6b0', '#ff80ab'];
-const FAVORABLE_LETTERS = ['E', 'O', 'F', 'P'];
-const dimNames: Record<string, { en: string; zh: string }> = {
-  E: { en: 'Learnability', zh: '知识类型' }, T: { en: 'Learnability', zh: '知识类型' },
-  O: { en: 'Evaluation', zh: '评判标准' }, S: { en: 'Evaluation', zh: '评判标准' },
-  F: { en: 'Risk', zh: '容错空间' }, R: { en: 'Risk', zh: '容错空间' },
-  P: { en: 'Presence', zh: '人际依赖' }, H: { en: 'Presence', zh: '人际依赖' },
-};
-
 async function resolveOrigin(): Promise<string> {
   const h = await headers();
   const host = h.get('x-forwarded-host') ?? h.get('host');
@@ -70,7 +72,7 @@ export default async function Image({ params }: Props) {
 
   if (!data) {
     return new ImageResponse(
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', background: '#0a0908', color: '#f5f3f0', fontFamily: 'sans-serif' }}>
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', background: '#06080e', color: '#fafafa', fontFamily: 'sans-serif' }}>
         <span style={{ fontSize: 80, fontWeight: 900, letterSpacing: 12 }}>AIR</span>
         <span style={{ fontSize: 22, opacity: 0.4, marginTop: 14, letterSpacing: 4 }}>AI REPLACEMENT INDEX</span>
       </div>, { ...size },
@@ -79,145 +81,164 @@ export default async function Image({ params }: Props) {
 
   const zh = data.lang === 'zh';
   const c = pal(data.riskLevel);
+  const lb = riskLabel(data.riskLevel, zh);
   const prob = data.replacementProbability;
   const yr = data.predictedReplacementYear >= 2100 ? '∞' : String(data.predictedReplacementYear);
+  const stages = ['SAFE', 'ASSIST', 'AGENT', 'LEAD', 'KILL'];
+
+  const currentYear = new Date().getFullYear();
+  const yearsLeft = data.predictedReplacementYear >= 2100 ? null : data.predictedReplacementYear - currentYear;
+
   const profileCode = (data.v === 2 && 'profileCode' in data && data.profileCode) || null;
-  const arch = profileCode ? profileArchetypes[profileCode] : null;
-  const archName = arch ? (zh ? arch.zh : arch.en) : null;
-  const tagline = arch ? (zh ? arch.tagZh : arch.tagEn) : null;
+  const favorableLetters = ['E', 'O', 'F', 'P'];
+  const dimMeta: Record<string, { en: string; zh: string }> = {
+    E: { en: 'Explicit', zh: '显性型' }, T: { en: 'Tacit', zh: '隐性型' },
+    O: { en: 'Objective', zh: '客观型' }, S: { en: 'Subjective', zh: '主观型' },
+    F: { en: 'Flexible', zh: '弹性型' }, R: { en: 'Rigid', zh: '刚性型' },
+    P: { en: 'Product', zh: '对事型' }, H: { en: 'Human', zh: '对人型' },
+  };
+  const dims = profileCode
+    ? profileCode.split('').map((letter, i) => ({ v: letter, name: dimMeta[letter]?.[zh ? 'zh' : 'en'] ?? letter, risky: letter === favorableLetters[i] }))
+    : [{ v: 'E', name: zh ? '显性型' : 'Explicit', risky: true }, { v: 'O', name: zh ? '客观型' : 'Objective', risky: true }, { v: 'F', name: zh ? '弹性型' : 'Flexible', risky: true }, { v: 'H', name: zh ? '对人型' : 'Human', risky: false }];
+
+  const profileArch = profileCode ? profileArchetypes[profileCode] : null;
+  const profileName = profileArch?.[zh ? 'zh' : 'en'] ?? null;
+  const tagline = profileArch ? (zh ? profileArch.tagZh : profileArch.tagEn) : null;
   const origin = await resolveOrigin();
   const charImgUrl = profileCode ? `${origin}/characters/${profileCode}.png` : null;
 
-  const dims = profileCode
-    ? profileCode.split('').map((letter, i) => ({
-        letter,
-        name: dimNames[letter]?.[zh ? 'zh' : 'en'] ?? '',
-        color: DIMENSION_COLORS[i],
-        isFavorable: letter === FAVORABLE_LETTERS[i],
-      }))
-    : [];
-
-  const stages = [
-    { label: 'SAFE', zh: '安全', color: '#34d399' },
-    { label: 'ASSIST', zh: '辅助', color: '#4ade80' },
-    { label: 'AGENT', zh: '代理', color: '#fbbf24' },
-    { label: 'LEAD', zh: '主导', color: '#fb923c' },
-    { label: 'KILL', zh: '斩杀', color: '#f43f5e' },
-  ];
+  const countdownText = yearsLeft !== null
+    ? (zh ? `距离你被替代还有 ${yearsLeft} 年` : `${yearsLeft} ${yearsLeft === 1 ? 'year' : 'years'} until you're replaced`)
+    : (zh ? `AI 已经能做你 ${data.currentReplacementDegree}% 的工作` : `AI can already do ${data.currentReplacementDegree}% of your job`);
 
   return new ImageResponse(
-    <div style={{
-      width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
-      background: '#110f0d', fontFamily: 'sans-serif', position: 'relative', overflow: 'hidden', color: '#ccd0e4',
-    }}>
-      {/* Subtle accent glow */}
-      <div style={{ position: 'absolute', top: -80, left: '30%', width: 500, height: 300, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${c.m}10 0%, transparent 65%)` }} />
+    <div style={{ width: '100%', height: '100%', display: 'flex', background: '#06080e', fontFamily: 'sans-serif', position: 'relative', overflow: 'hidden', color: '#ccd0e4' }}>
 
-      {/* Top border accent */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, display: 'flex', background: `linear-gradient(90deg, transparent, ${c.m}60, transparent)` }} />
+      {/* BG grid */}
+      <HLines n={13} gap={50} />
+      <VLines n={25} gap={50} />
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '28px 48px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 3, height: 18, background: c.m, display: 'flex' }} />
-          <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: 4, color: c.m }}>AI REPLACEMENT INDEX</span>
-        </div>
-        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>air.democra.ai</span>
-      </div>
+      {/* BG glows */}
+      <div style={{ position: 'absolute', top: -60, left: '30%', width: 500, height: 500, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${c.g}15 0%, transparent 65%)` }} />
+      <div style={{ position: 'absolute', bottom: -80, right: '20%', width: 400, height: 400, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${c.a}0a 0%, transparent 60%)` }} />
 
-      {/* Hero: Character + Identity */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 32, padding: '24px 48px 20px' }}>
-        {charImgUrl && (
-          <div style={{ width: 160, height: 160, flexShrink: 0, display: 'flex', borderRadius: 16, overflow: 'hidden' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={charImgUrl} alt="" width={160} height={160} style={{ objectFit: 'contain' }} />
+      {/* Top accent */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, display: 'flex', background: `linear-gradient(90deg, transparent 5%, ${c.m} 35%, ${c.a} 65%, transparent 95%)` }} />
+
+      {/* ═══ CONTENT ═══ */}
+      <div style={{ display: 'flex', width: '100%', height: '100%', padding: '28px 44px 20px', flexDirection: 'column' }}>
+
+        {/* ── ROW 1: Header — AIR brand + risk badge ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <span style={{ fontSize: 36, fontWeight: 900, letterSpacing: 8, opacity: 0.65 }}>AIR</span>
+            <div style={{ width: 1.5, height: 28, background: 'rgba(255,255,255,0.2)', display: 'flex' }} />
+            <span style={{ fontSize: 15, letterSpacing: 3, opacity: 0.35 }}>{zh ? 'AI替代风险指数' : 'AI REPLACEMENT INDEX'}</span>
           </div>
-        )}
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          {archName && (
-            <span style={{ fontSize: 48, fontWeight: 900, color: c.m, lineHeight: 1, letterSpacing: -1 }}>{archName}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 22px', borderRadius: 100, border: `1.5px solid ${c.m}55`, background: `${c.m}14` }}>
+            <div style={{ width: 9, height: 9, borderRadius: 5, background: c.m, display: 'flex' }} />
+            <span style={{ fontSize: 15, fontWeight: 800, color: c.m, letterSpacing: 2 }}>{zh ? `${lb}风险` : `${lb} RISK`}</span>
+          </div>
+        </div>
+
+        {/* ── ROW 2: HERO — Character image + archetype name + tagline ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: 6, position: 'relative' }}>
+          {/* Character image */}
+          {charImgUrl && (
+            <div style={{ width: 120, height: 120, display: 'flex', borderRadius: 16, overflow: 'hidden', marginBottom: 4 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={charImgUrl} alt="" width={120} height={120} style={{ objectFit: 'contain' }} />
+            </div>
           )}
+          {/* Archetype name */}
+          {profileName && (
+            <span style={{ fontSize: 62, fontWeight: 900, color: c.m, lineHeight: 1.1, textAlign: 'center', letterSpacing: 1 }}>
+              {profileName}
+            </span>
+          )}
+          {/* Profile code */}
           {profileCode && (
-            <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: 6, color: `${c.m}55`, marginTop: 6 }}>{profileCode}</span>
+            <span style={{ fontSize: 20, fontWeight: 800, color: c.m, opacity: 0.5, letterSpacing: 6, marginTop: 2 }}>{profileCode}</span>
           )}
+          {/* Tagline */}
           {tagline && (
-            <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', marginTop: 10, lineHeight: 1.4, fontStyle: 'italic' }}>
+            <span style={{ fontSize: 19, fontWeight: 600, opacity: 0.55, textAlign: 'center', maxWidth: 700, lineHeight: 1.3, marginTop: 4, fontStyle: 'italic' }}>
               &ldquo;{tagline}&rdquo;
             </span>
           )}
         </div>
-      </div>
 
-      {/* Gauge strip */}
-      <div style={{ display: 'flex', gap: 3, padding: '0 48px', marginBottom: 16 }}>
-        {stages.map((stage, i) => {
-          const s = i * 20, e = s + 20;
-          const f = prob >= e ? 1 : prob <= s ? 0 : (prob - s) / 20;
-          const active = Math.min(Math.floor(prob / 20), 4) === i;
-          return (
-            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: '100%', height: 8, borderRadius: 4, display: 'flex', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
-                {f > 0 && <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 4, display: 'flex', background: stage.color }} />}
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2, color: active ? stage.color : 'rgba(255,255,255,0.12)' }}>
-                {zh ? stage.zh : stage.label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Divider */}
-      <div style={{ height: 1, margin: '0 48px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
-
-      {/* Metrics + Dimensions row */}
-      <div style={{ display: 'flex', alignItems: 'center', padding: '20px 48px', flex: 1 }}>
-        {/* Probability */}
-        <div style={{ display: 'flex', alignItems: 'baseline' }}>
-          <span style={{ fontSize: 64, fontWeight: 700, color: c.m, lineHeight: 1 }}>{prob}</span>
-          <span style={{ fontSize: 24, fontWeight: 700, color: `${c.m}70`, marginLeft: 3 }}>%</span>
-        </div>
-        <div style={{ width: 1, height: 48, margin: '0 28px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
-        {/* Year */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: 64, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
-          {data.predictedReplacementYear < 2100 && (
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>{data.earliestYear}–{data.latestYear}</span>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', flex: 1 }} />
-
-        {/* Risk badge */}
-        <div style={{ display: 'flex', padding: '8px 20px', borderRadius: 100, border: `1.5px solid ${c.m}40`, background: `${c.m}10`, marginRight: 24 }}>
-          <span style={{ fontSize: 14, fontWeight: 800, color: c.m, letterSpacing: 1.5 }}>{riskLabel(data.riskLevel, zh)}</span>
-        </div>
-
-        {/* 4 Dimensions */}
-        {dims.length === 4 && (
-          <div style={{ display: 'flex', gap: 8 }}>
-            {dims.map((dim, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 48 }}>
-                <div style={{ width: 24, height: 4, borderRadius: 2, background: dim.color, opacity: 0.6, display: 'flex', marginBottom: 6 }} />
-                <span style={{ fontSize: 24, fontWeight: 700, color: dim.color, lineHeight: 1 }}>{dim.letter}</span>
-                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, marginTop: 4 }}>{dim.name}</span>
-              </div>
-            ))}
+        {/* ── ROW 3: Stats bar — probability + year + dimensions + countdown ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+            <span style={{ fontSize: 56, fontWeight: 900, lineHeight: 0.85, color: c.m }}>{prob}</span>
+            <span style={{ fontSize: 22, fontWeight: 800, color: c.m, opacity: 0.4 }}>%</span>
+            <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.35, letterSpacing: 1, marginLeft: 4 }}>{zh ? '替代概率' : 'RISK'}</span>
           </div>
-        )}
-      </div>
+          <div style={{ width: 1.5, height: 40, background: 'rgba(255,255,255,0.1)', display: 'flex' }} />
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+            <span style={{ fontSize: 42, fontWeight: 900, lineHeight: 0.85, color: '#fff' }}>{yr}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.35, letterSpacing: 1, marginLeft: 4 }}>{zh ? '预测年份' : 'YEAR'}</span>
+          </div>
+          <div style={{ width: 1.5, height: 40, background: 'rgba(255,255,255,0.1)', display: 'flex' }} />
+          <div style={{ display: 'flex', gap: 6 }}>
+            {dims.map((d, i) => {
+              const dimColor = d.risky ? '#f43f5e' : '#34d399';
+              const dimBg = d.risky ? 'rgba(244,63,94,0.12)' : 'rgba(52,211,153,0.12)';
+              const dimBorder = d.risky ? 'rgba(244,63,94,0.3)' : 'rgba(52,211,153,0.3)';
+              return (
+                <div key={i} style={{ display: 'flex', width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 8, border: `1.5px solid ${dimBorder}`, background: dimBg }}>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: dimColor }}>{d.v}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ flex: 1, display: 'flex' }} />
+          <div style={{ display: 'flex', padding: '10px 20px', borderRadius: 10, border: `1px solid ${c.m}30`, background: `${c.m}0c` }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: c.m }}>{countdownText}</span>
+          </div>
+        </div>
 
-      {/* CTA bar at bottom */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 48px 28px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '14px 0', borderRadius: 14, background: c.m }}>
-          <span style={{ fontSize: 18, fontWeight: 800, color: '#0a0908' }}>
-            {zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? Take the test →"}
-          </span>
+        {/* ── ROW 4: Gauge bar ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginTop: 10, position: 'relative' }}>
+          <div style={{ display: 'flex', gap: 3, height: 8 }}>
+            {[0, 1, 2, 3, 4].map(i => {
+              const s = i * 20, e = s + 20;
+              const f = prob >= e ? 1 : prob <= s ? 0 : (prob - s) / 20;
+              const barColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
+              return (
+                <div key={i} style={{ flex: 1, borderRadius: 4, display: 'flex', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+                  <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 4, display: 'flex', background: barColors[i] }} />
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display: 'flex', marginTop: 3 }}>
+            {stages.map((s, i) => {
+              const active = i * 20 <= prob && prob < i * 20 + 20;
+              const stageColors = ['#34d399', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e'];
+              return (
+                <div key={i} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                  <span style={{ fontSize: 12, letterSpacing: 2, opacity: active ? 1 : 0.3, color: stageColors[i], fontWeight: 800 }}>{s}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── ROW 5: CTA ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '10px 28px', borderRadius: 10, background: `linear-gradient(135deg, ${c.m}, ${c.a})` }}>
+            <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: 0.5 }}>
+              {zh ? '测测你的 AI 替代风险 →' : "What's your AI risk? Take the test →"}
+            </span>
+          </div>
+          <span style={{ fontSize: 12, opacity: 0.2, letterSpacing: 1.5, display: 'flex' }}>air.democra.ai</span>
         </div>
       </div>
 
-      {/* Bottom accent line */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, display: 'flex', background: `linear-gradient(90deg, transparent, ${c.m}20, transparent)` }} />
+      {/* Bottom accent */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, display: 'flex', background: `linear-gradient(90deg, transparent 10%, ${c.m}25 50%, transparent 90%)` }} />
     </div>,
     { ...size },
   );
