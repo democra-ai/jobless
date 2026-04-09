@@ -105,7 +105,7 @@ export const KILL_LINE_STAGES = [
   },
   {
     id: 5, start: 80, end: 100,
-    label: { en: 'Kill Line', zh: '斩杀线' },
+    label: { en: 'Kill Threshold', zh: '斩杀线' },
     desc: { en: 'Full replacement', zh: '完全替代' },
     nature: { en: 'AI fully autonomous', zh: 'AI 完全自主' },
     color: 'var(--risk-critical)',
@@ -606,7 +606,7 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
             <div className="flex flex-col items-center text-center gap-0.5">
               <span className="text-sm sm:text-base font-bold leading-tight inline-flex items-center gap-1">
                 <Skull className="w-4 h-4 sm:w-[18px] sm:h-[18px] inline-block" />
-                {lang === 'zh' ? 'AI 斩杀线' : 'AI Kill Line'}
+                {lang === 'zh' ? 'AI 斩杀线' : 'AI Kill Threshold'}
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeTooltip === 5 ? 'rotate-180' : ''}`} />
               </span>
               <span className="text-xs sm:text-sm mono font-semibold opacity-80" style={{ fontVariantNumeric: 'tabular-nums' }}>80–100%</span>

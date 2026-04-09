@@ -37,7 +37,7 @@ function riskDescription(payload: SharePayload): string {
   const isZh = payload.lang === 'zh';
   return isZh
     ? `我的 AI 替代风险：${riskLabel(payload)}（${payload.replacementProbability}%），AI 斩杀线：${payload.predictedReplacementYear} 年。`
-    : `My AI replacement risk is ${riskLabel(payload)} (${payload.replacementProbability}%), with an AI kill line around ${payload.predictedReplacementYear}.`;
+    : `My AI replacement risk is ${riskLabel(payload)} (${payload.replacementProbability}%), with an AI kill threshold around ${payload.predictedReplacementYear}.`;
 }
 
 async function requestOrigin(): Promise<string> {
