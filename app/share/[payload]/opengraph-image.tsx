@@ -127,60 +127,56 @@ export default async function Image({ params }: Props) {
         </div>
       </div>
 
-      {/* ROW 2: Hero — 3 zones: [avatar+name] [metrics] [careers] */}
+      {/* ROW 2: Hero — [avatar + name + metrics] | [careers] */}
       <div style={{ display: 'flex', flex: 5, marginTop: 14, gap: 0 }}>
 
-        {/* Zone 1: Avatar + Name + Tagline */}
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 20 }}>
+        {/* Left: Avatar + Identity + Metrics (same as before) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24, flex: 3 }}>
           {charImg && (
-            <div style={{ width: 180, height: 180, flexShrink: 0, display: 'flex', borderRadius: 20, overflow: 'hidden' }}>
+            <div style={{ width: 190, height: 190, flexShrink: 0, display: 'flex', borderRadius: 20, overflow: 'hidden' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={charImg} alt="" width={180} height={180} style={{ objectFit: 'cover' }} />
+              <img src={charImg} alt="" width={190} height={190} style={{ objectFit: 'cover' }} />
             </div>
           )}
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
               {profile && <span style={{ fontSize: 52, fontWeight: 900, color: ac, lineHeight: 1 }}>{L(profile.archetype as L10n, lang)}</span>}
               {pc && <span style={{ fontSize: 32, fontWeight: 800, letterSpacing: 7, color: `${ac}bb` }}>{pc}</span>}
             </div>
             {profile && <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', marginTop: 8, lineHeight: 1.3 }}>{L(profile.tagline as L10n, lang)}</span>}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 28, marginTop: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline' }}>
+                <span style={{ fontSize: 68, fontWeight: 700, color: ac, lineHeight: 1 }}>{prob}</span>
+                <span style={{ fontSize: 28, fontWeight: 700, color: `${ac}70`, marginLeft: 3 }}>%</span>
+              </div>
+              <div style={{ width: 2, height: 48, display: 'flex', background: 'rgba(255,255,255,0.08)' }} />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: 68, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
+                {data.predictedReplacementYear < 2100 && <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{data.earliestYear}–{data.latestYear}</span>}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Vertical divider */}
-        <div style={{ width: 1, margin: '20px 24px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
+        <div style={{ width: 1, margin: '16px 28px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
 
-        {/* Zone 2: Metrics */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 4 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline' }}>
-            <span style={{ fontSize: 72, fontWeight: 700, color: ac, lineHeight: 1 }}>{prob}</span>
-            <span style={{ fontSize: 28, fontWeight: 700, color: `${ac}70`, marginLeft: 3 }}>%</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: 72, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
-            {data.predictedReplacementYear < 2100 && <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{data.earliestYear}–{data.latestYear}</span>}
-          </div>
-        </div>
-
-        {/* Vertical divider */}
-        <div style={{ width: 1, margin: '20px 24px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
-
-        {/* Zone 3: Careers */}
+        {/* Right: Careers */}
         {careers.length > 0 && (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2 }}>{zh ? '相关职业' : 'CAREERS'}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2 }}>{zh ? '相关职业' : 'CAREERS'}</span>
             {careers.map((cr, ci) => (
               <div key={ci} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 16, fontWeight: 700, color: ac, opacity: 0.7, width: 28 }}>{cr.riskScore}</span>
-                <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }}>{L(cr.title as L10n, lang)}</span>
+                <span style={{ fontSize: 17, fontWeight: 700, color: ac, opacity: 0.7, width: 28 }}>{cr.riskScore}</span>
+                <span style={{ fontSize: 18, color: 'rgba(255,255,255,0.65)' }}>{L(cr.title as L10n, lang)}</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* ROW 3: Gauge — divider zone, pushed down */}
-      <div style={{ display: 'flex', gap: 3, marginTop: 16 }}>
+      {/* ROW 3: Gauge */}
+      <div style={{ display: 'flex', gap: 3, marginTop: 12 }}>
         {stages.map((s, i) => {
           const start = i * 20, end = start + 20;
           const f = prob >= end ? 1 : prob <= start ? 0 : (prob - start) / 20;
