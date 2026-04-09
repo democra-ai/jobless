@@ -75,11 +75,11 @@ function t(key: string, lang: ShareLang): string {
 }
 
 const GAUGE_STAGES = [
-  { label: 'SAFE', zh: '安全', color: '#34d399' },
-  { label: 'ASSIST', zh: '辅助', color: '#4ade80' },
-  { label: 'AGENT', zh: '代理', color: '#fbbf24' },
-  { label: 'LEAD', zh: '主导', color: '#fb923c' },
-  { label: 'KILL', zh: '斩杀', color: '#f43f5e' },
+  { label: { en: 'SAFE', zh: '安全', ja: '安全', ko: '안전', de: 'SICHER' } as Record<string, string>, color: '#34d399' },
+  { label: { en: 'ASSIST', zh: '辅助', ja: '補助', ko: '보조', de: 'HELFER' } as Record<string, string>, color: '#4ade80' },
+  { label: { en: 'AGENT', zh: '代理', ja: '代理', ko: '에이전트', de: 'AGENT' } as Record<string, string>, color: '#fbbf24' },
+  { label: { en: 'LEAD', zh: '主导', ja: '主導', ko: '주도', de: 'LEITER' } as Record<string, string>, color: '#fb923c' },
+  { label: { en: 'KILL', zh: '斩杀', ja: '斬殺', ko: '킬', de: 'KILL' } as Record<string, string>, color: '#f43f5e' },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -100,10 +100,8 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
     document.documentElement.setAttribute('data-style', style);
     localStorage.setItem('air-style', style);
 
-    const storedLang = localStorage.getItem('air-lang') as Language | null;
-    if (storedLang && ['en', 'zh', 'ja', 'ko', 'de'].includes(storedLang)) {
-      setLang(storedLang);
-    }
+    // Share page uses the payload language by default.
+    // Only override if user explicitly switches via the language button.
   }, []);
 
   useEffect(() => {
@@ -123,9 +121,15 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
 
   const getShareText = useCallback(() => {
     const archetype = profile ? L(profile.archetype, shareLang) : '';
-    return shareLang === 'zh'
-      ? `我的 AI 替代风险：${prob}%，预测年份：${isInfinity ? '∞' : predictedYear}。我是「${archetype}」型。来测测你的？`
-      : `My AI replacement risk: ${prob}%, predicted year: ${isInfinity ? '∞' : predictedYear}. I'm "${archetype}". What's yours?`;
+    const yr = isInfinity ? '∞' : predictedYear;
+    const templates: Record<string, string> = {
+      zh: `我的 AI 替代风险：${prob}%，预测年份：${yr}。我是「${archetype}」型。来测测你的？`,
+      ja: `私のAI代替リスク：${prob}%、予測年：${yr}。「${archetype}」タイプです。あなたは？`,
+      ko: `내 AI 대체 리스크: ${prob}%, 예측 연도: ${yr}. "${archetype}" 유형입니다. 당신은?`,
+      de: `Mein KI-Ersetzungsrisiko: ${prob}%, prognostiziertes Jahr: ${yr}. Typ "${archetype}". Was ist deins?`,
+      en: `My AI replacement risk: ${prob}%, predicted year: ${yr}. I'm "${archetype}". What's yours?`,
+    };
+    return templates[shareLang] || templates.en;
   }, [prob, isInfinity, predictedYear, profile, shareLang]);
 
   const handleCopyLink = useCallback(async () => {
@@ -195,7 +199,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
               {fill > 0 && <div className="absolute inset-y-0 left-0 rounded-sm" style={{ width: `${fill * 100}%`, backgroundColor: stage.color }} />}
             </div>
             <div className="mt-1.5 text-center" style={{ fontSize: '8px', fontWeight: 800, letterSpacing: '0.12em', color: isActive ? stage.color : 'var(--foreground-dim)' }}>
-              {shareLang === 'zh' ? stage.zh : stage.label}
+              {stage.label[shareLang] || stage.label.en}
             </div>
           </div>
         );
