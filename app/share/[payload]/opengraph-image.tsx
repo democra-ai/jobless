@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { decodeSharePayload, type SharePayload } from '@/lib/share_payload';
 import { PROFILE_TYPES, QUIZ_DIMENSIONS } from '@/lib/air_quiz_data';
+import { PROFILE_CAREERS } from '@/lib/air_career_data';
 import { generateAdvice } from '@/lib/air_advice_data';
 
 export const contentType = 'image/png';
@@ -51,6 +52,7 @@ export default async function Image({ params }: Props) {
   const pc = (data.v === 2 && 'profileCode' in data && data.profileCode) || null;
   const profile = pc ? PROFILE_TYPES[pc] : null;
   const charImg = pc ? await loadCharImg(pc) : null;
+  const careers = pc ? (PROFILE_CAREERS[pc] || []).slice(0, 3) : [];
 
   const dims = pc ? pc.split('').map((letter, i) => {
     const qd = QUIZ_DIMENSIONS[i];
@@ -78,19 +80,57 @@ export default async function Image({ params }: Props) {
       {/* Glow */}
       <div style={{ position: 'absolute', top: -80, right: '20%', width: 500, height: 350, borderRadius: '50%', display: 'flex', background: `radial-gradient(circle, ${ac}0e 0%, transparent 65%)` }} />
 
-      {/* ROW 1: Header — fixed height */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      {/* ROW 1: Header + QR */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 4, height: 20, background: ac, display: 'flex' }} />
           <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: 4, color: ac }}>AI REPLACEMENT INDEX</span>
         </div>
-        <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }}>air.democra.ai</span>
+        {/* QR code for air.democra.ai */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', letterSpacing: 1 }}>air.democra.ai</span>
+          <div style={{ display: 'flex', flexDirection: 'column', padding: 3, background: '#fff', borderRadius: 4 }}>
+            {([
+              [1,1,1,1,1,1,1,0,1,1,1,1,0,1,0,0,0,0,1,1,1,1,1,1,1],
+              [1,0,0,0,0,0,1,0,0,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0,1],
+              [1,0,1,1,1,0,1,0,0,1,0,1,0,1,0,0,1,0,1,0,1,1,1,0,1],
+              [1,0,1,1,1,0,1,0,0,0,1,1,0,1,0,0,1,0,1,0,1,1,1,0,1],
+              [1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,1,0,1,0,1,1,1,0,1],
+              [1,0,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1],
+              [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
+              [0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0],
+              [1,1,0,1,1,0,1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1],
+              [0,1,1,0,0,0,0,0,1,0,1,0,0,1,1,1,0,0,0,1,1,1,1,1,0],
+              [0,0,0,1,1,0,1,1,0,1,0,0,1,1,0,1,1,1,0,1,1,1,0,0,1],
+              [0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1],
+              [0,0,0,1,1,0,1,1,1,1,1,0,0,0,0,0,1,0,1,1,0,0,0,0,1],
+              [1,0,0,1,0,1,0,1,1,1,1,0,1,1,1,1,1,1,0,0,1,0,0,1,0],
+              [1,1,1,1,0,1,1,0,1,0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1],
+              [1,0,1,1,0,1,0,1,1,0,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1],
+              [1,0,1,0,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1,1,0,1,1,0],
+              [0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0,0,1,0,1,1,0],
+              [1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,0,1],
+              [1,0,0,0,0,0,1,0,0,1,0,1,0,1,0,1,1,0,0,0,1,0,0,0,0],
+              [1,0,1,1,1,0,1,0,1,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,1],
+              [1,0,1,1,1,0,1,0,1,0,0,0,1,1,1,0,1,0,1,0,0,0,0,1,1],
+              [1,0,1,1,1,0,1,0,0,1,0,1,0,1,0,0,0,1,0,0,1,1,1,1,1],
+              [1,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,1,1,0,1,1,1],
+              [1,1,1,1,1,1,1,0,1,0,1,1,1,1,0,0,1,1,0,0,0,1,0,0,1],
+            ] as number[][]).map((row, y) => (
+              <div key={y} style={{ display: 'flex' }}>
+                {row.map((cell, x) => (
+                  <div key={x} style={{ width: 2.5, height: 2.5, display: 'flex', background: cell ? '#000' : '#fff' }} />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* ROW 2: Hero — flex:4, more breathing room above gauge */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 28, flex: 4, marginTop: 12 }}>
+      {/* ROW 2: Hero — flex:4, character + identity + metrics + careers */}
+      <div style={{ display: 'flex', gap: 28, flex: 4, marginTop: 12 }}>
         {charImg && (
-          <div style={{ width: 200, height: 200, flexShrink: 0, display: 'flex', borderRadius: 22, overflow: 'hidden' }}>
+          <div style={{ width: 200, height: 200, flexShrink: 0, display: 'flex', borderRadius: 22, overflow: 'hidden', alignSelf: 'center' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={charImg} alt="" width={200} height={200} style={{ objectFit: 'cover' }} />
           </div>
@@ -99,7 +139,7 @@ export default async function Image({ params }: Props) {
           {/* Name + Code on same line */}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
             {profile && <span style={{ fontSize: 56, fontWeight: 900, color: ac, lineHeight: 1 }}>{L(profile.archetype as L10n, lang)}</span>}
-            {pc && <span style={{ fontSize: 32, fontWeight: 800, letterSpacing: 8, color: `${ac}90` }}>{pc}</span>}
+            {pc && <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: 8, color: `${ac}bb` }}>{pc}</span>}
           </div>
           {profile && <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.5)', marginTop: 8, lineHeight: 1.3 }}>{L(profile.tagline as L10n, lang)}</span>}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 28, marginTop: 16 }}>
@@ -112,6 +152,18 @@ export default async function Image({ params }: Props) {
               <span style={{ fontSize: 68, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
               {data.predictedReplacementYear < 2100 && <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{data.earliestYear}–{data.latestYear}</span>}
             </div>
+            {/* Careers in remaining space */}
+            {careers.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 20, gap: 6, flex: 1 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 2 }}>{zh ? '相关职业' : 'CAREERS'}</span>
+                {careers.map((c, ci) => (
+                  <div key={ci} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: ac, opacity: 0.6 }}>{c.riskScore}</span>
+                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{L(c.title as L10n, lang)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
