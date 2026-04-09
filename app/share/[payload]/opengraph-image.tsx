@@ -87,8 +87,8 @@ export default async function Image({ params }: Props) {
         <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }}>air.democra.ai</span>
       </div>
 
-      {/* ROW 2: Hero — flex:4, spacious above gauge */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 30, flex: 4, marginTop: 14 }}>
+      {/* ROW 2: Hero — flex:4, more breathing room above gauge */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 28, flex: 4, marginTop: 12 }}>
         {charImg && (
           <div style={{ width: 200, height: 200, flexShrink: 0, display: 'flex', borderRadius: 22, overflow: 'hidden' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -97,7 +97,7 @@ export default async function Image({ params }: Props) {
         )}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
           {/* Name + Code on same line */}
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
             {profile && <span style={{ fontSize: 56, fontWeight: 900, color: ac, lineHeight: 1 }}>{L(profile.archetype as L10n, lang)}</span>}
             {pc && <span style={{ fontSize: 32, fontWeight: 800, letterSpacing: 8, color: `${ac}90` }}>{pc}</span>}
           </div>
@@ -133,19 +133,19 @@ export default async function Image({ params }: Props) {
         })}
       </div>
 
-      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.06)', margin: '6px 0' }} />
+      <div style={{ height: 1, display: 'flex', background: 'rgba(255,255,255,0.06)', margin: '8px 0' }} />
 
-      {/* ROW 4: Dims + Strengths — compact, top-aligned */}
-      <div style={{ display: 'flex', gap: 32, flex: 2, alignItems: 'flex-start' }}>
+      {/* ROW 4: Dims + Strengths — flex:2, tighter, top-aligned */}
+      <div style={{ display: 'flex', gap: 28, flex: 2, alignItems: 'flex-start' }}>
         {/* Left: 4 Dimensions */}
         {dims.length === 4 && (
           <div style={{ display: 'flex', gap: 0, flex: 1 }}>
             {dims.map((d, i) => (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: i > 0 ? 16 : 0, borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                <div style={{ width: 30, height: 5, borderRadius: 3, background: d.color, opacity: 0.7, display: 'flex', marginBottom: 5 }} />
-                <span style={{ fontSize: 32, fontWeight: 700, color: d.color, lineHeight: 1 }}>{d.letter}</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, marginTop: 4 }}>{d.name}</span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: `${d.color}cc`, marginTop: 2 }}>{d.label}</span>
+                <div style={{ width: 30, height: 5, borderRadius: 3, background: d.color, opacity: 0.7, display: 'flex', marginBottom: 6 }} />
+                <span style={{ fontSize: 30, fontWeight: 700, color: d.color, lineHeight: 1 }}>{d.letter}</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, marginTop: 5 }}>{d.name}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: `${d.color}bb`, marginTop: 3 }}>{d.label}</span>
               </div>
             ))}
           </div>
@@ -153,35 +153,35 @@ export default async function Image({ params }: Props) {
 
         {/* Right: Superpower + Kryptonite */}
         {profile && (
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center', gap: 14 }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
                 <div style={{ width: 4, height: 16, borderRadius: 2, background: '#34d399', display: 'flex' }} />
-                <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
               </div>
-              <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.8)', lineHeight: 1.45, paddingLeft: 10 }}>{L(profile.superpower as L10n, lang)}</span>
+              <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, paddingLeft: 10 }}>{L(profile.superpower as L10n, lang)}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
                 <div style={{ width: 4, height: 16, borderRadius: 2, background: '#f43f5e', display: 'flex' }} />
-                <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
               </div>
-              <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.8)', lineHeight: 1.45, paddingLeft: 10 }}>{L(profile.kryptonite as L10n, lang)}</span>
+              <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, paddingLeft: 10 }}>{L(profile.kryptonite as L10n, lang)}</span>
             </div>
           </div>
         )}
       </div>
 
       {/* ROW 5: Actions + CTA — fixed at bottom */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 8 }}>
         {adviceList.map((a, i) => (
           <div key={i} style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 7 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: i === 0 ? ac : 'rgba(255,255,255,0.25)', marginTop: 1 }}>{String(i + 1).padStart(2, '0')}</span>
-            <span style={{ fontSize: 17, fontWeight: 600, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', lineHeight: 1.3 }}>{L(a.title as L10n, lang)}</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: i === 0 ? ac : 'rgba(255,255,255,0.25)', marginTop: 1 }}>{String(i + 1).padStart(2, '0')}</span>
+            <span style={{ fontSize: 16, fontWeight: 600, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', lineHeight: 1.3 }}>{L(a.title as L10n, lang)}</span>
           </div>
         ))}
         <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', padding: '14px 32px', borderRadius: 14, background: ac }}>
-          <span style={{ fontSize: 18, fontWeight: 800, color: '#0a0908' }}>{zh ? '测测你的风险 →' : "What's your risk? →"}</span>
+          <span style={{ fontSize: 17, fontWeight: 800, color: '#0a0908' }}>{zh ? '测测你的风险 →' : "What's your risk? →"}</span>
         </div>
       </div>
     </div>,
