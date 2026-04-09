@@ -45,13 +45,13 @@ import {
   trackPresetPanelToggle,
 } from '@/lib/analytics';
 
-/** Get risk color matching the AI Kill Line progress bar stages */
+/** Get risk color matching probability-based risk levels */
 function riskColorFromScore(score: number): string {
-  if (score >= 80) return '#ff1744';   // 80-100%: critical (same as --risk-critical)
-  if (score >= 60) return '#ff1744';   // 60-80%:  critical (same as --risk-critical)
-  if (score >= 40) return '#ff5722';   // 40-60%:  high (same as --risk-high)
-  if (score >= 20) return '#ffc107';   // 20-40%:  medium (same as --risk-medium)
-  return '#34d399';                    // 0-20%:   low (same as --risk-low)
+  if (score >= 80) return '#ff3d5a';   // 80-100%: critical
+  if (score >= 60) return '#ffab40';   // 60-80%:  high (amber)
+  if (score >= 35) return '#ffd740';   // 35-60%:  medium (gold)
+  if (score >= 15) return '#4ade80';   // 15-35%:  low (green)
+  return '#6ee7b7';                    // 0-15%:   very low (mint)
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -1559,7 +1559,14 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
 
   // ─── Render ──────────────────────────────────────────────────────────────
 
-  const riskColor = result ? RISK_TIER_INFO[result.profile.riskTier].color : '#fff';
+  const RISK_LEVEL_COLORS: Record<string, string> = {
+    'critical': '#ff3d5a',
+    'high': '#ffab40',
+    'medium': '#ffd740',
+    'low': '#4ade80',
+    'very-low': '#6ee7b7',
+  };
+  const riskColor = result ? (RISK_LEVEL_COLORS[result.riskLevel] || '#fff') : '#fff';
 
   return (
     <section

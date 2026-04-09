@@ -387,6 +387,15 @@ function toRiskLevel(tier: ProfileType['riskTier']): QuizResult['riskLevel'] {
   }
 }
 
+/** Determine risk level from actual probability score */
+function riskLevelFromProbability(prob: number): QuizResult['riskLevel'] {
+  if (prob >= 80) return 'critical';
+  if (prob >= 60) return 'high';
+  if (prob >= 35) return 'medium';
+  if (prob >= 15) return 'low';
+  return 'very-low';
+}
+
 /**
  * Swiss Cheese Barrier Model for AI Replacement Probability
  *
@@ -649,7 +658,7 @@ export function calculateQuizResult(answers: QuizAnswers, selectedSOC?: number |
     predictedReplacementYear: year,
     currentAICapability: snapshotScore,
     confidenceInterval,
-    riskLevel: toRiskLevel(profile.riskTier),
+    riskLevel: riskLevelFromProbability(probability),
     currentReplacementDegree: snapshotScore,
     occupationSOC: resolveOccupation(selectedSOC ?? null, profileCode),
   };
@@ -685,7 +694,7 @@ export function calculateQuizResultFull(
     predictedReplacementYear: year,
     currentAICapability: 50,
     confidenceInterval,
-    riskLevel: toRiskLevel(profile.riskTier),
+    riskLevel: riskLevelFromProbability(probability),
     currentReplacementDegree: 50,
     occupationSOC: resolveOccupation(selectedSOC ?? null, profileCode),
   };

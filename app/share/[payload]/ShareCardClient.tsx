@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Copy, Check, ExternalLink, Send } from 'lucide-react';
+import QRCode from 'qrcode';
 import type { ShareLang } from '@/lib/share_payload';
 import type { Language, Theme } from '@/lib/translations';
 import { getHtmlLang } from '@/lib/translations';
@@ -111,6 +112,18 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
   }, [lang]);
 
   const [copied, setCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const url = window.location.href;
+    QRCode.toDataURL(url, {
+      errorCorrectionLevel: 'L',
+      margin: 1,
+      width: 200,
+      color: { dark: '#000000', light: '#ffffff' },
+    }).then(setQrDataUrl).catch(() => {});
+  }, []);
 
   const shareLang = lang as ShareLang;
   const { prob, ac, profileCode, profile, dimensions, calibration, adviceList, activeStageIdx, isInfinity, predictedYear, earliestYear, latestYear } = data;
@@ -327,7 +340,7 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                 <span className="text-[9px] text-foreground-muted/40">air.democra.ai</span>
               </div>
               {profileCode && profile && (
-                <div className="flex items-start gap-4 mb-5">
+                <div className="flex items-start gap-3 mb-5">
                   <div className="relative flex-shrink-0">
                     <div className="absolute inset-0 blur-[30px] opacity-25 rounded-full" style={{ backgroundColor: ac }} />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -340,6 +353,12 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
                     </div>
                     <p className="mt-2 text-[11px] leading-relaxed text-foreground-muted/70">{L(profile.tagline, shareLang)}</p>
                   </div>
+                  {qrDataUrl && (
+                    <div className="flex-shrink-0 self-start rounded-lg overflow-hidden bg-white p-1" style={{ width: 52, height: 52 }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={qrDataUrl} alt="QR code" className="w-full h-full" />
+                    </div>
+                  )}
                 </div>
               )}
               <GaugeStrip />
@@ -370,7 +389,12 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
             <div className="px-8 pt-7 pb-5">
               <div className="flex items-center justify-between mb-5">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] pl-2" style={{ color: ac, borderLeft: `2px solid ${ac}` }}>AI Replacement Index</span>
-                <span className="text-[10px] text-foreground-muted/40">air.democra.ai</span>
+                {qrDataUrl && (
+                  <div className="flex-shrink-0 rounded-lg overflow-hidden bg-white p-1.5" style={{ width: 68, height: 68 }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={qrDataUrl} alt="QR code" className="w-full h-full" />
+                  </div>
+                )}
               </div>
               {profileCode && profile && (
                 <div className="flex items-center gap-7">
