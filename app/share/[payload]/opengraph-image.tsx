@@ -127,44 +127,52 @@ export default async function Image({ params }: Props) {
         </div>
       </div>
 
-      {/* ROW 2: Hero — flex:5, spacious */}
-      <div style={{ display: 'flex', gap: 24, flex: 5, marginTop: 14 }}>
-        {/* Character image */}
-        {charImg && (
-          <div style={{ width: 200, height: 200, flexShrink: 0, display: 'flex', borderRadius: 22, overflow: 'hidden', alignSelf: 'center' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={charImg} alt="" width={200} height={200} style={{ objectFit: 'cover' }} />
-          </div>
-        )}
+      {/* ROW 2: Hero — 3 zones: [avatar+name] [metrics] [careers] */}
+      <div style={{ display: 'flex', flex: 5, marginTop: 14, gap: 0 }}>
 
-        {/* Identity + Metrics */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
-            {profile && <span style={{ fontSize: 56, fontWeight: 900, color: ac, lineHeight: 1 }}>{L(profile.archetype as L10n, lang)}</span>}
-            {pc && <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: 8, color: `${ac}bb` }}>{pc}</span>}
-          </div>
-          {profile && <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.5)', marginTop: 8, lineHeight: 1.3 }}>{L(profile.tagline as L10n, lang)}</span>}
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 28, marginTop: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'baseline' }}>
-              <span style={{ fontSize: 68, fontWeight: 700, color: ac, lineHeight: 1 }}>{prob}</span>
-              <span style={{ fontSize: 28, fontWeight: 700, color: `${ac}70`, marginLeft: 3 }}>%</span>
+        {/* Zone 1: Avatar + Name + Tagline */}
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 20 }}>
+          {charImg && (
+            <div style={{ width: 180, height: 180, flexShrink: 0, display: 'flex', borderRadius: 20, overflow: 'hidden' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={charImg} alt="" width={180} height={180} style={{ objectFit: 'cover' }} />
             </div>
-            <div style={{ width: 2, height: 48, display: 'flex', background: 'rgba(255,255,255,0.08)' }} />
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: 68, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
-              {data.predictedReplacementYear < 2100 && <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{data.earliestYear}–{data.latestYear}</span>}
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
+              {profile && <span style={{ fontSize: 52, fontWeight: 900, color: ac, lineHeight: 1 }}>{L(profile.archetype as L10n, lang)}</span>}
+              {pc && <span style={{ fontSize: 32, fontWeight: 800, letterSpacing: 7, color: `${ac}bb` }}>{pc}</span>}
             </div>
+            {profile && <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', marginTop: 8, lineHeight: 1.3 }}>{L(profile.tagline as L10n, lang)}</span>}
           </div>
         </div>
 
-        {/* Careers — right side */}
+        {/* Vertical divider */}
+        <div style={{ width: 1, margin: '20px 24px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
+
+        {/* Zone 2: Metrics */}
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline' }}>
+            <span style={{ fontSize: 72, fontWeight: 700, color: ac, lineHeight: 1 }}>{prob}</span>
+            <span style={{ fontSize: 28, fontWeight: 700, color: `${ac}70`, marginLeft: 3 }}>%</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 72, fontWeight: 700, color: '#f5f3f0', lineHeight: 1 }}>{yr}</span>
+            {data.predictedReplacementYear < 2100 && <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{data.earliestYear}–{data.latestYear}</span>}
+          </div>
+        </div>
+
+        {/* Vertical divider */}
+        <div style={{ width: 1, margin: '20px 24px', display: 'flex', background: 'rgba(255,255,255,0.06)' }} />
+
+        {/* Zone 3: Careers */}
         {careers.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 'auto', justifyContent: 'center', gap: 8, flexShrink: 0 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 2, marginBottom: 2 }}>{zh ? '相关职业' : 'CAREERS'}</span>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2 }}>{zh ? '相关职业' : 'CAREERS'}</span>
             {careers.map((cr, ci) => (
               <div key={ci} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: ac, opacity: 0.7, width: 24 }}>{cr.riskScore}</span>
-                <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)' }}>{L(cr.title as L10n, lang)}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: ac, opacity: 0.7, width: 28 }}>{cr.riskScore}</span>
+                <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }}>{L(cr.title as L10n, lang)}</span>
               </div>
             ))}
           </div>
@@ -198,9 +206,9 @@ export default async function Image({ params }: Props) {
             {dims.map((d, i) => (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: i > 0 ? 16 : 0, borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
                 <div style={{ width: 30, height: 5, borderRadius: 3, background: d.color, opacity: 0.7, display: 'flex', marginBottom: 5 }} />
-                <span style={{ fontSize: 32, fontWeight: 700, color: d.color, lineHeight: 1 }}>{d.letter}</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, marginTop: 4 }}>{d.name}</span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: `${d.color}cc`, marginTop: 2 }}>{d.label}</span>
+                <span style={{ fontSize: 34, fontWeight: 700, color: d.color, lineHeight: 1 }}>{d.letter}</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', letterSpacing: 1, marginTop: 4 }}>{d.name}</span>
+                <span style={{ fontSize: 15, fontWeight: 600, color: `${d.color}cc`, marginTop: 2 }}>{d.label}</span>
               </div>
             ))}
           </div>
@@ -212,16 +220,16 @@ export default async function Image({ params }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <div style={{ width: 4, height: 16, borderRadius: 2, background: '#34d399', display: 'flex' }} />
-                <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
+                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
               </div>
-              <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.8)', lineHeight: 1.45, paddingLeft: 10 }}>{L(profile.superpower as L10n, lang)}</span>
+              <span style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)', lineHeight: 1.45, paddingLeft: 10 }}>{L(profile.superpower as L10n, lang)}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <div style={{ width: 4, height: 16, borderRadius: 2, background: '#f43f5e', display: 'flex' }} />
-                <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
+                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
               </div>
-              <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.8)', lineHeight: 1.45, paddingLeft: 10 }}>{L(profile.kryptonite as L10n, lang)}</span>
+              <span style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)', lineHeight: 1.45, paddingLeft: 10 }}>{L(profile.kryptonite as L10n, lang)}</span>
             </div>
           </div>
         )}
@@ -231,12 +239,12 @@ export default async function Image({ params }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 8 }}>
         {adviceList.map((a, i) => (
           <div key={i} style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 7 }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: i === 0 ? ac : 'rgba(255,255,255,0.25)', marginTop: 1 }}>{String(i + 1).padStart(2, '0')}</span>
-            <span style={{ fontSize: 16, fontWeight: 600, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', lineHeight: 1.3 }}>{L(a.title as L10n, lang)}</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: i === 0 ? ac : 'rgba(255,255,255,0.25)', marginTop: 1 }}>{String(i + 1).padStart(2, '0')}</span>
+            <span style={{ fontSize: 18, fontWeight: 600, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', lineHeight: 1.3 }}>{L(a.title as L10n, lang)}</span>
           </div>
         ))}
         <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', padding: '14px 32px', borderRadius: 14, background: ac }}>
-          <span style={{ fontSize: 17, fontWeight: 800, color: '#0a0908' }}>{zh ? '测测你的风险 →' : "What's your risk? →"}</span>
+          <span style={{ fontSize: 19, fontWeight: 800, color: '#0a0908' }}>{zh ? '测测你的风险 →' : "What's your risk? →"}</span>
         </div>
       </div>
     </div>,
