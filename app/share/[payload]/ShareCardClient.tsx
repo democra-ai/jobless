@@ -146,10 +146,13 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
   }, [getShareText, pageUrl]);
 
-  const handleShareLinkedIn = useCallback(() => {
+  const handleShareLinkedIn = useCallback(async () => {
+    // Copy share text to clipboard so user can paste it
+    const text = getShareText() + '\n' + pageUrl;
+    try { await navigator.clipboard.writeText(text); } catch { /* ignore */ }
     const url = encodeURIComponent(pageUrl);
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-  }, [pageUrl]);
+  }, [pageUrl, getShareText]);
 
   const handleShareReddit = useCallback(() => {
     const url = encodeURIComponent(pageUrl);
