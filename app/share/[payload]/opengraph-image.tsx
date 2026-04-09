@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
+import QRCode from 'qrcode';
 import { decodeSharePayload, type SharePayload } from '@/lib/share_payload';
 import { PROFILE_TYPES, QUIZ_DIMENSIONS } from '@/lib/air_quiz_data';
 import { PROFILE_CAREERS } from '@/lib/air_career_data';
@@ -16,6 +17,11 @@ type L10n = { en: string; zh: string; ja?: string; ko?: string; de?: string };
 function L(obj: L10n, lang: string): string {
   return (obj as Record<string, string>)[lang] ?? obj.en;
 }
+
+const UI_CAREERS: L10n = { en: 'CAREERS', zh: '相关职业', ja: '関連職業', ko: '관련 직업', de: 'BERUFE' };
+const UI_SUPERPOWER: L10n = { en: 'SUPERPOWER', zh: '超能力', ja: '超能力', ko: '초능력', de: 'SUPERKRAFT' };
+const UI_WEAKNESS: L10n = { en: 'WEAKNESS', zh: '弱点', ja: '弱点', ko: '약점', de: 'SCHWÄCHE' };
+const UI_CTA: L10n = { en: "What's your risk? →", zh: '测测你的风险 →', ja: 'あなたのリスクは? →', ko: '당신의 리스크는? →', de: 'Ihr Risiko? →' };
 
 function pal(lv: SharePayload['riskLevel']) {
   const p: Record<string, string> = { 'very-low': '#34d399', 'low': '#4ade80', 'medium': '#fbbf24', 'high': '#fb923c', 'critical': '#f43f5e' };
@@ -54,6 +60,16 @@ export default async function Image({ params }: Props) {
   const charImg = pc ? await loadCharImg(pc) : null;
   const careers = pc ? (PROFILE_CAREERS[pc] || []).slice(0, 3) : [];
 
+  // Generate QR code for the share link
+  const shareUrl = `https://air.democra.ai/share/${payload}`;
+  let qrDataUrl: string | null = null;
+  try {
+    qrDataUrl = await QRCode.toDataURL(shareUrl, {
+      errorCorrectionLevel: 'L', margin: 0, width: 50,
+      color: { dark: '#000000', light: '#ffffff' },
+    });
+  } catch { /* ignore */ }
+
   const dims = pc ? pc.split('').map((letter, i) => {
     const qd = QUIZ_DIMENSIONS[i];
     const fav = letter === FAVORABLE_LETTERS[i];
@@ -63,11 +79,11 @@ export default async function Image({ params }: Props) {
   const adviceList = pc ? generateAdvice(dims.map(d => ({ dimensionId: d.dimensionId, isFavorable: d.isFavorable }))).slice(0, 3) : [];
 
   const stages = [
-    { label: 'SAFE', zh: '安全', color: '#34d399' },
-    { label: 'ASSIST', zh: '辅助', color: '#4ade80' },
-    { label: 'AGENT', zh: '代理', color: '#fbbf24' },
-    { label: 'LEAD', zh: '主导', color: '#fb923c' },
-    { label: 'KILL', zh: '斩杀', color: '#f43f5e' },
+    { label: { en: 'SAFE', zh: '安全', ja: '安全', ko: '안전', de: 'SICHER' } as L10n, color: '#34d399' },
+    { label: { en: 'ASSIST', zh: '辅助', ja: '補助', ko: '보조', de: 'HELFER' } as L10n, color: '#4ade80' },
+    { label: { en: 'AGENT', zh: '代理', ja: '代理', ko: '에이전트', de: 'AGENT' } as L10n, color: '#fbbf24' },
+    { label: { en: 'LEAD', zh: '主导', ja: '主導', ko: '주도', de: 'LEITER' } as L10n, color: '#fb923c' },
+    { label: { en: 'KILL', zh: '斩杀', ja: '斬殺', ko: '킬', de: 'KILL' } as L10n, color: '#f43f5e' },
   ];
 
   // The entire 1200x630 is the card. Every row uses flex to fill available space.
@@ -86,44 +102,15 @@ export default async function Image({ params }: Props) {
           <div style={{ width: 4, height: 20, background: ac, display: 'flex' }} />
           <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: 4, color: ac }}>AI REPLACEMENT INDEX</span>
         </div>
-        {/* QR code for air.democra.ai */}
+        {/* QR code for this share link */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', letterSpacing: 1 }}>air.democra.ai</span>
-          <div style={{ display: 'flex', flexDirection: 'column', padding: 3, background: '#fff', borderRadius: 4 }}>
-            {([
-              [1,1,1,1,1,1,1,0,1,1,1,1,0,1,0,0,0,0,1,1,1,1,1,1,1],
-              [1,0,0,0,0,0,1,0,0,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0,1],
-              [1,0,1,1,1,0,1,0,0,1,0,1,0,1,0,0,1,0,1,0,1,1,1,0,1],
-              [1,0,1,1,1,0,1,0,0,0,1,1,0,1,0,0,1,0,1,0,1,1,1,0,1],
-              [1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,1,0,1,0,1,1,1,0,1],
-              [1,0,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1],
-              [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
-              [0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0],
-              [1,1,0,1,1,0,1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1],
-              [0,1,1,0,0,0,0,0,1,0,1,0,0,1,1,1,0,0,0,1,1,1,1,1,0],
-              [0,0,0,1,1,0,1,1,0,1,0,0,1,1,0,1,1,1,0,1,1,1,0,0,1],
-              [0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1],
-              [0,0,0,1,1,0,1,1,1,1,1,0,0,0,0,0,1,0,1,1,0,0,0,0,1],
-              [1,0,0,1,0,1,0,1,1,1,1,0,1,1,1,1,1,1,0,0,1,0,0,1,0],
-              [1,1,1,1,0,1,1,0,1,0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1],
-              [1,0,1,1,0,1,0,1,1,0,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1],
-              [1,0,1,0,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1,1,0,1,1,0],
-              [0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0,0,1,0,1,1,0],
-              [1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,0,1],
-              [1,0,0,0,0,0,1,0,0,1,0,1,0,1,0,1,1,0,0,0,1,0,0,0,0],
-              [1,0,1,1,1,0,1,0,1,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,1],
-              [1,0,1,1,1,0,1,0,1,0,0,0,1,1,1,0,1,0,1,0,0,0,0,1,1],
-              [1,0,1,1,1,0,1,0,0,1,0,1,0,1,0,0,0,1,0,0,1,1,1,1,1],
-              [1,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,1,1,0,1,1,1],
-              [1,1,1,1,1,1,1,0,1,0,1,1,1,1,0,0,1,1,0,0,0,1,0,0,1],
-            ] as number[][]).map((row, y) => (
-              <div key={y} style={{ display: 'flex' }}>
-                {row.map((cell, x) => (
-                  <div key={x} style={{ width: 2.5, height: 2.5, display: 'flex', background: cell ? '#000' : '#fff' }} />
-                ))}
-              </div>
-            ))}
-          </div>
+          {qrDataUrl && (
+            <div style={{ display: 'flex', borderRadius: 4, overflow: 'hidden' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={qrDataUrl} alt="" width={64} height={64} style={{ display: 'flex' }} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -164,7 +151,7 @@ export default async function Image({ params }: Props) {
         {/* Right: Careers */}
         {careers.length > 0 && (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2 }}>{zh ? '相关职业' : 'CAREERS'}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2 }}>{L(UI_CAREERS, lang)}</span>
             {careers.map((cr, ci) => (
               <div key={ci} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 17, fontWeight: 700, color: ac, opacity: 0.7, width: 28 }}>{cr.riskScore}</span>
@@ -186,7 +173,7 @@ export default async function Image({ params }: Props) {
               <div style={{ width: '100%', height: 10, borderRadius: 5, display: 'flex', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
                 {f > 0 && <div style={{ width: `${f * 100}%`, height: '100%', borderRadius: 5, display: 'flex', background: s.color }} />}
               </div>
-              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2, color: active ? s.color : 'rgba(255,255,255,0.12)' }}>{zh ? s.zh : s.label}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2, color: active ? s.color : 'rgba(255,255,255,0.12)' }}>{L(s.label, lang)}</span>
             </div>
           );
         })}
@@ -216,14 +203,14 @@ export default async function Image({ params }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <div style={{ width: 4, height: 16, borderRadius: 2, background: '#34d399', display: 'flex' }} />
-                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{zh ? '超能力' : 'SUPERPOWER'}</span>
+                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: 2, color: '#34d399cc' }}>{L(UI_SUPERPOWER, lang)}</span>
               </div>
               <span style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)', lineHeight: 1.45, paddingLeft: 10 }}>{L(profile.superpower as L10n, lang)}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <div style={{ width: 4, height: 16, borderRadius: 2, background: '#f43f5e', display: 'flex' }} />
-                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{zh ? '弱点' : 'WEAKNESS'}</span>
+                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: 2, color: '#f43f5ecc' }}>{L(UI_WEAKNESS, lang)}</span>
               </div>
               <span style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)', lineHeight: 1.45, paddingLeft: 10 }}>{L(profile.kryptonite as L10n, lang)}</span>
             </div>
@@ -240,7 +227,7 @@ export default async function Image({ params }: Props) {
           </div>
         ))}
         <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', padding: '14px 32px', borderRadius: 14, background: ac }}>
-          <span style={{ fontSize: 19, fontWeight: 800, color: '#0a0908' }}>{zh ? '测测你的风险 →' : "What's your risk? →"}</span>
+          <span style={{ fontSize: 19, fontWeight: 800, color: '#0a0908' }}>{L(UI_CTA, lang)}</span>
         </div>
       </div>
     </div>,
