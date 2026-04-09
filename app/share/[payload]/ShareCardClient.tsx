@@ -148,8 +148,9 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
 
   const handleShareLinkedIn = useCallback(() => {
     const url = encodeURIComponent(pageUrl);
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-  }, [pageUrl]);
+    const text = encodeURIComponent(getShareText());
+    window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}%0A${url}`, '_blank');
+  }, [pageUrl, getShareText]);
 
   const handleShareReddit = useCallback(() => {
     const url = encodeURIComponent(pageUrl);
