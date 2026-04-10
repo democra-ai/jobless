@@ -43,6 +43,13 @@ import {
   trackQuizBack,
   trackSharePanelToggle,
   trackPresetPanelToggle,
+  trackQuestionView,
+  trackQuizAnswerDetailed,
+  trackQuizPhase,
+  trackResultInteraction,
+  trackQuizModeSelect,
+  trackQuizRetake,
+  trackAnswerDistribution,
 } from '@/lib/analytics';
 
 /** Get risk color matching probability-based risk levels */
@@ -361,6 +368,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     const updatedAnswers = { ...coreAnswers, [qId]: answer };
     setCoreAnswers(updatedAnswers);
     trackQuizAnswer(qId, answer, 'core', coreIndex);
+    trackQuizAnswerDetailed(qId, answer, 'core', coreIndex);
 
     // Signal that we need to advance (useEffect handles the delay)
     setPendingAdvance({
@@ -396,7 +404,9 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
           const trackAnswers: QuizAnswers = { core: pendingAdvance.answers, snapshot: {}, survey: {} };
           setResult(quizResult);
           setPhase('confirm');
+          trackQuizPhase('core', 'confirm');
           trackQuizComplete(quizResult, trackAnswers, lang);
+          trackAnswerDistribution(pendingAdvance.answers as Record<string, number>, quizResult.profileCode, lang);
         } catch (err) {
           console.error('Quiz calculation error:', err);
         }
@@ -406,6 +416,14 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     return () => clearTimeout(timer);
   }, [pendingAdvance, selectedSOC, lang, activeQuestionCount, quizMode]);
 
+
+  // Track question view when coreIndex changes during core phase
+  useEffect(() => {
+    if (phase === 'core' && coreIndex < activeQuestionCount) {
+      const qId = activeQuestions[coreIndex]?.id;
+      if (qId) trackQuestionView(qId, 'core', coreIndex);
+    }
+  }, [phase, coreIndex, activeQuestionCount, activeQuestions]);
 
   // Go back
   const goBack = useCallback(() => {
@@ -421,6 +439,10 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     if (phase !== 'intro' && phase !== 'result') {
       trackQuizAbandon(phase, coreIndex, lang);
     }
+    if (phase === 'result' && result) {
+      trackQuizRetake(result.profileCode, lang);
+    }
+    trackQuizPhase(phase, 'intro');
     setPhase('intro');
     setCoreIndex(0);
     setCoreAnswers({});
@@ -429,7 +451,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
     setSharePanelOpen(false);
     setPendingAdvance(null);
     setQuizMode('compact');
-  }, [phase, coreIndex, lang]);
+  }, [phase, coreIndex, lang, result]);
 
   // ─── Share functionality (preserved from V2) ─────────────────────────────
 
@@ -1781,7 +1803,7 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => { setPhase('core'); setCoreIndex(0); trackQuizStart(lang); }}
+                onClick={() => { setPhase('core'); setCoreIndex(0); trackQuizStart(lang); trackQuizPhase('intro', 'core'); trackQuizModeSelect(quizMode, lang); }}
                 className="group px-10 py-3.5 rounded-full font-semibold text-white text-base inline-flex items-center gap-2.5 relative overflow-hidden"
                 style={{
                   background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)',
@@ -1898,6 +1920,8 @@ function SurvivalIndexSection({ lang, t, theme = 'dark' }: { lang: Language; t: 
                   whileTap={{ scale: 0.97 }}
                   onClick={() => {
                     setPhase('result');
+                    trackQuizPhase('confirm', 'result');
+                    trackResultInteraction('view_result', result?.profileCode);
                     setSharePanelOpen(true);
                     setTelegramShareState('idle');
                     setCopied(false);

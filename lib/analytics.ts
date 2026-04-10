@@ -76,6 +76,8 @@ async function safeLogEvent(eventName: string, params?: Record<string, unknown>)
 let _quizStartTime: number | null = null;
 let _selectedPreset: string | null = null;
 let _sessionId: string | null = null;
+let _questionViewTime: number | null = null;
+let _previousAnswers: Record<string, number> = {};
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
@@ -97,7 +99,16 @@ export function trackQuizStart(lang: Language) {
   _quizStartTime = Date.now();
   _sessionId = generateSessionId();
   _selectedPreset = null;
-  safeLogEvent('quiz_start', { language: lang, session_id: _sessionId });
+  _previousAnswers = {};
+  _questionViewTime = null;
+  safeLogEvent('quiz_start', {
+    language: lang,
+    session_id: _sessionId,
+    device: typeof navigator !== 'undefined' ? (
+      /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+    ) : 'unknown',
+    screen_size: typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : '',
+  });
 }
 
 /** Track preset career selection */
@@ -343,6 +354,114 @@ export function trackUtmParams(params: Record<string, string>) {
 /** Track preset career panel open/close */
 export function trackPresetPanelToggle(opened: boolean, lang: Language) {
   safeLogEvent('preset_panel_toggle', { opened, language: lang });
+}
+
+// ─── Enhanced Quiz Analytics ────────────────────────────────────────────────
+
+/** Track when a question is displayed to the user (for time-per-question) */
+export function trackQuestionView(questionId: string, phase: 'core' | 'snapshot' | 'survey', questionIndex: number) {
+  _questionViewTime = Date.now();
+  safeLogEvent('question_view', {
+    question_id: questionId,
+    phase,
+    question_index: questionIndex,
+    session_id: _sessionId,
+  });
+}
+
+/** Track answer with time spent and revision detection */
+export function trackQuizAnswerDetailed(
+  questionId: string,
+  answer: number,
+  phase: 'core' | 'snapshot' | 'survey',
+  questionIndex: number,
+) {
+  const timeSpentMs = _questionViewTime ? Date.now() - _questionViewTime : null;
+  const previousAnswer = _previousAnswers[questionId];
+  const isRevision = previousAnswer !== undefined && previousAnswer !== answer;
+
+  _previousAnswers[questionId] = answer;
+
+  safeLogEvent('quiz_answer_detailed', {
+    question_id: questionId,
+    answer,
+    phase,
+    question_index: questionIndex,
+    session_id: _sessionId,
+    time_spent_ms: timeSpentMs,
+    is_revision: isRevision,
+    previous_answer: isRevision ? previousAnswer : null,
+  });
+}
+
+/** Track quiz phase transition (intro → core → confirm → result) */
+export function trackQuizPhase(fromPhase: string, toPhase: string) {
+  const elapsedMs = _quizStartTime ? Date.now() - _quizStartTime : null;
+  safeLogEvent('quiz_phase', {
+    from_phase: fromPhase,
+    to_phase: toPhase,
+    elapsed_ms: elapsedMs,
+    session_id: _sessionId,
+  });
+}
+
+/** Track result section engagement (user viewing specific parts of result) */
+export function trackResultInteraction(action: string, detail?: string) {
+  safeLogEvent('result_interaction', {
+    action,
+    detail: detail ?? null,
+    session_id: _sessionId,
+  });
+}
+
+/** Track quiz mode selection (quick vs comprehensive) */
+export function trackQuizModeSelect(mode: 'compact' | 'full', lang: Language) {
+  safeLogEvent('quiz_mode_select', {
+    mode,
+    language: lang,
+    session_id: _sessionId,
+  });
+}
+
+/** Track quiz retake */
+export function trackQuizRetake(previousProfileCode: string, lang: Language) {
+  safeLogEvent('quiz_retake', {
+    previous_profile: previousProfileCode,
+    language: lang,
+    session_id: _sessionId,
+  });
+  // Reset tracking state for new session
+  _quizStartTime = Date.now();
+  _sessionId = generateSessionId();
+  _previousAnswers = {};
+  _questionViewTime = null;
+}
+
+/** Track per-question answer distribution (written to Firestore for aggregation) */
+export async function trackAnswerDistribution(
+  answers: Record<string, number>,
+  profileCode: string,
+  lang: Language,
+) {
+  if (!isFirebaseConfigured()) return;
+  try {
+    const db = getFirebaseFirestore();
+    if (!db) return;
+    const sessionId = _sessionId || generateSessionId();
+    const docRef = doc(collection(db, 'answer_distributions'), sessionId);
+    await setDoc(docRef, {
+      sessionId,
+      timestamp: serverTimestamp(),
+      language: lang,
+      profileCode,
+      answers, // { "Q1": 3, "Q2": 5, ... }
+      device: typeof navigator !== 'undefined' ? (
+        /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+      ) : 'unknown',
+    });
+  } catch {
+    // Silent
+  }
 }
 
 /**
