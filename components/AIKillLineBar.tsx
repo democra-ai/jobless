@@ -393,8 +393,8 @@ function AIKillLineBar({ lang, t }: { lang: Language; t: typeof translations.en 
           }} />
           {/* Glitch watermark text */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
-            <span className="kill-zone-glitch-text" data-text={lang === 'zh' ? 'KILL LINE' : 'KILL LINE'}>
-              {lang === 'zh' ? 'KILL LINE' : 'KILL LINE'}
+            <span className="kill-zone-glitch-text" data-text={lang === 'zh' ? 'KILL THRESHOLD' : 'KILL THRESHOLD'}>
+              {lang === 'zh' ? 'KILL THRESHOLD' : 'KILL THRESHOLD'}
             </span>
           </div>
         </div>
