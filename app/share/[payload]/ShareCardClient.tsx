@@ -320,8 +320,8 @@ export default function ShareCardClient({ data }: { data: ShareCardData }) {
         <Particles className="absolute inset-0" quantity={60} staticity={60} ease={80} color={theme === 'dark' ? '#c4b5fd' : '#ff1744'} size={theme === 'dark' ? 0.3 : 0.3} />
       </div>
 
-      {/* Controls */}
-      <div className="fixed z-[96] flex flex-col gap-2" style={{ top: 'calc(var(--safe-top) + 1rem)', right: 'calc(var(--safe-right) + 1rem)' }}>
+      {/* Controls — mobile: bottom-right to avoid QR overlap, desktop: top-right */}
+      <div className="fixed z-[96] flex flex-col gap-2 right-4 bottom-4 lg:bottom-auto lg:top-4">
         <LanguageButton lang={lang} setLang={setLang} />
         <ThemeButton theme={theme} setTheme={setTheme} />
       </div>
