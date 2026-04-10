@@ -10,7 +10,7 @@ import SurvivalIndexSection from '@/components/sections/SurvivalIndexSection';
 import DataThreatSection from '@/components/sections/DataThreatSection';
 import AnalysisLinkSection from '@/components/sections/AnalysisLinkSection';
 import Footer from '@/components/sections/Footer';
-import { LanguageButton, ThemeButton, MobileBottomNav } from '@/components/NavigationControls';
+import { LanguageButton, ThemeButton } from '@/components/NavigationControls';
 
 import { trackCtaClick } from '@/lib/analytics';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
@@ -305,11 +305,6 @@ export default function Home() {
         </svg>
       </motion.button>
 
-      <MobileBottomNav
-        lang={lang}
-        activeSection={activeMobileSection}
-        onNavigate={scrollToSection}
-      />
     </main>
   );
 }
